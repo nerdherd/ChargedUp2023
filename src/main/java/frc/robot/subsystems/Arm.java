@@ -7,13 +7,13 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
 public class Arm extends SubsystemBase {
     public TalonFX armMotor;
 
-  /** Creates a new ExampleSubsystem. */
     public Arm() {
         armMotor = new TalonFX(ArmConstants.kArmID);
         armMotor.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
@@ -24,12 +24,18 @@ public class Arm extends SubsystemBase {
         armMotor.config_kD(0, ArmConstants.kArmD);
     }
 
-    public void armToMiddleNodePosition(){
-        armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmMiddleNode);
-    }
+    public CommandBase armToMiddleNodePosition() {
+        return runOnce(
+            () -> {
+                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmMiddleNode);
+            });
+      }
 
-    public void armToTopNodePosition(){
-        armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmTopNode);
+    public CommandBase armToTopNodePosition() {
+        return runOnce(
+            () -> {
+                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmTopNode);
+            });
     }
   
 }
