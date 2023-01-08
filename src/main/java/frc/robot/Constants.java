@@ -16,4 +16,10 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
+  public static class ClawConstants{
+    public static final int kPistonForwardID = 0;
+    public static final int kPistonReverseID = 0;
+    public static final int kPCMPort = 0;
+  }
 }
