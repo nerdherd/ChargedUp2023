@@ -38,17 +38,9 @@ public class RobotContainer {
     configureBindings();
   }
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
   private void configureBindings() {
     // Note: whileTrue() does not restart the command if it ends while the button is still being held
+    // These button bindings are chosen for testing, and may be changed based on driver preference
     operatorController.circle().whileTrue(arm.armToMiddleNodePosition());
     operatorController.triangle().whileTrue(arm.armToTopNodePosition());
     operatorController.square().whileTrue(claw.clawOpen());
