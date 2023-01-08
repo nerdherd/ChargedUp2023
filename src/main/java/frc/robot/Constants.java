@@ -22,4 +22,16 @@ public final class Constants {
     public static final int kPistonReverseID = 0;
     public static final int kPCMPort = 0;
   }
+
+  public static class ArmConstants{
+    public static final int kArmID = 0;
+    public static final int kArmMiddleNode = 0;
+    public static final int kArmTopNode = 0;
+    public static final int kArmMotionAcceleration = 0;
+    public static final int kArmCruiseVelocity = 0;
+    public static final int kArmDeadband = 0;
+    public static final int kArmP = 0;
+    public static final int kArmI = 0;
+    public static final int kArmD = 0;
+  }
 }
