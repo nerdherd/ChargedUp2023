@@ -7,9 +7,10 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
  
-public class Drivetrain{
+public class Drivetrain extends SubsystemBase{
    
     // private TalonFX rightMaster;
     // private TalonFX leftMaster;
@@ -98,4 +99,7 @@ public class Drivetrain{
         return rotationSpeed;
     }
    
+    public void arcadeDrive(double forwardSpeed, double rotationSpeed){
+        drive.arcadeDrive(forwardSpeed, rotationSpeed);
+    }
 }

@@ -10,8 +10,10 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Vision;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 
 /**
@@ -33,6 +35,9 @@ public class RobotContainer {
   private final CommandPS4Controller operatorController =
       new CommandPS4Controller(ControllerConstants.kOperatorControllerPort);
     
+  // Two different drivetrain modes
+  private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
+  private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(driverController.getLeftY(), drive.getApriltagRotation()), drive);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -47,11 +52,13 @@ public class RobotContainer {
     operatorController.triangle().whileTrue(arm.armToTopNodePosition());
     operatorController.square().whileTrue(claw.clawOpen());
     operatorController.cross().whileTrue(claw.clawClose());
+
+    driverController.square().onTrue(new InstantCommand(() -> switchToManual()));
+    driverController.circle().whileTrue(new InstantCommand(() -> switchToVision()));
   }
 
   public void configurePeriodic() {
     arm.movePercentOutput(operatorController.getRightY());
-    drive.tankDrive(driverController.getLeftY(), driverController.getRightY());
   }
 
   /**
@@ -62,5 +69,17 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return new PreloadTaxi(drive, claw, arm);
+  }
+
+  private void switchToVision() {
+    SmartDashboard.putBoolean("Vision Mode", true);
+    visionRunCommand.schedule();
+    arcadeRunCommand.cancel();
+  }
+
+  private void switchToManual() {
+    SmartDashboard.putBoolean("Vision Mode", false);
+    visionRunCommand.cancel();
+    arcadeRunCommand.schedule();
   }
 }
