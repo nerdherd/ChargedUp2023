@@ -16,7 +16,8 @@ public class Claw extends SubsystemBase {
     public boolean clawOpen;
 
     public Claw() {
-        clawPiston = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ClawConstants.kPistonForwardID, ClawConstants.kPistonReverseID);
+        clawPiston = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
+            ClawConstants.kPistonForwardID, ClawConstants.kPistonReverseID);
     }
 
     public CommandBase clawOpen() {

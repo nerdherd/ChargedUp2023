@@ -45,6 +45,10 @@ public class RobotContainer {
     operatorController.cross().whileTrue(claw.clawClose());
   }
 
+  public void configurePeriodic() {
+    arm.movePercentOutput(operatorController.getRightY());
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

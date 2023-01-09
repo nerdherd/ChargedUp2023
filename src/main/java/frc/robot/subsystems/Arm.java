@@ -4,12 +4,15 @@
 
 package frc.robot.subsystems;
 
+import java.util.ResourceBundle.Control;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ControllerConstants;
 
 public class Arm extends SubsystemBase {
     public TalonFX armMotor;
@@ -36,6 +39,14 @@ public class Arm extends SubsystemBase {
             () -> {
                 armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmTopNode);
             });
+    }
+
+    public void movePercentOutput(double joystickOutput) {
+        if (Math.abs(joystickOutput) > ControllerConstants.kOperatorJoystickDeadband) {
+            armMotor.set(ControlMode.PercentOutput, joystickOutput);
+        } else {
+            armMotor.set(ControlMode.PercentOutput, 0);
+        }
     }
   
 }

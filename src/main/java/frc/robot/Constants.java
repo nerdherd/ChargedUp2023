@@ -16,6 +16,7 @@ public final class Constants {
   public static class ControllerConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
+    public static final double kOperatorJoystickDeadband = 0.05;
   }
 
   public static class ClawConstants{
