@@ -27,7 +27,7 @@ public class Drivetrain{
     private WPI_TalonFX rightFollower;
     private WPI_TalonFX leftFollower;
  
-    public DifferentialDrive drive;
+    private DifferentialDrive drive;
     private MotorControllerGroup leftMotors;
     private MotorControllerGroup rightMotors;
  
@@ -45,6 +45,7 @@ public class Drivetrain{
         rightMotors.setInverted(true);
         leftMotors.setInverted(false);
         
+        // check inversion to make drivetrain extend differential drive
         drive = new DifferentialDrive(leftMaster, rightMaster);
  
     }

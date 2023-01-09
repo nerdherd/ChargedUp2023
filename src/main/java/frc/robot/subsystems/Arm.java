@@ -27,6 +27,14 @@ public class Arm extends SubsystemBase {
         armMotor.config_kD(0, ArmConstants.kArmD);
     }
 
+    public CommandBase armStow() {
+        return runOnce(
+            () -> {
+                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmStow);
+            }
+        );
+    }
+
     public CommandBase armToMiddleNodePosition() {
         return runOnce(
             () -> {

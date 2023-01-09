@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -14,10 +15,14 @@ import frc.robot.Constants.ClawConstants;
 public class Claw extends SubsystemBase {
     public DoubleSolenoid clawPiston;
     public boolean clawOpen;
+    public Compressor compressor;
+    // add compressor
 
     public Claw() {
         clawPiston = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
             ClawConstants.kPistonForwardID, ClawConstants.kPistonReverseID);
+        compressor = new Compressor(0, PneumaticsModuleType.CTREPCM);
+        compressor.enableDigital();
     }
 
     public CommandBase clawOpen() {

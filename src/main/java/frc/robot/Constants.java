@@ -12,16 +12,28 @@ package frc.robot;
  * <p>It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
  */
+
+ // COMMENT ROBOT IDS INSTEAD OF DELETING
 public final class Constants {
 
   public static class DriveConstants {
-    public static final int kRightMasterID = 2;
-    public static final int kLeftMasterID = 1;
-    public static final int kRightFollowerID = 3;
-    public static final int kRightFollower2ID = 4;
-    public static final int kLeftFollowerID = 19;
-    public static final int kLeftFollower2ID = 20;
+
+    // ============== Gigantor =================
+    // public static final int kRightMasterID = 2;
+    // public static final int kLeftMasterID = 1;
+    // public static final int kRightFollowerID = 3;
+    // public static final int kRightFollower2ID = 4;
+    // public static final int kLeftFollowerID = 19;
+    // public static final int kLeftFollower2ID = 20;
  
+
+    // ============== PrototypeBOT =============
+    public static final int kRightMasterID = 0;
+    public static final int kLeftMasterID = 0;
+    public static final int kRightFollowerID = 0;
+    public static final int kLeftFollowerID = 0;
+
+
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
     

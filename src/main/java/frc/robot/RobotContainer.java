@@ -63,6 +63,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new PreloadRamp(drive);
+    return new PreloadTaxi(drive, claw, arm);
   }
 }
