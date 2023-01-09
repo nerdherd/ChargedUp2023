@@ -89,6 +89,14 @@ public class Drivetrain {
         }
     }
 
+    public void backwardDistance(double meterDist) {
+        double currentPos = (rightMaster.getSelectedSensorPosition() + leftMaster.getSelectedSensorPosition()) / 2;
+        double targetPos = currentPos - meterToTicks(meterDist);
+        while (Math.abs(targetPos - currentPos) <= DriveConstants.kErrorBound) {
+            setPower(DriveConstants.kAutoPower);
+        }
+    }
+
     public double meterToTicks(double meterDist) {
         double feetDist = meterDist * 3.2808399;
         double ticks = DriveConstants.kTicksPerFoot * feetDist;
