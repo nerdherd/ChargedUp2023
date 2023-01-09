@@ -9,6 +9,8 @@ import frc.robot.commands.PreloadTaxi;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Vision;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 
@@ -20,9 +22,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
  */// 10.6.87.98:5800
 public class RobotContainer {
 
-  public Arm arm = new Arm();
-  public Claw claw = new Claw();
-  public Drivetrain drive = new Drivetrain();
+  private Arm arm = new Arm();
+  private Claw claw = new Claw();
+  private Vision vision = new Vision();
+  private Drivetrain drive = new Drivetrain(vision);
 
   private final CommandPS4Controller driverController = 
       new CommandPS4Controller(ControllerConstants.kDriverControllerPort);

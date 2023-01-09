@@ -25,14 +25,16 @@ public final class Constants {
     // public static final int kRightFollower2ID = 4;
     // public static final int kLeftFollowerID = 19;
     // public static final int kLeftFollower2ID = 20;
- 
+    // public static final double kAngularP = 0;
+    // public static final double kAngularD = 0;
 
     // ============== PrototypeBOT =============
     public static final int kRightMasterID = 0;
     public static final int kLeftMasterID = 0;
     public static final int kRightFollowerID = 0;
     public static final int kLeftFollowerID = 0;
-
+    public static final double kAngularP = 0;
+    public static final double kAngularD = 0;
 
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;

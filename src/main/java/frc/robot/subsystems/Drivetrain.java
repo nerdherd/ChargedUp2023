@@ -1,16 +1,12 @@
 package frc.robot.subsystems;
  
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
  
 public class Drivetrain{
@@ -30,9 +26,12 @@ public class Drivetrain{
     private DifferentialDrive drive;
     private MotorControllerGroup leftMotors;
     private MotorControllerGroup rightMotors;
- 
-    public Drivetrain() {
+    
+    // Vision variables
+    private Vision vision;
+    private PIDController turnController = new PIDController(DriveConstants.kAngularP, 0, DriveConstants.kAngularD);
 
+    public Drivetrain(Vision vision) {
         
         rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
         leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
@@ -48,6 +47,7 @@ public class Drivetrain{
         // check inversion to make drivetrain extend differential drive
         drive = new DifferentialDrive(leftMaster, rightMaster);
  
+        this.vision = vision;
     }
  
     public void tankDrive(double leftInput, double rightInput) {
@@ -85,6 +85,17 @@ public class Drivetrain{
         double feetDist = meterDist * 3.2808399;
         double ticks = DriveConstants.kTicksPerFoot * feetDist;
         return ticks;
+    }
+
+    public double getApriltagRotation() {
+        double rotationSpeed;
+        if(vision.limelightHasTargets){
+            rotationSpeed = -turnController.calculate(vision.getYaw(), 0);
+        }else{
+        rotationSpeed = 0;
+        }
+        SmartDashboard.putNumber("RotationSpeed", rotationSpeed);
+        return rotationSpeed;
     }
    
 }
