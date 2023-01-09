@@ -8,7 +8,6 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -23,17 +22,13 @@ public class RobotContainer {
 
   public Arm arm = new Arm();
   public Claw claw = new Claw();
-  public Drivetrain drive = new Drivetrain();
 
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  private final CommandPS4Controller driverController = 
-      new CommandPS4Controller(ControllerConstants.kDriverControllerPort);
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS4Controller operatorController =
       new CommandPS4Controller(ControllerConstants.kOperatorControllerPort);
-    
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -52,7 +47,6 @@ public class RobotContainer {
 
   public void configurePeriodic() {
     arm.movePercentOutput(operatorController.getRightY());
-    drive.tankDrive(driverController.getLeftY(), driverController.getRightY());
   }
 
   /**
