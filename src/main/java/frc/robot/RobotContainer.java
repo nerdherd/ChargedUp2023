@@ -5,12 +5,10 @@
 package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.PreloadRamp;
+import frc.robot.commands.PreloadTaxi;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 
@@ -25,9 +23,6 @@ public class RobotContainer {
   public Arm arm = new Arm();
   public Claw claw = new Claw();
   public Drivetrain drive = new Drivetrain();
-
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   private final CommandPS4Controller driverController = 
       new CommandPS4Controller(ControllerConstants.kDriverControllerPort);
