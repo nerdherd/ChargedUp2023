@@ -5,14 +5,15 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.Constants.DriveConstants;
  
-public class Drivetrain {
+public class Drivetrain{
    
     // private TalonFX rightMaster;
     // private TalonFX leftMaster;
@@ -21,30 +22,30 @@ public class Drivetrain {
     // private TalonFX leftFollower;
     // private TalonFX leftFollower2;
 
-    private TalonSRX rightMaster;
-    private TalonSRX leftMaster;
-    private VictorSPX rightFollower;
-    private VictorSPX rightFollower2;
-    private VictorSPX leftFollower;
-    private VictorSPX leftFollower2;
+    private WPI_TalonFX rightMaster;
+    private WPI_TalonFX leftMaster;
+    private WPI_TalonFX rightFollower;
+    private WPI_TalonFX leftFollower;
  
+    public DifferentialDrive drive;
+    private MotorControllerGroup leftMotors;
+    private MotorControllerGroup rightMotors;
  
     public Drivetrain() {
-        rightMaster = new TalonSRX(DriveConstants.kRightMasterID);
-        leftMaster = new TalonSRX(DriveConstants.kLeftMasterID);
-        rightFollower = new VictorSPX(DriveConstants.kRightFollowerID);
-        rightFollower2 = new VictorSPX(DriveConstants.kRightFollower2ID);
-        leftFollower = new VictorSPX(DriveConstants.kLeftFollowerID);
-        leftFollower2 = new VictorSPX(DriveConstants.kLeftFollower2ID);
 
- 
-        rightMaster.setInverted(true);
-        leftMaster.setInverted(true);
- 
-        rightFollower.follow(rightMaster);
-        rightFollower2.follow(rightMaster);
-        leftFollower.follow(leftMaster);
-        leftFollower2.follow(leftMaster);
+        
+        rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
+        leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
+        rightFollower = new WPI_TalonFX(DriveConstants.kRightFollowerID);
+        leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
+
+        leftMotors = new MotorControllerGroup(leftMaster, leftFollower);
+        rightMotors = new MotorControllerGroup(rightMaster, rightFollower);
+        
+        rightMotors.setInverted(true);
+        leftMotors.setInverted(false);
+        
+        drive = new DifferentialDrive(leftMaster, rightMaster);
  
     }
  
@@ -62,42 +63,24 @@ public class Drivetrain {
         rightOutput = (DriveConstants.kDriveAlpha * rightOutput)
                     + (DriveConstants.kDriveOneMinusAlpha * prevRightOutput);
        
-        rightMaster.set(ControlMode.PercentOutput, rightOutput);
-        leftMaster.set(ControlMode.PercentOutput, leftOutput); 
+        drive.tankDrive(leftOutput, rightOutput);
  
     }
 
     public void setNeutralCoast() {
         rightMaster.setNeutralMode(NeutralMode.Coast);
-        rightFollower.setNeutralMode(NeutralMode.Coast);
-        rightFollower2.setNeutralMode(NeutralMode.Coast);
         leftMaster.setNeutralMode(NeutralMode.Coast);
+        rightFollower.setNeutralMode(NeutralMode.Coast);
         leftFollower.setNeutralMode(NeutralMode.Coast);
-        leftFollower2.setNeutralMode(NeutralMode.Coast);
     }
 
-    public void setPower(double power) {
-        rightMaster.set(ControlMode.PercentOutput, power);
-        leftMaster.set(ControlMode.PercentOutput, power);
+    public void setPower(double leftPower, double rightPower) {
+        leftMotors.setVoltage(leftPower);
+        rightMotors.setVoltage(rightPower);
     }
 
-    public void forwardDistance(double meterDist) {
-        double currentPos = (rightMaster.getSelectedSensorPosition() + leftMaster.getSelectedSensorPosition()) / 2;
-        double targetPos = currentPos + meterToTicks(meterDist);
-        while (Math.abs(targetPos - currentPos) <= DriveConstants.kErrorBound) {
-            setPower(DriveConstants.kAutoPower);
-        }
-    }
 
-    public void backwardDistance(double meterDist) {
-        double currentPos = (rightMaster.getSelectedSensorPosition() + leftMaster.getSelectedSensorPosition()) / 2;
-        double targetPos = currentPos - meterToTicks(meterDist);
-        while (Math.abs(targetPos - currentPos) <= DriveConstants.kErrorBound) {
-            setPower(DriveConstants.kAutoPower);
-        }
-    }
-
-    public double meterToTicks(double meterDist) {
+    private double meterToTicks(double meterDist) {
         double feetDist = meterDist * 3.2808399;
         double ticks = DriveConstants.kTicksPerFoot * feetDist;
         return ticks;
