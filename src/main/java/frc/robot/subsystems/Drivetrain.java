@@ -20,14 +20,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
  
 public class Drivetrain extends SubsystemBase{
-   
-    // private TalonFX rightMaster;
-    // private TalonFX leftMaster;
-    // private TalonFX rightFollower;
-    // private TalonFX rightFollower2;
-    // private TalonFX leftFollower;
-    // private TalonFX leftFollower2;
-
     private WPI_TalonFX rightMaster;
     private WPI_TalonFX leftMaster;
     private WPI_TalonFX rightFollower;
@@ -44,19 +36,30 @@ public class Drivetrain extends SubsystemBase{
 
     public Drivetrain(Vision vision) {
         
-        rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
-        leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
-        rightFollower = new WPI_TalonFX(DriveConstants.kRightFollowerID);
-        leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
+        rightMaster = new WPI_TalonFX(DriveConstants.kRightFollowerID);
+        leftMaster = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
+        rightFollower = new WPI_TalonFX(DriveConstants.kRightFollower2ID);
+        leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollower2ID);
 
-        leftMotors = new MotorControllerGroup(leftMaster, leftFollower);
-        rightMotors = new MotorControllerGroup(rightMaster, rightFollower);
+        rightMaster.setInverted(false);
+        leftMaster.setInverted(true);
+
+        leftFollower.follow(leftMaster);
+        rightFollower.follow(rightMaster);
         
-        rightMotors.setInverted(true);
-        leftMotors.setInverted(false);
+        // rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
+        // leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
+        // rightFollower = new WPI_TalonFX(DriveConstants.kRightFollowerID);
+        // leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
+
+        // leftMotors = new MotorControllerGroup(leftMaster, leftFollower);
+        // rightMotors = new MotorControllerGroup(rightMaster, rightFollower);
+        
+        // rightMotors.setInverted(true);
+        // leftMotors.setInverted(false);
         
         // check inversion to make drivetrain extend differential drive
-        drive = new DifferentialDrive(leftMaster, rightMaster);
+        // drive = new DifferentialDrive(leftMaster, rightMaster);
  
         this.vision = vision;
     }
@@ -66,8 +69,8 @@ public class Drivetrain extends SubsystemBase{
         double prevRightOutput = rightMaster.getMotorOutputPercent();
    
         // Curve output to quadratic
-        double leftOutput = Math.abs(Math.pow(leftInput, 3)) * Math.signum(leftInput);
-        double rightOutput = Math.abs(Math.pow(rightInput, 3)) * Math.signum(rightInput);
+        double leftOutput = Math.abs(Math.pow(leftInput, 2)) * Math.signum(leftInput);
+        double rightOutput = Math.abs(Math.pow(rightInput, 2)) * Math.signum(rightInput);
    
         // Low pass filter, output = (alpha * intended value) + (1-alpha) * previous value
         leftOutput = (DriveConstants.kDriveAlpha * leftOutput)
@@ -75,7 +78,8 @@ public class Drivetrain extends SubsystemBase{
         rightOutput = (DriveConstants.kDriveAlpha * rightOutput)
                     + (DriveConstants.kDriveOneMinusAlpha * prevRightOutput);
        
-        drive.tankDrive(leftOutput, rightOutput);
+        setPower(leftOutput, rightOutput);
+        // drive.tankDrive(leftOutput, rightOutput);
  
     }
 
@@ -87,8 +91,10 @@ public class Drivetrain extends SubsystemBase{
     }
 
     public void setPower(double leftPower, double rightPower) {
-        leftMotors.setVoltage(leftPower);
-        rightMotors.setVoltage(rightPower);
+        leftMaster.set(ControlMode.PercentOutput, leftPower);
+        rightMaster.set(ControlMode.PercentOutput, rightPower);
+        // leftMotors.setVoltage(leftPower);
+        // rightMotors.setVoltage(rightPower);
     }
 
 

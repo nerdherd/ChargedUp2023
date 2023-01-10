@@ -21,7 +21,7 @@ public class Claw extends SubsystemBase {
     public Claw() {
         clawPiston = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
             ClawConstants.kPistonForwardID, ClawConstants.kPistonReverseID);
-        compressor = new Compressor(0, PneumaticsModuleType.CTREPCM);
+        compressor = new Compressor(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM);
         compressor.enableDigital();
     }
 
