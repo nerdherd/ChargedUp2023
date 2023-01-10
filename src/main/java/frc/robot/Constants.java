@@ -29,6 +29,8 @@ public final class Constants {
     // public static final int kLeftFollower2ID = 20;
     // public static final double kAngularP = 0;
     // public static final double kAngularD = 0;
+    // public static final double kLinearP = 0;
+    // public static final double kLinearD = 0;
 
     // ============== PrototypeBOT =============
     public static final int kRightMasterID = 0;
@@ -37,6 +39,8 @@ public final class Constants {
     public static final int kLeftFollowerID = 0;
     public static final double kAngularP = 0;
     public static final double kAngularD = 0;
+    public static final double kLinearP = 0;
+    public static final double kLinearD = 0;
 
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
@@ -74,7 +78,8 @@ public final class Constants {
 
   public static class VisionConstants{
     public static final double kCameraHeightMeters = Units.inchesToMeters(24);
-    public static final double kTargetHeightMeters = Units.inchesToMeters(5);
+    public static final double kTargetHeightMeters = Units.inchesToMeters(19.5);
     public static final double kCameraPitchRadians = Units.degreesToRadians(0);
+    public static final double kGoalRangeMeters = Units.inchesToMeters(0);
   }
 }

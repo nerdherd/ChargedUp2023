@@ -14,6 +14,7 @@ public class Vision extends SubsystemBase{
 
     public Vision(){
         photonCamera = new PhotonCamera("687Limelight1");
+        photonCamera.setDriverMode(false);
     }
 
     @Override

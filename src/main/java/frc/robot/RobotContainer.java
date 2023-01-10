@@ -37,7 +37,7 @@ public class RobotContainer {
     
   // Two different drivetrain modes
   private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
-  private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(driverController.getLeftY(), drive.getApriltagRotation()), drive);
+  private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -53,8 +53,10 @@ public class RobotContainer {
     operatorController.square().whileTrue(claw.clawOpen());
     operatorController.cross().whileTrue(claw.clawClose());
 
-    driverController.square().onTrue(new InstantCommand(() -> switchToManual()));
-    driverController.circle().whileTrue(new InstantCommand(() -> switchToVision()));
+    driverController.circle().onFalse(arcadeRunCommand);
+    driverController.circle().whileTrue(visionRunCommand);
+    driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
+    driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
   }
 
   public void configurePeriodic() {
@@ -69,17 +71,5 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return new PreloadTaxi(drive, claw, arm);
-  }
-
-  private void switchToVision() {
-    SmartDashboard.putBoolean("Vision Mode", true);
-    visionRunCommand.schedule();
-    arcadeRunCommand.cancel();
-  }
-
-  private void switchToManual() {
-    SmartDashboard.putBoolean("Vision Mode", false);
-    visionRunCommand.cancel();
-    arcadeRunCommand.schedule();
   }
 }

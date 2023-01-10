@@ -1,14 +1,18 @@
 package frc.robot.subsystems;
  
+import org.photonvision.PhotonUtils;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
  
 public class Drivetrain extends SubsystemBase{
    
@@ -31,6 +35,7 @@ public class Drivetrain extends SubsystemBase{
     // Vision variables
     private Vision vision;
     private PIDController turnController = new PIDController(DriveConstants.kAngularP, 0, DriveConstants.kAngularD);
+    private PIDController forwardController = new PIDController(DriveConstants.kLinearP, 0, DriveConstants.kLinearD);
 
     public Drivetrain(Vision vision) {
         
@@ -101,5 +106,24 @@ public class Drivetrain extends SubsystemBase{
    
     public void arcadeDrive(double forwardSpeed, double rotationSpeed){
         drive.arcadeDrive(forwardSpeed, rotationSpeed);
+    }
+
+    public double getApriltagLinear(){
+        double forwardSpeed;
+        if(vision.limelightHasTargets){
+            double range = PhotonUtils.calculateDistanceToTargetMeters(
+                VisionConstants.kCameraHeightMeters, 
+                VisionConstants.kTargetHeightMeters, 
+                VisionConstants.kCameraPitchRadians, 
+                Units.degreesToRadians(vision.getPitch()));
+
+            SmartDashboard.putNumber("Range", range);
+            forwardSpeed = -forwardController.calculate(range, VisionConstants.kGoalRangeMeters);
+        }
+        else{
+            forwardSpeed = 0;
+        }
+        SmartDashboard.putNumber("ForwardSpeed", forwardSpeed);
+        return forwardSpeed;
     }
 }
