@@ -15,6 +15,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.BadPS4.Button;
+import frc.robot.commands.SwerveAutos;
+import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.subsystems.SwerveDrivetrain;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -41,7 +50,15 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
+    /* For swerve drive
+	swerveDrive.setDefaultCommand(
+        new SwerveJoystickCommand(swerveDrive, 
+          () -> -dPS4Controller.getLeftY(),  
+          driverController::getLeftX, 
+          driverController::getRightY, 
+          driverController::getSquareButton));
+    */
+	// Configure the trigger bindings
     configureBindings();
   }
 
@@ -57,6 +74,9 @@ public class RobotContainer {
     driverController.circle().whileTrue(visionRunCommand);
     driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
     driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
+    
+    // driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
+    // driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
   }
 
   public void configurePeriodic() {
@@ -71,5 +91,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return new PreloadTaxi(drive, claw, arm);
+    // return SwerveAutos.testAuto(swerveDrive);
   }
 }
