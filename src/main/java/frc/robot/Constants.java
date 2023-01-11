@@ -35,12 +35,15 @@ public final class Constants {
     // ============== PrototypeBOT =============
     public static final int kRightMasterID = 0;
     public static final int kLeftMasterID = 0;
-    public static final int kRightFollowerID = 0;
-    public static final int kLeftFollowerID = 0;
     public static final double kAngularP = 0;
     public static final double kAngularD = 0;
     public static final double kLinearP = 0;
     public static final double kLinearD = 0;
+    public static final int kRightFollowerID = 17;
+    public static final int kLeftFollowerID = 31;
+    public static final int kRightFollower2ID = 1;
+    public static final int kLeftFollower2ID = 18;
+
 
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
@@ -58,9 +61,9 @@ public final class Constants {
   }
 
   public static class ClawConstants{
-    public static final int kPistonForwardID = 0;
-    public static final int kPistonReverseID = 0;
-    public static final int kPCMPort = 0;
+    public static final int kPistonForwardID = 2;
+    public static final int kPistonReverseID = 3;
+    public static final int kPCMPort = 3;
   }
 
   public static class ArmConstants{
