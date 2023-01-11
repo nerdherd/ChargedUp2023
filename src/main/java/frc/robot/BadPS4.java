@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.event.BooleanEvent;
 import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * Handle input from 687's PS4 Controllers connected to the Driver Station.
@@ -18,581 +19,707 @@ import edu.wpi.first.wpilibj.event.EventLoop;
  * requested the most recent value is returned. There is a single class instance for each controller
  * and the mapping of ports to hardware buttons depends on the code in the Driver Station.
  * 
- * <p>This class should be used instead of {@link PS4Controller} due to 687's PS4 controllers
- * being recognized as Xbox controllers by Windows.
+ * <p>This class should be used instead of {@link PS4Controller} due to 687's PS4 controller
+ * being recognized as an {@link XboxController} by Windows.
+ * 
+ * <p>Methods for handling digital input from the L2 and R2 buttons have been disabled, as they
+ * are treated as the analog LT and RT triggers on an Xbox controller.
  */
 public class BadPS4 extends GenericHID {
-  /** Represents a digital button on an PS4Controller. */
-  public enum Button {
-    kLeftBumper(5),
-    kRightBumper(6),
-    kLeftStick(9),
-    kRightStick(10),
-    kCross(1),
-    kCircle(2),
-    kSquare(3),
-    kTriangle(4),
-    //TODO: Test share and options
-    kShare(7),
-    kOptions(8);
-
-    public final int value;
-
-    Button(int value) {
-      this.value = value;
+    /**
+     * Construct an instance of a device.
+     *
+     * @param port The port index on the Driver Station that the device is plugged into.
+     */
+    public BadPS4(int port) {
+        super(port);
+        HAL.report(tResourceType.kResourceType_PS4Controller, port + 1);
     }
 
-    /**
-     * Get the human-friendly name of the button, matching the relevant methods. This is done by
-     * stripping the leading `k`, and if not a Bumper button append `Button`.
-     *
-     * <p>Primarily used for automated unit tests.
-     *
-     * @return the human-friendly name of the button.
-     */
-    @Override
-    public String toString() {
-      var name = this.name().substring(1); // Remove leading `k`
-      if (name.endsWith("Bumper")) {
+    /** Represents a digital button on an PS4Controller. */
+    public enum Button {
+        kL1(5),
+        kR1(6),
+        kL3(9),
+        kR3(10),
+        kCross(1),
+        kCircle(2),
+        kSquare(3),
+        kTriangle(4),
+        //TODO: Test share, options, PS, and touchpad
+        kShare(7),
+        kOptions(8),
+        kPS(13),
+        kTouchpad(14);
+
+        public final int value;
+
+        Button(int value) {
+        this.value = value;
+        }
+
+        /**
+         * Get the human-friendly name of the button, matching the relevant methods. This is done by
+         * stripping the leading `k`, and if not a Bumper button append `Button`.
+         *
+         * <p>Primarily used for automated unit tests.
+         *
+         * @return the human-friendly name of the button.
+         */
+        @Override
+        public String toString() {
+        var name = this.name().substring(1); // Remove leading `k`
+        if (name.endsWith("Bumper")) {
+            return name;
+        }
+        return name + "Button";
+        }
+    }
+
+    /** Represents an axis on an PS4Controller. */
+    public enum Axis {
+        kLeftX(0),
+        kRightX(4),
+        kLeftY(1),
+        kRightY(5),
+        kL2(2),
+        kR2(3);
+
+        public final int value;
+
+        Axis(int value) {
+        this.value = value;
+        }
+
+        /**
+         * Get the human-friendly name of the axis, matching the relevant methods. This is done by
+         * stripping the leading `k`, and if a trigger axis append `Axis`.
+         *
+         * <p>Primarily used for automated unit tests.
+         *
+         * @return the human-friendly name of the axis.
+         */
+        @Override
+        public String toString() {
+        var name = this.name().substring(1); // Remove leading `k`
+        if (name.endsWith("Trigger")) {
+            return name + "Axis";
+        }
         return name;
-      }
-      return name + "Button";
-    }
-  }
-
-  /** Represents an axis on an PS4Controller. */
-  public enum Axis {
-    kLeftX(0),
-    kRightX(4),
-    kLeftY(1),
-    kRightY(5),
-    kLeftTrigger(2),
-    kRightTrigger(3);
-
-    public final int value;
-
-    Axis(int value) {
-      this.value = value;
+        }
     }
 
     /**
-     * Get the human-friendly name of the axis, matching the relevant methods. This is done by
-     * stripping the leading `k`, and if a trigger axis append `Axis`.
+     * Get the X axis value of left side of the controller.
      *
-     * <p>Primarily used for automated unit tests.
-     *
-     * @return the human-friendly name of the axis.
+     * @return the axis value.
      */
-    @Override
-    public String toString() {
-      var name = this.name().substring(1); // Remove leading `k`
-      if (name.endsWith("Trigger")) {
-        return name + "Axis";
-      }
-      return name;
+    public double getLeftX() {
+        return getRawAxis(Axis.kLeftX.value);
     }
-  }
 
-  /**
-   * Construct an instance of a controller.
-   *
-   * @param port The port index on the Driver Station that the controller is plugged into.
-   */
-  public BadPS4(final int port) {
-    super(port);
+    /**
+     * Get the X axis value of right side of the controller.
+     *
+     * @return the axis value.
+     */
+    public double getRightX() {
+        return getRawAxis(Axis.kRightX.value);
+    }
 
-    HAL.report(tResourceType.kResourceType_PS4Controller, port + 1);
-  }
+    /**
+     * Get the Y axis value of left side of the controller.
+     *
+     * @return the axis value.
+     */
+    public double getLeftY() {
+        return getRawAxis(Axis.kLeftY.value);
+    }
 
-  /**
-   * Get the X axis value of left side of the controller.
-   *
-   * @return The axis value.
-   */
-  public double getLeftX() {
-    return getRawAxis(Axis.kLeftX.value);
-  }
+    /**
+     * Get the Y axis value of right side of the controller.
+     *
+     * @return the axis value.
+     */
+    public double getRightY() {
+        return getRawAxis(Axis.kRightY.value);
+    }
 
-  /**
-   * Get the X axis value of right side of the controller.
-   *
-   * @return The axis value.
-   */
-  public double getRightX() {
-    return getRawAxis(Axis.kRightX.value);
-  }
+    /**
+     * Get the L2 axis value of the controller. Note that this axis is bound to the range of [0, 1] as
+     * opposed to the usual [-1, 1].
+     *
+     * @return the axis value.
+     */
+    public double getL2Axis() {
+        return getRawAxis(Axis.kL2.value);
+    }
 
-  /**
-   * Get the Y axis value of left side of the controller.
-   *
-   * @return The axis value.
-   */
-  public double getLeftY() {
-    return getRawAxis(Axis.kLeftY.value);
-  }
+    /**
+     * Get the R2 axis value of the controller. Note that this axis is bound to the range of [0, 1] as
+     * opposed to the usual [-1, 1].
+     *
+     * @return the axis value.
+     */
+    public double getR2Axis() {
+        return getRawAxis(Axis.kR2.value);
+    }
 
-  /**
-   * Get the Y axis value of right side of the controller.
-   *
-   * @return The axis value.
-   */
-  public double getRightY() {
-    return getRawAxis(Axis.kRightY.value);
-  }
+    /**
+     * Read the value of the L1 button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getL1Button() {
+        return getRawButton(Button.kL1.value);
+    }
 
-  /**
-   * Get the left trigger (LT) axis value of the controller. Note that this axis is bound to the
-   * range of [0, 1] as opposed to the usual [-1, 1].
-   *
-   * @return The axis value.
-   */
-  public double getLeftTriggerAxis() {
-    return getRawAxis(Axis.kLeftTrigger.value);
-  }
+    /**
+     * Read the value of the R1 button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getR1Button() {
+        return getRawButton(Button.kR1.value);
+    }
 
-  /**
-   * Get the right trigger (RT) axis value of the controller. Note that this axis is bound to the
-   * range of [0, 1] as opposed to the usual [-1, 1].
-   *
-   * @return The axis value.
-   */
-  public double getRightTriggerAxis() {
-    return getRawAxis(Axis.kRightTrigger.value);
-  }
+    /**
+     * Whether the L1 button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getL1ButtonPressed() {
+        return getRawButtonPressed(Button.kL1.value);
+    }
 
-  /**
-   * Read the value of the left bumper (LB) button on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getLeftBumper() {
-    return getRawButton(Button.kLeftBumper.value);
-  }
+    /**
+     * Whether the R1 button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getR1ButtonPressed() {
+        return getRawButtonPressed(Button.kR1.value);
+    }
 
-  /**
-   * Read the value of the right bumper (RB) button on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getRightBumper() {
-    return getRawButton(Button.kRightBumper.value);
-  }
+    /**
+     * Whether the L1 button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getL1ButtonReleased() {
+        return getRawButtonReleased(Button.kL1.value);
+    }
 
-  /**
-   * Whether the left bumper (LB) was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getLeftBumperPressed() {
-    return getRawButtonPressed(Button.kLeftBumper.value);
-  }
+    /**
+     * Whether the R1 button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getR1ButtonReleased() {
+        return getRawButtonReleased(Button.kR1.value);
+    }
 
-  /**
-   * Whether the right bumper (RB) was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getRightBumperPressed() {
-    return getRawButtonPressed(Button.kRightBumper.value);
-  }
+    /**
+     * Constructs an event instance around the L1 button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the L1 button's digital signal attached to the given
+     *     loop.
+     */
+    @SuppressWarnings("MethodName")
+    public BooleanEvent L1(EventLoop loop) {
+        return new BooleanEvent(loop, this::getL1Button);
+    }
 
-  /**
-   * Whether the left bumper (LB) was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getLeftBumperReleased() {
-    return getRawButtonReleased(Button.kLeftBumper.value);
-  }
+    /**
+     * Constructs an event instance around the R1 button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the R1 button's digital signal attached to the given
+     *     loop.
+     */
+    @SuppressWarnings("MethodName")
+    public BooleanEvent R1(EventLoop loop) {
+        return new BooleanEvent(loop, this::getR1Button);
+    }
 
-  /**
-   * Whether the right bumper (RB) was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getRightBumperReleased() {
-    return getRawButtonReleased(Button.kRightBumper.value);
-  }
+    /**
+     * Read the value of the L2 button on the controller.
+     *
+     * @param threshold the threshold before the button registers as true. This value 
+     *      should be in the range [0, 1] where 0 is the unpressed state of the axis.
+     * 
+     * @return The state of the button.
+     */
+    public boolean getL2Button(double threshold) {
+        return getL2Axis() > threshold;
+    }
 
-  /**
-   * Constructs an event instance around the right bumper's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the right bumper's digital signal attached to the given
-   *     loop.
-   */
-  public BooleanEvent leftBumper(EventLoop loop) {
-    return new BooleanEvent(loop, this::getLeftBumper);
-  }
+    /**
+     * Read the value of the L2 button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getL2Button() {
+        return getL2Button(0.5);
+    }
 
-  /**
-   * Constructs an event instance around the left bumper's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the left bumper's digital signal attached to the given
-   *     loop.
-   */
-  public BooleanEvent rightBumper(EventLoop loop) {
-    return new BooleanEvent(loop, this::getRightBumper);
-  }
+    /**
+     * Read the value of the R2 button on the controller.
+     *
+     * @param threshold the threshold before the button registers as true. This value 
+     *      should be in the range [0, 1] where 0 is the unpressed state of the axis.
+     * 
+     * @return The state of the button.
+     */
+    public boolean getR2Button(double threshold) {
+        return getR2Axis() > threshold;
+    }
 
-  /**
-   * Read the value of the left stick button (LSB) on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getLeftStickButton() {
-    return getRawButton(Button.kLeftStick.value);
-  }
+    /**
+     * Read the value of the R2 button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getR2Button() {
+        return getR2Button(0.5);
+    }
 
-  /**
-   * Read the value of the right stick button (RSB) on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getRightStickButton() {
-    return getRawButton(Button.kRightStick.value);
-  }
+    //TODO: implement getL2ButtonPressed(), getL2ButtonReleased(), getR2ButtonPressed(), and getR2ButtonReleased()
 
-  /**
-   * Whether the left stick button (LSB) was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getLeftStickButtonPressed() {
-    return getRawButtonPressed(Button.kLeftStick.value);
-  }
+    /**
+     * Constructs an event instance around the axis value of the right trigger. The returned trigger
+     * will be true when the axis value is greater than {@code threshold}.
+     *
+     * @param threshold the minimum axis value for the returned {@link BooleanEvent} to be true. This
+     *     value should be in the range [0, 1] where 0 is the unpressed state of the axis.
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance that is true when the right trigger's axis exceeds the provided
+     *     threshold, attached to the given event loop
+     */
+    public BooleanEvent L2(double threshold, EventLoop loop) {
+        return new BooleanEvent(loop, () -> getL2Axis() > threshold);
+    }
 
-  /**
-   * Whether the right stick button (RSB) was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getRightStickButtonPressed() {
-    return getRawButtonPressed(Button.kRightStick.value);
-  }
+    /**
+     * Constructs an event instance around the axis value of the right trigger. The returned trigger
+     * will be true when the axis value is greater than 0.5.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance that is true when the right trigger's axis exceeds the provided
+     *     threshold, attached to the given event loop
+     */
+    public BooleanEvent L2(EventLoop loop) {
+        return L2(0.5, loop);
+    }
 
-  /**
-   * Whether the left stick button (LSB) was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getLeftStickButtonReleased() {
-    return getRawButtonReleased(Button.kLeftStick.value);
-  }
+    /**
+     * Constructs an event instance around the axis value of the right trigger. The returned trigger
+     * will be true when the axis value is greater than {@code threshold}.
+     *
+     * @param threshold the minimum axis value for the returned {@link BooleanEvent} to be true. This
+     *     value should be in the range [0, 1] where 0 is the unpressed state of the axis.
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance that is true when the right trigger's axis exceeds the provided
+     *     threshold, attached to the given event loop
+     */
+    public BooleanEvent R2(double threshold, EventLoop loop) {
+        return new BooleanEvent(loop, () -> getR2Axis() > threshold);
+    }
 
-  /**
-   * Whether the right stick (RSB) button was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getRightStickButtonReleased() {
-    return getRawButtonReleased(Button.kRightStick.value);
-  }
+    /**
+     * Constructs an event instance around the axis value of the right trigger. The returned trigger
+     * will be true when the axis value is greater than 0.5.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance that is true when the right trigger's axis exceeds the provided
+     *     threshold, attached to the given event loop
+     */
+    public BooleanEvent R2(EventLoop loop) {
+        return R2(0.5, loop);
+    }
 
-  /**
-   * Constructs an event instance around the left stick button's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the left stick button's digital signal attached to the
-   *     given loop.
-   */
-  public BooleanEvent leftStick(EventLoop loop) {
-    return new BooleanEvent(loop, this::getLeftStickButton);
-  }
+    /**
+     * Read the value of the L3 button (pressing the left analog stick) on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getL3Button() {
+        return getRawButton(Button.kL3.value);
+    }
 
-  /**
-   * Constructs an event instance around the right stick button's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the right stick button's digital signal attached to the
-   *     given loop.
-   */
-  public BooleanEvent rightStick(EventLoop loop) {
-    return new BooleanEvent(loop, this::getRightStickButton);
-  }
+    /**
+     * Read the value of the R3 button (pressing the right analog stick) on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getR3Button() {
+        return getRawButton(Button.kR3.value);
+    }
 
-  /**
-   * Read the value of the Cross button on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getCrossButton() {
-    return getRawButton(Button.kCross.value);
-  }
+    /**
+     * Whether the L3 (left stick) button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getL3ButtonPressed() {
+        return getRawButtonPressed(Button.kL3.value);
+    }
 
-  /**
-   * Whether the Cross button was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getCrossButtonPressed() {
-    return getRawButtonPressed(Button.kCross.value);
-  }
+    /**
+     * Whether the R3 (right stick) button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getR3ButtonPressed() {
+        return getRawButtonPressed(Button.kR3.value);
+    }
 
-  /**
-   * Whether the Cross button was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getCrossButtonReleased() {
-    return getRawButtonReleased(Button.kCross.value);
-  }
+    /**
+     * Whether the L3 (left stick) button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getL3ButtonReleased() {
+        return getRawButtonReleased(Button.kL3.value);
+    }
 
-  /**
-   * Constructs an event instance around the Cross button's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the Cross button's digital signal attached to the given
-   *     loop.
-   */
-  @SuppressWarnings("MethodName")
-  public BooleanEvent cross(EventLoop loop) {
-    return new BooleanEvent(loop, this::getCrossButton);
-  }
+    /**
+     * Whether the R3 (right stick) button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getR3ButtonReleased() {
+        return getRawButtonReleased(Button.kR3.value);
+    }
 
-  /**
-   * Read the value of the Circle button on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getCircleButton() {
-    return getRawButton(Button.kCircle.value);
-  }
+    /**
+     * Constructs an event instance around the L3 button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the L3 button's digital signal attached to the given
+     *     loop.
+     */
+    @SuppressWarnings("MethodName")
+    public BooleanEvent L3(EventLoop loop) {
+        return new BooleanEvent(loop, this::getL3Button);
+    }
 
-  /**
-   * Whether the Circle button was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getCircleButtonPressed() {
-    return getRawButtonPressed(Button.kCircle.value);
-  }
+    /**
+     * Constructs an event instance around the R3 button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the R3 button's digital signal attached to the given
+     *     loop.
+     */
+    @SuppressWarnings("MethodName")
+    public BooleanEvent R3(EventLoop loop) {
+        return new BooleanEvent(loop, this::getR3Button);
+    }
 
-  /**
-   * Whether the Circle button was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getCircleButtonReleased() {
-    return getRawButtonReleased(Button.kCircle.value);
-  }
+    /**
+     * Read the value of the Square button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getSquareButton() {
+        return getRawButton(Button.kSquare.value);
+    }
 
-  /**
-   * Constructs an event instance around the Circle button's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the Circle button's digital signal attached to the given
-   *     loop.
-   */
-  @SuppressWarnings("MethodName")
-  public BooleanEvent circle(EventLoop loop) {
-    return new BooleanEvent(loop, this::getCircleButton);
-  }
+    /**
+     * Whether the Square button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getSquareButtonPressed() {
+        return getRawButtonPressed(Button.kSquare.value);
+    }
 
-  /**
-   * Read the value of the Square button on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getSquareButton() {
-    return getRawButton(Button.kSquare.value);
-  }
+    /**
+     * Whether the Square button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getSquareButtonReleased() {
+        return getRawButtonReleased(Button.kSquare.value);
+    }
 
-  /**
-   * Whether the Square button was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getSquareButtonPressed() {
-    return getRawButtonPressed(Button.kSquare.value);
-  }
+    /**
+     * Constructs an event instance around the square button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the square button's digital signal attached to the given
+     *     loop.
+     */
+    public BooleanEvent square(EventLoop loop) {
+        return new BooleanEvent(loop, this::getSquareButton);
+    }
 
-  /**
-   * Whether the Square button was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getSquareButtonReleased() {
-    return getRawButtonReleased(Button.kSquare.value);
-  }
+    /**
+     * Read the value of the Cross button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getCrossButton() {
+        return getRawButton(Button.kCross.value);
+    }
 
-  /**
-   * Constructs an event instance around the Square button's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the Square button's digital signal attached to the given
-   *     loop.
-   */
-  @SuppressWarnings("MethodName")
-  public BooleanEvent square(EventLoop loop) {
-    return new BooleanEvent(loop, this::getSquareButton);
-  }
+    /**
+     * Whether the Cross button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getCrossButtonPressed() {
+        return getRawButtonPressed(Button.kCross.value);
+    }
 
-  /**
-   * Read the value of the Triangle button on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getTriangleButton() {
-    return getRawButton(Button.kTriangle.value);
-  }
+    /**
+     * Whether the Cross button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getCrossButtonReleased() {
+        return getRawButtonReleased(Button.kCross.value);
+    }
 
-  /**
-   * Whether the Triangle button was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getTriangleButtonPressed() {
-    return getRawButtonPressed(Button.kTriangle.value);
-  }
+    /**
+     * Constructs an event instance around the cross button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the cross button's digital signal attached to the given
+     *     loop.
+     */
+    public BooleanEvent cross(EventLoop loop) {
+        return new BooleanEvent(loop, this::getCrossButton);
+    }
 
-  /**
-   * Whether the Triangle button was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getTriangleButtonReleased() {
-    return getRawButtonReleased(Button.kTriangle.value);
-  }
+    /**
+     * Read the value of the Triangle button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getTriangleButton() {
+        return getRawButton(Button.kTriangle.value);
+    }
 
-  /**
-   * Constructs an event instance around the Triangle button's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the Triangle button's digital signal attached to the given
-   *     loop.
-   */
-  @SuppressWarnings("MethodName")
-  public BooleanEvent triangle(EventLoop loop) {
-    return new BooleanEvent(loop, this::getTriangleButton);
-  }
+    /**
+     * Whether the Triangle button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getTriangleButtonPressed() {
+        return getRawButtonPressed(Button.kTriangle.value);
+    }
 
-  /**
-   * Read the value of the share button on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getShareButton() {
-    return getRawButton(Button.kShare.value);
-  }
+    /**
+     * Whether the Triangle button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getTriangleButtonReleased() {
+        return getRawButtonReleased(Button.kTriangle.value);
+    }
 
-  /**
-   * Whether the share button was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getShareButtonPressed() {
-    return getRawButtonPressed(Button.kShare.value);
-  }
+    /**
+     * Constructs an event instance around the triangle button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the triangle button's digital signal attached to the
+     *     given loop.
+     */
+    public BooleanEvent triangle(EventLoop loop) {
+        return new BooleanEvent(loop, this::getTriangleButton);
+    }
 
-  /**
-   * Whether the share button was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getShareButtonReleased() {
-    return getRawButtonReleased(Button.kShare.value);
-  }
+    /**
+     * Read the value of the Circle button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getCircleButton() {
+        return getRawButton(Button.kCircle.value);
+    }
 
-  /**
-   * Constructs an event instance around the share button's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the share button's digital signal attached to the given
-   *     loop.
-   */
-  public BooleanEvent share(EventLoop loop) {
-    return new BooleanEvent(loop, this::getShareButton);
-  }
+    /**
+     * Whether the Circle button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getCircleButtonPressed() {
+        return getRawButtonPressed(Button.kCircle.value);
+    }
 
-  /**
-   * Read the value of the options button on the controller.
-   *
-   * @return The state of the button.
-   */
-  public boolean getOptionsButton() {
-    return getRawButton(Button.kOptions.value);
-  }
+    /**
+     * Whether the Circle button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getCircleButtonReleased() {
+        return getRawButtonReleased(Button.kCircle.value);
+    }
 
-  /**
-   * Whether the options button was pressed since the last check.
-   *
-   * @return Whether the button was pressed since the last check.
-   */
-  public boolean getOptionsButtonPressed() {
-    return getRawButtonPressed(Button.kOptions.value);
-  }
+    /**
+     * Constructs an event instance around the circle button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the circle button's digital signal attached to the given
+     *     loop.
+     */
+    public BooleanEvent circle(EventLoop loop) {
+        return new BooleanEvent(loop, this::getCircleButton);
+    }
 
-  /**
-   * Whether the options button was released since the last check.
-   *
-   * @return Whether the button was released since the last check.
-   */
-  public boolean getOptionsButtonReleased() {
-    return getRawButtonReleased(Button.kOptions.value);
-  }
+    /**
+     * Read the value of the share button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getShareButton() {
+        return getRawButton(Button.kShare.value);
+    }
 
-  /**
-   * Constructs an event instance around the options button's digital signal.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance representing the options button's digital signal attached to the given
-   *     loop.
-   */
-  public BooleanEvent options(EventLoop loop) {
-    return new BooleanEvent(loop, this::getOptionsButton);
-  }
+    /**
+     * Whether the share button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getShareButtonPressed() {
+        return getRawButtonPressed(Button.kShare.value);
+    }
 
-  /**
-   * Constructs an event instance around the axis value of the right trigger. The returned trigger
-   * will be true when the axis value is greater than {@code threshold}.
-   *
-   * @param threshold the minimum axis value for the returned {@link BooleanEvent} to be true. This
-   *     value should be in the range [0, 1] where 0 is the unpressed state of the axis.
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance that is true when the right trigger's axis exceeds the provided
-   *     threshold, attached to the given event loop
-   */
-  public BooleanEvent leftTrigger(double threshold, EventLoop loop) {
-    return new BooleanEvent(loop, () -> getLeftTriggerAxis() > threshold);
-  }
+    /**
+     * Whether the share button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getShareButtonReleased() {
+        return getRawButtonReleased(Button.kShare.value);
+    }
 
-  /**
-   * Constructs an event instance around the axis value of the right trigger. The returned trigger
-   * will be true when the axis value is greater than 0.5.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance that is true when the right trigger's axis exceeds the provided
-   *     threshold, attached to the given event loop
-   */
-  public BooleanEvent leftTrigger(EventLoop loop) {
-    return leftTrigger(0.5, loop);
-  }
+    /**
+     * Constructs an event instance around the share button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the share button's digital signal attached to the given
+     *     loop.
+     */
+    @SuppressWarnings("MethodName")
+    public BooleanEvent share(EventLoop loop) {
+        return new BooleanEvent(loop, this::getShareButton);
+    }
 
-  /**
-   * Constructs an event instance around the axis value of the right trigger. The returned trigger
-   * will be true when the axis value is greater than {@code threshold}.
-   *
-   * @param threshold the minimum axis value for the returned {@link BooleanEvent} to be true. This
-   *     value should be in the range [0, 1] where 0 is the unpressed state of the axis.
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance that is true when the right trigger's axis exceeds the provided
-   *     threshold, attached to the given event loop
-   */
-  public BooleanEvent rightTrigger(double threshold, EventLoop loop) {
-    return new BooleanEvent(loop, () -> getRightTriggerAxis() > threshold);
-  }
+    /**
+     * Read the value of the PS button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getPSButton() {
+        return getRawButton(Button.kPS.value);
+    }
 
-  /**
-   * Constructs an event instance around the axis value of the right trigger. The returned trigger
-   * will be true when the axis value is greater than 0.5.
-   *
-   * @param loop the event loop instance to attach the event to.
-   * @return an event instance that is true when the right trigger's axis exceeds the provided
-   *     threshold, attached to the given event loop
-   */
-  public BooleanEvent rightTrigger(EventLoop loop) {
-    return rightTrigger(0.5, loop);
-  }
-}
+    /**
+     * Whether the PS button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getPSButtonPressed() {
+        return getRawButtonPressed(Button.kPS.value);
+    }
+
+    /**
+     * Whether the PS button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getPSButtonReleased() {
+        return getRawButtonReleased(Button.kPS.value);
+    }
+
+    /**
+     * Constructs an event instance around the PS button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the PS button's digital signal attached to the given
+     *     loop.
+     */
+    @SuppressWarnings("MethodName")
+    public BooleanEvent PS(EventLoop loop) {
+        return new BooleanEvent(loop, this::getPSButton);
+    }
+
+    /**
+     * Read the value of the options button on the controller.
+     *
+     * @return The state of the button.
+     */
+    public boolean getOptionsButton() {
+        return getRawButton(Button.kOptions.value);
+    }
+
+    /**
+     * Whether the options button was pressed since the last check.
+     *
+     * @return Whether the button was pressed since the last check.
+     */
+    public boolean getOptionsButtonPressed() {
+        return getRawButtonPressed(Button.kOptions.value);
+    }
+
+    /**
+     * Whether the options button was released since the last check.
+     *
+     * @return Whether the button was released since the last check.
+     */
+    public boolean getOptionsButtonReleased() {
+        return getRawButtonReleased(Button.kOptions.value);
+    }
+
+    /**
+     * Constructs an event instance around the options button's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the options button's digital signal attached to the
+     *     given loop.
+     */
+    public BooleanEvent options(EventLoop loop) {
+        return new BooleanEvent(loop, this::getOptionsButton);
+    }
+
+    /**
+     * Read the value of the touchpad on the controller.
+     *
+     * @return The state of the touchpad.
+     */
+    public boolean getTouchpad() {
+        return getRawButton(Button.kTouchpad.value);
+    }
+
+    /**
+     * Whether the touchpad was pressed since the last check.
+     *
+     * @return Whether the touchpad was pressed since the last check.
+     */
+    public boolean getTouchpadPressed() {
+        return getRawButtonPressed(Button.kTouchpad.value);
+    }
+
+    /**
+     * Whether the touchpad was released since the last check.
+     *
+     * @return Whether the touchpad was released since the last check.
+     */
+    public boolean getTouchpadReleased() {
+        return getRawButtonReleased(Button.kTouchpad.value);
+    }
+
+    /**
+     * Constructs an event instance around the touchpad's digital signal.
+     *
+     * @param loop the event loop instance to attach the event to.
+     * @return an event instance representing the touchpad's digital signal attached to the given
+     *     loop.
+     */
+    public BooleanEvent touchpad(EventLoop loop) {
+        return new BooleanEvent(loop, this::getTouchpad);
+    }
+    }
