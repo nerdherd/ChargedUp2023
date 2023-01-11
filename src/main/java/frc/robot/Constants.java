@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -103,7 +106,7 @@ public final class Constants {
     public static final double kDDrive = 0;
   } 
 
-  public static final class DriveConstants {
+  public static final class SwerveDriveConstants {
     public static final double kTrackWidth = Units.inchesToMeters(21);      // verify
     // Distance between right and left wheels
     public static final double kWheelBase = Units.inchesToMeters(21);       // verify
@@ -167,10 +170,10 @@ public final class Constants {
     public static final double kDriveOneMinusAlpha = 0.88235;
   }
 
-  public static final class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / 8;
+  public static final class SwerveAutoConstants {
+    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 8;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
-      DriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
+      SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
     public static final double kPXController = 1.5;

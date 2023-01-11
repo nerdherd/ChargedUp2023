@@ -11,10 +11,10 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
 
-import static frc.robot.Constants.AutoConstants.*;
+import static frc.robot.Constants.SwerveAutoConstants.*;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class SwerveAutos {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
     
         SwerveControllerCommand autoCommand = new SwerveControllerCommand(
-            trajectory, swerveDrive::getPose, DriveConstants.kDriveKinematics, 
+            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
         return Commands.sequence(

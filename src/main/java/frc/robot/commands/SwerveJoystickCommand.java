@@ -7,9 +7,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import static frc.robot.Constants.DriveConstants.*;
+import static frc.robot.Constants.SwerveDriveConstants.*;
 
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
 
@@ -107,7 +106,7 @@ public class SwerveJoystickCommand extends CommandBase {
         SmartDashboard.putNumber("yspeedchassis", chassisSpeeds.vyMetersPerSecond);
 
         // Calculate swerve module states
-        SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveModuleState[] moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         swerveDrive.setModuleStates(moduleStates);
     }
 }

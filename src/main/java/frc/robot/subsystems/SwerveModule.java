@@ -157,7 +157,7 @@ public class SwerveModule {
         
         // TODO: switch to velocity control
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
-        driveMotor.set(ControlMode.PercentOutput, state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+        driveMotor.set(ControlMode.PercentOutput, state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond);
         
         double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
         SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);

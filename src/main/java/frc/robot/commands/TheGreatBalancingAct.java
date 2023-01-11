@@ -5,8 +5,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.SwerveAutoConstants;
+import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 public class TheGreatBalancingAct extends CommandBase {
@@ -23,12 +23,12 @@ public class TheGreatBalancingAct extends CommandBase {
         this.swerveDrive = swerveDrive;
 
         this.rollPidController = new PIDController(
-            AutoConstants.kPBalancing, 0, 0, period);
+            SwerveAutoConstants.kPBalancing, 0, 0, period);
         
         this.rollPidController.enableContinuousInput(0, 360);
         
         this.pitchPidController = new PIDController(
-            AutoConstants.kPBalancing, 0, 0, period);
+            SwerveAutoConstants.kPBalancing, 0, 0, period);
         
         this.pitchPidController.enableContinuousInput(0, 360);
         addRequirements(swerveDrive);
@@ -59,7 +59,7 @@ public class TheGreatBalancingAct extends CommandBase {
         // Convert speed into swerve states
         ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xSpeed, ySpeed, 0, swerveDrive.getRotation2d());
-        SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         
         // Set swerve states
         swerveDrive.setModuleStates(moduleStates);

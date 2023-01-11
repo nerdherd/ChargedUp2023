@@ -4,8 +4,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.SwerveAutoConstants;
+import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 public class TurnToAngle extends CommandBase {
@@ -24,11 +24,11 @@ public class TurnToAngle extends CommandBase {
         this.swerveDrive = swerveDrive;
 
         this.pidController = new PIDController(
-            AutoConstants.kPThetaController, 0, 0, period);
+            SwerveAutoConstants.kPThetaController, 0, 0, period);
         
         this.pidController.setTolerance(
-            AutoConstants.kTurnToAnglePositionToleranceAngle, 
-            AutoConstants.kTurnToAngleVelocityToleranceAnglesPerSec * period);
+            SwerveAutoConstants.kTurnToAnglePositionToleranceAngle, 
+            SwerveAutoConstants.kTurnToAngleVelocityToleranceAnglesPerSec * period);
         
         this.pidController.enableContinuousInput(0, 360);
         
@@ -53,7 +53,7 @@ public class TurnToAngle extends CommandBase {
         // Convert speed into swerve states
         ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 0, 0, turningSpeed, swerveDrive.getRotation2d());
-        SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         
         // Set swerve states
         swerveDrive.setModuleStates(moduleStates);
