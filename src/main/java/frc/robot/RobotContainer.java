@@ -21,7 +21,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.BadPS4.Button;
-
+import frc.robot.commands.SwerveAutos;
+import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.subsystems.SwerveDrivetrain;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
