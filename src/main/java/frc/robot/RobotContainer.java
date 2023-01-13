@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.BadPS4.Button;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 /**
@@ -38,11 +40,16 @@ public class RobotContainer {
   private Vision vision = new Vision();
   private Drivetrain drive = new Drivetrain(vision);
 
+  private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
+
   private final CommandPS4Controller driverController = 
       new CommandPS4Controller(ControllerConstants.kDriverControllerPort);
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS4Controller operatorController =
       new CommandPS4Controller(ControllerConstants.kOperatorControllerPort);
+  
+  private final PS4Controller driverControllerButtons = 
+    new PS4Controller(ControllerConstants.kDriverControllerPort);
     
   // Two different drivetrain modes
   private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
@@ -50,14 +57,14 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    /* For swerve drive
-	swerveDrive.setDefaultCommand(
-        new SwerveJoystickCommand(swerveDrive, 
-          () -> -dPS4Controller.getLeftY(),  
-          driverController::getLeftX, 
-          driverController::getRightY, 
-          driverController::getSquareButton));
-    */
+    
+    swerveDrive.setDefaultCommand(
+          new SwerveJoystickCommand(swerveDrive, 
+            () -> -driverController.getLeftY(),  
+            driverController::getLeftX, 
+            driverController::getRightY, 
+            driverControllerButtons::getSquareButton));
+      
 	// Configure the trigger bindings
     configureBindings();
   }
@@ -65,18 +72,19 @@ public class RobotContainer {
   private void configureBindings() {
     // Note: whileTrue() does not restart the command if it ends while the button is still being held
     // These button bindings are chosen for testing, and may be changed based on driver preference
-    operatorController.circle().whileTrue(arm.armToMiddleNodePosition());
-    operatorController.triangle().whileTrue(arm.armToTopNodePosition());
-    operatorController.square().whileTrue(claw.clawOpen());
-    operatorController.cross().whileTrue(claw.clawClose());
+    // operatorController.circle().whileTrue(arm.armToMiddleNodePosition());
+    // operatorController.triangle().whileTrue(arm.armToTopNodePosition());
+    // operatorController.square().whileTrue(claw.clawOpen());
+    // operatorController.cross().whileTrue(claw.clawClose());
 
-    driverController.circle().onFalse(arcadeRunCommand);
-    driverController.circle().whileTrue(visionRunCommand);
-    driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
-    driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
+    // driverController.circle().onFalse(arcadeRunCommand);
+    // driverController.circle().whileTrue(visionRunCommand);
+    // driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
+    // driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
     
-    // driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
-    // driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+    driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
+    driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+    driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
   }
 
   public void configurePeriodic() {

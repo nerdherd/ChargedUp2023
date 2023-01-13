@@ -17,7 +17,7 @@ public class Claw extends SubsystemBase {
     public boolean clawOpen;
     public Compressor compressor;
     // add compressor
-// testing 
+
     public Claw() {
         clawPiston = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
             ClawConstants.kPistonForwardID, ClawConstants.kPistonReverseID);
