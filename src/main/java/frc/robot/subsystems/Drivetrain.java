@@ -4,6 +4,7 @@ import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -20,10 +21,10 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
  
 public class Drivetrain extends SubsystemBase{
-    private WPI_TalonFX rightMaster;
-    private WPI_TalonFX leftMaster;
-    private WPI_TalonFX rightFollower;
-    private WPI_TalonFX leftFollower;
+    private TalonFX rightMaster;
+    private TalonFX leftMaster;
+    private TalonFX rightFollower;
+    private TalonFX leftFollower;
  
     private DifferentialDrive drive;
     private MotorControllerGroup leftMotors;
@@ -36,13 +37,25 @@ public class Drivetrain extends SubsystemBase{
 
     public Drivetrain(Vision vision) {
         
-        rightMaster = new WPI_TalonFX(DriveConstants.kRightFollowerID);
-        leftMaster = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
-        rightFollower = new WPI_TalonFX(DriveConstants.kRightFollower2ID);
-        leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollower2ID);
+        rightMaster = new TalonFX(DriveConstants.kRightFollowerID);
+        leftMaster = new TalonFX(DriveConstants.kLeftFollowerID);
+        rightFollower = new TalonFX(DriveConstants.kRightFollower2ID);
+        leftFollower = new TalonFX(DriveConstants.kLeftFollower2ID);
 
         rightMaster.setInverted(false);
-        leftMaster.setInverted(true);
+        rightFollower.setInverted(false);
+        leftMaster.setInverted(false);
+        leftFollower.setInverted(false);
+        
+        // TalonFXConfiguration config = new TalonFXConfiguration();
+        // config.supplyCurrLimit.enable = true;
+        // config.supplyCurrLimit.triggerThresholdCurrent = 20; // the peak supply current, in amps
+        // config.supplyCurrLimit.triggerThresholdTime = 1.5; // the time at the peak supply current before the limit triggers, in sec
+        // config.supplyCurrLimit.currentLimit = 15; // the current to maintain if the peak supply limit is triggered
+        // rightMaster.configAllSettings(config); // apply the config settings; this selects the quadrature encoder
+        // rightFollower.configAllSettings(config);
+        // leftMaster.configAllSettings(config);
+        // leftFollower.configAllSettings(config);
 
         leftFollower.follow(leftMaster);
         rightFollower.follow(rightMaster);
@@ -69,8 +82,8 @@ public class Drivetrain extends SubsystemBase{
         double prevRightOutput = rightMaster.getMotorOutputPercent();
    
         // Curve output to quadratic
-        double leftOutput = Math.abs(Math.pow(leftInput, 2)) * Math.signum(leftInput);
-        double rightOutput = Math.abs(Math.pow(rightInput, 2)) * Math.signum(rightInput);
+        double leftOutput = Math.abs(Math.pow(leftInput, 1)) * Math.signum(leftInput);
+        double rightOutput = Math.abs(Math.pow(rightInput, 1)) * Math.signum(rightInput);
    
         // Low pass filter, output = (alpha * intended value) + (1-alpha) * previous value
         leftOutput = (DriveConstants.kDriveAlpha * leftOutput)
@@ -78,7 +91,9 @@ public class Drivetrain extends SubsystemBase{
         rightOutput = (DriveConstants.kDriveAlpha * rightOutput)
                     + (DriveConstants.kDriveOneMinusAlpha * prevRightOutput);
        
-        setPower(leftOutput, rightOutput);
+        setPower(leftOutput*0.9, rightOutput*0.9);
+        SmartDashboard.putNumber("Left Output", leftOutput);
+        SmartDashboard.putNumber("Right Output", rightOutput);
         // drive.tankDrive(leftOutput, rightOutput);
  
     }
@@ -93,6 +108,12 @@ public class Drivetrain extends SubsystemBase{
     public void setPower(double leftPower, double rightPower) {
         leftMaster.set(ControlMode.PercentOutput, leftPower);
         rightMaster.set(ControlMode.PercentOutput, rightPower);
+        SmartDashboard.putNumber("Left Master Current", leftMaster.getStatorCurrent());
+        SmartDashboard.putNumber("Left Follower Current", leftFollower.getStatorCurrent());
+        SmartDashboard.putNumber("Right Master Current", rightMaster.getStatorCurrent());
+        SmartDashboard.putNumber("Right Follower Current", rightFollower.getStatorCurrent());
+        SmartDashboard.putNumber("Right Master Current Input", rightMaster.getSupplyCurrent());
+        SmartDashboard.putNumber("Right Follower Current Input", rightFollower.getSupplyCurrent());
         // leftMotors.setVoltage(leftPower);
         // rightMotors.setVoltage(rightPower);
     }

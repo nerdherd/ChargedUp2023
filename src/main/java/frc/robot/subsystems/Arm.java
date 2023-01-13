@@ -51,7 +51,7 @@ public class Arm extends SubsystemBase {
 
     public void movePercentOutput(double joystickOutput) {
         if (Math.abs(joystickOutput) > ControllerConstants.kOperatorJoystickDeadband) {
-            armMotor.set(ControlMode.PercentOutput, joystickOutput);
+            armMotor.set(ControlMode.PercentOutput, joystickOutput/2);
         } else {
             armMotor.set(ControlMode.PercentOutput, 0);
         }

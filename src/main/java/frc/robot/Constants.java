@@ -70,7 +70,7 @@ public final class Constants {
   }
 
   public static class ArmConstants{
-    public static final int kArmID = 0;
+    public static final int kArmID = 19;
     public static final int kArmStow = 0;
     public static final int kArmMiddleNode = 0;
     public static final int kArmTopNode = 0;
