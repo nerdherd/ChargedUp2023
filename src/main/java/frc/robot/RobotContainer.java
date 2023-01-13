@@ -67,13 +67,13 @@ public class RobotContainer {
     // These button bindings are chosen for testing, and may be changed based on driver preference
     operatorController.circle().whileTrue(arm.armToMiddleNodePosition());
     operatorController.triangle().whileTrue(arm.armToTopNodePosition());
-    operatorController.square().whileTrue(claw.clawOpen());
-    operatorController.cross().whileTrue(claw.clawClose());
+    driverController.square().whileTrue(claw.clawOpen());
+    driverController.cross().whileTrue(claw.clawClose());
 
-    driverController.circle().onFalse(arcadeRunCommand);
-    driverController.circle().whileTrue(visionRunCommand);
-    driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
-    driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
+    // driverController.circle().onFalse(arcadeRunCommand);
+    // driverController.circle().whileTrue(visionRunCommand);
+    // driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
+    // driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
     
     // driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
     // driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
@@ -81,6 +81,8 @@ public class RobotContainer {
 
   public void configurePeriodic() {
     arm.movePercentOutput(operatorController.getRightY());
+    drive.tankDrive(-driverController.getRightY(), driverController.getLeftY());
+    claw.periodic();
   }
 
   /**

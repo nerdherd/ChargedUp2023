@@ -61,4 +61,12 @@ public class Claw extends SubsystemBase {
     public boolean isClawOpen() {
         return clawOpen;
     }
+
+    public void periodic() {
+        if (isClawOpen()) {
+            clawOpen();
+        } else {
+            clawClose();
+        }
+    }
 }
