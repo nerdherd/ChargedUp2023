@@ -25,9 +25,9 @@ public class TurnToAngle extends CommandBase {
         this.swerveDrive = swerveDrive;
 
         this.pidController = new PIDController(
-            SwerveAutoConstants.kPThetaController, 
+            SwerveAutoConstants.kPTurnToAngle, 
             0, 
-            SwerveAutoConstants.kDThetaController, 
+            SwerveAutoConstants.kDTurnToAngle, 
             period);
         
         this.pidController.setTolerance(
@@ -54,7 +54,7 @@ public class TurnToAngle extends CommandBase {
         // Calculate turning speed with PID
         double turningSpeed = pidController.calculate(swerveDrive.getHeading(), targetAngle);
         turningSpeed = Math.toRadians(turningSpeed);
-        
+
         // SmartDashboard.putNumber("TurningSpeed", turningSpeed);
 
         // Convert speed into swerve states

@@ -84,6 +84,7 @@ public class RobotContainer {
     
     driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
     driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+    SmartDashboard.putData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
     driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
   }
 

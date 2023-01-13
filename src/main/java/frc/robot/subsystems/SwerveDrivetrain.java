@@ -71,7 +71,10 @@ public class SwerveDrivetrain extends SubsystemBase {
                 Thread.sleep(1000);
                 zeroHeading();
                 SmartDashboard.putNumber("Gyro resets", 1);
-            } catch (InterruptedException e) {}
+                SmartDashboard.putBoolean("Startup failed", false);
+            } catch (InterruptedException e) {
+                SmartDashboard.putBoolean("Startup failed", true);
+            }
         }).run();
     }
 
