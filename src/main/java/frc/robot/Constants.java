@@ -187,7 +187,7 @@ public final class Constants {
       new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
-    public static final double kPBalancing = 0.5;
+    public static final double kPBalancing = 0.3;
   }
 
   // this needs to get remapped to PS4 controller

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.BadPS4.Button;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.SwerveDrivetrain;
 
@@ -60,7 +61,7 @@ public class RobotContainer {
 
   public Command swerveCommand = new RepeatCommand(
     new SequentialCommandGroup(
-        new WaitCommand(10),
+        new WaitCommand(5),
         new InstantCommand(swerveDrive::resetEncoders)
     ));
 
@@ -93,8 +94,9 @@ public class RobotContainer {
     
     driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
     driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
-    SmartDashboard.putData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
-    driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
+    // SmartDashboard.putData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
+    // driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
+    driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
   }
 
   public void configurePeriodic() {

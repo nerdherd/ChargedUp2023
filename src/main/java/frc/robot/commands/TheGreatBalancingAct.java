@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
@@ -17,7 +18,8 @@ public class TheGreatBalancingAct extends CommandBase {
     /**
      * Construct a new TurnToAngle Command
      * @param swerveDrive   Swerve drivetrain to rotate
-     * @param period        Time between each calculation (default 20ms)
+     * @param period      
+     *   Time between each calculation (default 20ms)
      */
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double period) {
         this.swerveDrive = swerveDrive;
@@ -49,12 +51,18 @@ public class TheGreatBalancingAct extends CommandBase {
         Rotation3d currentRotation = swerveDrive.getRotation3d();
 
         // Calculate turning speed with PID
-        double xSpeed = pitchPidController.calculate(
+        double xSpeed = -7.5 * pitchPidController.calculate(
             currentRotation.getY(), 0
         );
-        double ySpeed = rollPidController.calculate(
+        double ySpeed = -7.5 * rollPidController.calculate(
             currentRotation.getX(), 0
         );
+
+        SmartDashboard.putNumber("xSpeed", xSpeed);
+        SmartDashboard.putNumber("ySpeed", ySpeed);
+        SmartDashboard.putNumber("pitch", currentRotation.getY());
+        SmartDashboard.putNumber("roll", currentRotation.getX());
+        SmartDashboard.putNumber("yaw", currentRotation.getZ());
 
         // Convert speed into swerve states
         ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
