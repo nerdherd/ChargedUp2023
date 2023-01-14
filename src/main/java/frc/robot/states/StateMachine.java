@@ -3,6 +3,7 @@ package frc.robot.states;
 import java.util.ResourceBundle.Control;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -17,13 +18,12 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Vision;
 import frc.robot.util.NerdyMath;
 
 public class StateMachine {
@@ -38,25 +38,17 @@ public class StateMachine {
     final double GOAL_RANGE_METERS = Units.feetToMeters(3);
 
     // Change this to match the name of your camera
-    PhotonCamera camera = new PhotonCamera("photonvision");
+    //PhotonCamera camera = new PhotonCamera("photonvision");
+    Vision apriltagCamera = new Vision();
     //NetworkTable tableApriltag = NetworkTableInstance.getDefault().getTable("limelight");
     Limelight objDetectCamera = new Limelight();
-
-    // PID constants should be tuned per robot
-    final double LINEAR_P = 0.1;
-    final double LINEAR_D = 0.0;
-    PIDController forwardController = new PIDController(LINEAR_P, 0, LINEAR_D);
-
-    final double ANGULAR_P = 0.1;
-    final double ANGULAR_D = 0.0;
-    PIDController turnControllerApriltag = new PIDController(ANGULAR_P, 0, ANGULAR_D);
 
     XboxController xboxController = new XboxController(0);
     Joystick stick = new Joystick(0);;
     
-    private static final double wheelDiameter = 6.0;
-    private static final double encoderTicksPerRotation = 1440.0; // 360 encode x SRX 4:1
-    private static double drivePower = 0.5;
+    private final double wheelDiameter = 6.0;
+    private final double encoderTicksPerRotation = 1440.0; // 360 encode x SRX 4:1
+    private double drivePower = 0.5;
 
     // instantiate the motors
     WPI_TalonSRX leftMotor = new WPI_TalonSRX(1);
@@ -124,8 +116,6 @@ public class StateMachine {
         turnControllerImu.enableContinuousInput(-180.0f, 180.0f); // set input range from navigator
         turnControllerImu.setIntegratorRange(-1.0, 1.0); // PID output range to correct
         turnControllerImu.setTolerance(1.0); // tolerance around set heading to accept
-
-        //turnControllerApriltag.
         
         ahrs.zeroYaw();
     }
@@ -325,7 +315,7 @@ public class StateMachine {
             {
                 // close the claw
             }
-            else
+            else // GameElement.POSE
             {
                 // open the claw
             }
@@ -363,13 +353,47 @@ public class StateMachine {
     private void missionSEEK_TAG_D()
     {
         if (currentTaskID == 0) {
-            
+            boolean hasValidTarget = updateApriltagTracking(22);
+            if (taskRunTimeout.get() >= 5) {
+                // timeout, bad! we might to move robot a bit to try it again
+                setMissionTo(Mission.EXIT);
+            }
+            else if (hasValidTarget)
+            {
+                if(NerdyMath.inRange(arcadeDriveCommand, -0.05, 0.05) &&
+                NerdyMath.inRange(arcadeSteerCommand, -0.05, 0.05))
+                {
+                    drive.arcadeDrive(0,0);
+                    if ((error = leftMotor.setSelectedSensorPosition(0.0)) != ErrorCode.OK) {// set encoder to zero
+                        System.out.println("error setting sensor position to 0 in auto init");
+                    }
+                    setTaskTo(1);
+                }
+                else{
+                    drive.arcadeDrive(arcadeDriveCommand,arcadeSteerCommand);
+                }
+            }
         } else if (currentTaskID == 1) {
-            if (taskRunTimeout.get() > 3) {
+            boolean done = driveStraightLoop(0.3, 5, 0, 0, false);
+            if(taskRunTimeout.get() >= 3)
+            {
+                // timeout, bad! should not happen at all
+                resetDriveLoops();
+                setMissionTo(Mission.EXIT);
+            }
+            else if( done )
+            {
                 setTaskTo(2);
             }
-        } else {
-            setMissionTo(Mission.MOVE_STAY_D2E);
+            else{}
+        } else if (currentTaskID == 2) {
+            // open the claw
+            setTaskTo(3);
+        }
+        else {
+            if (taskRunTimeout.get() > 1) {
+                setMissionTo(Mission.MOVE_STAY_D2E);
+            }
         }
     }
 
@@ -392,12 +416,11 @@ public class StateMachine {
      * Finding the object/apriltag 
      * ====================================================================================================
      */
-
+    final double STEER_K = 0.03;                    // how hard to turn toward the target
+    final double DRIVE_K = 0.26;                    // how hard to drive fwd toward the target
     private boolean Update_Limelight_Tracking( GameElement gameObj )
     {
         // These numbers must be tuned for your Robot!  Be careful!
-        final double STEER_K = 0.03;                    // how hard to turn toward the target
-        final double DRIVE_K = 0.26;                    // how hard to drive fwd toward the target
         final double DESIRED_TARGET_AREA = 13.0;        // Area of the target when the robot reaches the wall
         final double MAX_DRIVE = 0.7;                   // Simple speed limit so we don't drive too fast
 
@@ -432,36 +455,54 @@ public class StateMachine {
         return true;
     }
 
-    private void updateApriltagTracking() {
-        double forwardSpeed;
-        double rotationSpeed;
+    PIDController forwardControllerApriltag = new PIDController(0.1, 0, 0);
+    PIDController turnControllerApriltag = new PIDController(0.1, 0, 0);
+    private boolean updateApriltagTracking(int tagID) {
+        //double forwardSpeed;
+        //double rotationSpeed;
 
-        forwardSpeed = -xboxController.getRightY();
+        //forwardSpeed = -xboxController.getRightY();
 
-        if (xboxController.getAButton()) {
+        //if (xboxController.getAButton()) {
             // Vision-alignment mode
             // Query the latest result from PhotonVision
-            var result = camera.getLatestResult();
 
-            if (result.hasTargets()) {
+            /*if (apriltagCamera.limelightHasTargets) {
                 // Calculate angular turn power
                 // -1.0 required to ensure positive PID controller effort _increases_ yaw
-                rotationSpeed = -turnControllerApriltag.calculate(result.getBestTarget().getYaw(), 0);
+                arcadeSteerCommand = -turnControllerApriltag.calculate(apriltagCamera.getYaw(), 0);
             } else {
                 // If we have no targets, stay still.
-                rotationSpeed = 0;
+                arcadeSteerCommand = 0;
+            }*/
+            if (apriltagCamera.limelightHasTargets) {
+                // First calculate range
+                double range =
+                        PhotonUtils.calculateDistanceToTargetMeters(
+                                CAMERA_HEIGHT_METERS,
+                                TARGET_HEIGHT_METERS,
+                                CAMERA_PITCH_RADIANS,
+                                Units.degreesToRadians(apriltagCamera.getPitch()));
+
+                // Use this range as the measurement we give to the PID controller.
+                // -1.0 required to ensure positive PID controller effort _increases_ range
+                arcadeDriveCommand = -forwardControllerApriltag.calculate(range, GOAL_RANGE_METERS);
+
+                // Also calculate angular power
+                // -1.0 required to ensure positive PID controller effort _increases_ yaw
+                arcadeSteerCommand = -turnControllerApriltag.calculate(apriltagCamera.getYaw(), 0);
+            } else {
+                // If we have no targets, stay still.
             }
-        } else {
+        /* } else {
             // Manual Driver Mode
             rotationSpeed = xboxController.getLeftX();
-        }
-
-        // Use our forward/turn speeds to control the drivetrain
-        drive.arcadeDrive(forwardSpeed, rotationSpeed);
+        }*/
+        return apriltagCamera.limelightHasTargets;
     }
 
-    static final double kOffBalanceAngleThresholdDegrees = 10;
-    static final double kOonBalanceAngleThresholdDegrees  = 5;
+    final double kOffBalanceAngleThresholdDegrees = 10;
+    final double kOonBalanceAngleThresholdDegrees  = 5;
     boolean autoBalanceXMode;
     boolean autoBalanceYMode;
     // todo, replaced by a PID controller in order to provide a tuning mechanism appropriate to the robot
@@ -545,8 +586,8 @@ public class StateMachine {
     //PIDController forwardControllerImu = new PIDController(0.1, 0, 0);
     PIDController turnControllerImu = new PIDController(0.1, 0, 0);
 
-    private static double ticks2Go; // how many encode ticks to move
-    private static double ticks2SlowDown; // when to slow so you don't overshoot
+    private double ticks2Go; // how many encode ticks to move
+    private double ticks2SlowDown; // when to slow so you don't overshoot
 
     private boolean driveStraightLoop(double maxDriveSpeed,
                                      double distance,
@@ -658,42 +699,43 @@ public class StateMachine {
         SmartDashboard.putNumber(   "IMU_Pitch",            ahrs.getPitch());
         SmartDashboard.putNumber(   "IMU_Roll",             ahrs.getRoll());
         
-        /* Display tilt-corrected, Magnetometer-based heading (requires             */
-        /* magnetometer calibration to be useful)                                   */
+        /* 
+        // Display tilt-corrected, Magnetometer-based heading (requires             
+        // magnetometer calibration to be useful)                                   
         
         SmartDashboard.putNumber(   "IMU_CompassHeading",   ahrs.getCompassHeading());
         
-        /* Display 9-axis Heading (requires magnetometer calibration to be useful)  */
+        // Display 9-axis Heading (requires magnetometer calibration to be useful)  
         SmartDashboard.putNumber(   "IMU_FusedHeading",     ahrs.getFusedHeading());
 
-        /* These functions are compatible w/the WPI Gyro Class, providing a simple  */
-        /* path for upgrading from the Kit-of-Parts gyro to the navx-MXP            */
+        // These functions are compatible w/the WPI Gyro Class, providing a simple  
+        // path for upgrading from the Kit-of-Parts gyro to the navx-MXP            
         
         SmartDashboard.putNumber(   "IMU_TotalYaw",         ahrs.getAngle());
         SmartDashboard.putNumber(   "IMU_YawRateDPS",       ahrs.getRate());
 
-        /* Display Processed Acceleration Data (Linear Acceleration, Motion Detect) */
+        // Display Processed Acceleration Data (Linear Acceleration, Motion Detect) 
         
         SmartDashboard.putNumber(   "IMU_Accel_X",          ahrs.getWorldLinearAccelX());
         SmartDashboard.putNumber(   "IMU_Accel_Y",          ahrs.getWorldLinearAccelY());
         SmartDashboard.putBoolean(  "IMU_IsMoving",         ahrs.isMoving());
         SmartDashboard.putBoolean(  "IMU_IsRotating",       ahrs.isRotating());
 
-        /* Display estimates of velocity/displacement.  Note that these values are  */
-        /* not expected to be accurate enough for estimating robot position on a    */
-        /* FIRST FRC Robotics Field, due to accelerometer noise and the compounding */
-        /* of these errors due to single (velocity) integration and especially      */
-        /* double (displacement) integration.                                       */
+        // Display estimates of velocity/displacement.  Note that these values are  
+        // not expected to be accurate enough for estimating robot position on a    
+        // FIRST FRC Robotics Field, due to accelerometer noise and the compounding 
+        // of these errors due to single (velocity) integration and especially      
+        // double (displacement) integration.                                       
         
         SmartDashboard.putNumber(   "Velocity_X",           ahrs.getVelocityX());
         SmartDashboard.putNumber(   "Velocity_Y",           ahrs.getVelocityY());
         SmartDashboard.putNumber(   "Displacement_X",       ahrs.getDisplacementX());
         SmartDashboard.putNumber(   "Displacement_Y",       ahrs.getDisplacementY());
         
-        /* Display Raw Gyro/Accelerometer/Magnetometer Values                       */
-        /* NOTE:  These values are not normally necessary, but are made available   */
-        /* for advanced users.  Before using this data, please consider whether     */
-        /* the processed data (see above) will suit your needs.                     */
+        // Display Raw Gyro/Accelerometer/Magnetometer Values                       
+        // NOTE:  These values are not normally necessary, but are made available   
+        // for advanced users.  Before using this data, please consider whether     
+        // the processed data (see above) will suit your needs.                     
         
         SmartDashboard.putNumber(   "RawGyro_X",            ahrs.getRawGyroX());
         SmartDashboard.putNumber(   "RawGyro_Y",            ahrs.getRawGyroY());
@@ -706,26 +748,27 @@ public class StateMachine {
         SmartDashboard.putNumber(   "RawMag_Z",             ahrs.getRawMagZ());
         SmartDashboard.putNumber(   "IMU_Temp_C",           ahrs.getTempC());
         
-        /* Omnimount Yaw Axis Information                                           */
-        /* For more info, see http://navx-mxp.kauailabs.com/installation/omnimount  */
+        // Omnimount Yaw Axis Information                                           
+        // For more info, see http://navx-mxp.kauailabs.com/installation/omnimount  
         AHRS.BoardYawAxis yaw_axis = ahrs.getBoardYawAxis();
         SmartDashboard.putString(   "YawAxisDirection",     yaw_axis.up ? "Up" : "Down" );
         SmartDashboard.putNumber(   "YawAxis",              yaw_axis.board_axis.getValue() );
         
-        /* Sensor Board Information                                                 */
+        // Sensor Board Information                                                 
         SmartDashboard.putString(   "FirmwareVersion",      ahrs.getFirmwareVersion());
         
-        /* Quaternion Data                                                          */
-        /* Quaternions are fascinating, and are the most compact representation of  */
-        /* orientation data.  All of the Yaw, Pitch and Roll Values can be derived  */
-        /* from the Quaternions.  If interested in motion processing, knowledge of  */
-        /* Quaternions is highly recommended.                                       */
+        // Quaternion Data                                                          
+        // Quaternions are fascinating, and are the most compact representation of  
+        // orientation data.  All of the Yaw, Pitch and Roll Values can be derived  
+        // from the Quaternions.  If interested in motion processing, knowledge of  
+        // Quaternions is highly recommended.                                       
         SmartDashboard.putNumber(   "QuaternionW",          ahrs.getQuaternionW());
         SmartDashboard.putNumber(   "QuaternionX",          ahrs.getQuaternionX());
         SmartDashboard.putNumber(   "QuaternionY",          ahrs.getQuaternionY());
         SmartDashboard.putNumber(   "QuaternionZ",          ahrs.getQuaternionZ());
         
-        /* Connectivity Debugging Support                                           */
+        */
+        // Connectivity Debugging Support                                           
         SmartDashboard.putNumber(   "IMU_Byte_Count",       ahrs.getByteCount());
         SmartDashboard.putNumber(   "IMU_Update_Count",     ahrs.getUpdateCount());
     }
@@ -751,7 +794,6 @@ public class StateMachine {
     private void systemReport() {
         SmartDashboard.putString("Mission ID", currentMission.toString());
         SmartDashboard.putNumber("Task ID", currentTaskID);
-        //SmartDashboard.putNumber("Area", objDetectCamera.getArea());
     }
 
     private void drivebaseReport()
