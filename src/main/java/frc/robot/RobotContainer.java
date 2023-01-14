@@ -9,6 +9,7 @@ import frc.robot.commands.PreloadTaxi;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,6 +19,9 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.XboxController;
@@ -43,6 +47,8 @@ public class RobotContainer {
   public static Claw claw = new Claw();
   public static Vision vision = new Vision();
   public static Drivetrain drive = new Drivetrain(vision);
+  public static Limelight objDetectCamera = new Limelight();
+  public static AHRS ahrs = new AHRS();
 
   // private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
 

@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
  
@@ -37,10 +38,11 @@ public class Drivetrain extends SubsystemBase{
     private Vision vision;
     private PIDController turnController = new PIDController(DriveConstants.kAngularP, 0, DriveConstants.kAngularD);
     private PIDController forwardController = new PIDController(DriveConstants.kLinearP, 0, DriveConstants.kLinearD);
-    private AHRS ahrs = new AHRS();
+    private AHRS ahrs;//; = new AHRS();
 
     public Drivetrain(Vision vision) {
-        
+        ahrs = RobotContainer.ahrs;
+
         rightMaster = new TalonFX(DriveConstants.kRightFollowerID);
         leftMaster = new TalonFX(DriveConstants.kLeftFollowerID);
         rightFollower = new TalonFX(DriveConstants.kRightFollower2ID);

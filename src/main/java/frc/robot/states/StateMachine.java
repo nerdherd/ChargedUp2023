@@ -43,10 +43,10 @@ public class StateMachine {
     //PhotonCamera camera = new PhotonCamera("photonvision");
     Vision apriltagCamera;// = new Vision();
     //NetworkTable tableApriltag = NetworkTableInstance.getDefault().getTable("limelight");
-    Limelight objDetectCamera = new Limelight();
+    Limelight objDetectCamera;// = new Limelight();
 
-    XboxController xboxController = new XboxController(0);
-    Joystick stick = new Joystick(0);;
+    //XboxController xboxController = new XboxController(0);
+    //Joystick stick = new Joystick(0);;
     
     private final double wheelDiameter = 6.0;
     private final double encoderTicksPerRotation = 1440.0; // 360 encode x SRX 4:1
@@ -93,6 +93,8 @@ public class StateMachine {
     public StateMachine() {
         drive = RobotContainer.drive;
         apriltagCamera = RobotContainer.vision;
+        objDetectCamera = RobotContainer.objDetectCamera;
+        ahrs = RobotContainer.ahrs;
         /*if ((error = leftMotor.configFactoryDefault()) != ErrorCode.OK) // factory default the motors
             System.out.println("error setting leftMotor to defaults = " + error);
         if ((error = rightMotor.configFactoryDefault()) != ErrorCode.OK)
@@ -540,8 +542,8 @@ public class StateMachine {
     private void balancingControl() {
     //while (isOperatorControl() && isEnabled()) 
     {
-        double xAxisRate            = stick.getX();
-        double yAxisRate            = stick.getY();
+        //double xAxisRate            = stick.getX();
+        //double yAxisRate            = stick.getY();
         double pitchAngleDegrees    = ahrs.getPitch();
         double rollAngleDegrees     = ahrs.getRoll();
         if ( !autoBalanceXMode && 
@@ -569,11 +571,11 @@ public class StateMachine {
         // with a magnitude based upon the angle
         if ( autoBalanceXMode ) {
             double pitchAngleRadians = pitchAngleDegrees * (Math.PI / 180.0);
-            xAxisRate = Math.sin(pitchAngleRadians) * -1;
+            //xAxisRate = Math.sin(pitchAngleRadians) * -1;
         }
         if ( autoBalanceYMode ) {
             double rollAngleRadians = rollAngleDegrees * (Math.PI / 180.0);
-            yAxisRate = Math.sin(rollAngleRadians) * -1;
+            //yAxisRate = Math.sin(rollAngleRadians) * -1;
         }
         //myRobot.mecanumDrive_Cartesian(xAxisRate, yAxisRate, stick.getTwist(),0);
         Timer.delay(0.005);		// wait for a motor update time
@@ -717,10 +719,10 @@ public class StateMachine {
      */
     private void imuReport()
     {
-        boolean zero_yaw_pressed = stick.getTrigger();
+       /*boolean zero_yaw_pressed = stick.getTrigger();
         if ( zero_yaw_pressed ) {
             ahrs.zeroYaw();
-        }
+        }*/
 
         /* Display 6-axis Processed Angle Data                                      */
         SmartDashboard.putBoolean(  "IMU_Connected",        ahrs.isConnected());
