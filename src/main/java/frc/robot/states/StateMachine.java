@@ -20,8 +20,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
 import frc.robot.util.NerdyMath;
@@ -51,11 +51,12 @@ public class StateMachine {
     private double drivePower = 0.5;
 
     // instantiate the motors
-    WPI_TalonSRX leftMotor = new WPI_TalonSRX(1);
+    /*WPI_TalonSRX leftMotor = new WPI_TalonSRX(1);
     WPI_TalonSRX rightMotor = new WPI_TalonSRX(0);
     WPI_TalonSRX leftFollower = new WPI_TalonSRX(3);
     WPI_TalonSRX rightFollower = new WPI_TalonSRX(2);
-    DifferentialDrive drive = new DifferentialDrive(leftMotor, rightMotor);
+    DifferentialDrive drive = new DifferentialDrive(leftMotor, rightMotor);*/
+    Drivetrain drive = new Drivetrain(apriltagCamera);
 
     private final Timer autoTimer15Sec = new Timer();
 
@@ -87,7 +88,7 @@ public class StateMachine {
     }
 
     public StateMachine() {
-        if ((error = leftMotor.configFactoryDefault()) != ErrorCode.OK) // factory default the motors
+        /*if ((error = leftMotor.configFactoryDefault()) != ErrorCode.OK) // factory default the motors
             System.out.println("error setting leftMotor to defaults = " + error);
         if ((error = rightMotor.configFactoryDefault()) != ErrorCode.OK)
             System.out.println("error setting rightMotor to defaults = " + error);
@@ -103,7 +104,7 @@ public class StateMachine {
         leftFollower.setInverted(InvertType.FollowMaster);
         rightFollower.setInverted(InvertType.FollowMaster);
         leftMotor.setSensorPhase(true); // <<<<<< Adjust this
-        rightMotor.setSensorPhase(false); // <<<<<< Adjust this
+        rightMotor.setSensorPhase(false); // <<<<<< Adjust this*/
 
         try { // attempt to instantiate the NavX2. If it throws an exception, catch it and
               // report it.
@@ -244,9 +245,10 @@ public class StateMachine {
 
     private void missionMOVE_A2B() {
         if (currentTaskID == 0) {
-            if ((error = leftMotor.setSelectedSensorPosition(0.0)) != ErrorCode.OK) {// set encoder to zero
+            // set encoder to zero
+            /*if ((error = leftMotor.setSelectedSensorPosition(0.0)) != ErrorCode.OK) {
                 System.out.println("error setting sensor position to 0 in auto init");
-            }
+            }*/
             setTaskTo(1);
         } else if (currentTaskID == 1) {
             boolean done = driveStraightLoop(0.5, 36, 45, 0, true);
@@ -332,9 +334,9 @@ public class StateMachine {
     private void missionMOVE_C2D()
     {
         if (currentTaskID == 0) {
-            if ((error = leftMotor.setSelectedSensorPosition(0.0)) != ErrorCode.OK) {// set encoder to zero
+            /*if ((error = leftMotor.setSelectedSensorPosition(0.0)) != ErrorCode.OK) {// set encoder to zero
                 System.out.println("error setting sensor position to 0 in auto init");
-            }
+            }*/
             setTaskTo(1);
         } else if (currentTaskID == 1) {
             boolean done = driveStraightLoop(0.5, 48, -90, 0, false);
@@ -366,9 +368,9 @@ public class StateMachine {
                 NerdyMath.inRange(arcadeSteerCommand, -0.05, 0.05))
                 {
                     drive.arcadeDrive(0,0);
-                    if ((error = leftMotor.setSelectedSensorPosition(0.0)) != ErrorCode.OK) {// set encoder to zero
+                    /*if ((error = leftMotor.setSelectedSensorPosition(0.0)) != ErrorCode.OK) {// set encoder to zero
                         System.out.println("error setting sensor position to 0 in auto init");
-                    }
+                    }*/
                     setTaskTo(1);
                 }
                 else{
@@ -615,7 +617,7 @@ public class StateMachine {
             ticks2SlowDown = inches2Ticks(distance*0.2); // set up encoder slow down condition
         }
 
-        double position = leftMotor.getSelectedSensorPosition(0);
+        double position = 0;//leftMotor.getSelectedSensorPosition(0);
         if ((ticks2Go + position) < ticks2SlowDown)
             drivePower = 0.3; // cut power prepare to stop
 
