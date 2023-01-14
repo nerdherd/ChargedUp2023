@@ -38,9 +38,9 @@ public final class Constants {
     // ============== PrototypeBOT =============
     // public static final int kRightMasterID = 0;
     // public static final int kLeftMasterID = 0;
-    public static final double kAngularP = 0;
+    public static final double kAngularP = 0.1;
     public static final double kAngularD = 0;
-    public static final double kLinearP = 0;
+    public static final double kLinearP = 0.1;
     public static final double kLinearD = 0;
     // public static final int kRightFollowerID = 17;
     // public static final int kLeftFollowerID = 31;
