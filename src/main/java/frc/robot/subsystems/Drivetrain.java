@@ -11,6 +11,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -164,4 +166,20 @@ public class Drivetrain extends SubsystemBase{
     public double getHeading() {
         return ahrs.getYaw();
     }
+
+    public Rotation2d getRotation2d() {
+        return Rotation2d.fromDegrees(getHeading());
+    }
+
+    public Rotation3d getRotation3d() {
+        return new Rotation3d(
+            ahrs.getRoll() * Math.PI / 180, 
+            ahrs.getPitch()* Math.PI / 180, 
+            ahrs.getYaw() * Math.PI / 180) ;
+    }
+
+    public void zeroHeading() {
+        ahrs.reset();
+    }
+
 }
