@@ -222,7 +222,7 @@ public class StateMachine {
         //smartdashboard
         systemReport();
         drivebaseReport();
-        // armReport();
+        armReport();
         imuReport();
         apriltagReport();
         objDetectionReport();
@@ -314,10 +314,12 @@ public class StateMachine {
             if(type == GameElement.CONE || type == GameElement.CUBE)
             {
                 // close the claw
+                clawControl(false);
             }
             else // GameElement.POSE
             {
                 // open the claw
+                clawControl(true);
             }
             setTaskTo(2);
         } else {
@@ -388,6 +390,7 @@ public class StateMachine {
             else{}
         } else if (currentTaskID == 2) {
             // open the claw
+            clawControl(true);
             setTaskTo(3);
         }
         else {
@@ -499,6 +502,17 @@ public class StateMachine {
             rotationSpeed = xboxController.getLeftX();
         }*/
         return apriltagCamera.limelightHasTargets;
+    }
+
+    /*
+     * ====================================================================================================
+     * All Motor functions are below this line.
+     * ====================================================================================================
+     */
+
+    boolean clawStatusOpen = false;
+    private void clawControl( boolean doOpen) {
+        clawStatusOpen = doOpen;
     }
 
     final double kOffBalanceAngleThresholdDegrees = 10;
@@ -682,7 +696,6 @@ public class StateMachine {
     /*
      * ====================================================================================================
      * Data Report functions are below this line.
-     * These provide the data to be monitored on the SmartDashboard.
      * ====================================================================================================
      */
     private void imuReport()
@@ -774,13 +787,11 @@ public class StateMachine {
     }
 
     private void apriltagReport() {
-        /*SmartDashboard.putBoolean("HasTarget", hasValidTarget());
-        SmartDashboard.putNumber("Horizontal Offset", getXAngle());
-        SmartDashboard.putNumber("Vertical Offset", getYAngle());
-        SmartDashboard.putNumber("Area", getArea());
-        SmartDashboard.putNumber("Skew", getSkew());
-        SmartDashboard.putString("XCorners", Arrays.toString(getXCorners()));
-        SmartDashboard.putString("YCorners", Arrays.toString(getYCorners()));*/
+        SmartDashboard.putBoolean("HasTarget", apriltagCamera.limelightHasTargets);
+        SmartDashboard.putNumber("Horizontal Offset", apriltagCamera.getYaw());
+        SmartDashboard.putNumber("Vertical Offset", apriltagCamera.getPitch());
+        //SmartDashboard.putNumber("Area", apriltagCamera.getArea());
+        SmartDashboard.putNumber("Tag ID", apriltagCamera.getFiducialId());
     }
 
     private void objDetectionReport() {
@@ -802,5 +813,10 @@ public class StateMachine {
         SmartDashboard.putNumber("Tank Drive Right" ,tankDriveRightSpeed);
         SmartDashboard.putNumber("Arcade Drive", arcadeDriveCommand);
         SmartDashboard.putNumber("Arcade Steer" ,arcadeSteerCommand);
+    }
+
+    private void armReport()
+    {
+        SmartDashboard.putBoolean("Claw Open", clawStatusOpen);
     }
 }
