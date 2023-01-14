@@ -29,4 +29,16 @@ public class NerdyMath {
     public static double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
+    
+    public static boolean inRange(double myValue, double min, double max)
+    {
+        if(myValue >= min && myValue <= max)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }
