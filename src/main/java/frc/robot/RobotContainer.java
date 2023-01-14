@@ -94,8 +94,8 @@ public class RobotContainer {
     driverController.square().whileTrue(claw.clawOpen());
     driverController.cross().whileTrue(claw.clawClose());
 
-    // driverController.circle().onFalse(arcadeRunCommand);
-    // driverController.circle().whileTrue(visionRunCommand);
+    driverController.circle().onFalse(arcadeRunCommand);
+    driverController.circle().whileTrue(visionRunCommand);
     // driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
     // driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
     

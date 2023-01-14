@@ -36,17 +36,22 @@ public final class Constants {
     // public static final double kLinearD = 0;
 
     // ============== PrototypeBOT =============
-    public static final int kRightMasterID = 0;
-    public static final int kLeftMasterID = 0;
+    // public static final int kRightMasterID = 0;
+    // public static final int kLeftMasterID = 0;
     public static final double kAngularP = 0;
     public static final double kAngularD = 0;
     public static final double kLinearP = 0;
     public static final double kLinearD = 0;
-    public static final int kRightFollowerID = 17;
-    public static final int kLeftFollowerID = 31;
+    // public static final int kRightFollowerID = 17;
+    // public static final int kLeftFollowerID = 31;
     public static final int kRightFollower2ID = 1;
     public static final int kLeftFollower2ID = 18;
 
+    // thomas
+    public static final int kRightMasterID = 9;
+    public static final int kLeftMasterID = 20;
+    public static final int kRightFollowerID = 15;
+    public static final int kLeftFollowerID = 19;
 
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
@@ -83,9 +88,9 @@ public final class Constants {
   }
 
   public static class VisionConstants{
-    public static final double kCameraHeightMeters = Units.inchesToMeters(24);
-    public static final double kTargetHeightMeters = Units.inchesToMeters(19.5);
-    public static final double kCameraPitchRadians = Units.degreesToRadians(0);
+    public static final double kCameraHeightMeters = Units.inchesToMeters(33.875);
+    public static final double kTargetHeightMeters = Units.inchesToMeters(50);
+    public static final double kCameraPitchRadians = Units.degreesToRadians(30);
     public static final double kGoalRangeMeters = Units.inchesToMeters(0);
   }
 

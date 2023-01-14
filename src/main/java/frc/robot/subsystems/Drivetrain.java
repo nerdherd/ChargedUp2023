@@ -3,7 +3,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -25,10 +25,10 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
  
 public class Drivetrain extends SubsystemBase{
-    private TalonFX rightMaster;
-    private TalonFX leftMaster;
-    private TalonFX rightFollower;
-    private TalonFX leftFollower;
+    private WPI_TalonFX rightMaster;
+    private WPI_TalonFX leftMaster;
+    private WPI_TalonFX rightFollower;
+    private WPI_TalonFX leftFollower;
  
     private DifferentialDrive drive;
     private MotorControllerGroup leftMotors;
@@ -43,42 +43,43 @@ public class Drivetrain extends SubsystemBase{
     public Drivetrain(Vision vision) {
         ahrs = RobotContainer.ahrs.ahrs;
 
-        rightMaster = new TalonFX(DriveConstants.kRightFollowerID);
-        leftMaster = new TalonFX(DriveConstants.kLeftFollowerID);
-        rightFollower = new TalonFX(DriveConstants.kRightFollower2ID);
-        leftFollower = new TalonFX(DriveConstants.kLeftFollower2ID);
+        rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
+        leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
+        rightFollower = new WPI_TalonFX(DriveConstants.kRightFollowerID);
+        leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
 
         rightMaster.setInverted(false);
         rightFollower.setInverted(false);
         leftMaster.setInverted(false);
         leftFollower.setInverted(false);
         
-        // TalonFXConfiguration config = new TalonFXConfiguration();
-        // config.supplyCurrLimit.enable = true;
-        // config.supplyCurrLimit.triggerThresholdCurrent = 20; // the peak supply current, in amps
-        // config.supplyCurrLimit.triggerThresholdTime = 1.5; // the time at the peak supply current before the limit triggers, in sec
-        // config.supplyCurrLimit.currentLimit = 15; // the current to maintain if the peak supply limit is triggered
-        // rightMaster.configAllSettings(config); // apply the config settings; this selects the quadrature encoder
-        // rightFollower.configAllSettings(config);
-        // leftMaster.configAllSettings(config);
-        // leftFollower.configAllSettings(config);
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        config.supplyCurrLimit.enable = true;
+        config.supplyCurrLimit.triggerThresholdCurrent = 20; // the peak supply current, in amps
+        config.supplyCurrLimit.triggerThresholdTime = 1.5; // the time at the peak supply current before the limit triggers, in sec
+        config.supplyCurrLimit.currentLimit = 15; // the current to maintain if the peak supply limit is triggered
+        rightMaster.configAllSettings(config); // apply the config settings; this selects the quadrature encoder
+        rightFollower.configAllSettings(config);
+        leftMaster.configAllSettings(config);
+        leftFollower.configAllSettings(config);
 
         leftFollower.follow(leftMaster);
         rightFollower.follow(rightMaster);
         
-        // rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
-        // leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
-        // rightFollower = new WPI_TalonFX(DriveConstants.kRightFollowerID);
-        // leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
+        rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
+        leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
+        rightFollower = new WPI_TalonFX(DriveConstants.kRightFollowerID);
+        leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
 
-        // leftMotors = new MotorControllerGroup(leftMaster, leftFollower);
-        // rightMotors = new MotorControllerGroup(rightMaster, rightFollower);
+        leftMotors = new MotorControllerGroup(leftMaster, leftFollower);
+        rightMotors = new MotorControllerGroup(rightMaster, rightFollower);
         
-        // rightMotors.setInverted(true);
-        // leftMotors.setInverted(false);
+        rightMotors.setInverted(true);
+        leftMotors.setInverted(false);
         
-        // check inversion to make drivetrain extend differential drive
-        // drive = new DifferentialDrive(leftMaster, rightMaster);
+        //check inversion to make drivetrain extend differential drive
+        drive = new DifferentialDrive(leftMotors, rightMotors);
+        drive.setSafetyEnabled(false);
  
         this.vision = vision;
     }
@@ -97,10 +98,10 @@ public class Drivetrain extends SubsystemBase{
         rightOutput = (DriveConstants.kDriveAlpha * rightOutput)
                     + (DriveConstants.kDriveOneMinusAlpha * prevRightOutput);
        
-        setPower(leftOutput*0.9, rightOutput*0.9);
+        //setPower(leftOutput*0.9, rightOutput*0.9);
         SmartDashboard.putNumber("Left Output", leftOutput);
         SmartDashboard.putNumber("Right Output", rightOutput);
-        // drive.tankDrive(leftOutput, rightOutput);
+        drive.tankDrive(leftInput, rightInput);
  
     }
 
