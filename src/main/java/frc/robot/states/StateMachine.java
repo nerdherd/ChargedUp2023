@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Claw;
 import frc.robot.util.NerdyMath;
 
@@ -40,7 +41,7 @@ public class StateMachine {
 
     // Change this to match the name of your camera
     //PhotonCamera camera = new PhotonCamera("photonvision");
-    Vision apriltagCamera = new Vision();
+    Vision apriltagCamera;// = new Vision();
     //NetworkTable tableApriltag = NetworkTableInstance.getDefault().getTable("limelight");
     Limelight objDetectCamera = new Limelight();
 
@@ -57,8 +58,8 @@ public class StateMachine {
     WPI_TalonSRX leftFollower = new WPI_TalonSRX(3);
     WPI_TalonSRX rightFollower = new WPI_TalonSRX(2);
     DifferentialDrive drive = new DifferentialDrive(leftMotor, rightMotor);*/
-    Drivetrain drive = new Drivetrain(apriltagCamera);
-    Claw claw = new Claw();
+    Drivetrain drive;// = new Drivetrain(apriltagCamera);
+    // Claw claw = new Claw();
 
     private final Timer autoTimer15Sec = new Timer();
 
@@ -90,6 +91,8 @@ public class StateMachine {
     }
 
     public StateMachine() {
+        drive = RobotContainer.drive;
+        apriltagCamera = RobotContainer.vision;
         /*if ((error = leftMotor.configFactoryDefault()) != ErrorCode.OK) // factory default the motors
             System.out.println("error setting leftMotor to defaults = " + error);
         if ((error = rightMotor.configFactoryDefault()) != ErrorCode.OK)
@@ -130,7 +133,7 @@ public class StateMachine {
 
     private void setMissionTo(Mission newMission) {
         // debug: TODO
-        if (newMission == Mission.MOVE_A2B) {
+        if (newMission == Mission.CROSS_DOCK_B2C) {
             currentMission = Mission.EXIT;
             missionStepTimeout = 1000;
             return;
@@ -222,6 +225,10 @@ public class StateMachine {
 
         // manualTuningMotors(gamepad1);
 
+    }
+
+    public void report()
+    {
         //smartdashboard
         systemReport();
         drivebaseReport();
@@ -518,10 +525,10 @@ public class StateMachine {
     private void clawControl( boolean doOpen) {
         clawStatusOpen = doOpen;
         if(doOpen) {
-            claw.clawOpen();
+            // RobotContainer.claw.clawOpen();
         }
         else {
-            claw.clawClose();
+            // RobotContainer.claw.clawClose();
         }
     }
 

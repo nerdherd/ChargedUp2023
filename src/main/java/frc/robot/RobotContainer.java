@@ -39,10 +39,10 @@ import frc.robot.subsystems.SwerveDrivetrain;
  */// 10.6.87.98:5800
 public class RobotContainer {
 
-  private Arm arm = new Arm();
-  private Claw claw = new Claw();
-  private Vision vision = new Vision();
-  private Drivetrain drive = new Drivetrain(vision);
+  public static Arm arm = new Arm();
+  public static Claw claw = new Claw();
+  public static Vision vision = new Vision();
+  public static Drivetrain drive = new Drivetrain(vision);
 
   // private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
 
