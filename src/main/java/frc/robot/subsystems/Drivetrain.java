@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
@@ -34,6 +35,7 @@ public class Drivetrain extends SubsystemBase{
     private Vision vision;
     private PIDController turnController = new PIDController(DriveConstants.kAngularP, 0, DriveConstants.kAngularD);
     private PIDController forwardController = new PIDController(DriveConstants.kLinearP, 0, DriveConstants.kLinearD);
+    private AHRS ahrs = new AHRS();
 
     public Drivetrain(Vision vision) {
         
@@ -157,5 +159,9 @@ public class Drivetrain extends SubsystemBase{
         }
         SmartDashboard.putNumber("ForwardSpeed", forwardSpeed);
         return forwardSpeed;
+    }
+
+    public double getHeading() {
+        return ahrs.getYaw();
     }
 }
