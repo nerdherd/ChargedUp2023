@@ -44,7 +44,7 @@ public class RobotContainer {
   private Vision vision = new Vision();
   private Drivetrain drive = new Drivetrain(vision);
 
-  private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
+  // private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
 
   private final CommandPS4Controller driverController = 
       new CommandPS4Controller(ControllerConstants.kDriverControllerPort);
@@ -59,21 +59,21 @@ public class RobotContainer {
   private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
   private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
 
-  public Command swerveCommand = new RepeatCommand(
-    new SequentialCommandGroup(
-        new WaitCommand(5),
-        new InstantCommand(swerveDrive::resetEncoders)
-    ));
+  // public Command swerveCommand = new RepeatCommand(
+  //   new SequentialCommandGroup(
+  //       new WaitCommand(5),
+  //       new InstantCommand(swerveDrive::resetEncoders)
+  //   ));
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     
-    swerveDrive.setDefaultCommand(
-          new SwerveJoystickCommand(swerveDrive, 
-            () -> -driverController.getLeftY(),  
-            driverController::getLeftX, 
-            driverController::getRightY, 
-            driverControllerButtons::getSquareButton));
+    // swerveDrive.setDefaultCommand(
+    //       new SwerveJoystickCommand(swerveDrive, 
+    //         () -> -driverController.getLeftY(),  
+    //         driverController::getLeftX, 
+    //         driverController::getRightY, 
+    //         driverControllerButtons::getSquareButton));
       
 	// Configure the trigger bindings
     configureBindings();
@@ -82,21 +82,21 @@ public class RobotContainer {
   private void configureBindings() {
     // Note: whileTrue() does not restart the command if it ends while the button is still being held
     // These button bindings are chosen for testing, and may be changed based on driver preference
-    // operatorController.circle().whileTrue(arm.armToMiddleNodePosition());
-    // operatorController.triangle().whileTrue(arm.armToTopNodePosition());
-    // operatorController.square().whileTrue(claw.clawOpen());
-    // operatorController.cross().whileTrue(claw.clawClose());
+    operatorController.circle().whileTrue(arm.armToMiddleNodePosition());
+    operatorController.triangle().whileTrue(arm.armToTopNodePosition());
+    operatorController.square().whileTrue(claw.clawOpen());
+    operatorController.cross().whileTrue(claw.clawClose());
 
-    // driverController.circle().onFalse(arcadeRunCommand);
-    // driverController.circle().whileTrue(visionRunCommand);
-    // driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
-    // driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
+    driverController.circle().onFalse(arcadeRunCommand);
+    driverController.circle().whileTrue(visionRunCommand);
+    driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
+    driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
     
-    driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
-    driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+    // driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
+    // driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
     // SmartDashboard.putData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
     // driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
-    driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
+    // driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
   }
 
   public void configurePeriodic() {
