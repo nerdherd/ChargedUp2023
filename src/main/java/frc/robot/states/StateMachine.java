@@ -86,7 +86,7 @@ public class StateMachine {
     private enum GameElement {
         CUBE,
         CONE,
-        POSE
+        TAPE
     }
 
     public StateMachine() {
@@ -320,7 +320,7 @@ public class StateMachine {
                 // close the claw
                 clawControl(false);
             }
-            else // GameElement.POSE
+            else // GameElement.TAPE
             {
                 // open the claw
                 clawControl(true);
@@ -518,10 +518,10 @@ public class StateMachine {
     private void clawControl( boolean doOpen) {
         clawStatusOpen = doOpen;
         if(doOpen) {
-            claw.clawOpen();
+            claw.clawOpen().schedule();
         }
         else {
-            claw.clawClose();
+            claw.clawClose().schedule();
         }
     }
 
@@ -662,7 +662,14 @@ public class StateMachine {
     private boolean turnToHeadingLoop(double maxTurnSpeed, double heading)
     {
         if(!hasInitTurnTo)
-        {}
+        {
+            double turningSpeed = turnControllerImu.calculate(drive.getHeading(), heading);
+        
+            if(NerdyMath.inRange(arcadeSteerCommand, 0 , maxTurnSpeed)) {
+                drive.tankDrive(turningSpeed, turningSpeed * -1);
+            }
+
+        }
         return true;
     }
 
