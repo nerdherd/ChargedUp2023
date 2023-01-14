@@ -89,6 +89,12 @@ public final class Constants {
     public static final double kGoalRangeMeters = Units.inchesToMeters(0);
   }
 
+  public static final class TankAutoConstants {
+    public static final double kPBalancing = 0.3;
+    public static final double kDBalancing = 0;
+
+  }
+
   public static final class ModuleConstants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
     public static final double kDriveMotorGearRatio = 1 / 6.75;

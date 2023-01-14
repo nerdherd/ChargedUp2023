@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.Constants.TankAutoConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.SwerveDrivetrain;
 
@@ -26,7 +27,8 @@ public class TheGreatBalancingTank extends CommandBase {
         this.tankDrive = tankDrive;
         
         this.pitchPidController = new PIDController(
-            SwerveAutoConstants.kPBalancing, 0, 0, period);
+            TankAutoConstants.kPBalancing, 0, 
+            TankAutoConstants.kDBalancing, period);
         
         this.pitchPidController.enableContinuousInput(0, 360);
         addRequirements(tankDrive);
