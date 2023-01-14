@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Claw;
 import frc.robot.util.NerdyMath;
 
 public class StateMachine {
@@ -57,6 +58,7 @@ public class StateMachine {
     WPI_TalonSRX rightFollower = new WPI_TalonSRX(2);
     DifferentialDrive drive = new DifferentialDrive(leftMotor, rightMotor);*/
     Drivetrain drive = new Drivetrain(apriltagCamera);
+    Claw claw = new Claw();
 
     private final Timer autoTimer15Sec = new Timer();
 
@@ -515,6 +517,12 @@ public class StateMachine {
     boolean clawStatusOpen = false;
     private void clawControl( boolean doOpen) {
         clawStatusOpen = doOpen;
+        if(doOpen) {
+            claw.clawOpen();
+        }
+        else {
+            claw.clawClose();
+        }
     }
 
     final double kOffBalanceAngleThresholdDegrees = 10;
