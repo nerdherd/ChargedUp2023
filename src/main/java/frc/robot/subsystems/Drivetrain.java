@@ -41,7 +41,7 @@ public class Drivetrain extends SubsystemBase{
     private AHRS ahrs;//; = new AHRS();
 
     public Drivetrain(Vision vision) {
-        ahrs = RobotContainer.ahrs;
+        ahrs = RobotContainer.ahrs.ahrs;
 
         rightMaster = new TalonFX(DriveConstants.kRightFollowerID);
         leftMaster = new TalonFX(DriveConstants.kLeftFollowerID);

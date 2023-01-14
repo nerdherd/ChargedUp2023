@@ -9,6 +9,7 @@ import frc.robot.commands.PreloadTaxi;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -46,9 +47,9 @@ public class RobotContainer {
   public static Arm arm = new Arm();
   public static Claw claw = new Claw();
   public static Vision vision = new Vision();
-  public static Drivetrain drive = new Drivetrain(vision);
   public static Limelight objDetectCamera = new Limelight();
-  public static AHRS ahrs = new AHRS();
+  public static Imu ahrs = new Imu();
+  public static Drivetrain drive = new Drivetrain(vision);
 
   // private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
 

@@ -3,18 +3,27 @@ package frc.robot.subsystems;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase{
-    private PhotonCamera photonCamera; // protect proton camera
+    private PhotonCamera photonCamera = null; // protect proton camera
     private PhotonTrackedTarget photonTrackedTarget;
 
     public boolean limelightHasTargets;
 
     public Vision(){
-        photonCamera = new PhotonCamera("687Limelight1");
-        photonCamera.setDriverMode(false);
+        try { // attempt to instantiate the NavX2. If it throws an exception, catch it and
+            // report it.
+            photonCamera = new PhotonCamera("687Limelight1");
+            photonCamera.setDriverMode(false);
+      } catch (RuntimeException ex) {
+            limelightHasTargets = false;
+          DriverStation.reportError("Error instantiating navX2 MXP:  " + ex.getMessage(), true);
+      }
+        
+
     }
 
     @Override

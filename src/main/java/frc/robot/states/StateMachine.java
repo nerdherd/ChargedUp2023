@@ -13,7 +13,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.SPI;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -94,7 +94,7 @@ public class StateMachine {
         drive = RobotContainer.drive;
         apriltagCamera = RobotContainer.vision;
         objDetectCamera = RobotContainer.objDetectCamera;
-        ahrs = RobotContainer.ahrs;
+        ahrs = RobotContainer.ahrs.ahrs;
         /*if ((error = leftMotor.configFactoryDefault()) != ErrorCode.OK) // factory default the motors
             System.out.println("error setting leftMotor to defaults = " + error);
         if ((error = rightMotor.configFactoryDefault()) != ErrorCode.OK)
@@ -113,13 +113,7 @@ public class StateMachine {
         leftMotor.setSensorPhase(true); // <<<<<< Adjust this
         rightMotor.setSensorPhase(false); // <<<<<< Adjust this*/
 
-        try { // attempt to instantiate the NavX2. If it throws an exception, catch it and
-              // report it.
-            ahrs = new AHRS(SPI.Port.kMXP); // SPI is the protocol on the MXP connector that the navigator is plugged
-                                            // into
-        } catch (RuntimeException ex) {
-            DriverStation.reportError("Error instantiating navX2 MXP:  " + ex.getMessage(), true);
-        }
+
 
         turnControllerImu.enableContinuousInput(-180.0f, 180.0f); // set input range from navigator
         turnControllerImu.setIntegratorRange(-1.0, 1.0); // PID output range to correct
@@ -156,6 +150,7 @@ public class StateMachine {
         previousTaskID = currentTaskID;
         currentTaskID = newTaskID;
         taskRunTimeout.reset();
+        taskRunTimeout.start();
     }
 
     public void ExecutionPeriod() {
