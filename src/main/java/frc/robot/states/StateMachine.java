@@ -813,10 +813,13 @@ public class StateMachine {
 
     private void apriltagReport() {
         SmartDashboard.putBoolean("HasTarget", apriltagCamera.limelightHasTargets);
-        SmartDashboard.putNumber("Horizontal Offset", apriltagCamera.getYaw());
-        SmartDashboard.putNumber("Vertical Offset", apriltagCamera.getPitch());
-        //SmartDashboard.putNumber("Area", apriltagCamera.getArea());
-        SmartDashboard.putNumber("Tag ID", apriltagCamera.getFiducialId());
+        if(apriltagCamera.limelightHasTargets)
+        {
+            SmartDashboard.putNumber("Horizontal Offset", apriltagCamera.getYaw());
+            SmartDashboard.putNumber("Vertical Offset", apriltagCamera.getPitch());
+            //SmartDashboard.putNumber("Area", apriltagCamera.getArea());
+            SmartDashboard.putNumber("Tag ID", apriltagCamera.getFiducialId());
+        }
     }
 
     private void objDetectionReport() {
