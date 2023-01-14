@@ -1,4 +1,4 @@
-name: Check notification
+name: Teams Notification
 
 on:
   push: {main, dev}
