@@ -94,8 +94,8 @@ public class SwerveModule {
      */
     public double getTurningPosition() {
         double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0), 4096) * ModuleConstants.kTurningTicksToRad);
-        SmartDashboard.putNumber("turning position motor #" + turnMotorID, turningPosition);
-        SmartDashboard.putNumber("Turning angle #" + turnMotorID, 180 * turningPosition / Math.PI);
+        // SmartDashboard.putNumber("turning position motor #" + turnMotorID, turningPosition);
+        // SmartDashboard.putNumber("Turning angle #" + turnMotorID, 180 * turningPosition / Math.PI);
         return turningPosition;
     }
 
@@ -113,7 +113,7 @@ public class SwerveModule {
      */
     public double getTurningVelocity() {
         double turnVelocity = turnMotor.getSelectedSensorVelocity(0) * ModuleConstants.kTurningTicksPer100MsToRadPerSec;
-        SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, turnVelocity);
+        // SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, turnVelocity);
         return turnVelocity;
     }
 
@@ -123,7 +123,7 @@ public class SwerveModule {
      */
     public double getAbsoluteEncoderRadians() {
         double angle = (absoluteTurningEncoder.getSelectedSensorPosition(1) % 4096) * ModuleConstants.kTurningTicksToRad + absoluteEncoderOffset;
-        SmartDashboard.putNumber("AbsoluteEncoder in rad", angle * (invertTurningEncoder ? -1 : 1));
+        // SmartDashboard.putNumber("AbsoluteEncoder in rad", angle * (invertTurningEncoder ? -1 : 1));
         return angle * (invertTurningEncoder ? -1 : 1);
     }
 
@@ -152,15 +152,17 @@ public class SwerveModule {
         }
         // state.angle = state.angle.rotateBy(Rotation2d.fromDegrees(-90));
         state = SwerveModuleState.optimize(state, getState().angle);
-        SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, state.angle.getDegrees());
-        SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, state.angle.getDegrees() - (getTurningPosition() * 180 / Math.PI));
+        // SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, state.angle.getDegrees());
+        // SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, state.angle.getDegrees() - (getTurningPosition() * 180 / Math.PI));
         
         // TODO: switch to velocity control
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
-        driveMotor.set(ControlMode.PercentOutput, state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+        double percentOutput = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        SmartDashboard.putNumber("Motor percent #" + turnMotorID, percentOutput);
+        driveMotor.set(ControlMode.PercentOutput, percentOutput);
         
         double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
-        SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
+        // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
 
         turnMotor.set(ControlMode.PercentOutput, turnPower);
     }

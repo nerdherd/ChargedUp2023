@@ -86,7 +86,7 @@ public class SwerveJoystickCommand extends CommandBase {
         // Convert speeds to meters per second
         xSpeed *= kTeleDriveMaxSpeedMetersPerSecond;
         ySpeed *= kTeleDriveMaxSpeedMetersPerSecond;
-        turningSpeed *= kTeleDriveMaxSpeedMetersPerSecond;
+        turningSpeed *= kTeleDriveMaxAccelerationUnitsPerSecond;
 
         SmartDashboard.putNumber("xspeeddrivecommmand", xSpeed);
         SmartDashboard.putNumber("yspeeddrivecommmand", ySpeed);

@@ -181,15 +181,16 @@ public final class Constants {
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
     public static final double kPXController = 1.5;
     public static final double kPYController = 1.5;
-    public static final double kPThetaController = 3;
-    public static final double kPTurnToAngle = 0.5;
+    public static final double kPThetaController = 3.0;
+    public static final double kPTurnToAngle = 6.0;
+    public static final double kDTurnToAngle = 0.2;
     public static final double kTurnToAnglePositionToleranceAngle = 1;
     public static final double kTurnToAngleVelocityToleranceAnglesPerSec = 2;
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = //
       new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
-    public static final double kPBalancing = 0.5;
+    public static final double kPBalancing = 0.3;
   }
 
   // this needs to get remapped to PS4 controller

@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
@@ -24,7 +25,10 @@ public class TurnToAngle extends CommandBase {
         this.swerveDrive = swerveDrive;
 
         this.pidController = new PIDController(
-            SwerveAutoConstants.kPThetaController, 0, 0, period);
+            SwerveAutoConstants.kPTurnToAngle, 
+            0, 
+            SwerveAutoConstants.kDTurnToAngle, 
+            period);
         
         this.pidController.setTolerance(
             SwerveAutoConstants.kTurnToAnglePositionToleranceAngle, 
@@ -49,7 +53,10 @@ public class TurnToAngle extends CommandBase {
     public void execute() {
         // Calculate turning speed with PID
         double turningSpeed = pidController.calculate(swerveDrive.getHeading(), targetAngle);
-        
+        turningSpeed = Math.toRadians(turningSpeed);
+
+        // SmartDashboard.putNumber("TurningSpeed", turningSpeed);
+
         // Convert speed into swerve states
         ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 0, 0, turningSpeed, swerveDrive.getRotation2d());

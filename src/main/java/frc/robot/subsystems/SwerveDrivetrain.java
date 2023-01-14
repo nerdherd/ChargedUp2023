@@ -11,7 +11,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.SwerveDriveConstants;
 
 public class SwerveDrivetrain extends SubsystemBase {
@@ -59,6 +64,7 @@ public class SwerveDrivetrain extends SubsystemBase {
      */
     public SwerveDrivetrain() {
         SmartDashboard.putNumber("Gyro resets", 0);
+        SmartDashboard.putNumber("Encoder resets", 0);
 
         this.gyro = new AHRS(SPI.Port.kMXP);
         this.odometer = new SwerveDriveOdometry(
@@ -70,9 +76,13 @@ public class SwerveDrivetrain extends SubsystemBase {
                 resetEncoders();
                 Thread.sleep(1000);
                 zeroHeading();
-                SmartDashboard.putNumber("Gyro resets", 1);
-            } catch (InterruptedException e) {}
+                SmartDashboard.putBoolean("Startup failed", false);
+            } catch (InterruptedException e) {
+                SmartDashboard.putBoolean("Startup failed", true);
+            }
         }).run();
+
+        
     }
 
     /**
@@ -107,6 +117,7 @@ public class SwerveDrivetrain extends SubsystemBase {
      * See {@link SwerveModule#resetEncoder() resetEncoder} for more details.
      */
     public void resetEncoders() {
+        SmartDashboard.putNumber("Encoder resets", SmartDashboard.getNumber("Encoder resets", 0)+1);
         frontLeft.resetEncoder();
         frontRight.resetEncoder();
         backLeft.resetEncoder();
