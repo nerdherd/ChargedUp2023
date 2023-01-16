@@ -239,7 +239,7 @@ public class StateMachine {
         if (currentTaskID == 0) {
             //turnControllerImu.setSetpoint(ahrs.getYaw());
             resetDriveLoops();
-            ahrs.reset();
+            ahrs.reset();// Clockwise = positive angle
             
             setTaskTo(1);
         } else if (currentTaskID == 1) {
