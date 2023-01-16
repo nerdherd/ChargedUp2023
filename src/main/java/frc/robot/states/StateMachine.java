@@ -435,7 +435,23 @@ public class StateMachine {
     {
         // These numbers must be tuned for your Robot!  Be careful!
         final double DESIRED_TARGET_AREA = 13.0;        // Area of the target when the robot reaches the wall
-        final double MAX_DRIVE = 0.7;                   // Simple speed limit so we don't drive too fast
+        final double MAX_DRIVE = 0.5;                   // Simple speed limit so we don't drive too fast
+
+        if(gameObj == GameElement.CONE)
+        {
+            objDetectCamera.setPipeline(1);
+        }
+        else if(gameObj == GameElement.CUBE)
+        {
+            objDetectCamera.setPipeline(2);
+        }
+        else if(gameObj == GameElement.TAPE)
+        {
+            objDetectCamera.setPipeline(3);
+        }
+        else {
+            return false;
+        }
 
         boolean m_LimelightHasValidTarget = objDetectCamera.hasValidTarget();// tableApriltag.getEntry("tv").getDouble(0);
         double tx = objDetectCamera.getHorizontalLength();//tableApriltag.getEntry("tx").getDouble(0);
@@ -454,15 +470,22 @@ public class StateMachine {
         // Start with proportional steering
         double steer_cmd = tx * STEER_K;
         arcadeSteerCommand = steer_cmd;
+        if(arcadeSteerCommand > 0.05 && arcadeSteerCommand < 0.1) {
+            arcadeSteerCommand = 0.1;
+        }
+        if(arcadeSteerCommand < -0.05 && arcadeSteerCommand > -0.1) {
+            arcadeSteerCommand = -0.1;
+        }
 
         // try to drive forward until the target area reaches our desired area
         double drive_cmd = (DESIRED_TARGET_AREA - ta) * DRIVE_K;
 
         // don't let the robot drive too fast into the goal
-        if (drive_cmd > MAX_DRIVE)
+        /*if (drive_cmd > MAX_DRIVE)
         {
           drive_cmd = MAX_DRIVE;
-        }
+        }*/
+        NerdyMath.clamp(drive_cmd, -1*MAX_DRIVE, MAX_DRIVE);
         arcadeDriveCommand = drive_cmd;
 
         return true;
