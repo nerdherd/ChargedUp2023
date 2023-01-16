@@ -77,10 +77,10 @@ public class StateMachine {
     private enum Mission {
         INIT, // stay at A; reset; do some testings: arm, lights, etc.
         MOVE_A2B, // move 45 degrees forward 3 feet
+        SEEK_TAG, // look forward to seek apriltag, drop the cone/cube
         CROSS_DOCK_B2C, // 0 degree to cross the charging station
         SEEK_OBJ_C, // vision, seek the cone/cube, and pick it up
         MOVE_C2D,// trun 90 degree, 4 feet
-        SEEK_TAG_D, // look forward to seek apriltag, drop the cone/cube
         MOVE_STAY_D2E, // backward to charger station, turn -90 degree, and move backward on to station
         EXIT
     }
@@ -171,7 +171,15 @@ public class StateMachine {
                     break;
                 }
                 missionMOVE_A2B();
-                break;
+                break; 
+            case SEEK_TAG:
+                if (missionRunTimer.get() > missionStepTimeout) {
+                    // Error!
+                    setMissionTo(Mission.EXIT);
+                    break;
+                }
+                missionSEEK_TAG();
+                break; 
             case CROSS_DOCK_B2C:
                 if (missionRunTimer.get() > missionStepTimeout) {
                     // Error!
@@ -195,15 +203,7 @@ public class StateMachine {
                     break;
                 }
                 missionMOVE_C2D();
-                break;   
-            case SEEK_TAG_D:
-                if (missionRunTimer.get() > missionStepTimeout) {
-                    // Error!
-                    setMissionTo(Mission.EXIT);
-                    break;
-                }
-                missionSEEK_TAG_D();
-                break; 
+                break;  
             case MOVE_STAY_D2E:
                 if (missionRunTimer.get() > missionStepTimeout) {
                     // Error!
@@ -243,7 +243,7 @@ public class StateMachine {
             drive.resetEncoder();
             setTaskTo(1);
         } else if (currentTaskID == 1) {
-            if (taskRunTimeout.get() > 3) {
+            if (taskRunTimeout.get() > 2) {
                 setTaskTo(2);
             }
         } else {
@@ -259,8 +259,8 @@ public class StateMachine {
             }*/
             setTaskTo(1);
         } else if (currentTaskID == 1) {
-            boolean done = driveStraightLoop(0.5, 36, 45, 0, true);
-            if(taskRunTimeout.get() >= 20)
+            boolean done = driveStraightLoop(0.5, 36, 45, 0, false);
+            if(taskRunTimeout.get() >= 10)
             {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
@@ -268,7 +268,7 @@ public class StateMachine {
             }
             else if( done )
             {
-                setMissionTo(Mission.CROSS_DOCK_B2C);
+                setMissionTo(Mission.SEEK_TAG);
             }
             else{}
         } 
@@ -356,13 +356,13 @@ public class StateMachine {
             }
             else if( done )
             {
-                setMissionTo(Mission.SEEK_TAG_D);
+                setMissionTo(Mission.SEEK_TAG);
             }
             else{}
         } 
     }
 
-    private void missionSEEK_TAG_D()
+    private void missionSEEK_TAG()
     {
         if (currentTaskID == 0) {
             boolean hasValidTarget = updateApriltagTracking(22);
@@ -619,14 +619,14 @@ public class StateMachine {
     private double ticks2Go; // how many encode ticks to move
     private double ticks2SlowDown; // when to slow so you don't overshoot
 
-    private boolean driveStraightLoop(double maxDriveSpeed,
+    private boolean driveStraightLoop(double maxForwardDriveSpeed,
                                      double distance,
                                      double heading,
                                      int upOrDown,
                                      boolean continueMove) {
         if(!hasInitStraight) {
             hasInitStraight = true;
-            drivePower = maxDriveSpeed;
+            drivePower = 0.3;
             ticks2Go = drive.meterToTicks(3);//inches2Ticks(distance); // set up encoder stop condition
             ticks2SlowDown = ticks2Go*0.2;//inches2Ticks(distance*0.2); // set up encoder slow down condition
         }
@@ -636,23 +636,21 @@ public class StateMachine {
             drivePower = 0.1; // cut power prepare to stop
 
         if (position >= ticks2Go) { // reached desired encoder position
-            // if !continueMove then tankDrive (0,0)
-            drive.setPower(0, 0);
+            if (continueMove) {
+                drive.setPower(0.1,0.1);
+            } 
+            else {
+                drive.setPower(0, 0);
+            }
             return true;
         } 
         else { // move straight
             double rotateToAngleRate = turnControllerImu.calculate(ahrs.getYaw(), heading); // calc error correction
-            tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
-            tankDriveRightSpeed = (drivePower - rotateToAngleRate);
+            //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
+            //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
+            tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
+            tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
             drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
-            // if (heading > 0) {
-            //     drive.setPower(0.3, 0);
-            // } else if (heading < 0) {
-            //     drive.setPower(0, 0.3);
-            // } else {            
-            //     drive.setPower(0.3, 0.3);
-            // }
-            
 
             // motor powers
             //System.out.println("drive power = " + drivePower + "  rotToAngleRate = " + rotateToAngleRate
