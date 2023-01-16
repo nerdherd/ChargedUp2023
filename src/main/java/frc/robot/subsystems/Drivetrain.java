@@ -176,6 +176,7 @@ public class Drivetrain extends SubsystemBase{
         else{
             forwardSpeed = 0;
         }
+        SmartDashboard.putNumber("ForwardSpeed", forwardSpeed);
         return forwardSpeed;
     }
 
