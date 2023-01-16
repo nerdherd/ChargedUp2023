@@ -259,7 +259,7 @@ public class StateMachine {
             }*/
             setTaskTo(1);
         } else if (currentTaskID == 1) {
-            boolean done = driveStraightLoop(0.5, 36, 45, 0, false);
+            boolean done = driveStraightLoop(0.5, 2, 45, 0, false);
             if(taskRunTimeout.get() >= 10)
             {
                 // timeout, bad! should not happen at all
@@ -277,7 +277,7 @@ public class StateMachine {
     private void missionCROSS_DOCK_B2C()
     {
         if (currentTaskID == 0) {
-            boolean done = driveStraightLoop(0.8, 24, 0, 1, true);
+            boolean done = driveStraightLoop(0.8, 1, 0, 1, true);
             if (taskRunTimeout.get() >= 2) {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
@@ -288,7 +288,7 @@ public class StateMachine {
                 setTaskTo(1);
             }
         } else if (currentTaskID == 1) {
-            boolean done = driveStraightLoop(0.3, 24, 0, -1, true);
+            boolean done = driveStraightLoop(0.3, 1, 0, -1, true);
             if (taskRunTimeout.get() >= 2) {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
@@ -347,7 +347,7 @@ public class StateMachine {
             }*/
             setTaskTo(1);
         } else if (currentTaskID == 1) {
-            boolean done = driveStraightLoop(0.5, 48, -90, 0, false);
+            boolean done = driveStraightLoop(0.5, 4, -90, 0, false);
             if(taskRunTimeout.get() >= 5)
             {
                 // timeout, bad! should not happen at all
@@ -643,14 +643,14 @@ public class StateMachine {
     private double ticks2SlowDown; // when to slow so you don't overshoot
 
     private boolean driveStraightLoop(double maxForwardDriveSpeed,
-                                     double distance,
+                                     double distanceMeter,
                                      double heading,
                                      int upOrDown,
                                      boolean continueMove) {
         if(!hasInitStraight) {
             hasInitStraight = true;
             drivePower = 0.3;
-            ticks2Go = drive.meterToTicks(3);//inches2Ticks(distance); // set up encoder stop condition
+            ticks2Go = drive.meterToTicks(distanceMeter);//inches2Ticks(distance); // set up encoder stop condition
             ticks2SlowDown = ticks2Go*0.2;//inches2Ticks(distance*0.2); // set up encoder slow down condition
         }
 
