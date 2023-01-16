@@ -26,10 +26,10 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
  
 public class Drivetrain extends SubsystemBase{
-    private WPI_TalonFX rightMaster;
-    private WPI_TalonFX leftMaster;
-    private WPI_TalonFX rightFollower;
-    private WPI_TalonFX leftFollower;
+    private TalonFX rightMaster;
+    private TalonFX leftMaster;
+    private TalonFX rightFollower;
+    private TalonFX leftFollower;
  
     private DifferentialDrive drive;
     private MotorControllerGroup leftMotors;
@@ -44,15 +44,15 @@ public class Drivetrain extends SubsystemBase{
     public Drivetrain(Vision vision) {
         ahrs = RobotContainer.ahrs.ahrs;
 
-        rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
-        leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
-        rightFollower = new WPI_TalonFX(DriveConstants.kRightFollowerID);
-        leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
+        rightMaster = new TalonFX(DriveConstants.kLeftFollowerID);
+        leftMaster = new TalonFX(DriveConstants.kRightFollowerID);
+        rightFollower = new TalonFX(DriveConstants.kLeftFollower2ID);
+        leftFollower = new TalonFX(DriveConstants.kRightFollower2ID);
 
         rightMaster.setInverted(false);
         rightFollower.setInverted(false);
-        leftMaster.setInverted(false);
-        leftFollower.setInverted(false);
+        leftMaster.setInverted(true);
+        leftFollower.setInverted(true);
         
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.supplyCurrLimit.enable = true;
@@ -67,7 +67,6 @@ public class Drivetrain extends SubsystemBase{
         leftFollower.follow(leftMaster);
         rightFollower.follow(rightMaster);
         
-        // ============= Differential Drive Functional ============= 
         // rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
         // leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
         // rightFollower = new WPI_TalonFX(DriveConstants.kRightFollowerID);
@@ -79,9 +78,8 @@ public class Drivetrain extends SubsystemBase{
         // rightMotors.setInverted(true);
         // leftMotors.setInverted(false);
         
-        // //check inversion to make drivetrain extend differential drive
-        // drive = new DifferentialDrive(leftMotors, rightMotors);
-        // drive.setSafetyEnabled(false);
+        // check inversion to make drivetrain extend differential drive
+        // drive = new DifferentialDrive(leftMaster, rightMaster);
  
         this.vision = vision;
     }
@@ -150,6 +148,9 @@ public class Drivetrain extends SubsystemBase{
  
     }
 
+
+    
+
     public void setNeutralCoast() {
         rightMaster.setNeutralMode(NeutralMode.Coast);
         leftMaster.setNeutralMode(NeutralMode.Coast);
@@ -170,8 +171,17 @@ public class Drivetrain extends SubsystemBase{
         // rightMotors.setVoltage(rightPower);
     }
 
+    public void resetEncoder() {
+        leftMaster.setSelectedSensorPosition(0);
+        rightMaster.setSelectedSensorPosition(0);
+    }
 
-    private double meterToTicks(double meterDist) {
+    public double getTicks() {
+        return leftMaster.getSelectedSensorPosition();
+    }
+
+
+    public double meterToTicks(double meterDist) {
         double feetDist = meterDist * 3.2808399;
         double ticks = DriveConstants.kTicksPerFoot * feetDist;
         return ticks;

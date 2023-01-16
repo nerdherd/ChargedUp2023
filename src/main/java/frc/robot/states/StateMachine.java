@@ -129,11 +129,11 @@ public class StateMachine {
 
     private void setMissionTo(Mission newMission) {
         // debug: TODO
-        if (newMission == Mission.MOVE_A2B) {  // THIS WAS MISSION.CROSS_DOCK_B2C
-            currentMission = Mission.EXIT;
-            missionStepTimeout = 1000;
-            return;
-        }
+        // if (newMission == Mission.MOVE_A2B) {  // THIS WAS MISSION.CROSS_DOCK_B2C
+        //     currentMission = Mission.EXIT;
+        //     missionStepTimeout = 1000;
+        //     return;
+        // }
         // end debug
 
         previousMission = currentMission;
@@ -240,10 +240,10 @@ public class StateMachine {
             //turnControllerImu.setSetpoint(ahrs.getYaw());
             resetDriveLoops();
             ahrs.reset();// Clockwise = positive angle
-            
+            drive.resetEncoder();
             setTaskTo(1);
         } else if (currentTaskID == 1) {
-            if (taskRunTimeout.get() > 1000) {
+            if (taskRunTimeout.get() > 3) {
                 setTaskTo(2);
             }
         } else {
@@ -260,7 +260,7 @@ public class StateMachine {
             setTaskTo(1);
         } else if (currentTaskID == 1) {
             boolean done = driveStraightLoop(0.5, 36, 45, 0, true);
-            if(taskRunTimeout.get() >= 5)
+            if(taskRunTimeout.get() >= 20)
             {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
@@ -614,7 +614,7 @@ public class StateMachine {
     */
     private boolean hasInitStraight = false;
     //PIDController forwardControllerImu = new PIDController(0.1, 0, 0);
-    PIDController turnControllerImu = new PIDController(0.1, 0, 0);
+    PIDController turnControllerImu = new PIDController(0.001, 0, 0);
 
     private double ticks2Go; // how many encode ticks to move
     private double ticks2SlowDown; // when to slow so you don't overshoot
@@ -627,24 +627,33 @@ public class StateMachine {
         if(!hasInitStraight) {
             hasInitStraight = true;
             drivePower = maxDriveSpeed;
-            ticks2Go = inches2Ticks(distance); // set up encoder stop condition
-            ticks2SlowDown = inches2Ticks(distance*0.2); // set up encoder slow down condition
+            ticks2Go = drive.meterToTicks(3);//inches2Ticks(distance); // set up encoder stop condition
+            ticks2SlowDown = ticks2Go*0.2;//inches2Ticks(distance*0.2); // set up encoder slow down condition
         }
 
-        double position = 0;//leftMotor.getSelectedSensorPosition(0);
+        double position = drive.getTicks();
         if ((ticks2Go + position) < ticks2SlowDown)
-            drivePower = 0.3; // cut power prepare to stop
+            drivePower = 0.1; // cut power prepare to stop
 
-        if (position <= -ticks2Go) { // reached desired encoder position
+        if (position >= ticks2Go) { // reached desired encoder position
             // if !continueMove then tankDrive (0,0)
+            drive.setPower(0, 0);
             return true;
         } 
         else { // move straight
             double rotateToAngleRate = turnControllerImu.calculate(ahrs.getYaw(), heading); // calc error correction
-            tankDriveLeftSpeed = -(drivePower + rotateToAngleRate);
-            tankDriveRightSpeed = -(drivePower - rotateToAngleRate);
-            drive.tankDrive(tankDriveLeftSpeed, tankDriveRightSpeed);
-                                                                                                    
+            tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
+            tankDriveRightSpeed = (drivePower - rotateToAngleRate);
+            drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
+            // if (heading > 0) {
+            //     drive.setPower(0.3, 0);
+            // } else if (heading < 0) {
+            //     drive.setPower(0, 0.3);
+            // } else {            
+            //     drive.setPower(0.3, 0.3);
+            // }
+            
+
             // motor powers
             //System.out.println("drive power = " + drivePower + "  rotToAngleRate = " + rotateToAngleRate
             //        + "  sensorPosition = " + leftMotor.getSelectedSensorPosition(0) + "  ticksToGo = " + ticks2Go);
