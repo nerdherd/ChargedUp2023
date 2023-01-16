@@ -166,6 +166,19 @@ public class Drivetrain extends SubsystemBase{
         return forwardSpeed;
     }
 
+    public double getAprilTagAreaLinear(){
+        double forwardSpeed;
+        if(vision.limelightHasTargets){
+            double range = vision.getArea()*VisionConstants.kAreaConstant;
+            forwardSpeed = - forwardController.calculate(range, VisionConstants.kGoalRangeMeters);
+            SmartDashboard.putNumber("Range", range);
+        }
+        else{
+            forwardSpeed = 0;
+        }
+        return forwardSpeed;
+    }
+
     public double getHeading() {
         return ahrs.getYaw();
     }

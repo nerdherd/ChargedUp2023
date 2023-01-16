@@ -89,9 +89,10 @@ public final class Constants {
 
   public static class VisionConstants{
     public static final double kCameraHeightMeters = Units.inchesToMeters(33.875);
-    public static final double kTargetHeightMeters = Units.inchesToMeters(50);
+    public static final double kTargetHeightMeters = Units.inchesToMeters(75);
     public static final double kCameraPitchRadians = Units.degreesToRadians(30);
     public static final double kGoalRangeMeters = Units.inchesToMeters(0);
+    public static final double kAreaConstant = 0;
   }
 
   public static final class TankAutoConstants {
