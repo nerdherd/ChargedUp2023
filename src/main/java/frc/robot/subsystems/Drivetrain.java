@@ -3,6 +3,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -66,21 +67,52 @@ public class Drivetrain extends SubsystemBase{
         leftFollower.follow(leftMaster);
         rightFollower.follow(rightMaster);
         
-        // rightMaster = new WPI_TalonFX(DriveConstants.kRightMasterID);
-        // leftMaster = new WPI_TalonFX(DriveConstants.kLeftMasterID);
-        // rightFollower = new WPI_TalonFX(DriveConstants.kRightFollowerID);
-        // leftFollower = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
+        
 
-        // leftMotors = new MotorControllerGroup(leftMaster, leftFollower);
-        // rightMotors = new MotorControllerGroup(rightMaster, rightFollower);
-        
-        // rightMotors.setInverted(true);
-        // leftMotors.setInverted(false);
-        
-        // check inversion to make drivetrain extend differential drive
-        // drive = new DifferentialDrive(leftMaster, rightMaster);
- 
         this.vision = vision;
+    }
+
+
+    
+    WPI_TalonFX rightMaster_w ;//= new WPI_TalonFX(DriveConstants.kRightMasterID);
+    WPI_TalonFX leftMaster_w;// = new WPI_TalonFX(DriveConstants.kLeftMasterID);
+    WPI_TalonFX rightFollower_w;// = new WPI_TalonFX(DriveConstants.kRightFollowerID);
+    WPI_TalonFX leftFollower_w;// = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
+
+    public void buildDiffDrive()
+    {
+        rightMaster_w = new WPI_TalonFX(DriveConstants.kRightMasterID);
+        leftMaster_w = new WPI_TalonFX(DriveConstants.kLeftMasterID);
+        rightFollower_w = new WPI_TalonFX(DriveConstants.kRightFollowerID);
+        leftFollower_w = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
+
+        //leftMotors = new MotorControllerGroup(leftMaster, leftFollower);
+        //rightMotors = new MotorControllerGroup(rightMaster, rightFollower);
+        leftFollower_w.follow(leftMaster_w);
+        rightFollower_w.follow(rightMaster_w);
+
+        leftFollower_w.configFactoryDefault();
+        leftMaster_w.configFactoryDefault();
+        rightMaster_w.configFactoryDefault();
+        rightFollower_w.configFactoryDefault();
+
+        rightMaster_w.setInverted(false);//TalonFXInvertType.Clockwise
+        rightFollower_w.setInverted(TalonFXInvertType.FollowMaster);
+        leftMaster_w.setInverted(false);
+        leftFollower_w.setInverted(TalonFXInvertType.FollowMaster);
+    
+        // check inversion to make drivetrain extend differential drive
+        drive = new DifferentialDrive(leftMaster_w, rightMaster_w);
+
+        //rightMotors.setInverted(true);
+        //leftMotors.setInverted(false);
+    }
+
+    public void zeroDiffDriveSensors() // no wait
+    {
+        rightMaster_w.setSelectedSensorPosition(0);
+        leftMaster_w.setSelectedSensorPosition(0);
+        //rightMaster_w.getSensorCollection().setIntegratedSensorPosition(0, 0);
     }
  
     public void tankDrive(double leftInput, double rightInput) {

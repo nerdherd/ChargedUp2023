@@ -237,7 +237,7 @@ public class StateMachine {
 
     private void missionINIT() {
         if (currentTaskID == 0) {
-            turnControllerImu.setSetpoint(ahrs.getYaw());
+            //turnControllerImu.setSetpoint(ahrs.getYaw());
             resetDriveLoops();
             ahrs.reset();
             
