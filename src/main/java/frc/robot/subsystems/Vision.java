@@ -50,6 +50,10 @@ public class Vision extends SubsystemBase{
         return photonTrackedTarget.getFiducialId();
     }
 
+    public double getArea(){
+        return photonTrackedTarget.getArea();
+    }
+
     private void logToSmartDashboard() {
         SmartDashboard.putNumber("Yaw", getYaw());
         SmartDashboard.putNumber("ID", getFiducialId());

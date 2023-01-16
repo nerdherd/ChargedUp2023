@@ -65,6 +65,7 @@ public class RobotContainer {
   // Two different drivetrain modes
   private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
   private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
+  private RunCommand visionRunCommandArea = new RunCommand(() -> drive.arcadeDrive(drive.getAprilTagAreaLinear(), drive.getApriltagRotation()), drive);
 
   // public Command swerveCommand = new RepeatCommand(
   //   new SequentialCommandGroup(
@@ -94,8 +95,8 @@ public class RobotContainer {
     driverController.square().whileTrue(claw.clawOpen());
     driverController.cross().whileTrue(claw.clawClose());
 
-    // driverController.circle().onFalse(arcadeRunCommand);
-    // driverController.circle().whileTrue(visionRunCommand);
+    driverController.circle().onFalse(arcadeRunCommand);
+    driverController.circle().whileTrue(visionRunCommandArea);
     // driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
     // driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
     
