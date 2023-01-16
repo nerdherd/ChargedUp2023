@@ -122,14 +122,14 @@ public class StateMachine {
         ahrs.zeroYaw();
     }
 
-    int missionStepTimeout = 10; // TODO debug
+    int missionStepTimeout = 1000; // TODO debug
     private Mission currentMission = Mission.INIT; // debug: TODO
     private Mission previousMission = Mission.INIT;
     private final Timer missionRunTimer = new Timer();
 
     private void setMissionTo(Mission newMission) {
         // debug: TODO
-        if (newMission == Mission.CROSS_DOCK_B2C) {
+        if (newMission == Mission.MOVE_A2B) {  // THIS WAS MISSION.CROSS_DOCK_B2C
             currentMission = Mission.EXIT;
             missionStepTimeout = 1000;
             return;
@@ -239,9 +239,11 @@ public class StateMachine {
         if (currentTaskID == 0) {
             turnControllerImu.setSetpoint(ahrs.getYaw());
             resetDriveLoops();
+            ahrs.reset();
+            
             setTaskTo(1);
         } else if (currentTaskID == 1) {
-            if (taskRunTimeout.get() > 3) {
+            if (taskRunTimeout.get() > 1000) {
                 setTaskTo(2);
             }
         } else {
