@@ -73,7 +73,8 @@ public class RobotContainer {
             () -> -driverController.getLeftY(),  
             driverController::getLeftX, 
             driverController::getRightY, 
-            driverControllerButtons::getSquareButton));
+            driverControllerButtons::getSquareButton,
+            driverControllerButtons::getTriangleButton));
       
 	// Configure the trigger bindings
     configureBindings();
@@ -96,7 +97,6 @@ public class RobotContainer {
     driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
     // SmartDashboard.putData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
     // driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
-    driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
   }
 
   public void configurePeriodic() {

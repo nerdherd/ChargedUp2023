@@ -3,6 +3,7 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -10,12 +11,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import static frc.robot.Constants.SwerveDriveConstants.*;
 
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 public class SwerveJoystickCommand extends CommandBase {
     private final SwerveDrivetrain swerveDrive;
     private final Supplier<Double> xSpdFunction, ySpdFunction, turningSpdFunction;
     private final Supplier<Boolean> fieldOrientedFunction;
+    private final Supplier<Boolean> towSupplier;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
     private double prevXInput, prevYInput = 0.0;
@@ -31,12 +34,13 @@ public class SwerveJoystickCommand extends CommandBase {
      */
     public SwerveJoystickCommand(SwerveDrivetrain swerveDrive,
             Supplier<Double> xSpdFunction, Supplier<Double> ySpdFunction, Supplier<Double> turningSpdFunction,
-            Supplier<Boolean> fieldOrientedFunction) {
+            Supplier<Boolean> fieldOrientedFunction, Supplier<Boolean> towSupplier) {
         this.swerveDrive = swerveDrive;
         this.xSpdFunction = xSpdFunction;
         this.ySpdFunction = ySpdFunction;
         this.turningSpdFunction = turningSpdFunction;
         this.fieldOrientedFunction = fieldOrientedFunction;
+        this.towSupplier = towSupplier;
         this.xLimiter = new SlewRateLimiter(kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(kTeleDriveMaxAngularAccelerationUnitsPerSecond);
@@ -57,6 +61,11 @@ public class SwerveJoystickCommand extends CommandBase {
 
     @Override
     public void execute() {
+        if (towSupplier.get()) {
+            swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates);
+            return;
+        }
+
         // get speeds
         double xSpeed = xSpdFunction.get();
         double ySpeed = ySpdFunction.get();
@@ -108,5 +117,10 @@ public class SwerveJoystickCommand extends CommandBase {
         // Calculate swerve module states
         SwerveModuleState[] moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         swerveDrive.setModuleStates(moduleStates);
+
+        SmartDashboard.putNumber("Swerve 1 angle", moduleStates[0].angle.getDegrees());
+        SmartDashboard.putNumber("Swerve 2 angle", moduleStates[1].angle.getDegrees());
+        SmartDashboard.putNumber("Swerve 3 angle", moduleStates[2].angle.getDegrees());
+        SmartDashboard.putNumber("Swerve 4 angle", moduleStates[3].angle.getDegrees());
     }
 }

@@ -4,8 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
@@ -168,6 +170,14 @@ public final class Constants {
     
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
+
+    public static final SwerveModuleState[] towModuleStates = 
+    new SwerveModuleState[] {
+        new SwerveModuleState(0.01, Rotation2d.fromDegrees(45)),
+        new SwerveModuleState(0.01, Rotation2d.fromDegrees(135)),
+        new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
+        new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
+    };
   }
 
   public static final class SwerveAutoConstants {
