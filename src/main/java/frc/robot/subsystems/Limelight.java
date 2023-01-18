@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Limelight.LightMode.SnapMode;
+import frc.robot.util.NerdyMath;
 
 public class Limelight {
     private static Limelight m_Instance;
@@ -145,7 +146,8 @@ public class Limelight {
      * @return Whether the limelight has any valid targets (0 or 1)
      */
     public boolean hasValidTarget() {
-        return (table.getEntry("tv").getDouble(0) == 0) ? false : true;
+        boolean has = NerdyMath.inRange(table.getEntry("tv").getDouble(0), -0.01, 0.01);
+        return !has;
     }
 
     /**

@@ -1,5 +1,6 @@
 package frc.robot.states;
 
+import java.sql.Struct;
 import java.util.ResourceBundle.Control;
 
 import org.photonvision.PhotonCamera;
@@ -17,13 +18,16 @@ import edu.wpi.first.wpilibj.Joystick;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Limelight.LightMode;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Claw;
 import frc.robot.util.NerdyMath;
@@ -79,15 +83,25 @@ public class StateMachine {
         MOVE_A2B, // move 45 degrees forward 3 feet
         SEEK_TAG, // look forward to seek apriltag, drop the cone/cube
         CROSS_DOCK_B2C, // 0 degree to cross the charging station
-        SEEK_OBJ_C, // vision, seek the cone/cube, and pick it up
+        SEEK_OBJ_DROP_CONE, // vision, seek the tape, and drop cone
+        SEEK_OBJ_PICK_CONE, // vision, seek the cone, and pick it up
         MOVE_C2D,// trun 90 degree, 4 feet
         MOVE_STAY_D2E, // backward to charger station, turn -90 degree, and move backward on to station
         EXIT
     }
-    private enum GameElement {
-        CUBE,
-        CONE,
-        TAPE
+
+    public enum GameElement {
+        // make sure sync with Camera hardware configuration
+        NONE(0), CUBE(1), CONE(2), TAPE(3);
+
+        private int type;
+
+        private GameElement(int type) {
+            this.type = type;
+        }
+        public int getType() {
+            return type;
+        }
     }
 
     public StateMachine() {
@@ -138,8 +152,9 @@ public class StateMachine {
 
         previousMission = currentMission;
         currentMission = newMission;
-        missionRunTimer.reset();
         setTaskTo(0);
+        missionRunTimer.reset();
+        missionRunTimer.start();
     }
 
     private int currentTaskID = 0;
@@ -153,7 +168,9 @@ public class StateMachine {
         taskRunTimeout.start();
     }
 
+    int MissionHeartBeat = 0;
     public void ExecutionPeriod() {
+        MissionHeartBeat++;
         switch (currentMission) {
             case INIT:
                 // find self init position, read parking zone picture, drop preload
@@ -162,7 +179,7 @@ public class StateMachine {
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionINIT();
+                missionINIT(Mission.MOVE_A2B);
                 break;
             case MOVE_A2B:
                 if (missionRunTimer.get() > missionStepTimeout) {
@@ -170,8 +187,16 @@ public class StateMachine {
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionMOVE_A2B();
+                missionMOVE_A2B(Mission.SEEK_OBJ_PICK_CONE);
                 break; 
+            case SEEK_OBJ_PICK_CONE:
+                if (missionRunTimer.get() > missionStepTimeout) {
+                    // Error!
+                    setMissionTo(Mission.EXIT);
+                    break;
+                }
+                missionSEEK_OBJ(GameElement.CONE, Mission.SEEK_OBJ_DROP_CONE);
+                break;
             case SEEK_TAG:
                 if (missionRunTimer.get() > missionStepTimeout) {
                     // Error!
@@ -188,13 +213,13 @@ public class StateMachine {
                 }
                 missionCROSS_DOCK_B2C();
                 break;
-            case SEEK_OBJ_C:
+            case SEEK_OBJ_DROP_CONE:
                 if (missionRunTimer.get() > missionStepTimeout) {
                     // Error!
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionSEEK_OBJ_C(GameElement.CONE);
+                missionSEEK_OBJ(GameElement.TAPE, Mission.MOVE_C2D);
                 break;
             case MOVE_C2D:
                 if (missionRunTimer.get() > missionStepTimeout) {
@@ -235,7 +260,7 @@ public class StateMachine {
         objDetectionReport();
     }
 
-    private void missionINIT() {
+    private void missionINIT(Mission nextMission) {
         if (currentTaskID == 0) {
             //turnControllerImu.setSetpoint(ahrs.getYaw());
             resetDriveLoops();
@@ -247,11 +272,11 @@ public class StateMachine {
                 setTaskTo(2);
             }
         } else {
-            setMissionTo(Mission.MOVE_A2B);
+            setMissionTo(nextMission);
         }
     }
 
-    private void missionMOVE_A2B() {
+    private void missionMOVE_A2B(Mission nextMission) {
         if (currentTaskID == 0) {
             // set encoder to zero
             /*if ((error = leftMotor.setSelectedSensorPosition(0.0)) != ErrorCode.OK) {
@@ -268,7 +293,7 @@ public class StateMachine {
             }
             else if( done )
             {
-                setMissionTo(Mission.SEEK_TAG);
+                setMissionTo(nextMission);
             }
             else{}
         } 
@@ -299,28 +324,29 @@ public class StateMachine {
                 setTaskTo(2);
             }
         } else {
-            setMissionTo(Mission.SEEK_OBJ_C);
+            setMissionTo(Mission.SEEK_OBJ_DROP_CONE);
         }
     }
 
-    private void missionSEEK_OBJ_C(GameElement type)
+    CAMERA_MODE objCameraStatus = CAMERA_MODE.IDLE;
+    private void missionSEEK_OBJ(GameElement type, Mission nexMission)
     {
         if (currentTaskID == 0) {
-            boolean hasValidTarget = Update_Limelight_Tracking(type);
-            if (taskRunTimeout.get() >= 5) {
-                // timeout, bad! we might to move robot a bit to try it again
+            resetObjDetectionLoops();
+            objCameraStatus = CAMERA_MODE.IDLE;
+            setTaskTo(1);
+        }
+        else if(currentTaskID == 1) {
+            objCameraStatus = UpdateObjectTracking(type);
+            if (taskRunTimeout.get() >= 5000) { // TODO DEBUG
+                // timeout, bad! we might move robot a bit and try again
                 setMissionTo(Mission.EXIT);
             }
-            else if (hasValidTarget)
+            else if (objCameraStatus == CAMERA_MODE.ARRIVED)
             {
-                drive.arcadeDrive(arcadeDriveCommand,arcadeSteerCommand);
-                if(NerdyMath.inRange(arcadeDriveCommand, -0.05, 0.05) &&
-                NerdyMath.inRange(arcadeSteerCommand, -0.05, 0.05))
-                {
-                    setTaskTo(1);
-                }
+                setTaskTo(2);
             }
-        } else if (currentTaskID == 1) {
+        } else if (currentTaskID == 2) {
             if(type == GameElement.CONE || type == GameElement.CUBE)
             {
                 // close the claw
@@ -331,10 +357,10 @@ public class StateMachine {
                 // open the claw
                 clawControl(true);
             }
-            setTaskTo(2);
+            setTaskTo(3);
         } else {
-            if (taskRunTimeout.get() > 1) {
-                setMissionTo(Mission.MOVE_C2D);
+            if (taskRunTimeout.get() > 1) { 
+                setMissionTo(nexMission);
             }
         }
     }
@@ -429,66 +455,146 @@ public class StateMachine {
      * Finding the object/apriltag 
      * ====================================================================================================
      */
+
+     private void resetObjDetectionLoops()
+     {
+        hadInitGameObjDetection = false;
+     }
+
+    private boolean hadInitGameObjDetection = false;
     final double STEER_K = 0.03;                    // how hard to turn toward the target
     final double DRIVE_K = 0.26;                    // how hard to drive fwd toward the target
-    private boolean Update_Limelight_Tracking( GameElement gameObj )
+    enum CAMERA_MODE
+    {
+        WAIT, // found zero, or more than 1
+        IDLE, // doing nothing, wrong pipeline or others
+        STOP, // stop movement
+        ACTION,// detected one, and approach to it
+        ARRIVED // found
+    }
+    double driveMaxPowerObjDetection = 0.6;
+    double driveMinPowerToMove = 0.1;
+    PIDController forwardControllerObj = new PIDController(0, 0, 0);
+    PIDController turnControllerObj = new PIDController(0, 0, 0);
+    /*class ObjectDistance2Area
+    {
+        double TARGET_REAL_SIZE = 1;
+        double DESIRED_TARGET_AREA = 1; // Area of the target, with 1 meter distance
+        double TARGET_1dot5METER_AREA = 1;
+        double TARGET_2_METERS_AREA = 1;
+    }
+    ObjectDistance2Area objectConf = new ObjectDistance2Area();*/
+    //ProfiledPIDController a; // TODO
+    private CAMERA_MODE UpdateObjectTracking( GameElement gameObj )
     {
         // These numbers must be tuned for your Robot!  Be careful!
-        final double DESIRED_TARGET_AREA = 13.0;        // Area of the target when the robot reaches the wall
+        // 0.20->1.5 meters; 0.104->2 meters (object size: 5x10 cm2)
+             
         final double MAX_DRIVE = 0.5;                   // Simple speed limit so we don't drive too fast
+        if(!hadInitGameObjDetection)
+        {
+            hadInitGameObjDetection = true;
+            objDetectCamera.setPipeline(gameObj.getType());
+            if(gameObj == GameElement.CONE)
+            {
+                forwardControllerObj.setP(0.05);
+                turnControllerObj.setP(0.03);
+            }
+            else if(gameObj == GameElement.CUBE)
+            {
+                forwardControllerObj.setP(0.1);
+                turnControllerObj.setP(0.1);
+            }
+            else if(gameObj == GameElement.TAPE)
+            {
+                objDetectCamera.setLightState(LightMode.ON);
+                forwardControllerObj.setP(0.08);
+                turnControllerObj.setP(0.03);
+                /*objectConf.DESIRED_TARGET_AREA = 0.437; 
+                objectConf.TARGET_1dot5METER_AREA = 0.2;
+                objectConf.TARGET_2_METERS_AREA = 0.104;
+                objectConf.TARGET_REAL_SIZE = 0.05*0.1;*/
+            }
+            else {
+                hadInitGameObjDetection = false;
+                objDetectCamera.setLightState(LightMode.OFF);
+                return CAMERA_MODE.IDLE;
+            }
+        }
 
-        if(gameObj == GameElement.CONE)
-        {
-            objDetectCamera.setPipeline(1);
-        }
-        else if(gameObj == GameElement.CUBE)
-        {
-            objDetectCamera.setPipeline(2);
-        }
-        else if(gameObj == GameElement.TAPE)
-        {
-            objDetectCamera.setPipeline(3);
-        }
-        else {
-            return false;
-        }
-
-        boolean m_LimelightHasValidTarget = objDetectCamera.hasValidTarget();// tableApriltag.getEntry("tv").getDouble(0);
-        double tx = objDetectCamera.getHorizontalLength();//tableApriltag.getEntry("tx").getDouble(0);
-        double ty = objDetectCamera.getVerticalLength();//tableApriltag.getEntry("ty").getDouble(0);
+        boolean hasValidTarget = objDetectCamera.hasValidTarget();// tableApriltag.getEntry("tv").getDouble(0);
+        // calibration is needed
+        double tx = objDetectCamera.getXAngle();//getHorizontalLength();//tableApriltag.getEntry("tx").getDouble(0);
+        double ty = objDetectCamera.getYAngle();//getVerticalLength();//tableApriltag.getEntry("ty").getDouble(0);
         double ta = objDetectCamera.getArea();//tableApriltag.getEntry("ta").getDouble(0);
 
-        if (m_LimelightHasValidTarget == false)
+        
+        //double leftpower;
+        //double rightpower;
+
+        if (hasValidTarget == false)
         {
-          arcadeDriveCommand = 0.0;
-          arcadeSteerCommand = 0.0;
-          return false;
+            tankDriveLeftSpeed = tankDriveRightSpeed = 0.0;
+            drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
+            return CAMERA_MODE.WAIT;
         }
 
-        m_LimelightHasValidTarget = true;
-
-        // Start with proportional steering
-        double steer_cmd = tx * STEER_K;
-        arcadeSteerCommand = steer_cmd;
-        if(arcadeSteerCommand > 0.05 && arcadeSteerCommand < 0.1) {
-            arcadeSteerCommand = 0.1;
-        }
-        if(arcadeSteerCommand < -0.05 && arcadeSteerCommand > -0.1) {
-            arcadeSteerCommand = -0.1;
-        }
-
-        // try to drive forward until the target area reaches our desired area
-        double drive_cmd = (DESIRED_TARGET_AREA - ta) * DRIVE_K;
-
-        // don't let the robot drive too fast into the goal
-        /*if (drive_cmd > MAX_DRIVE)
+        double steering_adjust = 0;
+        if(tx > 1.0)
         {
-          drive_cmd = MAX_DRIVE;
-        }*/
-        NerdyMath.clamp(drive_cmd, -1*MAX_DRIVE, MAX_DRIVE);
-        arcadeDriveCommand = drive_cmd;
+            steering_adjust = (tx*turnControllerObj.getP()) + driveMinPowerToMove;
+        }
+        else if(tx < -1.0)
+        {
+            steering_adjust = (tx*turnControllerObj.getP()) - driveMinPowerToMove;
+        }
 
-        return true;
+        double distance_adjust = -1 * ty * forwardControllerObj.getP();
+        
+        tankDriveLeftSpeed = distance_adjust + steering_adjust;
+        tankDriveRightSpeed = distance_adjust - steering_adjust;
+        //drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
+
+        /* 
+        if (ta >= objectConf.DESIRED_TARGET_AREA) { // reached desired encoder position
+                leftpower = 0;
+                rightpower = 0;
+        } 
+        else {// move straight
+            double a = forwardControllerObj.calculate(ta, objectConf.DESIRED_TARGET_AREA);
+            if(a > 0 && a < driveMinPowerToMove) {
+                a = driveMinPowerToMove;
+            }
+            else if( a < 0 && a > -1*driveMinPowerToMove)
+            {
+                a = -1*driveMinPowerToMove;
+            }
+            leftpower = rightpower = a;
+        }
+
+        double turncmd = turnControllerObj.calculate(tx, 0); // TODO, calibration is needed
+        leftpower += turncmd;
+        rightpower -= turncmd;*/
+        tankDriveLeftSpeed = NerdyMath.clamp(tankDriveLeftSpeed, -driveMaxPowerObjDetection, driveMaxPowerObjDetection);
+        tankDriveRightSpeed = NerdyMath.clamp(tankDriveRightSpeed, -driveMaxPowerObjDetection, driveMaxPowerObjDetection);
+        
+        if(NerdyMath.inRangeLess(tankDriveLeftSpeed, -1*driveMinPowerToMove, driveMinPowerToMove) && 
+            NerdyMath.inRangeLess(tankDriveRightSpeed, -1*driveMinPowerToMove, driveMinPowerToMove) ) {
+                tankDriveLeftSpeed = tankDriveRightSpeed = 0;
+            drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
+        
+            hadInitGameObjDetection = false;
+            objDetectCamera.setLightState(LightMode.OFF);
+            return CAMERA_MODE.ARRIVED;
+            
+            //return CAMERA_MODE.ACTION; // TODO Debug
+        }
+        else {
+            //tankDriveLeftSpeed = leftpower;
+            //tankDriveRightSpeed = rightpower;
+            drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
+            return CAMERA_MODE.ACTION;
+        }
     }
 
     PIDController forwardControllerApriltag = new PIDController(0.1, 0, 0);
@@ -655,8 +761,8 @@ public class StateMachine {
         }
 
         double position = drive.getTicks();
-        if ((ticks2Go + position) < ticks2SlowDown)
-            drivePower = 0.1; // cut power prepare to stop
+        //if ((ticks2Go + position) < ticks2SlowDown)
+        //    drivePower = 0.1; // cut power prepare to stop
 
         if (position >= ticks2Go) { // reached desired encoder position
             if (continueMove) {
@@ -850,16 +956,18 @@ public class StateMachine {
     }
 
     private void objDetectionReport() {
-        SmartDashboard.putBoolean("HasTarget", objDetectCamera.hasValidTarget());
-        SmartDashboard.putNumber("Horizontal Offset", objDetectCamera.getXAngle());
-        SmartDashboard.putNumber("Vertical Offset", objDetectCamera.getYAngle());
-        SmartDashboard.putNumber("Area", objDetectCamera.getArea());
-        SmartDashboard.putNumber("Skew", objDetectCamera.getSkew());
+        SmartDashboard.putString("Obj Camera Status", objCameraStatus.toString());
+        SmartDashboard.putBoolean("Obj HasTarget", objDetectCamera.hasValidTarget());
+        SmartDashboard.putNumber("Obj Horizontal Offset", objDetectCamera.getXAngle());
+        SmartDashboard.putNumber("Obj Vertical Offset", objDetectCamera.getYAngle());
+        SmartDashboard.putNumber("Obj Area", objDetectCamera.getArea());
+        SmartDashboard.putNumber("Obj Skew", objDetectCamera.getSkew());
     }
 
     private void systemReport() {
         SmartDashboard.putString("Mission ID", currentMission.toString());
-        SmartDashboard.putNumber("Task ID", currentTaskID);
+        SmartDashboard.putNumber("Mission Task ID", currentTaskID);
+        SmartDashboard.putNumber("Mission Running", MissionHeartBeat);
     }
 
     private void drivebaseReport()

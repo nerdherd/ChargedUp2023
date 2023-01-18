@@ -41,4 +41,17 @@ public class NerdyMath {
             return false;
         }
     }
+    
+    public static boolean inRangeLess(double myValue, double min, double max)
+    {
+        if(myValue > min && myValue < max)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 }
