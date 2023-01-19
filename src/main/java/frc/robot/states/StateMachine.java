@@ -24,6 +24,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
@@ -41,6 +42,7 @@ import frc.robot.subsystems.Limelight.LightMode;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Claw;
 import frc.robot.util.NerdyMath;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class StateMachine {
 
@@ -92,11 +94,11 @@ public class StateMachine {
         INIT, // stay at A; reset; do some testings: arm, lights, etc.
         MOVE_A2B, // move 45 degrees forward 3 feet
         SEEK_TAG, // look forward to seek apriltag, drop the cone/cube
-        CROSS_DOCK_B2C, // 0 degree to cross the charging station
         SEEK_OBJ_DROP_CONE, // vision, seek the tape, and drop cone
         SEEK_OBJ_PICK_CONE, // vision, seek the cone, and pick it up
         MOVE_C2D,// trun 90 degree, 4 feet
-        MOVE_STAY_D2E, // backward to charger station, turn -90 degree, and move backward on to station
+        CROSS_DOCK, // 0 degree to cross the charging station
+        STAY_DOCK, // backward to charger station, turn -90 degree, and move backward on to station
         EXIT
     }
 
@@ -143,11 +145,12 @@ public class StateMachine {
         turnControllerImu.setIntegratorRange(-1.0, 1.0); // PID output range to correct
         turnControllerImu.setTolerance(1.0); // tolerance around set heading to accept
         
-        ahrs.zeroYaw();
+        //ahrs.zeroYaw();
+        ahrs.reset();// Clockwise = positive angle
     }
 
     int missionStepTimeout = 1000; // TODO debug
-    private Mission currentMission = Mission.INIT; // debug: TODO
+    private Mission currentMission = Mission.INIT; 
     private Mission previousMission = Mission.INIT;
     private final Timer missionRunTimer = new Timer();
 
@@ -220,13 +223,13 @@ public class StateMachine {
                 }
                 missionSEEK_TAG();
                 break; 
-            case CROSS_DOCK_B2C:
+            case CROSS_DOCK:
                 if (missionRunTimer.get() > missionStepTimeout) {
                     // Error!
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionCROSS_DOCK_B2C();
+                missionCROSS_DOCK();
                 break;
             case SEEK_OBJ_DROP_CONE:
                 if (missionRunTimer.get() > missionStepTimeout) {
@@ -234,7 +237,7 @@ public class StateMachine {
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionSEEK_OBJ(GameElement.TAPE, Mission.MOVE_STAY_D2E);
+                missionSEEK_OBJ(GameElement.TAPE, Mission.STAY_DOCK);
                 break;
             case MOVE_C2D:
                 if (missionRunTimer.get() > missionStepTimeout) {
@@ -244,13 +247,13 @@ public class StateMachine {
                 }
                 missionMOVE_C2D(Mission.SEEK_OBJ_DROP_CONE);
                 break;  
-            case MOVE_STAY_D2E:
+            case STAY_DOCK:
                 if (missionRunTimer.get() > missionStepTimeout) {
                     // Error!
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionMOVE_STAY_D2E();
+                missionSTAY_DOCK();
                 break; 
             default: // EXIT
                 break;
@@ -294,6 +297,7 @@ public class StateMachine {
             drive.arcadeDiffDrive(forward, turn);
         }
 
+        //https://github.com/wpilibsuite/allwpilib/blob/main/wpilibjExamples/src/main/java/edu/wpi/first/wpilibj/examples/differentialdrivebot/Drivetrain.java
         /*final var xSpeed = -m_speedLimiter.calculate(forward) * kMaxSpeed;
         final var rot = -m_rotLimiter.calculate(turn) * kMaxAngularSpeed;
 
@@ -337,7 +341,8 @@ public class StateMachine {
         if (currentTaskID == 0) {
             //turnControllerImu.setSetpoint(ahrs.getYaw());
             resetDriveLoops();
-            ahrs.reset();// Clockwise = positive angle
+            ahrs.zeroYaw();
+            //ahrs.reset();// Clockwise = positive angle
             setTaskTo(1);
         } else if (currentTaskID == 1) {
             if (taskRunTimeout.get() > 2) {
@@ -371,7 +376,7 @@ public class StateMachine {
         } 
     }
 
-    private void missionCROSS_DOCK_B2C()
+    private void missionCROSS_DOCK()
     {
         if (currentTaskID == 0) {
             boolean done = driveStraightLoop(0.8, 1, 0, 1, true);
@@ -504,12 +509,12 @@ public class StateMachine {
         }
         else {
             if (taskRunTimeout.get() > 1) {
-                setMissionTo(Mission.MOVE_STAY_D2E);
+                setMissionTo(Mission.STAY_DOCK);
             }
         }
     }
 
-    private void missionMOVE_STAY_D2E()
+    private void missionSTAY_DOCK()
     {
         if (currentTaskID == 0) {
             
@@ -653,14 +658,13 @@ public class StateMachine {
         
         if(NerdyMath.inRangeLess(tankDriveLeftSpeed, -1*driveMinPowerToMove, driveMinPowerToMove) && 
             NerdyMath.inRangeLess(tankDriveRightSpeed, -1*driveMinPowerToMove, driveMinPowerToMove) ) {
-                tankDriveLeftSpeed = tankDriveRightSpeed = 0;
+
+            tankDriveLeftSpeed = tankDriveRightSpeed = 0;
             drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
         
             hadInitGameObjDetection = false;
             objDetectCamera.setLightState(LightMode.OFF);
             return CAMERA_MODE.ARRIVED;
-            
-            //return CAMERA_MODE.ACTION; // TODO Debug
         }
         else {
             //tankDriveLeftSpeed = leftpower;
@@ -721,15 +725,14 @@ public class StateMachine {
      * All Motor functions are below this line.
      * ====================================================================================================
      */
-
     boolean clawStatusOpen = false;
     private void clawControl( boolean doOpen) {
         clawStatusOpen = doOpen;
         if(doOpen) {
-            RobotContainer.claw.clawOpen().schedule();
+            RobotContainer.claw.clawPiston.set(Value.kForward);
         }
         else {
-            RobotContainer.claw.clawClose().schedule();
+            RobotContainer.claw.clawPiston.set(Value.kReverse);
         }
     }
 
@@ -804,12 +807,10 @@ public class StateMachine {
 
     /**
     *  Method to drive in a straight line, on a fixed compass heading (angle), based on encoder counts.
-    *  Move will stop if either of these conditions occur:
-    *  1) Move gets to the desired position
-    *  2) Driver stops the opmode running.
+    *  Move will stop if Move gets to the desired position
     *
     *  maxDriveSpeed MAX Speed for forward/rev motion (range 0 to +1.0) .
-    *  distance   Distance (in inches) to move from current position.  Negative distance means move backward.
+    *  distance   Distance to move from current position.  Negative distance means move backward.
     *  heading      Absolute Heading Angle (in Degrees) relative to last gyro reset.
     *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
     *                   If a relative angle is required, add/subtract from the current robotHeading.
@@ -865,27 +866,29 @@ public class StateMachine {
 
     /**
      *  Method to spin on central axis to point in a new direction.
-     *  Move will stop if either of these conditions occur:
-     *  1) Move gets to the heading (angle)
-     *  2) Driver stops the opmode running.
-     *
-     *  maxTurnSpeed Desired MAX speed of turn. (range 0 to +1.0)
-     *  heading Absolute Heading Angle (in Degrees) relative to last gyro reset.
-     *              0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
-     *              If a relative angle is required, add/subtract from current heading.
      */
     private boolean hasInitTurnTo = false;
-    private boolean turnToHeadingLoop(double maxTurnSpeed, double heading)
+    // Create a PID controller whose setpoint's change is subject to maximum
+    // velocity and acceleration constraints.
+    private final TrapezoidProfile.Constraints m_constraints =
+        new TrapezoidProfile.Constraints(1, 0.7);
+    private final ProfiledPIDController turnControllerProfiledImu =
+        new ProfiledPIDController(0.05, 0.0, 0.1, m_constraints, 0.02);
+    double[] turnLog = new double[3];
+    private boolean turnToAngleLoop(double heading) // heading -179 to +179
     {
-        if(!hasInitTurnTo)
-        {
-            double turningSpeed = turnControllerImu.calculate(drive.getHeading(), heading);
-
-            if(NerdyMath.inRange(arcadeSteerCommand, 0 , maxTurnSpeed)) {
-                drive.tankDrive(turningSpeed, turningSpeed * -1);
-            }
+        double turningSpeed = turnControllerProfiledImu.calculate(ahrs.getYaw(), heading);
+        turningSpeed = NerdyMath.clamp(turningSpeed, -0.7, 0.7);
+        drive.tankDrive(turningSpeed, -1*turningSpeed);
+        turnLog[0] = turnControllerProfiledImu.getPositionError();
+        turnLog[1] = turningSpeed;
+        turnLog[2] = ahrs.getYaw();
+        if(NerdyMath.inRangeLess(ahrs.getYaw(), heading-1, heading+1)) {
+            return true;
         }
-        return true;
+        else{
+            return false;
+        }
     }
 
 
@@ -1047,10 +1050,11 @@ public class StateMachine {
 
     private void drivebaseReport()
     {
-        SmartDashboard.putNumber("Tank Drive Left", tankDriveLeftSpeed);
-        SmartDashboard.putNumber("Tank Drive Right" ,tankDriveRightSpeed);
-        SmartDashboard.putNumber("Arcade Drive", arcadeDriveCommand);
-        SmartDashboard.putNumber("Arcade Steer" ,arcadeSteerCommand);
+        SmartDashboard.putNumber("Drive Left", tankDriveLeftSpeed);
+        SmartDashboard.putNumber("Drive Right" ,tankDriveRightSpeed);
+        //SmartDashboard.putNumber("Arcade Drive", arcadeDriveCommand);
+        //SmartDashboard.putNumber("Arcade Steer" ,arcadeSteerCommand);
+        SmartDashboard.putNumberArray("Drive Turn P-PID", turnLog);
     }
 
     private void armReport()
