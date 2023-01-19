@@ -13,17 +13,27 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
-
+import edu.wpi.first.wpilibj.DataLogManager;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
@@ -92,7 +102,7 @@ public class StateMachine {
 
     public enum GameElement {
         // make sure sync with Camera hardware configuration
-        NONE(0), CUBE(1), CONE(2), TAPE(3);
+        NONE(0), CONE(1), CUBE(2),  TAPE(3);
 
         private int type;
 
@@ -168,6 +178,11 @@ public class StateMachine {
         taskRunTimeout.start();
     }
 
+    public void ReinitExecution()
+    {
+        setMissionTo(Mission.INIT);
+    }
+
     int MissionHeartBeat = 0;
     public void ExecutionPeriod() {
         MissionHeartBeat++;
@@ -195,7 +210,7 @@ public class StateMachine {
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionSEEK_OBJ(GameElement.CONE, Mission.SEEK_OBJ_DROP_CONE);
+                missionSEEK_OBJ(GameElement.CONE, Mission.MOVE_C2D);
                 break;
             case SEEK_TAG:
                 if (missionRunTimer.get() > missionStepTimeout) {
@@ -219,7 +234,7 @@ public class StateMachine {
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionSEEK_OBJ(GameElement.TAPE, Mission.MOVE_C2D);
+                missionSEEK_OBJ(GameElement.TAPE, Mission.MOVE_STAY_D2E);
                 break;
             case MOVE_C2D:
                 if (missionRunTimer.get() > missionStepTimeout) {
@@ -227,7 +242,7 @@ public class StateMachine {
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionMOVE_C2D();
+                missionMOVE_C2D(Mission.SEEK_OBJ_DROP_CONE);
                 break;  
             case MOVE_STAY_D2E:
                 if (missionRunTimer.get() > missionStepTimeout) {
@@ -245,8 +260,55 @@ public class StateMachine {
 
         // addLog();
 
-        // manualTuningMotors(gamepad1);
+        if(currentMission == Mission.EXIT)
+            manualTuningMotors(RobotContainer.operatorController);
+    }
 
+    private static final double kTrackWidth = 0.381 * 2; // meters
+    public static final double kMaxSpeed = 3.0; // meters per second
+    public static final double kMaxAngularSpeed = 2 * Math.PI; // one rotation per second
+    private final SlewRateLimiter m_speedLimiter = new SlewRateLimiter(3);
+    private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
+    private final PIDController m_leftPIDController = new PIDController(1, 0, 0);
+    private final PIDController m_rightPIDController = new PIDController(1, 0, 0);
+    // Gains are for example purposes only - must be determined for your own robot!
+    private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(1, 3);
+    private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(kTrackWidth);
+    private void manualTuningMotors(CommandPS4Controller controller)
+    {
+        if( controller == null) return;
+
+        double forward = -1.0 * controller.getLeftY();	// Sign this so forward is positive
+		double turn = controller.getRightX();       // Sign this so right is positive
+        
+        /* Deadband - within 10% joystick, make it zero */
+		if (Math.abs(forward) < 0.10) {
+			forward = 0;
+		}
+		if (Math.abs(turn) < 0.10) {
+			turn = 0;
+		}
+        // TODO test: let turn=0, to see if robot is able to go Straight without gyro
+        //https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages/tree/master/Java%20Talon%20FX%20(Falcon%20500)
+        if( Math.abs(forward) >= 0.10 || Math.abs(turn) > 0.10 ) {
+            drive.arcadeDiffDrive(forward, turn);
+        }
+
+        /*final var xSpeed = -m_speedLimiter.calculate(forward) * kMaxSpeed;
+        final var rot = -m_rotLimiter.calculate(turn) * kMaxAngularSpeed;
+
+        var wheelSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(xSpeed, 0.0, rot));
+
+        final double leftFeedforward = m_feedforward.calculate(wheelSpeeds.leftMetersPerSecond);
+        final double rightFeedforward = m_feedforward.calculate(wheelSpeeds.rightMetersPerSecond);
+
+        final double leftOutput =
+            m_leftPIDController.calculate(m_leftEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
+        final double rightOutput =
+            m_rightPIDController.calculate(m_rightEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
+        //m_leftGroup.setVoltage();
+        //m_rightGroup.setVoltage();
+        drive.setPower(leftOutput + leftFeedforward, rightOutput + rightFeedforward);*/
     }
 
     public void report()
@@ -260,12 +322,22 @@ public class StateMachine {
         objDetectionReport();
     }
 
+    public void logdata()
+    {
+        // Record both DS control and joystick data
+        //systemLog();
+        //drivebaseLog);
+        //armLog();
+        //imuLog();
+        //apriltagLog();
+        //objDetectionLog();
+    }
+
     private void missionINIT(Mission nextMission) {
         if (currentTaskID == 0) {
             //turnControllerImu.setSetpoint(ahrs.getYaw());
             resetDriveLoops();
             ahrs.reset();// Clockwise = positive angle
-            drive.resetEncoder();
             setTaskTo(1);
         } else if (currentTaskID == 1) {
             if (taskRunTimeout.get() > 2) {
@@ -289,7 +361,7 @@ public class StateMachine {
             {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
-                setMissionTo(Mission.EXIT);
+                setMissionTo(nextMission);// TODO DEBUG Mission.EXIT);
             }
             else if( done )
             {
@@ -340,6 +412,7 @@ public class StateMachine {
             objCameraStatus = UpdateObjectTracking(type);
             if (taskRunTimeout.get() >= 5000) { // TODO DEBUG
                 // timeout, bad! we might move robot a bit and try again
+                resetObjDetectionLoops();
                 setMissionTo(Mission.EXIT);
             }
             else if (objCameraStatus == CAMERA_MODE.ARRIVED)
@@ -365,7 +438,7 @@ public class StateMachine {
         }
     }
 
-    private void missionMOVE_C2D()
+    private void missionMOVE_C2D(Mission nextMission)
     {
         if (currentTaskID == 0) {
             /*if ((error = leftMotor.setSelectedSensorPosition(0.0)) != ErrorCode.OK) {// set encoder to zero
@@ -378,11 +451,11 @@ public class StateMachine {
             {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
-                setMissionTo(Mission.EXIT);
+                setMissionTo(nextMission);// TODO debug Mission.EXIT);
             }
             else if( done )
             {
-                setMissionTo(Mission.SEEK_TAG);
+                setMissionTo(nextMission);
             }
             else{}
         } 
@@ -754,15 +827,16 @@ public class StateMachine {
                                      int upOrDown,
                                      boolean continueMove) {
         if(!hasInitStraight) {
+            drive.resetEncoder();
             hasInitStraight = true;
             drivePower = 0.3;
             ticks2Go = drive.meterToTicks(distanceMeter);//inches2Ticks(distance); // set up encoder stop condition
-            ticks2SlowDown = ticks2Go*0.2;//inches2Ticks(distance*0.2); // set up encoder slow down condition
+            ticks2SlowDown = ticks2Go*0.8;//inches2Ticks(distance*0.2); // set up encoder slow down condition
         }
 
         double position = drive.getTicks();
-        //if ((ticks2Go + position) < ticks2SlowDown)
-        //    drivePower = 0.1; // cut power prepare to stop
+        if (position >= ticks2SlowDown)
+            drivePower = 0.15; // cut power prepare to stop
 
         if (position >= ticks2Go) { // reached desired encoder position
             if (continueMove) {
@@ -968,6 +1042,7 @@ public class StateMachine {
         SmartDashboard.putString("Mission ID", currentMission.toString());
         SmartDashboard.putNumber("Mission Task ID", currentTaskID);
         SmartDashboard.putNumber("Mission Running", MissionHeartBeat);
+        
     }
 
     private void drivebaseReport()

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
-import com.ctre.phoenix.motorcontrol.ControlMode; 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
+
 import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -98,26 +100,26 @@ public class Drivetrain extends SubsystemBase{
         rightFollower_w = new WPI_TalonFX(DriveConstants.kRightFollowerID);
         leftFollower_w = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
 
-        //leftMotors = new MotorControllerGroup(leftMaster, leftFollower);
-        //rightMotors = new MotorControllerGroup(rightMaster, rightFollower);
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        config.supplyCurrLimit.enable = true;
+        config.supplyCurrLimit.triggerThresholdCurrent = 20; // the peak supply current, in amps
+        config.supplyCurrLimit.triggerThresholdTime = 1.5; // the time at the peak supply current before the limit triggers, in sec
+        config.supplyCurrLimit.currentLimit = 15; // the current to maintain if the peak supply limit is triggered
+        rightMaster_w.configAllSettings(config); // apply the config settings; this selects the quadrature encoder
+        rightFollower_w.configAllSettings(config);
+        leftMaster_w.configAllSettings(config);
+        leftFollower_w.configAllSettings(config);
+
         leftFollower_w.follow(leftMaster_w);
         rightFollower_w.follow(rightMaster_w);
 
-        leftFollower_w.configFactoryDefault();
-        leftMaster_w.configFactoryDefault();
-        rightMaster_w.configFactoryDefault();
-        rightFollower_w.configFactoryDefault();
-
         rightMaster_w.setInverted(false);//TalonFXInvertType.Clockwise
+        leftMaster_w.setInverted(true);
         rightFollower_w.setInverted(TalonFXInvertType.FollowMaster);
-        leftMaster_w.setInverted(false);
         leftFollower_w.setInverted(TalonFXInvertType.FollowMaster);
     
         // check inversion to make drivetrain extend differential drive
         drive = new DifferentialDrive(leftMaster_w, rightMaster_w);
-
-        //rightMotors.setInverted(true);
-        //leftMotors.setInverted(false);
     }
 
     public void zeroDiffDriveSensors() // no wait
@@ -125,6 +127,14 @@ public class Drivetrain extends SubsystemBase{
         rightMaster_w.setSelectedSensorPosition(0);
         leftMaster_w.setSelectedSensorPosition(0);
         //rightMaster_w.getSensorCollection().setIntegratedSensorPosition(0, 0);
+    }
+
+    public void arcadeDiffDrive(double forward, double turn)
+    {
+        //drive.arcadeDrive(forward, turn);
+        /* Arcade Drive using PercentOutput along with Arbitrary Feed Forward supplied by turn */
+		leftMaster_w.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
+		rightMaster_w.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
     }
  
     public void tankDrive(double leftInput, double rightInput) {

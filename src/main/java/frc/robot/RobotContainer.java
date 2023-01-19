@@ -56,7 +56,7 @@ public class RobotContainer {
   private final CommandPS4Controller driverController = 
       new CommandPS4Controller(ControllerConstants.kDriverControllerPort);
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandPS4Controller operatorController =
+  public static final CommandPS4Controller operatorController =
       new CommandPS4Controller(ControllerConstants.kOperatorControllerPort);
   
   private final PS4Controller driverControllerButtons = 
