@@ -62,7 +62,7 @@ public class StateMachine {
     Limelight objDetectCamera;// = new Limelight();
 
     //XboxController xboxController = new XboxController(0);
-    //Joystick stick = new Joystick(0);;
+    Joystick gamepad;// = new Joystick(0);;
     
     private final double wheelDiameter = 6.0;
     private final double encoderTicksPerRotation = 1440.0; // 360 encode x SRX 4:1
@@ -117,6 +117,8 @@ public class StateMachine {
     }
 
     public StateMachine() {
+        gamepad = new Joystick(2);
+
         drive = RobotContainer.drive;
         apriltagCamera = RobotContainer.vision;
         objDetectCamera = RobotContainer.objDetectCamera;
@@ -249,9 +251,14 @@ public class StateMachine {
         // motorsRunnable();
         // addLog();
 
-        if(currentMission == Mission.EXIT)
+        for( int i = 0; i < gamepadDataArray.length; i++)
+            gamepadDataArray[i] = gamepad.getRawAxis(i);
+
+        if(currentMission != Mission.MOVE_A2B && 
+            currentMission != Mission.MOVE_C2D)
             manualTuningMotors(RobotContainer.operatorController);
     }
+    double[] gamepadDataArray = new double[6];
 
     private static final double kTrackWidth = 0.381 * 2; // meters
     public static final double kMaxSpeed = 3.0; // meters per second
@@ -265,11 +272,19 @@ public class StateMachine {
     private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(kTrackWidth);
     private void manualTuningMotors(CommandPS4Controller controller)
     {
-        if( controller == null) return;
+        double forward;
+		double turn;
+        /*if( controller != null) {
+            forward = -1.0 * controller.getLeftY();	// Sign this so forward is positive
+            turn = controller.getRightX();       // Sign this so right is positive
+        }
+        */
+        if( gamepad != null) {
+            forward = -1.0 * gamepad.getRawAxis(1);	// Sign this so forward is positive
+            turn = gamepad.getRawAxis(4);       // Sign this so right is positive
+        }
+        else return;
 
-        double forward = -1.0 * controller.getLeftY();	// Sign this so forward is positive
-		double turn = controller.getRightX();       // Sign this so right is positive
-        
         /* Deadband - within 10% joystick, make it zero */
 		if (Math.abs(forward) < 0.10) {
 			forward = 0;
@@ -277,10 +292,15 @@ public class StateMachine {
 		if (Math.abs(turn) < 0.10) {
 			turn = 0;
 		}
+        
+        arcadeDriveCommand = forward;
+        arcadeSteerCommand = turn;
+
         // TODO test: let turn=0, to see if robot is able to go Straight without gyro
         //https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages/tree/master/Java%20Talon%20FX%20(Falcon%20500)
         if( Math.abs(forward) >= 0.10 || Math.abs(turn) > 0.10 ) {
-            drive.arcadeDiffDrive(forward, turn);
+            
+            //drive.arcadeDiffDrive(forward, turn); TODO DEBUG
         }
 
         //https://github.com/wpilibsuite/allwpilib/blob/main/wpilibjExamples/src/main/java/edu/wpi/first/wpilibj/examples/differentialdrivebot/Drivetrain.java
@@ -1132,9 +1152,10 @@ public class StateMachine {
     {
         SmartDashboard.putNumber("Drive Left", tankDriveLeftSpeed);
         SmartDashboard.putNumber("Drive Right" ,tankDriveRightSpeed);
-        //SmartDashboard.putNumber("Arcade Drive", arcadeDriveCommand);
-        //SmartDashboard.putNumber("Arcade Steer" ,arcadeSteerCommand);
+        SmartDashboard.putNumber("Arcade Drive", arcadeDriveCommand);
+        SmartDashboard.putNumber("Arcade Steer" ,arcadeSteerCommand);
         SmartDashboard.putNumberArray("Drive Turn P-PID", turnLog);
+        //SmartDashboard.putNumberArray("Gamepad", gamepadDataArray);
     }
 
     private void armReport()
