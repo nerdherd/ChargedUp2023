@@ -12,44 +12,44 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.SwerveDriveConstants;
+import static frc.robot.Constants.SwerveDriveConstants.*;
 
 public class SwerveDrivetrain extends SubsystemBase {
     private final SwerveModule frontLeft = new SwerveModule(
-            SwerveDriveConstants.kFrontLeftDriveMotorPort,
-            SwerveDriveConstants.kFrontLeftTurningMotorPort,
-            SwerveDriveConstants.kFrontLeftDriveMotorReversed,
-            SwerveDriveConstants.kFrontLeftTurningMotorReversed,
-            SwerveDriveConstants.kFrontLeftDriveAbsoluteEncoderPort,
-            SwerveDriveConstants.kFrontLeftDriveAbsoluteEncoderOffsetRad,
-            SwerveDriveConstants.kFrontLeftDriveAbsoluteEncoderReversed);
+            kFrontLeftDriveMotorPort,
+            kFrontLeftTurningMotorPort,
+            kFrontLeftDriveMotorReversed,
+            kFrontLeftTurningMotorReversed,
+            kFrontLeftDriveAbsoluteEncoderPort,
+            kFrontLeftDriveAbsoluteEncoderOffsetRad,
+            kFrontLeftDriveAbsoluteEncoderReversed);
 
     private final SwerveModule frontRight = new SwerveModule(
-            SwerveDriveConstants.kFrontRightDriveMotorPort,
-            SwerveDriveConstants.kFrontRightTurningMotorPort,
-            SwerveDriveConstants.kFrontRightDriveMotorReversed,
-            SwerveDriveConstants.kFrontRightTurningMotorReversed,
-            SwerveDriveConstants.kFrontRightDriveAbsoluteEncoderPort,
-            SwerveDriveConstants.kFrontRightDriveAbsoluteEncoderOffsetRad,
-            SwerveDriveConstants.kFrontRightDriveAbsoluteEncoderReversed);
+            kFrontRightDriveMotorPort,
+            kFrontRightTurningMotorPort,
+            kFrontRightDriveMotorReversed,
+            kFrontRightTurningMotorReversed,
+            kFrontRightDriveAbsoluteEncoderPort,
+            kFrontRightDriveAbsoluteEncoderOffsetRad,
+            kFrontRightDriveAbsoluteEncoderReversed);
 
     private final SwerveModule backLeft = new SwerveModule(
-            SwerveDriveConstants.kBackLeftDriveMotorPort,
-            SwerveDriveConstants.kBackLeftTurningMotorPort,
-            SwerveDriveConstants.kBackLeftDriveMotorReversed,
-            SwerveDriveConstants.kBackLeftTurningMotorReversed,
-            SwerveDriveConstants.kBackLeftDriveAbsoluteEncoderPort,
-            SwerveDriveConstants.kBackLeftDriveAbsoluteEncoderOffsetRad,
-            SwerveDriveConstants.kBackLeftDriveAbsoluteEncoderReversed);
+            kBackLeftDriveMotorPort,
+            kBackLeftTurningMotorPort,
+            kBackLeftDriveMotorReversed,
+            kBackLeftTurningMotorReversed,
+            kBackLeftDriveAbsoluteEncoderPort,
+            kBackLeftDriveAbsoluteEncoderOffsetRad,
+            kBackLeftDriveAbsoluteEncoderReversed);
 
     private final SwerveModule backRight = new SwerveModule(
-            SwerveDriveConstants.kBackRightDriveMotorPort,
-            SwerveDriveConstants.kBackRightTurningMotorPort,
-            SwerveDriveConstants.kBackRightDriveMotorReversed,
-            SwerveDriveConstants.kBackRightTurningMotorReversed,
-            SwerveDriveConstants.kBackRightDriveAbsoluteEncoderPort,
-            SwerveDriveConstants.kBackRightDriveAbsoluteEncoderOffsetRad,
-            SwerveDriveConstants.kBackRightDriveAbsoluteEncoderReversed);
+            kBackRightDriveMotorPort,
+            kBackRightTurningMotorPort,
+            kBackRightDriveMotorReversed,
+            kBackRightTurningMotorReversed,
+            kBackRightDriveAbsoluteEncoderPort,
+            kBackRightDriveAbsoluteEncoderOffsetRad,
+            kBackRightDriveAbsoluteEncoderReversed);
 
     private final AHRS gyro;
     private final SwerveDriveOdometry odometer;
@@ -63,7 +63,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 
         this.gyro = ahrs;
         this.odometer = new SwerveDriveOdometry(
-            SwerveDriveConstants.kDriveKinematics, 
+            kDriveKinematics, 
             new Rotation2d(0), 
             getModulePositions());
         new Thread(() -> {
@@ -200,7 +200,7 @@ public class SwerveDrivetrain extends SubsystemBase {
      * @param desiredStates desired states of the four modules (FL, FR, BL, BR)
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, kPhysicalMaxSpeedMetersPerSecond);
         frontLeft.setDesiredState(desiredStates[0]);
         frontRight.setDesiredState(desiredStates[1]);
         backLeft.setDesiredState(desiredStates[2]);
