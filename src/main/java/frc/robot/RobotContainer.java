@@ -51,7 +51,7 @@ public class RobotContainer {
   public static Imu ahrs = new Imu();
   public static Drivetrain drive = new Drivetrain(vision);
 
-  private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
+  private SwerveDrivetrain swerveDrive = new SwerveDrivetrain(ahrs.ahrs);
 
   private final CommandPS4Controller driverController = 
       new CommandPS4Controller(ControllerConstants.kDriverControllerPort);

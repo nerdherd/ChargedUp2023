@@ -11,12 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.SwerveDriveConstants;
 
 public class SwerveDrivetrain extends SubsystemBase {
@@ -62,11 +57,11 @@ public class SwerveDrivetrain extends SubsystemBase {
     /**
      * Construct a new {@link SwerveDriveTrain}
      */
-    public SwerveDrivetrain() {
+    public SwerveDrivetrain(AHRS ahrs) {
         SmartDashboard.putNumber("Gyro resets", 0);
         SmartDashboard.putNumber("Encoder resets", 0);
 
-        this.gyro = new AHRS(SPI.Port.kMXP);
+        this.gyro = ahrs;
         this.odometer = new SwerveDriveOdometry(
             SwerveDriveConstants.kDriveKinematics, 
             new Rotation2d(0), 
@@ -81,8 +76,10 @@ public class SwerveDrivetrain extends SubsystemBase {
                 SmartDashboard.putBoolean("Startup failed", true);
             }
         }).run();
+    }
 
-        
+    public SwerveDrivetrain() {
+        this(new AHRS(SPI.Port.kMXP));
     }
 
     /**
