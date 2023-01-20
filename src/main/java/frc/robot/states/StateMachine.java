@@ -149,21 +149,10 @@ public class StateMachine {
         ahrs.reset();// Clockwise = positive angle
     }
 
-    int missionStepTimeout = 1000; // TODO debug
+    private final int missionStepTimeout = 1000; // TODO debug
     private Mission currentMission = Mission.INIT; 
-    private Mission previousMission = Mission.INIT;
     private final Timer missionRunTimer = new Timer();
-
     private void setMissionTo(Mission newMission) {
-        // debug: TODO
-        // if (newMission == Mission.MOVE_A2B) {  // THIS WAS MISSION.CROSS_DOCK_B2C
-        //     currentMission = Mission.EXIT;
-        //     missionStepTimeout = 1000;
-        //     return;
-        // }
-        // end debug
-
-        previousMission = currentMission;
         currentMission = newMission;
         setTaskTo(0);
         missionRunTimer.reset();
@@ -171,11 +160,8 @@ public class StateMachine {
     }
 
     private int currentTaskID = 0;
-    private int previousTaskID = 0;
     private final Timer taskRunTimeout = new Timer();
-
     private void setTaskTo(int newTaskID) {
-        previousTaskID = currentTaskID;
         currentTaskID = newTaskID;
         taskRunTimeout.reset();
         taskRunTimeout.start();
@@ -186,7 +172,7 @@ public class StateMachine {
         setMissionTo(Mission.INIT);
     }
 
-    int MissionHeartBeat = 0;
+    private int MissionHeartBeat = 0;
     public void ExecutionPeriod() {
         MissionHeartBeat++;
         switch (currentMission) {
@@ -229,7 +215,7 @@ public class StateMachine {
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionCROSS_DOCK();
+                missionCROSS_DOCK(Mission.EXIT);
                 break;
             case SEEK_OBJ_DROP_CONE:
                 if (missionRunTimer.get() > missionStepTimeout) {
@@ -256,11 +242,11 @@ public class StateMachine {
                 missionSTAY_DOCK();
                 break; 
             default: // EXIT
+                missionEXIT(false);
                 break;
         }
 
         // motorsRunnable();
-
         // addLog();
 
         if(currentMission == Mission.EXIT)
@@ -376,21 +362,23 @@ public class StateMachine {
         } 
     }
 
-    private void missionCROSS_DOCK()
+    private void missionCROSS_DOCK(Mission nexMission)
     {
         if (currentTaskID == 0) {
-            boolean done = driveStraightLoop(0.8, 1, 0, 1, true);
-            if (taskRunTimeout.get() >= 2) {
+            boolean done = driveUpLoop(0.8, 1, 0, 1, false);
+            if (taskRunTimeout.get() >= 3) {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
                 setMissionTo(Mission.EXIT);
             }
             else if( done )
             {
-                setTaskTo(1);
+                //setTaskTo(1); TODO DEBUG
+                setMissionTo(Mission.EXIT);
             }
-        } else if (currentTaskID == 1) {
-            boolean done = driveStraightLoop(0.3, 1, 0, -1, true);
+        } 
+        /*else if (currentTaskID == 1) { // 20ms momentum 
+            boolean done = driveHoldLoop(0.3, 1, 0, -1, true);
             if (taskRunTimeout.get() >= 2) {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
@@ -400,9 +388,20 @@ public class StateMachine {
             {
                 setTaskTo(2);
             }
-        } else {
-            setMissionTo(Mission.SEEK_OBJ_DROP_CONE);
         }
+
+        if (currentTaskID == 2) {
+            boolean done = driveDownLoop(0.3, 1, 0, -1, true);
+            if (taskRunTimeout.get() >= 2) {
+                // timeout, bad! should not happen at all
+                resetDriveLoops();
+                setMissionTo(Mission.EXIT);
+            }
+            else if( done )
+            {
+                setMissionTo(nexMission);
+            }
+        } */
     }
 
     CAMERA_MODE objCameraStatus = CAMERA_MODE.IDLE;
@@ -524,6 +523,13 @@ public class StateMachine {
             }
         } else {
             setMissionTo(Mission.EXIT);
+        }
+    }
+
+    private void missionEXIT(boolean doStop)
+    {
+        if(doStop) {
+            drive.setPower(0, 0);
         }
     }
 
@@ -803,6 +809,7 @@ public class StateMachine {
         hasInitTurnTo = false;
         hasInitHold = false;
         hasInitStrafe = false;
+        hasInitDriveUp = false;
     }
 
     /**
@@ -888,6 +895,79 @@ public class StateMachine {
         }
         else{
             return false;
+        }
+    }
+
+    boolean hasInitDriveUp = false;
+    boolean OnSlope = false;
+    int driveUpStatus = 0;
+    PIDController driveUpForwardControllerImu = new PIDController(0.1, 0, 0);
+    PIDController driveUpturnControllerImu = new PIDController(0.001, 0, 0);
+    private boolean driveUpLoop(double maxForwardDriveSpeed,
+                                double distanceMeter,
+                                double heading,
+                                int upOrDown,
+                                boolean continueMove) {
+        if(!hasInitDriveUp) {
+            hasInitDriveUp = true;
+            drive.resetEncoder();
+            ticks2Go = drive.meterToTicks(distanceMeter);
+            ticks2SlowDown = ticks2Go*0.8;
+            drivePower = 0.3;
+            OnSlope = false;
+            driveUpStatus = 0;
+        }
+
+        if(!OnSlope){
+            if(ahrs.getPitch() > 10) {
+                OnSlope = true;
+            }
+        }
+
+        double position = drive.getTicks();
+        if (position >= ticks2SlowDown)
+            drivePower = 0.15; // cut power prepare to stop
+
+        boolean finished = false;
+        if (position >= ticks2Go && OnSlope ) { // reached desired encoder position
+            if( NerdyMath.inRange(ahrs.getYaw(), -10, 10)) {
+                if( ahrs.getPitch() < 30 ) {
+                    if (continueMove) {
+                        drive.setPower(0.1,0.1);
+                    } 
+                    else {
+                        drive.setPower(0, 0);
+                    }
+                    finished = true;
+                } 
+                else {
+                    finished = false; // need to add more forward power with shorter distance
+                    driveUpStatus = 1;
+                }
+            }
+            else {
+                if( ahrs.getPitch() > 30 ) {
+                    finished = false; // need to add more forward and turn power with longer distance, should no wheel moves backward
+                    driveUpStatus = 2;
+                }
+                else {
+                    finished = false; // need to add more turn power without distance, should no wheel moves backward
+                    driveUpStatus = 3;
+                }
+            }
+        } 
+
+        if(!finished) { // move straight
+            double rotateToAngleRate = driveUpturnControllerImu.calculate(ahrs.getYaw(), heading); // calc error correction
+            double driveUpPower = driveUpForwardControllerImu.calculate(ahrs.getPitch(), 30);
+            tankDriveLeftSpeed = NerdyMath.clamp((drivePower + driveUpPower + rotateToAngleRate), 0, maxForwardDriveSpeed);
+            tankDriveRightSpeed = NerdyMath.clamp((drivePower + driveUpPower - rotateToAngleRate), 0, maxForwardDriveSpeed);
+            drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
+
+            return false;
+        } 
+        else {
+            return true;
         }
     }
 
