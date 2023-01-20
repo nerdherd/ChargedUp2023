@@ -41,7 +41,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    autoTest.report();
+    // autoTest.report();
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -94,14 +94,14 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    autoTest.ReinitExecution();
+    // autoTest.ReinitExecution();
   }
-  StateMachine autoTest = new StateMachine();
+  // StateMachine autoTest = new StateMachine();
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    autoTest.ExecutionPeriod();
+    // autoTest.ExecutionPeriod();
   }
 
   /** This function is called once when the robot is first started up. */
