@@ -122,7 +122,7 @@ public class StateMachine {
         drive = RobotContainer.drive;
         apriltagCamera = RobotContainer.vision;
         objDetectCamera = RobotContainer.objDetectCamera;
-        ahrs = RobotContainer.ahrs.ahrs;
+        ahrs = RobotContainer.imu.ahrs;
         /*if ((error = leftMotor.configFactoryDefault()) != ErrorCode.OK) // factory default the motors
             System.out.println("error setting leftMotor to defaults = " + error);
         if ((error = rightMotor.configFactoryDefault()) != ErrorCode.OK)
@@ -254,9 +254,9 @@ public class StateMachine {
         for( int i = 0; i < gamepadDataArray.length; i++)
             gamepadDataArray[i] = gamepad.getRawAxis(i);
 
-        if(currentMission != Mission.MOVE_A2B && 
-            currentMission != Mission.MOVE_C2D)
-            manualTuningMotors(RobotContainer.operatorController);
+        // if(currentMission != Mission.MOVE_A2B && 
+        //     currentMission != Mission.MOVE_C2D)
+        //     manualTuningMotors(RobotContainer.operatorController);
     }
     double[] gamepadDataArray = new double[6];
 
@@ -328,7 +328,7 @@ public class StateMachine {
         drivebaseReport();
         armReport();
         imuReport();
-        apriltagReport();
+        // apriltagReport();
         objDetectionReport();
     }
 
@@ -367,16 +367,16 @@ public class StateMachine {
             }*/
             setTaskTo(1);
         } else if (currentTaskID == 1) {
-            boolean done = driveStraightLoop(0.5, 2, 45, 0, false);
+            boolean done = turnToAngleLoop(45);//driveStraightLoop(0.35, 2, 45, 0, false);
             if(taskRunTimeout.get() >= 10)
             {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
-                setMissionTo(nextMission);// TODO DEBUG Mission.EXIT);
+                setMissionTo(Mission.EXIT);// TODO DEBUG Mission.EXIT);
             }
             else if( done )
             {
-                setMissionTo(nextMission);
+                setMissionTo(Mission.EXIT);
             }
             else{}
         } 
@@ -385,7 +385,7 @@ public class StateMachine {
     private void missionCROSS_DOCK(Mission nexMission)
     {
         if (currentTaskID == 0) {
-            boolean done = driveUpLoop(0.8, 1, 0, 1, false);
+            boolean done = driveUpLoop(0.5, 1, 0, 1, false);
             if (taskRunTimeout.get() >= 3) {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();
@@ -881,8 +881,8 @@ public class StateMachine {
             //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
             tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
             tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
-            drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
-
+            drive.tankDrive(tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
+            
             // motor powers
             //System.out.println("drive power = " + drivePower + "  rotToAngleRate = " + rotateToAngleRate
             //        + "  sensorPosition = " + leftMotor.getSelectedSensorPosition(0) + "  ticksToGo = " + ticks2Go);
@@ -898,15 +898,19 @@ public class StateMachine {
     // Create a PID controller whose setpoint's change is subject to maximum
     // velocity and acceleration constraints.
     private final TrapezoidProfile.Constraints m_constraints =
-        new TrapezoidProfile.Constraints(1, 0.7);
-    private final ProfiledPIDController turnControllerProfiledImu =
-        new ProfiledPIDController(0.05, 0.0, 0.1, m_constraints, 0.02);
+        new TrapezoidProfile.Constraints(4, 0.7);
+    private final PIDController turnControllerProfiledImu =
+        new PIDController(0.009, 0.0, 0);
     double[] turnLog = new double[3];
+    double angleYawRobot;
     private boolean turnToAngleLoop(double heading) // heading -179 to +179
     {
+        angleYawRobot = ahrs.getYaw()%360;
         double turningSpeed = turnControllerProfiledImu.calculate(ahrs.getYaw(), heading);
-        turningSpeed = NerdyMath.clamp(turningSpeed, -0.7, 0.7);
-        drive.tankDrive(turningSpeed, -1*turningSpeed);
+        turningSpeed = NerdyMath.clamp(turningSpeed, -0.5, 0.5);
+        tankDriveLeftSpeed = turningSpeed;
+        tankDriveRightSpeed = -turningSpeed;
+        drive.setPower(tankDriveLeftSpeed, tankDriveRightSpeed);
         turnLog[0] = turnControllerProfiledImu.getPositionError();
         turnLog[1] = turningSpeed;
         turnLog[2] = ahrs.getYaw();
@@ -1154,7 +1158,8 @@ public class StateMachine {
         SmartDashboard.putNumber("Drive Right" ,tankDriveRightSpeed);
         SmartDashboard.putNumber("Arcade Drive", arcadeDriveCommand);
         SmartDashboard.putNumber("Arcade Steer" ,arcadeSteerCommand);
-        SmartDashboard.putNumberArray("Drive Turn P-PID", turnLog);
+       // SmartDashboard.putNumberArray("Drive Turn P-PID", turnLog);
+        SmartDashboard.putNumber("Robot Angle", angleYawRobot);
         //SmartDashboard.putNumberArray("Gamepad", gamepadDataArray);
     }
 

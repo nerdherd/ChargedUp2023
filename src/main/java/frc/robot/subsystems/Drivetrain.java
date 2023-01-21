@@ -17,13 +17,18 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
  
@@ -42,9 +47,13 @@ public class Drivetrain extends SubsystemBase{
     private PIDController turnController = new PIDController(DriveConstants.kAngularP, 0, DriveConstants.kAngularD);
     private PIDController forwardController = new PIDController(DriveConstants.kLinearP, 0, DriveConstants.kLinearD);
     private AHRS ahrs;//; = new AHRS();
+    private DoubleSolenoid shifter;
 
     public Drivetrain(Vision vision) {
-        ahrs = RobotContainer.ahrs.ahrs;
+        ahrs = RobotContainer.imu.ahrs;
+        
+        shifter = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
+            DriveConstants.kPistonForwardID, DriveConstants.kPistonReverseID);
 
         rightMaster = new TalonFX(DriveConstants.kLeftFollowerID);
         leftMaster = new TalonFX(DriveConstants.kRightFollowerID);
@@ -88,54 +97,7 @@ public class Drivetrain extends SubsystemBase{
 
 
     
-    WPI_TalonFX rightMaster_w ;//= new WPI_TalonFX(DriveConstants.kRightMasterID);
-    WPI_TalonFX leftMaster_w;// = new WPI_TalonFX(DriveConstants.kLeftMasterID);
-    WPI_TalonFX rightFollower_w;// = new WPI_TalonFX(DriveConstants.kRightFollowerID);
-    WPI_TalonFX leftFollower_w;// = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
-
-    public void buildDiffDrive()
-    {
-        rightMaster_w = new WPI_TalonFX(DriveConstants.kRightMasterID);
-        leftMaster_w = new WPI_TalonFX(DriveConstants.kLeftMasterID);
-        rightFollower_w = new WPI_TalonFX(DriveConstants.kRightFollowerID);
-        leftFollower_w = new WPI_TalonFX(DriveConstants.kLeftFollowerID);
-
-        TalonFXConfiguration config = new TalonFXConfiguration();
-        config.supplyCurrLimit.enable = true;
-        config.supplyCurrLimit.triggerThresholdCurrent = 20; // the peak supply current, in amps
-        config.supplyCurrLimit.triggerThresholdTime = 1.5; // the time at the peak supply current before the limit triggers, in sec
-        config.supplyCurrLimit.currentLimit = 15; // the current to maintain if the peak supply limit is triggered
-        rightMaster_w.configAllSettings(config); // apply the config settings; this selects the quadrature encoder
-        rightFollower_w.configAllSettings(config);
-        leftMaster_w.configAllSettings(config);
-        leftFollower_w.configAllSettings(config);
-
-        leftFollower_w.follow(leftMaster_w);
-        rightFollower_w.follow(rightMaster_w);
-
-        rightMaster_w.setInverted(false);//TalonFXInvertType.Clockwise
-        leftMaster_w.setInverted(true);
-        rightFollower_w.setInverted(TalonFXInvertType.FollowMaster);
-        leftFollower_w.setInverted(TalonFXInvertType.FollowMaster);
-    
-        // check inversion to make drivetrain extend differential drive
-        drive = new DifferentialDrive(leftMaster_w, rightMaster_w);
-    }
-
-    public void zeroDiffDriveSensors() // no wait
-    {
-        rightMaster_w.setSelectedSensorPosition(0);
-        leftMaster_w.setSelectedSensorPosition(0);
-        //rightMaster_w.getSensorCollection().setIntegratedSensorPosition(0, 0);
-    }
-
-    public void arcadeDiffDrive(double forward, double turn)
-    {
-        //drive.arcadeDrive(forward, turn);
-        /* Arcade Drive using PercentOutput along with Arbitrary Feed Forward supplied by turn */
-		leftMaster_w.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
-		rightMaster_w.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
-    }
+   
  
     public void tankDrive(double leftInput, double rightInput) {
         double prevLeftOutput = leftMaster.getMotorOutputPercent();
@@ -151,15 +113,35 @@ public class Drivetrain extends SubsystemBase{
         rightOutput = (DriveConstants.kDriveAlpha * rightOutput)
                     + (DriveConstants.kDriveOneMinusAlpha * prevRightOutput);
        
+
         //setPower(leftOutput*0.9, rightOutput*0.9);
         SmartDashboard.putNumber("Left Output", leftOutput);
         SmartDashboard.putNumber("Right Output", rightOutput);
-        drive.tankDrive(leftInput, rightInput);
- 
+        // setPower(leftInput, rightInput);
+        // if (leftInput > 0.4 && rightInput < 0.4) {
+        //     setPower(0.5, 0.5);
+        // } else if (rightInput > 0.4) {
+        //     setPower(0, 0);
+        // }
+        setPower(leftOutput, rightOutput);
     }
 
+    boolean shiftedHigh;
+    public CommandBase shiftHigh() {
+        return runOnce(
+            () -> {
+                shifter.set(Value.kForward);
+                shiftedHigh = true;
+            });
+    }
 
-    
+    public CommandBase shiftLow() {
+        return runOnce(
+            () -> {
+                shifter.set(Value.kReverse);
+                shiftedHigh = false;
+            });
+    }
 
     public void setNeutralCoast() {
         rightMaster.setNeutralMode(NeutralMode.Coast);

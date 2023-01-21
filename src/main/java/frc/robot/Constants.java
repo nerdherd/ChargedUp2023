@@ -36,22 +36,22 @@ public final class Constants {
     // public static final double kLinearD = 0;
 
     // ============== PrototypeBOT =============
-    // public static final int kRightMasterID = 0;
-    // public static final int kLeftMasterID = 0;
+    public static final int kRightMasterID = 0;
+    public static final int kLeftMasterID = 0;
     public static final double kAngularP = 0.1;
     public static final double kAngularD = 0;
     public static final double kLinearP = 0.1;
     public static final double kLinearD = 0;
-    // public static final int kRightFollowerID = 17;
-    // public static final int kLeftFollowerID = 31;
+    public static final int kRightFollowerID = 17;
+    public static final int kLeftFollowerID = 31;
     public static final int kRightFollower2ID = 1;
     public static final int kLeftFollower2ID = 18;
 
     // thomas
-    public static final int kRightMasterID = 9;
-    public static final int kLeftMasterID = 20;
-    public static final int kRightFollowerID = 15;
-    public static final int kLeftFollowerID = 19;
+    // public static final int kRightMasterID = 9;
+    // public static final int kLeftMasterID = 20;
+    // public static final int kRightFollowerID = 15;
+    // public static final int kLeftFollowerID = 19;
 
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
@@ -60,6 +60,9 @@ public final class Constants {
     public static final double kErrorBound = 0;
 
     public static final double kAutoPower = 0;
+
+    public static final int kPistonForwardID = 0;
+    public static final int kPistonReverseID = 1;
   }
 
   public static class ControllerConstants {
