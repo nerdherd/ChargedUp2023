@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -58,6 +60,15 @@ public class SwerveModule {
         this.absoluteTurningEncoder = new TalonSRX(absoluteEncoderId);
         this.absoluteEncoderOffset = absoluteEncoderOffset;
         this.invertTurningEncoder = absoluteEncoderReversed;
+
+        initEncoders();
+    }
+
+    private void initEncoders() {
+        driveMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
+        turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
+        absoluteTurningEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.QuadEncoder, 0, 1000);
+        absoluteTurningEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.PulseWidthEncodedPosition, 1, 1000);
     }
 
     /**
@@ -85,7 +96,9 @@ public class SwerveModule {
      * @return Distance travelled by motor (in meters)
      */
     public double getDrivePosition() {
-        return driveMotor.getSelectedSensorPosition(0) * ModuleConstants.kDriveTicksToMeters;
+        return driveMotor.getSelectedSensorPosition(0) 
+            * ModuleConstants.kDriveTicksToMeters
+            * ModuleConstants.kDriveMotorGearRatio;
     }
 
     /**

@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.XboxController;
@@ -44,12 +45,12 @@ import frc.robot.subsystems.SwerveDrivetrain;
  */// 10.6.87.98:5800
 public class RobotContainer {
 
-  public static Arm arm = new Arm();
-  public static Claw claw = new Claw();
-  public static Vision vision = new Vision();
-  public static Limelight objDetectCamera = new Limelight();
+  // public static Arm arm = new Arm();
+  // public static Claw claw = new Claw();
+  // public static Vision vision = new Vision();
+  // public static Limelight objDetectCamera = new Limelight();
   public static Imu ahrs = new Imu();
-  public static Drivetrain drive = new Drivetrain(vision);
+  // public static Drivetrain drive = new Drivetrain(vision);
 
   private SwerveDrivetrain swerveDrive = new SwerveDrivetrain(ahrs.ahrs);
 
@@ -63,9 +64,9 @@ public class RobotContainer {
     new PS4Controller(ControllerConstants.kDriverControllerPort);
     
   // Two different drivetrain modes
-  private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
-  private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
-  private RunCommand visionRunCommandArea = new RunCommand(() -> drive.arcadeDrive(drive.getAprilTagAreaLinear(), drive.getApriltagRotation()), drive);
+  // private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
+  // private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
+  // private RunCommand visionRunCommandArea = new RunCommand(() -> drive.arcadeDrive(drive.getAprilTagAreaLinear(), drive.getApriltagRotation()), drive);
 
   public Command swerveCommand = new RepeatCommand(
     new SequentialCommandGroup(
@@ -79,7 +80,8 @@ public class RobotContainer {
     swerveDrive.setDefaultCommand(
           new SwerveJoystickCommand(swerveDrive, 
             () -> -driverController.getLeftY(),  
-            driverController::getLeftX, 
+            driverController::getLeftX,
+            // () -> 0.0, 
             driverController::getRightY, 
             driverControllerButtons::getSquareButton,
             driverControllerButtons::getTriangleButton));
@@ -103,14 +105,15 @@ public class RobotContainer {
     
     driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
     driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
-    // SmartDashboard.putData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
+    driverController.cross().onTrue(new InstantCommand(() -> swerveDrive.resetOdometry(new Pose2d())));
+    // SmartDashboard.p utData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
     // driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
   }
 
   public void configurePeriodic() {
-    arm.movePercentOutput(operatorController.getRightY());
-    drive.tankDrive(-driverController.getRightY(), driverController.getLeftY());
-    claw.periodic();
+    // arm.movePercentOutput(operatorController.getRightY());
+    // drive.tankDrive(-driverController.getRightY(), driverController.getLeftY());
+    // claw.periodic();
   }
 
   /**
@@ -120,7 +123,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new PreloadTaxi(drive, claw, arm);
-    // return SwerveAutos.testAuto(swerveDrive);
+    // return new PreloadTaxi(drive, claw, arm);
+    return SwerveAutos.testAuto(swerveDrive);
   }
 }
