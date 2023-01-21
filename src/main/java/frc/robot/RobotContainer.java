@@ -48,11 +48,11 @@ public class RobotContainer {
 
   public static Arm arm = new Arm();
   public static Claw claw = new Claw();
+  public static Imu imu = new Imu();// AHRS(SPI.Port.kMXP);
   public static Vision vision = new Vision();
   public static Drivetrain drive = new Drivetrain(vision);
   public static Limelight objDetectCamera = new Limelight();
   // public static Drivetrain drive = new Drivetrain();
-  public static Imu imu = new Imu();// AHRS(SPI.Port.kMXP);
 
   // private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
 
@@ -92,8 +92,8 @@ public class RobotContainer {
   private void configureBindings() {
     // Note: whileTrue() does not restart the command if it ends while the button is still being held
     // These button bindings are chosen for testing, and may be changed based on driver preference
-    operatorController.circle().whileTrue(arm.armToMiddleNodePosition());
-    operatorController.triangle().whileTrue(arm.armToTopNodePosition());
+    driverController.circle().whileTrue(arm.armExtend());
+    driverController.triangle().whileTrue(arm.armStow());
     driverController.square().whileTrue(claw.clawOpen());
     driverController.cross().whileTrue(claw.clawClose());
     driverController.L1().whileTrue(drive.shiftHigh());
@@ -112,7 +112,6 @@ public class RobotContainer {
   }
 
   public void configurePeriodic() {
-    arm.movePercentOutput(operatorController.getRightY());
     drive.tankDrive(-driverController.getRightY(), driverController.getLeftY());
     claw.periodic();
   }

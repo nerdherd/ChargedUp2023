@@ -88,6 +88,8 @@ public final class Constants {
     public static final int kArmP = 0;
     public static final int kArmI = 0;
     public static final int kArmD = 0;
+    public static final int kPistonForwardID = 4;
+    public static final int kPistonReverseID = 5;
   }
 
   public static class VisionConstants{

@@ -9,52 +9,36 @@ import java.util.ResourceBundle.Control;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.ControllerConstants;
 
 public class Arm extends SubsystemBase {
-    public TalonFX armMotor;
+    private DoubleSolenoid arm;
 
     public Arm() {
-        armMotor = new TalonFX(ArmConstants.kArmID);
-        armMotor.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
-        armMotor.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
-        armMotor.configNeutralDeadband(ArmConstants.kArmDeadband);
-        armMotor.config_kP(0, ArmConstants.kArmP);
-        armMotor.config_kI(0, ArmConstants.kArmI);
-        armMotor.config_kD(0, ArmConstants.kArmD);
+        arm = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
+
     }
 
     public CommandBase armStow() {
         return runOnce(
             () -> {
-                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmStow);
+                arm.set(Value.kReverse);
             }
         );
     }
 
-    public CommandBase armToMiddleNodePosition() {
+    public CommandBase armExtend() {
         return runOnce(
             () -> {
-                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmMiddleNode);
-            });
-      }
-
-    public CommandBase armToTopNodePosition() {
-        return runOnce(
-            () -> {
-                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmTopNode);
-            });
+                arm.set(Value.kForward);
+            }
+        );
     }
-
-    public void movePercentOutput(double joystickOutput) {
-        if (Math.abs(joystickOutput) > ControllerConstants.kOperatorJoystickDeadband) {
-            armMotor.set(ControlMode.PercentOutput, joystickOutput/2);
-        } else {
-            armMotor.set(ControlMode.PercentOutput, 0);
-        }
-    }
-  
 }
