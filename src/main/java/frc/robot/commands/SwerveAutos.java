@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
@@ -66,4 +67,197 @@ public class SwerveAutos {
             // new TheGreatBalancingAct(swerveDrive),
             Commands.runOnce(() -> swerveDrive.stopModules()));
     } 
+
+    public static CommandBase hardCarryAuto(SwerveDrivetrain swerveDrive) {
+        // Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+    
+        // Create Actual Trajectory
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(180)), 
+            List.of(
+            new Translation2d(Units.inchesToMeters(249.875) , 0)
+            ),
+            new Pose2d(Units.inchesToMeters(249.875), Units.inchesToMeters(16), new Rotation2d(0)), 
+            trajectoryConfig);
+        
+        Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(Units.inchesToMeters(249.875), Units.inchesToMeters(16), new Rotation2d(0)), 
+            List.of(
+            new Translation2d(0, Units.inchesToMeters(16))), 
+            new Pose2d(0, Units.inchesToMeters(27.875), Rotation2d.fromDegrees(180)), 
+            trajectoryConfig);
+                
+        Trajectory trajectory3 = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(Units.inchesToMeters(0), Units.inchesToMeters(27.875), new Rotation2d(180)), 
+            List.of(
+            new Translation2d(0, Units.inchesToMeters(47.625))), 
+            new Pose2d(Units.inchesToMeters(80), Units.inchesToMeters(47.625), Rotation2d.fromDegrees(0)), 
+            trajectoryConfig);
+
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, 0, 0);
+        PIDController yController = new PIDController(kPYController, 0, 0);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, 0, 0, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    
+        SwerveControllerCommand autoCommand = new SwerveControllerCommand(
+            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        SwerveControllerCommand autoCommand2 = new SwerveControllerCommand(
+            trajectory2, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+            
+        SwerveControllerCommand autoCommand3 = new SwerveControllerCommand(
+            trajectory3, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        return Commands.sequence(
+            new WaitCommand(2),
+            Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
+            new TurnToAngle(180, swerveDrive),
+            new WaitCommand(3),
+            autoCommand,
+            Commands.runOnce(() -> swerveDrive.stopModules()),
+            new TurnToAngle(0, swerveDrive),
+            new WaitCommand(1),
+            autoCommand2, 
+            new TurnToAngle(180, swerveDrive),
+            new WaitCommand(3),
+            autoCommand3,
+            new TheGreatBalancingAct(swerveDrive),
+            Commands.runOnce(() -> swerveDrive.stopModules()),
+            new TowSwerve(swerveDrive));
+    }
+
+    public static CommandBase vendingMachine(SwerveDrivetrain swerveDrive) {
+        // Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+    
+        // Create Actual Trajectory
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(180)), 
+            List.of(
+            new Translation2d(Units.inchesToMeters(249.875) , 0)
+            ),
+            new Pose2d(Units.inchesToMeters(249.875), Units.inchesToMeters(-16), new Rotation2d(0)), 
+            trajectoryConfig);
+        
+        Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(Units.inchesToMeters(249.875), Units.inchesToMeters(-16), new Rotation2d(0)), 
+            List.of(
+            new Translation2d(0, Units.inchesToMeters(-16))), 
+            new Pose2d(0, Units.inchesToMeters(-27.875), Rotation2d.fromDegrees(180)), 
+            trajectoryConfig);
+                
+        Trajectory trajectory3 = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(Units.inchesToMeters(0), Units.inchesToMeters(-27.875), new Rotation2d(180)), 
+            List.of(
+            new Translation2d(0, Units.inchesToMeters(-47.625))), 
+            new Pose2d(Units.inchesToMeters(80), Units.inchesToMeters(-47.625), Rotation2d.fromDegrees(0)), 
+            trajectoryConfig);
+
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, 0, 0);
+        PIDController yController = new PIDController(kPYController, 0, 0);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, 0, 0, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    
+        SwerveControllerCommand autoCommand = new SwerveControllerCommand(
+            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        SwerveControllerCommand autoCommand2 = new SwerveControllerCommand(
+            trajectory2, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+            
+        SwerveControllerCommand autoCommand3 = new SwerveControllerCommand(
+            trajectory3, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        return Commands.sequence(
+            new WaitCommand(4),
+            Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
+            new TurnToAngle(180, swerveDrive),
+            new WaitCommand(3),
+            autoCommand,
+            Commands.runOnce(() -> swerveDrive.stopModules()),
+            new TurnToAngle(0, swerveDrive),
+            new WaitCommand(1),
+            autoCommand2, 
+            new TurnToAngle(180, swerveDrive),
+            new WaitCommand(3),
+            autoCommand3,
+            new TheGreatBalancingAct(swerveDrive),
+            Commands.runOnce(() -> swerveDrive.stopModules()),
+            new TowSwerve(swerveDrive));
+    } 
+
+    // public static CommandBase dietCoke(SwerveDrivetrain swerveDrive) {
+    //     // Create trajectory settings
+    //     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+    //         kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+    
+    //     // Create Actual Trajectory
+    //     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+    //         new Pose2d(0, 0, new Rotation2d(0)), 
+    //         List.of(
+    //         new Translation2d(Units.inchesToMeters(249.875) , 0)
+    //         ),
+    //         new Pose2d(Units.inchesToMeters(249.875), Units.inchesToMeters(0), new Rotation2d(0)), 
+    //         trajectoryConfig);
+        
+    //     Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
+    //         new Pose2d(Units.inchesToMeters(249.875), Units.inchesToMeters(-16), new Rotation2d(0)), 
+    //         List.of(
+    //         new Translation2d(0, Units.inchesToMeters(-16))), 
+    //         new Pose2d(0, Units.inchesToMeters(-27.875), Rotation2d.fromDegrees(180)), 
+    //         trajectoryConfig);
+                
+    //     Trajectory trajectory3 = TrajectoryGenerator.generateTrajectory(
+    //         new Pose2d(Units.inchesToMeters(0), Units.inchesToMeters(-27.875), new Rotation2d(180)), 
+    //         List.of(
+    //         new Translation2d(0, Units.inchesToMeters(-47.625))), 
+    //         new Pose2d(Units.inchesToMeters(80), Units.inchesToMeters(-47.625), Rotation2d.fromDegrees(0)), 
+    //         trajectoryConfig);
+
+    //     //Create PID Controllers
+    //     PIDController xController = new PIDController(kPXController, 0, 0);
+    //     PIDController yController = new PIDController(kPYController, 0, 0);
+    //     ProfiledPIDController thetaController = new ProfiledPIDController(
+    //         kPThetaController, 0, 0, kThetaControllerConstraints);
+    //     thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    
+    //     SwerveControllerCommand autoCommand = new SwerveControllerCommand(
+    //         trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+    //         xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+    //     SwerveControllerCommand autoCommand2 = new SwerveControllerCommand(
+    //         trajectory2, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+    //         xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+            
+    //     SwerveControllerCommand autoCommand3 = new SwerveControllerCommand(
+    //         trajectory3, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+    //         xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+
+    //     return Commands.sequence(
+    //         Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
+    //         new WaitCommand(3),
+    //         autoCommand,
+    //         Commands.runOnce(() -> swerveDrive.stopModules()),
+    //         new TurnToAngle(0, swerveDrive),
+    //         new WaitCommand(1),
+    //         autoCommand2, 
+    //         new TurnToAngle(180, swerveDrive),
+    //         new WaitCommand(3),
+    //         autoCommand3,
+    //         new TheGreatBalancingAct(swerveDrive),
+    //         Commands.runOnce(() -> swerveDrive.stopModules()),
+    //         new TowSwerve(swerveDrive));
+    // } 
 }

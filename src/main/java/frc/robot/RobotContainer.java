@@ -12,8 +12,10 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -62,7 +64,9 @@ public class RobotContainer {
   
   private final PS4Controller driverControllerButtons = 
     new PS4Controller(ControllerConstants.kDriverControllerPort);
-    
+  
+  SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
+
   // Two different drivetrain modes
   // private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
   // private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
@@ -76,7 +80,12 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    
+    autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
+    autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
+    autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
+    autoChooser.addOption("Test auto", SwerveAutos.testAuto(swerveDrive));
+    SmartDashboard.putData(autoChooser);
+
     swerveDrive.setDefaultCommand(
           new SwerveJoystickCommand(swerveDrive, 
             () -> -driverController.getLeftY(),  
@@ -105,9 +114,9 @@ public class RobotContainer {
     
     driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
     driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
-    driverController.cross().onTrue(new InstantCommand(() -> swerveDrive.resetOdometry(new Pose2d())));
+    // driverController.cross().onTrue(new InstantCommand(() -> swerveDrive.resetOdometry(new Pose2d())));
     // SmartDashboard.p utData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
-    // driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
+    driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
   }
 
   public void configurePeriodic() {
@@ -122,8 +131,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+
     // An example command will be run in autonomous
     // return new PreloadTaxi(drive, claw, arm);
-    return SwerveAutos.testAuto(swerveDrive);
+    return autoChooser.getSelected();
   }
 }

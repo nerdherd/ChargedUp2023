@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -8,11 +10,13 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.util.NerdyMath;
 
 public class TurnToAngle extends CommandBase {
     private double targetAngle;
     private SwerveDrivetrain swerveDrive;
     private PIDController pidController;
+    private SlewRateLimiter limiter;
 
     /**
      * Construct a new TurnToAngle Command
@@ -36,6 +40,8 @@ public class TurnToAngle extends CommandBase {
         
         this.pidController.enableContinuousInput(0, 360);
         
+        this.limiter = new SlewRateLimiter(Math.PI / 4);
+
         addRequirements(swerveDrive);
     }
 
@@ -54,6 +60,13 @@ public class TurnToAngle extends CommandBase {
         // Calculate turning speed with PID
         double turningSpeed = pidController.calculate(swerveDrive.getHeading(), targetAngle);
         turningSpeed = Math.toRadians(turningSpeed);
+        SmartDashboard.putNumber("Turning speed", turningSpeed);
+        turningSpeed = NerdyMath.clamp(
+            turningSpeed, 
+            -SwerveDriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond, 
+            SwerveDriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond);
+        SmartDashboard.putNumber("Turning speed limited", turningSpeed);
+
 
         // SmartDashboard.putNumber("TurningSpeed", turningSpeed);
 
