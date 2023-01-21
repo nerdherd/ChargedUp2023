@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 
+import java.util.HashMap;
+
 import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -25,12 +27,18 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.util.NerdyMath;
  
 public class Drivetrain extends SubsystemBase{
     private TalonFX rightMaster;
@@ -62,8 +70,8 @@ public class Drivetrain extends SubsystemBase{
 
         rightMaster.setInverted(false);
         rightFollower.setInverted(false);
-        leftMaster.setInverted(true);
-        leftFollower.setInverted(true);
+        leftMaster.setInverted(false);
+        leftFollower.setInverted(false);
         
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.supplyCurrLimit.enable = true;
@@ -168,6 +176,11 @@ public class Drivetrain extends SubsystemBase{
         rightMaster.setSelectedSensorPosition(0);
     }
 
+    public void setEncoder(double position) {
+        leftMaster.setSelectedSensorPosition(position);
+        rightMaster.setSelectedSensorPosition(position);
+    }
+
     public double getTicks() {
         return leftMaster.getSelectedSensorPosition();
     }
@@ -245,5 +258,67 @@ public class Drivetrain extends SubsystemBase{
     public void zeroHeading() {
         ahrs.reset();
     }
+
+    public void initShuffleboard() {  
+        ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+
+        ShuffleboardLayout power =
+            tab.getLayout("Power", BuiltInLayouts.kGrid)
+                .withSize(2, 2)
+                .withProperties(new HashMap<String, Object>() {{
+                    put("Number of columns", 2);
+                    put("Number of rows", 1);
+                    }});
+        
+        HashMap<String, Object> powerProperties = new HashMap<String, Object>() {{
+            put("Min" , 0);
+            put("Max", 1);
+        }};
+            
+        power.addNumber("Left Master Velocity", () -> leftMaster.getSelectedSensorVelocity())
+            .withWidget(BuiltInWidgets.kNumberBar)
+            .withProperties(powerProperties);
+        
+        power.addNumber("Left Follower Velocity", () -> leftFollower.getSelectedSensorVelocity())
+            .withWidget(BuiltInWidgets.kNumberBar)
+            .withProperties(powerProperties);        
+
+        power.addNumber("Right Master Velocity", () -> rightMaster.getSelectedSensorPosition())
+            .withWidget(BuiltInWidgets.kNumberBar)
+            .withProperties(powerProperties);
+
+        power.addNumber("Right Follower Velocity", () -> rightFollower.getSelectedSensorPosition())
+            .withWidget(BuiltInWidgets.kNumberBar)
+            .withProperties(powerProperties);
+        
+        // ========== CURRENT LAYOUT ========== //
+
+        ShuffleboardLayout current = 
+            tab.getLayout("Current", BuiltInLayouts.kGrid)
+                .withSize(3, 3)
+                .withProperties(new HashMap<String, Object>() {{
+                    put("Number of columns", 2);
+                    put("Number of rows", 2);
+                    }});
+        
+        HashMap<String, Object> falconCurrent = new HashMap<String, Object>() {{
+            put("Min" , 0);
+            put("Max", DriveConstants.kFalconMaxCurrent);
+        }};
+        current.addNumber("Left Master Current", leftMaster::getStatorCurrent)
+            .withWidget(BuiltInWidgets.kNumberBar)
+            .withProperties(falconCurrent);
+        current.addNumber("Left Follower Current", leftFollower::getStatorCurrent)
+            .withWidget(BuiltInWidgets.kNumberBar)
+            .withProperties(falconCurrent);
+        current.addNumber("Right Master Current", rightMaster::getStatorCurrent)
+            .withWidget(BuiltInWidgets.kNumberBar)
+            .withProperties(falconCurrent);
+        current.addNumber("Right Follower Current", rightFollower::getStatorCurrent)
+            .withWidget(BuiltInWidgets.kNumberBar)
+            .withProperties(falconCurrent);
+    }
+    
+    
 
 }

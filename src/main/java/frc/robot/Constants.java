@@ -63,6 +63,8 @@ public final class Constants {
 
     public static final int kPistonForwardID = 0;
     public static final int kPistonReverseID = 1;
+
+    public static final int kFalconMaxCurrent = 50;
   }
 
   public static class ControllerConstants {

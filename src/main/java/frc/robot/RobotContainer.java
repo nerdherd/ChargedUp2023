@@ -12,8 +12,10 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -34,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.BadPS4.Button;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.commands.TankAutos;
 import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.SwerveDrivetrain;
@@ -69,6 +72,7 @@ public class RobotContainer {
   private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
   private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
 
+  private SendableChooser<CommandBase> autoChooser;
   // public Command swerveCommand = new RepeatCommand(
   //   new SequentialCommandGroup(
   //       new WaitCommand(5),
@@ -77,6 +81,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    drive.setEncoder(drive.meterToTicks(0.381));
+    drive.zeroHeading();
     
     // swerveDrive.setDefaultCommand(
     //       new SwerveJoystickCommand(swerveDrive, 
@@ -112,7 +118,7 @@ public class RobotContainer {
   }
 
   public void configurePeriodic() {
-    drive.tankDrive(-driverController.getRightY(), driverController.getLeftY());
+    drive.tankDrive(driverController.getLeftY(), -driverController.getRightY());
     claw.periodic();
   }
 
@@ -121,9 +127,22 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+
+   
+  public void initShuffleboard() {
+    drive.initShuffleboard();
+    autoChooser = new SendableChooser<CommandBase>();
+    autoChooser.setDefaultOption("Hard Carry Auto", 
+              TankAutos.HardCarryAuto(drive, claw, arm));
+
+    autoChooser.addOption("Diet Coke Auto",
+              TankAutos.DietCokeAuto(drive, claw, arm));
+  }
+
   public Command getAutonomousCommand() {
+    return autoChooser.getSelected();
     // An example command will be run in autonomous
-    return new PreloadTaxi(drive, claw, arm);
     // return SwerveAutos.testAuto(swerveDrive);
   }
+
 }
