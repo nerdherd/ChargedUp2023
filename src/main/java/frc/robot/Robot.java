@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     CommandScheduler.getInstance().run();
 
-    DataLogManager.start("/logs/");
+    DataLogManager.start("/lvuser/logs/");
     DataLogManager.logNetworkTables(true);
   }
 

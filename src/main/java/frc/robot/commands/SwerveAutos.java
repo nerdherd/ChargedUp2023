@@ -11,6 +11,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.DriveConstants;
@@ -22,6 +23,12 @@ import static frc.robot.Constants.SwerveAutoConstants.*;
 import java.util.List;
 
 public class SwerveAutos {
+    /**
+     * Start with the front left swerve module aligned with the charging station's edge
+     * in the x axis and around 8 inches to the right in the y axis
+     * @param swerveDrive
+     * @return
+     */
     public static CommandBase testAuto(SwerveDrivetrain swerveDrive) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
@@ -31,25 +38,46 @@ public class SwerveAutos {
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-            new Translation2d(0 , -.25),
-            new Translation2d(-.5 , -.25)),
+            new Translation2d(0 , 0.25),
+            new Translation2d(-.5 , 0.25)),
             new Pose2d(-.5, 0, new Rotation2d(0)), 
             trajectoryConfig);
         
         Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
             new Pose2d(-.5, 0, new Rotation2d(0)), 
             List.of(
-            new Translation2d(4.5, 0)), 
-            new Pose2d(4.5, -0.5, Rotation2d.fromDegrees(-45)), 
+            new Translation2d(4, 0)), 
+            new Pose2d(4, -0.25, Rotation2d.fromDegrees(-10)), 
             trajectoryConfig);
         
         Trajectory trajectory3 = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(4.5, -0.5, new Rotation2d(-45)), 
+            new Pose2d(4, -0.25, new Rotation2d(-10)), 
             List.of(
-            new Translation2d(4.5, 0)), 
-            new Pose2d(0, 0, Rotation2d.fromDegrees(180)), 
+            new Translation2d(4, 0)), 
+            new Pose2d(-0.5, 0, Rotation2d.fromDegrees(180)), 
             trajectoryConfig);
-                
+        
+        Trajectory trajectory4 = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(-0.5, 0, new Rotation2d(180)), 
+            List.of(
+            new Translation2d(4, 0)), 
+            new Pose2d(4, -1.5, Rotation2d.fromDegrees(-20)), 
+            trajectoryConfig);
+        
+        Trajectory trajectory5 = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(4, -1.5, new Rotation2d(-20)), 
+            List.of(
+            new Translation2d(4, -0.25)), 
+            new Pose2d(-0.1, 0, Rotation2d.fromDegrees(180)), 
+            trajectoryConfig);
+        
+        Trajectory trajectory6 = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(-0.1, 0, new Rotation2d(180)), 
+            List.of(
+            new Translation2d(0, -2)), 
+            new Pose2d(2, -1.75, Rotation2d.fromDegrees(0)), 
+            trajectoryConfig);
+
         //Create PID Controllers
         PIDController xController = new PIDController(kPXController, 0, 0);
         PIDController yController = new PIDController(kPYController, 0, 0);
@@ -68,17 +96,43 @@ public class SwerveAutos {
         SwerveControllerCommand autoCommand3 = new SwerveControllerCommand(
             trajectory3, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
-    
+        
+        SwerveControllerCommand autoCommand4 = new SwerveControllerCommand(
+            trajectory4, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        SwerveControllerCommand autoCommand5 = new SwerveControllerCommand(
+            trajectory5, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        SwerveControllerCommand autoCommand6 = new SwerveControllerCommand(
+            trajectory6, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
         return Commands.sequence(
+            // Commands.runOnce(swerveDrive::zeroHeading),
+            new ParallelRaceGroup(
+                new TurnToAngle(0, swerveDrive),
+                new WaitCommand(1)               
+            ),
             Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             autoCommand,
+            new TurnToAngle(180, swerveDrive),
             Commands.runOnce(() -> swerveDrive.stopModules()),
-            new WaitCommand(1),
+            new WaitCommand(1.5),
             autoCommand2, 
-            // new TheGreatBalancingAct(swerveDrive),
-            new WaitCommand(1),
+            Commands.runOnce(() -> swerveDrive.stopModules()),
+            new WaitCommand(2),
             autoCommand3,
+            Commands.runOnce(() -> swerveDrive.stopModules()),
+            new WaitCommand(2),
+            autoCommand4,
+            Commands.runOnce(() -> swerveDrive.stopModules()),
+            new WaitCommand(2),
+            autoCommand5,
+            Commands.runOnce(() -> swerveDrive.stopModules()),
+            new WaitCommand(2),
+            autoCommand6,
             Commands.runOnce(() -> swerveDrive.stopModules()));
     } 
 
