@@ -115,7 +115,7 @@ public final class Constants {
     
     public static final double kPTurning = 0.8; // 0.6
     public static final double kITurning = 0;
-    public static final double kDTurning = 0; // TODO: need to tune when on the ground
+    public static final double kDTurning = 0.02; 
     
     // TODO: tune PID for drive motor velocity control
     public static final double kPDrive = 0;
