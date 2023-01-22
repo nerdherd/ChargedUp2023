@@ -63,11 +63,10 @@ public class TurnToAngle extends CommandBase {
         SmartDashboard.putNumber("Turning speed", turningSpeed);
         turningSpeed = NerdyMath.clamp(
             turningSpeed, 
-            -SwerveDriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond, 
-            SwerveDriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond);
+            -SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond, 
+            SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond);
         SmartDashboard.putNumber("Turning speed limited", turningSpeed);
-
-
+        
         // SmartDashboard.putNumber("TurningSpeed", turningSpeed);
 
         // Convert speed into swerve states

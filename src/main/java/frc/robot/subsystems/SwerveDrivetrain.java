@@ -88,7 +88,7 @@ public class SwerveDrivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         reportToSmartDashboard();
-        SwerveModulePosition[] modules = getModulePositions();
+        // SwerveModulePosition[] modules = getModulePositions();
         odometer.update(getRotation2d(), getModulePositions());
         SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
         SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
@@ -214,8 +214,8 @@ public class SwerveDrivetrain extends SubsystemBase {
      * Report values to smartdashboard.
      */
     public void reportToSmartDashboard() {
-        SmartDashboard.putNumber("xpos", getPose().getX());
-        SmartDashboard.putNumber("ypos", getPose().getY());
+        // SmartDashboard.putNumber("xpos", getPose().getX());
+        // SmartDashboard.putNumber("ypos", getPose().getY());
         SmartDashboard.putNumber("Robot Heading", getHeading());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
     }

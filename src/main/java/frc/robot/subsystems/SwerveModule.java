@@ -166,7 +166,7 @@ public class SwerveModule {
         // state.angle = state.angle.rotateBy(Rotation2d.fromDegrees(-90));
         state = SwerveModuleState.optimize(state, getState().angle);
         // SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, state.angle.getDegrees());
-        // SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, state.angle.getDegrees() - (getTurningPosition() * 180 / Math.PI));
+        SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, state.angle.getDegrees() - (getTurningPosition() * 180 / Math.PI));
         
         // TODO: switch to velocity control
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
@@ -178,6 +178,9 @@ public class SwerveModule {
         // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
 
         turnMotor.set(ControlMode.PercentOutput, turnPower);
+        SmartDashboard.putNumber("Turn angle #" + turnMotorID, Math.toDegrees(getTurningPosition()));
+
+        SmartDashboard.putNumber("Current Motor #" + turnMotorID, driveMotor.getStatorCurrent());
     }
 
     public void setBreak(boolean breaking) {

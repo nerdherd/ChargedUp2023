@@ -67,6 +67,8 @@ public class RobotContainer {
   
   SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
 
+  public double swerveTargetAngle = 180;
+
   // Two different drivetrain modes
   // private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
   // private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
@@ -78,6 +80,16 @@ public class RobotContainer {
         new InstantCommand(swerveDrive::resetEncoders)
     ));
 
+  public SwerveJoystickCommand swerveJoystickCommand = 
+    new SwerveJoystickCommand(swerveDrive, 
+      () -> -driverController.getLeftY(),  
+      driverController::getLeftX,
+      // () -> 0.0, 
+      driverController::getRightY, 
+      driverControllerButtons::getSquareButton,
+      driverControllerButtons::getTriangleButton,
+      driverControllerButtons::getCrossButton);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
@@ -86,14 +98,8 @@ public class RobotContainer {
     autoChooser.addOption("Test auto", SwerveAutos.testAuto(swerveDrive));
     SmartDashboard.putData(autoChooser);
 
-    swerveDrive.setDefaultCommand(
-          new SwerveJoystickCommand(swerveDrive, 
-            () -> -driverController.getLeftY(),  
-            driverController::getLeftX,
-            // () -> 0.0, 
-            driverController::getRightY, 
-            driverControllerButtons::getSquareButton,
-            driverControllerButtons::getTriangleButton));
+    swerveDrive.setDefaultCommand(swerveJoystickCommand);
+          
       
 	// Configure the trigger bindings
     configureBindings();
@@ -114,9 +120,15 @@ public class RobotContainer {
     
     driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
     driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+    // driverController.cross().onTrue(new InstantCommand(() -> swerveJoystickCommand.setTargetAngle((swerveJoystickCommand.getTargetAngle() + 90) % 360)));
     // driverController.cross().onTrue(new InstantCommand(() -> swerveDrive.resetOdometry(new Pose2d())));
     // SmartDashboard.p utData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
-    driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
+    // driverController.cross().whileTrue(new SequentialCommandGroup(
+    //   new TurnToAngle(swerveTargetAngle, swerveDrive),
+    //   new InstantCommand(() -> swerveTargetAngle = (swerveTargetAngle + 180) % 360))
+    // );
+    driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
+    driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
   }
 
   public void configurePeriodic() {

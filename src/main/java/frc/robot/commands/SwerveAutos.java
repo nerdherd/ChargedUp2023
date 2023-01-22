@@ -40,7 +40,14 @@ public class SwerveAutos {
             new Pose2d(-.5, 0, new Rotation2d(0)), 
             List.of(
             new Translation2d(4.5, 0)), 
-            new Pose2d(4.5, 1, Rotation2d.fromDegrees(90)), 
+            new Pose2d(4.5, -0.5, Rotation2d.fromDegrees(-45)), 
+            trajectoryConfig);
+        
+        Trajectory trajectory3 = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(4.5, -0.5, new Rotation2d(-45)), 
+            List.of(
+            new Translation2d(4.5, 0)), 
+            new Pose2d(0, 0, Rotation2d.fromDegrees(180)), 
             trajectoryConfig);
                 
         //Create PID Controllers
@@ -58,6 +65,11 @@ public class SwerveAutos {
             trajectory2, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
 
+        SwerveControllerCommand autoCommand3 = new SwerveControllerCommand(
+            trajectory3, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+    
+        
         return Commands.sequence(
             Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             autoCommand,
@@ -65,6 +77,8 @@ public class SwerveAutos {
             new WaitCommand(1),
             autoCommand2, 
             // new TheGreatBalancingAct(swerveDrive),
+            new WaitCommand(1),
+            autoCommand3,
             Commands.runOnce(() -> swerveDrive.stopModules()));
     } 
 

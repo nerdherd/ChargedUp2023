@@ -113,7 +113,7 @@ public final class Constants {
     public static final double kDriveTicksPer100MsToMetersPerSec = kDriveTicksToMeters * 10;
     public static final double kTurningTicksPer100MsToRadPerSec = kTurningTicksToRad * 10;
     
-    public static final double kPTurning = 0.6;
+    public static final double kPTurning = 0.8; // 0.6
     public static final double kITurning = 0;
     public static final double kDTurning = 0; // TODO: need to tune when on the ground
     
@@ -179,7 +179,9 @@ public final class Constants {
 
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 2;
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
-      kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
+      kPhysicalMaxAngularSpeedRadiansPerSecond / 2;
+    public static final double kTurnToAngleMaxAngularSpeedRadiansPerSecond 
+      = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
     public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
     public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 3;
     
