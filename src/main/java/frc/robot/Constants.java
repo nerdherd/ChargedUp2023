@@ -228,5 +228,10 @@ public final class Constants {
     public static final int kDriverFieldOrientedButtonIdx = 1;
 
     public static final double kDeadband = 0.05;    }
+
+    public static class BananaConstants {
+      public static final int kPIDControllerP = 0;
+      public static final int kPIDControllerD = 0;
+    }
         
 }
