@@ -9,12 +9,16 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.commands.TheGreatBalancingAct;
@@ -133,8 +137,43 @@ public class SwerveAutos {
             Commands.runOnce(() -> swerveDrive.stopModules()),
             new WaitCommand(2),
             autoCommand6,
+            new TheGreatBalancingAct(swerveDrive),
             Commands.runOnce(() -> swerveDrive.stopModules()));
     } 
+
+    public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive) {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+        
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)), 
+            List.of(
+                new Translation2d(-0.5, 0),
+                new Translation2d(-0.5, -2)), 
+            new Pose2d(1, -1.75, Rotation2d.fromDegrees(0)), 
+            trajectoryConfig);
+
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, 0, 0);
+        PIDController yController = new PIDController(kPYController, 0, 0);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, 0, 0, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand autoCommand = new SwerveControllerCommand(
+            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
+            autoCommand,
+            new TimedBalancingAct(swerveDrive, 0.5, 
+                SwerveAutoConstants.kPBalancingInitial, 
+                SwerveAutoConstants.kPBalancing)
+            // new TheGreatBalancingAct(swerveDrive),
+            // new TowSwerve(swerveDrive)
+        );
+    }
 
     public static CommandBase hardCarryAuto(SwerveDrivetrain swerveDrive) {
         // Create trajectory settings

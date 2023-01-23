@@ -113,7 +113,7 @@ public final class Constants {
     public static final double kDriveTicksPer100MsToMetersPerSec = kDriveTicksToMeters * 10;
     public static final double kTurningTicksPer100MsToRadPerSec = kTurningTicksToRad * 10;
     
-    public static final double kPTurning = 0.8; // 0.6
+    public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
     public static final double kDTurning = 0.02; 
     
@@ -214,7 +214,10 @@ public final class Constants {
       new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
+    public static final double kPBalancingInitial = 0.6;
     public static final double kPBalancing = 0.3;
+    public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
+    public static final double kBalancingTowPeriod = 0.5;
   }
 
   // this needs to get remapped to PS4 controller

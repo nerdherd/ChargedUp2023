@@ -147,6 +147,7 @@ public class RobotContainer {
     // An example command will be run in autonomous
     // return new PreloadTaxi(drive, claw, arm);
     // return autoChooser.getSelected();
-    return SwerveAutos.testAuto(swerveDrive);
+    // return SwerveAutos.testAuto(swerveDrive);
+    return SwerveAutos.chargeAuto(swerveDrive);
   }
 }
