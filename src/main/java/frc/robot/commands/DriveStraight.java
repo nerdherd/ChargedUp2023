@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.util.NerdyMath;
@@ -32,6 +33,7 @@ public class DriveStraight extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
@@ -40,45 +42,85 @@ public class DriveStraight extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    SmartDashboard.putString("Drive Straight Now", "yes");
     boolean hasInitStraight = false;
     //PIDController forwardControllerImu = new PIDController(0.1, 0, 0);
-    PIDController turnControllerImu = new PIDController(0.001, 0, 0);
+    PIDController turnControllerImu = new PIDController(0.01, 0, 0);
 
     double ticks2Go = 0; // how many encode ticks to move
     double ticks2SlowDown = 0; // when to slow so you don't overshoot
 
-    double drivePower = 0;
-        if(!hasInitStraight) {
-            hasInitStraight = true;
-            drivePower = 0.3;
-            ticks2Go = drive.meterToTicks(distanceMeter);//inches2Ticks(distance); // set up encoder stop condition
-            ticks2SlowDown = ticks2Go*0.8;//inches2Ticks(distance*0.2); // set up encoder slow down condition
-        }
+    double drivePower = 0.3;
 
-        double position = drive.getTicks();
-        if (position >= ticks2SlowDown)
-            drivePower = 0.15; // cut power prepare to stop
-
-        if (position >= ticks2Go) { // reached desired encoder position
-            if (continueMove) {
-                drive.setPower(0.1,0.1);
-            } 
-            else {
-                drive.setPower(0, 0);
-            }
-            finished = true;
-        } 
-        else { // move straight
-            double rotateToAngleRate = turnControllerImu.calculate(drive.getHeading(), heading); // calc error correction
-            //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
-            //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
-            double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
-            double tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
-            drive.tankDrive(tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
-            
-            finished = false;
-        } 
+    double currentTicks = -drive.getTicks();
+    ticks2Go = drive.meterToTicks(distanceMeter);//inches2Ticks(distance); // set up encoder stop condition
+    ticks2SlowDown = ticks2Go*0.8;//inches2Ticks(distance*0.2); // set up encoder slow down condition
+    SmartDashboard.putNumber("Ticks To Go", ticks2Go);
+    SmartDashboard.putNumber("Current Ticks", currentTicks);
     
+
+
+        if (distanceMeter >= 0) {
+          double position = -drive.getTicks();
+          if (position >= ticks2SlowDown) {
+              drivePower = 0.15; // cut power prepare to stop
+          }
+          if (position >= ticks2Go) { // reached desired encoder position
+              if (continueMove) {
+                  drive.setPower(0.1,0.1);
+              } 
+              else {
+                  drive.setPower(0, 0);
+              }
+              SmartDashboard.putString("Finished", "Yes");
+              finished = true;
+
+          } 
+          else { // move straight
+              double rotateToAngleRate = turnControllerImu.calculate(drive.getHeading(), heading); // calc error correction
+              //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
+              //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
+              double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
+              double tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
+              drive.setPower(-tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
+              SmartDashboard.putNumber("Tank Drive Left Speed", tankDriveLeftSpeed);
+              SmartDashboard.putNumber("Tank Drive Right Speed", tankDriveRightSpeed);
+              
+              SmartDashboard.putString("Finished", "No");
+              finished = false;
+          } 
+        } else {
+          drivePower = -0.3;
+          double position = -drive.getTicks();
+          if (position <= ticks2SlowDown)
+              drivePower = -0.15; // cut power prepare to stop
+
+          if (position <= ticks2Go) { // reached desired encoder position
+              if (continueMove) {
+                  drive.setPower(-0.1,-0.1);
+              } 
+              else {
+                  drive.setPower(0, 0);
+              }
+              
+              SmartDashboard.putString("Finished Back", "Yes");
+              finished = true;
+          } 
+          else { // move straight
+              double rotateToAngleRate = turnControllerImu.calculate(drive.getHeading(), heading); // calc error correction
+              //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
+              //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
+              double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
+              double tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
+              drive.setPower(-tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
+              SmartDashboard.putNumber("Tank Drive Left Speed", tankDriveLeftSpeed);
+              SmartDashboard.putNumber("Tank Drive Right Speed", tankDriveRightSpeed);
+              
+              
+              SmartDashboard.putString("Finished Back", "No");
+              finished = false;
+          }
+        }
   }
 
   // Called once the command ends or is interrupted.

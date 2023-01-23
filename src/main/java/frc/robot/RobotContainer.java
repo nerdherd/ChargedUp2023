@@ -81,8 +81,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    drive.setEncoder(drive.meterToTicks(0.381));
-    drive.zeroHeading();
     
     // swerveDrive.setDefaultCommand(
     //       new SwerveJoystickCommand(swerveDrive, 
@@ -98,10 +96,10 @@ public class RobotContainer {
   private void configureBindings() {
     // Note: whileTrue() does not restart the command if it ends while the button is still being held
     // These button bindings are chosen for testing, and may be changed based on driver preference
-    driverController.circle().whileTrue(arm.armExtend());
-    driverController.triangle().whileTrue(arm.armStow());
-    driverController.square().whileTrue(claw.clawOpen());
-    driverController.cross().whileTrue(claw.clawClose());
+    operatorController.square().whileTrue(arm.armExtend());
+    operatorController.triangle().whileTrue(arm.armStow());
+    operatorController.L1().onTrue(claw.clawOpen());
+    operatorController.R1().onTrue(claw.clawClose());
     driverController.L1().whileTrue(drive.shiftHigh());
     driverController.R1().whileTrue(drive.shiftLow());
 
@@ -131,18 +129,25 @@ public class RobotContainer {
    
   public void initShuffleboard() {
     drive.initShuffleboard();
-    autoChooser = new SendableChooser<CommandBase>();
-    autoChooser.setDefaultOption("Hard Carry Auto", 
-              TankAutos.HardCarryAuto(drive, claw, arm));
+    // autoChooser = new SendableChooser<CommandBase>();
+    // autoChooser.setDefaultOption("Hard Carry Auto", 
+    //           TankAutos.HardCarryAuto(drive, claw, arm));
 
-    autoChooser.addOption("Diet Coke Auto",
-              TankAutos.DietCokeAuto(drive, claw, arm));
+    // autoChooser.addOption("Diet Coke Auto",
+    //           TankAutos.DietCokeAuto(drive, claw, arm));
   }
 
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    // return autoChooser.getSelected();
+    return TankAutos.HardCarryAuto(drive, claw, arm);
     // An example command will be run in autonomous
     // return SwerveAutos.testAuto(swerveDrive);
   }
 
+
+  public void autonomousInit() {
+    drive.resetEncoder();
+    // drive.setEncoder(drive.meterToTicks(0.381));
+    drive.zeroHeading();
+  }
 }

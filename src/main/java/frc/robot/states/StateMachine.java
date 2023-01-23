@@ -193,7 +193,7 @@ public class StateMachine {
                     setMissionTo(Mission.EXIT);
                     break;
                 }
-                missionMOVE_A2B(Mission.SEEK_OBJ_PICK_CONE);
+                missionMOVE_A2B(Mission.EXIT);
                 break; 
             case SEEK_OBJ_PICK_CONE:
                 if (missionRunTimer.get() > missionStepTimeout) {
@@ -367,8 +367,9 @@ public class StateMachine {
             }*/
             setTaskTo(1);
         } else if (currentTaskID == 1) {
-            boolean done = turnToAngleLoop(45);//driveStraightLoop(0.35, 2, 45, 0, false);
+            boolean done = driveStraightLoop(0.35, 2, 0, 0, false);
             if(taskRunTimeout.get() >= 10)
+
             {
                 // timeout, bad! should not happen at all
                 resetDriveLoops();

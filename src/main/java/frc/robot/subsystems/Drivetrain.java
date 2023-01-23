@@ -112,8 +112,8 @@ public class Drivetrain extends SubsystemBase{
         double prevRightOutput = rightMaster.getMotorOutputPercent();
    
         // Curve output to quadratic
-        double leftOutput = Math.abs(Math.pow(leftInput, 1)) * Math.signum(leftInput);
-        double rightOutput = Math.abs(Math.pow(rightInput, 1)) * Math.signum(rightInput);
+        double leftOutput = Math.abs(Math.pow(leftInput, 3)) * Math.signum(leftInput);
+        double rightOutput = Math.abs(Math.pow(rightInput, 3)) * Math.signum(rightInput);
    
         // Low pass filter, output = (alpha * intended value) + (1-alpha) * previous value
         leftOutput = (DriveConstants.kDriveAlpha * leftOutput)
@@ -131,6 +131,12 @@ public class Drivetrain extends SubsystemBase{
         // } else if (rightInput > 0.4) {
         //     setPower(0, 0);
         // }
+        if (leftOutput >= 0.6) {
+            leftOutput = 0.6;
+        }
+        if (rightOutput >= 0.6) {
+            rightOutput = 0.6;
+        }
         setPower(leftOutput, rightOutput);
     }
 
@@ -158,9 +164,27 @@ public class Drivetrain extends SubsystemBase{
         leftFollower.setNeutralMode(NeutralMode.Coast);
     }
 
+    public void setPower(double power) {
+        leftMaster.set(ControlMode.PercentOutput, power);
+        rightMaster.set(ControlMode.PercentOutput, power);
+        SmartDashboard.putNumber("Left Power", power);
+        SmartDashboard.putNumber("Right Power", power);
+
+        SmartDashboard.putNumber("Left Master Current", leftMaster.getStatorCurrent());
+        SmartDashboard.putNumber("Left Follower Current", leftFollower.getStatorCurrent());
+        SmartDashboard.putNumber("Right Master Current", rightMaster.getStatorCurrent());
+        SmartDashboard.putNumber("Right Follower Current", rightFollower.getStatorCurrent());
+        SmartDashboard.putNumber("Right Master Current Input", rightMaster.getSupplyCurrent());
+        SmartDashboard.putNumber("Right Follower Current Input", rightFollower.getSupplyCurrent());
+        
+    }
+
     public void setPower(double leftPower, double rightPower) {
         leftMaster.set(ControlMode.PercentOutput, leftPower);
         rightMaster.set(ControlMode.PercentOutput, rightPower);
+        SmartDashboard.putNumber("Left Power", leftPower);
+        SmartDashboard.putNumber("Right Power", rightPower);
+
         SmartDashboard.putNumber("Left Master Current", leftMaster.getStatorCurrent());
         SmartDashboard.putNumber("Left Follower Current", leftFollower.getStatorCurrent());
         SmartDashboard.putNumber("Right Master Current", rightMaster.getStatorCurrent());
