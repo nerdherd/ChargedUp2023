@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
@@ -11,7 +12,7 @@ public class TankAutos {
     public static CommandBase HardCarryAuto(Drivetrain drivetrain, Claw claw, Arm arm) {
         return Commands.sequence(
             // arm.armExtend(),
-            claw.clawOpen(),
+            // claw.clawOpen(),
             // arm.armStow(),
             // new TurnToAngleTank(drivetrain, 180),
             // new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
@@ -33,9 +34,15 @@ public class TankAutos {
             // 
             // new DriveStraight(drivetrain, -0.5, -0.762, 0, false)
             // new DriveStraight(drivetrain, 0.5, 2.762, 0, false),
-            new DriveStraight(drivetrain, 0.5, -2.762, 0, false),
+            new DriveStraight(drivetrain, 0.5, 3, 0, false),
+            new WaitCommand(1),
+            // new DriveStraight(drivetrain, 0.5, -3, 0, false),
 
-            new TurnToAngleTank(drivetrain, 90)
+            new TurnToAngleTank(drivetrain, 90),
+            new WaitCommand(1),
+            new TurnToAngleTank(drivetrain, 0),
+            new WaitCommand(1),
+            new DriveStraight(drivetrain, 0.5, -3, 0, false)
             // new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
             // new TurnToAngleTank(drivetrain, 90),
             // new DriveStraight(drivetrain, 0.5, 0.6, 0, false),

@@ -100,8 +100,10 @@ public class RobotContainer {
     operatorController.triangle().whileTrue(arm.armStow());
     operatorController.L1().onTrue(claw.clawOpen());
     operatorController.R1().onTrue(claw.clawClose());
-    driverController.L1().whileTrue(drive.shiftHigh());
-    driverController.R1().whileTrue(drive.shiftLow());
+    // driverController.L1().whileTrue(drive.shiftHigh());
+    driverController.L1().onTrue(new InstantCommand(() -> drive.setPower(0.2, -0.2)));
+    driverController.R1().onTrue(new InstantCommand(() -> drive.setPower(0, 0)));
+    //driverController.R1().whileTrue(drive.shiftLow());
 
     // driverController.circle().onFalse(arcadeRunCommand);
     // driverController.circle().whileTrue(visionRunCommand);

@@ -56,7 +56,7 @@ public final class Constants {
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
     
-    public static final int kTicksPerFoot = 11738;
+    public static final int kTicksPerMeter = 111555;
     public static final double kErrorBound = 0;
 
     public static final double kAutoPower = 0;

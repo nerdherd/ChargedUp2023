@@ -37,6 +37,7 @@ public class DriveStraight extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    drive.resetEncoder();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -44,7 +45,7 @@ public class DriveStraight extends CommandBase {
   public void execute() {
     SmartDashboard.putString("Drive Straight Now", "yes");
     boolean hasInitStraight = false;
-    //PIDController forwardControllerImu = new PIDController(0.1, 0, 0);
+    PIDController forwardControllerImu = new PIDController(0.001, 0, 0);
     PIDController turnControllerImu = new PIDController(0.01, 0, 0);
 
     double ticks2Go = 0; // how many encode ticks to move
@@ -53,6 +54,7 @@ public class DriveStraight extends CommandBase {
     double drivePower = 0.3;
 
     double currentTicks = -drive.getTicks();
+    double currentMeters = drive.ticksToMeters(currentTicks); 
     ticks2Go = drive.meterToTicks(distanceMeter);//inches2Ticks(distance); // set up encoder stop condition
     ticks2SlowDown = ticks2Go*0.8;//inches2Ticks(distance*0.2); // set up encoder slow down condition
     SmartDashboard.putNumber("Ticks To Go", ticks2Go);
@@ -61,7 +63,7 @@ public class DriveStraight extends CommandBase {
 
 
         if (distanceMeter >= 0) {
-          double position = -drive.getTicks();
+          double position = drive.getTicks();
           if (position >= ticks2SlowDown) {
               drivePower = 0.15; // cut power prepare to stop
           }
@@ -77,12 +79,14 @@ public class DriveStraight extends CommandBase {
 
           } 
           else { // move straight
+              // drivePower = forwardControllerImu.calculate(currentMeters, distanceMeter);
+              SmartDashboard.putNumber("Drive Power", drivePower);
               double rotateToAngleRate = turnControllerImu.calculate(drive.getHeading(), heading); // calc error correction
               //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
               //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
               double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
               double tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
-              drive.setPower(-tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
+              drive.setPower(tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
               SmartDashboard.putNumber("Tank Drive Left Speed", tankDriveLeftSpeed);
               SmartDashboard.putNumber("Tank Drive Right Speed", tankDriveRightSpeed);
               
@@ -91,7 +95,7 @@ public class DriveStraight extends CommandBase {
           } 
         } else {
           drivePower = -0.3;
-          double position = -drive.getTicks();
+          double position = drive.getTicks();
           if (position <= ticks2SlowDown)
               drivePower = -0.15; // cut power prepare to stop
 
@@ -107,12 +111,13 @@ public class DriveStraight extends CommandBase {
               finished = true;
           } 
           else { // move straight
+              // drivePower = forwardControllerImu.calculate(currentMeters, distanceMeter);
               double rotateToAngleRate = turnControllerImu.calculate(drive.getHeading(), heading); // calc error correction
               //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
               //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
               double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
               double tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
-              drive.setPower(-tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
+              drive.setPower(tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
               SmartDashboard.putNumber("Tank Drive Left Speed", tankDriveLeftSpeed);
               SmartDashboard.putNumber("Tank Drive Right Speed", tankDriveRightSpeed);
               
@@ -125,7 +130,9 @@ public class DriveStraight extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    drive.setPower(0, 0);
+  }
 
   // Returns true when the command should end.
   @Override

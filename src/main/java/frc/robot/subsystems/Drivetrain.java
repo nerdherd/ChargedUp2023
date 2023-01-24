@@ -70,8 +70,8 @@ public class Drivetrain extends SubsystemBase{
 
         rightMaster.setInverted(false);
         rightFollower.setInverted(false);
-        leftMaster.setInverted(false);
-        leftFollower.setInverted(false);
+        leftMaster.setInverted(true);
+        leftFollower.setInverted(true);
         
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.supplyCurrLimit.enable = true;
@@ -211,9 +211,13 @@ public class Drivetrain extends SubsystemBase{
 
 
     public double meterToTicks(double meterDist) {
-        double feetDist = meterDist * 3.2808399;
-        double ticks = DriveConstants.kTicksPerFoot * feetDist;
+        double ticks = DriveConstants.kTicksPerMeter * meterDist;
         return ticks;
+    }
+
+    public double ticksToMeters(double ticks) {
+        double meterDist = ticks / DriveConstants.kTicksPerMeter;
+        return meterDist;
     }
 
     public double getApriltagRotation() {
