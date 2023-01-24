@@ -36,7 +36,15 @@ public class Banana extends SequentialCommandGroup {
 
     private void driveToTarget(){
         double range = 0.628 - 1.71*Math.log(getTA());
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(getTX(), range, 0);
+        double pidTX = pidController.calculate(getTX(), 0);
+        double pidRange = pidController.calculate(range, VisionConstants.kGoalRangeMeters);
+        ChassisSpeeds chassisSpeeds;
+        if(pidController.atSetpoint()){
+            chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+        }
+        else{
+            chassisSpeeds = new ChassisSpeeds(pidTX, pidRange, 0);
+        }
         SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         drivetrain.setModuleStates(moduleStates);
     }
