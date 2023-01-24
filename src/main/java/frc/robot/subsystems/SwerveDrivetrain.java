@@ -70,7 +70,7 @@ public class SwerveDrivetrain extends SubsystemBase {
             try {
                 resetEncoders();
                 Thread.sleep(1000);
-                zeroHeading();
+                // zeroHeading();
                 SmartDashboard.putBoolean("Startup failed", false);
             } catch (InterruptedException e) {
                 SmartDashboard.putBoolean("Startup failed", true);
@@ -173,7 +173,7 @@ public class SwerveDrivetrain extends SubsystemBase {
      * Get the position of each swerve module
      * @return An array of swerve module positions
      */
-    private SwerveModulePosition[] getModulePositions() {
+    public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
             frontLeft.getPosition(), 
             frontRight.getPosition(), 

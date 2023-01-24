@@ -198,10 +198,10 @@ public final class Constants {
   }
 
   public static final class SwerveAutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 4;
+    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 2;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
       SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 2;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
     public static final double kPXController = 1.5;
     public static final double kPYController = 1.5;

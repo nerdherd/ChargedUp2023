@@ -95,7 +95,7 @@ public class RobotContainer {
     autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
     autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
     autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
-    autoChooser.addOption("Test auto", SwerveAutos.testAuto(swerveDrive));
+    autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive));
     SmartDashboard.putData(autoChooser);
 
     swerveDrive.setDefaultCommand(swerveJoystickCommand);
@@ -147,7 +147,8 @@ public class RobotContainer {
     // An example command will be run in autonomous
     // return new PreloadTaxi(drive, claw, arm);
     // return autoChooser.getSelected();
-    // return SwerveAutos.testAuto(swerveDrive);
-    return SwerveAutos.chargeAuto(swerveDrive);
+    return SwerveAutos.twoPieceChargeAuto(swerveDrive);
+    // return new TheGreatBalancingAct(swerveDrive);
+    // return SwerveAutos.chargeAuto(swerveDrive);
   }
 }
