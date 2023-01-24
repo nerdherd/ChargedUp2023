@@ -96,14 +96,12 @@ public class RobotContainer {
   private void configureBindings() {
     // Note: whileTrue() does not restart the command if it ends while the button is still being held
     // These button bindings are chosen for testing, and may be changed based on driver preference
-    operatorController.square().whileTrue(arm.armExtend());
-    operatorController.triangle().whileTrue(arm.armStow());
-    operatorController.L1().onTrue(claw.clawOpen());
-    operatorController.R1().onTrue(claw.clawClose());
-    // driverController.L1().whileTrue(drive.shiftHigh());
-    driverController.L1().onTrue(new InstantCommand(() -> drive.setPower(0.2, -0.2)));
-    driverController.R1().onTrue(new InstantCommand(() -> drive.setPower(0, 0)));
-    //driverController.R1().whileTrue(drive.shiftLow());
+    driverController.square().whileTrue(arm.armExtend());
+    driverController.triangle().whileTrue(arm.armStow());
+    driverController.circle().onTrue(claw.clawOpen());
+    driverController.cross().onTrue(claw.clawClose());
+    driverController.L1().whileTrue(drive.shiftHigh());
+    driverController.R1().whileTrue(drive.shiftLow());
 
     // driverController.circle().onFalse(arcadeRunCommand);
     // driverController.circle().whileTrue(visionRunCommand);
@@ -118,7 +116,7 @@ public class RobotContainer {
   }
 
   public void configurePeriodic() {
-    drive.tankDrive(driverController.getLeftY(), -driverController.getRightY());
+    drive.tankDrive(-driverController.getLeftY(), -driverController.getRightY());
     claw.periodic();
   }
 
