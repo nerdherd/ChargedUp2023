@@ -8,6 +8,7 @@ import frc.robot.Constants.BananaConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.util.NerdyMath;
 
 public class DriveToTarget extends CommandBase{
     private Limelight limelight;
@@ -15,6 +16,8 @@ public class DriveToTarget extends CommandBase{
     private PIDController pidY;
     private SwerveDrivetrain drivetrain;
     private double distance;
+
+    private static final double kMaxOutputPercent = 0.6;
 
     public DriveToTarget(Limelight limelight, SwerveDrivetrain drivetrain, double distanceInMeters){
         this.limelight = limelight;
@@ -34,6 +37,10 @@ public class DriveToTarget extends CommandBase{
         double range = 0.628 - 1.71*Math.log(limelight.getArea());
         double xSpeed = pidX.calculate(limelight.getXAngle(), 0);
         double ySpeed = pidY.calculate(range, distance);
+
+        xSpeed = NerdyMath.clamp(xSpeed, -kMaxOutputPercent, kMaxOutputPercent);
+        ySpeed = NerdyMath.clamp(ySpeed, -kMaxOutputPercent, kMaxOutputPercent);
+
         ChassisSpeeds chassisSpeeds;
         if(pidX.atSetpoint()){
             xSpeed = 0;
