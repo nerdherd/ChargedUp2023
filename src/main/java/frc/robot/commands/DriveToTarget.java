@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.BananaConstants;
 import frc.robot.Constants.SwerveDriveConstants;
@@ -33,7 +34,12 @@ public class DriveToTarget extends CommandBase{
         addRequirements(drivetrain);
     }
 
-    public void driveToTarget(){
+    @Override
+    public void initialize() {
+    }
+
+    @Override
+    public void execute() {
         double range = 0.628 - 1.71*Math.log(limelight.getArea());
         double xSpeed = pidX.calculate(limelight.getXAngle(), 0);
         double ySpeed = pidY.calculate(range, distance);
@@ -54,18 +60,26 @@ public class DriveToTarget extends CommandBase{
     }
 
     @Override
-    public void initialize() {
-        
-    }
-
-    @Override
-    public void execute() {
-        
-    }
-
-    @Override
     public boolean isFinished() {
         // TODO Auto-generated method stub
         return pidX.atSetpoint() && pidY.atSetpoint();
+    }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        double range = 0.628 - 1.71*Math.log(limelight.getArea());
+        double xSpeed = pidX.calculate(limelight.getXAngle(), 0);
+        double ySpeed = pidY.calculate(range, distance);
+
+        xSpeed = NerdyMath.clamp(xSpeed, -kMaxOutputPercent, kMaxOutputPercent);
+        ySpeed = NerdyMath.clamp(ySpeed, -kMaxOutputPercent, kMaxOutputPercent);
+
+        if(pidX.atSetpoint()){
+            xSpeed = 0;
+        }
+        if(pidY.atSetpoint()){
+            ySpeed = 0;
+        }
+
+        return new ChassisSpeeds(xSpeed, ySpeed, 0);
     }
 }
