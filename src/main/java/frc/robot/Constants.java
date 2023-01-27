@@ -233,8 +233,8 @@ public final class Constants {
     public static final double kDeadband = 0.05;    }
 
     public static class BananaConstants {
-      public static final int kPIDControllerP = 0;
-      public static final int kPIDControllerD = 0;
+      public static final double kPIDControllerP = 0.1;
+      public static final double kPIDControllerD = 0.1;
     }
         
 }

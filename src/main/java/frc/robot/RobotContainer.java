@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.PreloadTaxi;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -22,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+
+import org.opencv.objdetect.Objdetect;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -50,7 +53,7 @@ public class RobotContainer {
   // public static Arm arm = new Arm();
   // public static Claw claw = new Claw();
   // public static Vision vision = new Vision();
-  // public static Limelight objDetectCamera = new Limelight();
+  public Limelight objDetectCamera = new Limelight();
   public static Imu ahrs = new Imu();
   // public static Drivetrain drive = new Drivetrain(vision);
 
@@ -99,8 +102,6 @@ public class RobotContainer {
     SmartDashboard.putData(autoChooser);
 
     swerveDrive.setDefaultCommand(swerveJoystickCommand);
-          
-      
 	// Configure the trigger bindings
     configureBindings();
   }
@@ -129,6 +130,8 @@ public class RobotContainer {
     // );
     driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
     driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+
+    // driverController.R1().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 5));
   }
 
   public void configurePeriodic() {

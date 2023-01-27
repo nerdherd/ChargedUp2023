@@ -23,7 +23,7 @@ public class ApproachCombined extends CommandBase {
         this.drivetrain = drivetrain;
         
         driveToTarget = new DriveToTarget(limelight, drivetrain, meterOffset);
-        turnToAngle = new TurnToAngle(180, drivetrain);
+        turnToAngle = new TurnToAngle(0, drivetrain);
     }
 
     @Override
