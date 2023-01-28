@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.commands.ApproachSequential;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.PreloadTaxi;
 import frc.robot.subsystems.Arm;
@@ -131,6 +132,7 @@ public class RobotContainer {
     // );
     driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
     driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+    driverController.triangle().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 2));
 
     driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
 

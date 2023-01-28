@@ -58,7 +58,7 @@ public class DriveToTarget extends CommandBase{
 
         SmartDashboard.putNumber("Vision X speed", xSpeed);
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
-        SmartDashboard.putNumber("Vision Range", range);
+        SmartDashboard.putNumber("Vision Area", range);
         SmartDashboard.putBoolean("Vision has target", limelight.hasValidTarget());
         SmartDashboard.putNumber("Limelight x", limelight.getXAngle());
 
