@@ -11,53 +11,37 @@ public class TankAutos {
     
     public static CommandBase HardCarryAuto(Drivetrain drivetrain, Claw claw, Arm arm) {
         return Commands.sequence(
-            // arm.armExtend(),
-            // claw.clawOpen(),
-            // arm.armStow(),
-            // new TurnToAngleTank(drivetrain, 180),
-            // new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
-            // new TurnToAngleTank(drivetrain, 90),
-            // new DriveStraight(drivetrain, 0.5, 0.4064, 0, false),
-            // new TurnToAngleTank(drivetrain, -90),
-            // new DriveStraight(drivetrain, 0.5, 5.585, 0, false),
-            // claw.clawClose(),
-            // new TurnToAngleTank(drivetrain, 180),
-            // new DriveStraight(drivetrain, 0.5, 5.585, 0, false),
-            // new TurnToAngleTank(drivetrain, -90),
-            // new DriveStraight(drivetrain, 0.5, 0.4064, 0, false),
-            // new TurnToAngleTank(drivetrain, 90),
-            // new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
-            // arm.armExtend(),
-            // claw.clawOpen(),
-            // arm.armStow(),
-
-            // 
-            // new DriveStraight(drivetrain, -0.5, -0.762, 0, false)
-            // new DriveStraight(drivetrain, 0.5, 2.762, 0, false),
-            new DriveStraight(drivetrain, 0.5, 3, 0, false),
-            new WaitCommand(1),
-            // new DriveStraight(drivetrain, 0.5, -3, 0, false),
-
+            arm.armExtend(),
+            claw.clawOpen(),
+            arm.armStow(),
+            new DriveStraight(drivetrain, 0.5, -0.762, 0, false),
+            new TurnToAngleTank(drivetrain, -90),
+            new DriveStraight(drivetrain, 0.5, 0.4064, 0, false),
+            new TurnToAngleTank(drivetrain, -90),
+            new DriveStraight(drivetrain, 0.5, 5.585, 0, false),
+            claw.clawClose(),
+            new DriveStraight(drivetrain, 0.5, -5.585, 0, false),
             new TurnToAngleTank(drivetrain, 90),
-            new WaitCommand(1),
-            new TurnToAngleTank(drivetrain, 0),
-            new WaitCommand(1),
-            new DriveStraight(drivetrain, 0.5, -3, 0, false)
-            // new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
-            // new TurnToAngleTank(drivetrain, 90),
-            // new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
-            // new TurnToAngleTank(drivetrain, -90),
-            // new DriveStraight(drivetrain, 0.5, 1.238, 0, false),
-            // new TheGreatBalancingTank(drivetrain)
+            new DriveStraight(drivetrain, 0.5, 0.4064, 0, false),
+            new TurnToAngleTank(drivetrain, 90),
+            new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
+            arm.armExtend(),
+            claw.clawOpen(),
+            arm.armStow(),
+            new DriveStraight(drivetrain, -0.5, -0.762, 0, false),
+            new TurnToAngleTank(drivetrain, -90),
+            new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
+            new TurnToAngleTank(drivetrain, -90),
+            new DriveStraight(drivetrain, 0.5, 1.238, 0, false)
             );
     }
 
     public static CommandBase DietCokeAuto(Drivetrain drivetrain, Claw claw, Arm arm) {
         
         return Commands.sequence(
-            // arm.armExtend(),
+            arm.armExtend(),
             claw.clawOpen(),
-            // arm.armStow(),
+            arm.armStow(),
             new TurnToAngleTank(drivetrain, 180),
             new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
             new TurnToAngleTank(drivetrain, -90),
@@ -71,37 +55,144 @@ public class TankAutos {
             new DriveStraight(drivetrain, 0.5, 0.4064, 0, false),
             new TurnToAngleTank(drivetrain, -90),
             new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
-            // arm.armExtend(),
+            arm.armExtend(),
             claw.clawOpen(),
-            // arm.armStow(),            
+            arm.armStow(),            
             new TurnToAngleTank(drivetrain, 180),
             new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
             new TurnToAngleTank(drivetrain, -90),
             new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
             new TurnToAngleTank(drivetrain, 90),
-            new DriveStraight(drivetrain, 0.5, 1.238, 0, false),
-            new TheGreatBalancingTank(drivetrain)
+            new DriveStraight(drivetrain, 0.5, 1.238, 0, false)
             );
         
     }
 
     public static CommandBase OverpricedVendingMachineAuto(Drivetrain drivetrain, Claw claw, Arm arm) {
         return Commands.sequence(
-            // arm.armExtend(),
+            arm.armExtend(),
             claw.clawOpen(),
-            // arm.armStow(),
+            arm.armStow(),
             new TurnToAngleTank(drivetrain, 180),
             new DriveStraight(drivetrain, 0.5, 6.347, 0, false),
             claw.clawClose(),
             new TurnToAngleTank(drivetrain, 180),
             new DriveStraight(drivetrain, 0.5, 6.347, 0, false),
-            // arm.armExtend(),
+            arm.armExtend(),
             claw.clawOpen(),
-            // arm.armStow(),
+            arm.armStow(),
             new TurnToAngleTank(drivetrain, 180),
-            new DriveStraight(drivetrain, 0.5, 1.238, 0, false),
-            new TheGreatBalancingTank(drivetrain)
+            new DriveStraight(drivetrain, 0.5, 1.238, 0, false)
         );
+    }
+
+
+    public static CommandBase chooseAuto(Drivetrain drivetrain, Claw claw, Arm arm, String location, boolean getGamePiece, boolean balanceRamp, boolean outCommunity) {
+        if (location.equals("left")) {
+            if (getGamePiece) {
+                if (balanceRamp) {
+                    return Commands.sequence(
+                        HardCarryAuto(drivetrain, claw, arm),
+                        new TheGreatBalancingTank(drivetrain)
+                    );
+                } else {
+                    return HardCarryAuto(drivetrain, claw, arm);
+                }
+            } else {
+                if (balanceRamp) {
+                    return Commands.sequence(
+                        arm.armExtend(),
+                        claw.clawOpen(),
+                        arm.armStow(),
+                        new DriveStraight(drivetrain, -0.5, -0.762, 0, false),
+                        new TurnToAngleTank(drivetrain, -90),
+                        new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
+                        new TurnToAngleTank(drivetrain, -90),
+                        new DriveStraight(drivetrain, 0.5, 1.238, 0, false),
+                        new TheGreatBalancingTank(drivetrain)         
+                    );
+                } else {
+                    return Commands.sequence(
+                        arm.armExtend(),
+                        claw.clawOpen(),
+                        arm.armStow(),
+                        new DriveStraight(drivetrain, -0.5, -0.762, 0, false),
+                        new TurnToAngleTank(drivetrain, -90),
+                        new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
+                        new TurnToAngleTank(drivetrain, -90),
+                        new DriveStraight(drivetrain, 0.5, 1.238, 0, false)            
+                    );
+                }
+            }
+        } else if (location.equals("right")) {
+            if (getGamePiece) {
+                if (balanceRamp) {
+                    return Commands.sequence(
+                      DietCokeAuto(drivetrain, claw, arm),
+                      new TheGreatBalancingTank(drivetrain)  
+                    );
+                } else {
+                    return DietCokeAuto(drivetrain, claw, arm);
+                }
+            } else {
+                if (balanceRamp) {
+                    return Commands.sequence(
+                        arm.armExtend(),
+                        claw.clawOpen(),
+                        arm.armStow(),            
+                        new TurnToAngleTank(drivetrain, 180),
+                        new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
+                        new TurnToAngleTank(drivetrain, -90),
+                        new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
+                        new TurnToAngleTank(drivetrain, 90),
+                        new DriveStraight(drivetrain, 0.5, 1.238, 0, false),
+                        new TheGreatBalancingTank(drivetrain)            
+                    );
+                } else {
+                    return Commands.sequence(
+                        arm.armExtend(),
+                        claw.clawOpen(),
+                        arm.armStow(),            
+                        new TurnToAngleTank(drivetrain, 180),
+                        new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
+                        new TurnToAngleTank(drivetrain, -90),
+                        new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
+                        new TurnToAngleTank(drivetrain, 90),
+                        new DriveStraight(drivetrain, 0.5, 1.238, 0, false)         
+                    );
+                }
+            }
+        } else {
+            if (getGamePiece) {
+                if (balanceRamp) {
+                    return Commands.sequence(
+                        OverpricedVendingMachineAuto(drivetrain, claw, arm),
+                        new TheGreatBalancingTank(drivetrain)
+                    );
+                } else {
+                    return OverpricedVendingMachineAuto(drivetrain, claw, arm);
+                }
+            } else {
+                if (balanceRamp) {
+                    return Commands.sequence(
+                        arm.armExtend(),
+                        claw.clawOpen(),
+                        arm.armStow(),
+                        new TurnToAngleTank(drivetrain, 180),
+                        new DriveStraight(drivetrain, 0.5, 1.238, 0, false),
+                        new TheGreatBalancingTank(drivetrain)            
+                    );
+                } else {
+                    return Commands.sequence(
+                        arm.armExtend(),
+                        claw.clawOpen(),
+                        arm.armStow(),
+                        new TurnToAngleTank(drivetrain, 180),
+                        new DriveStraight(drivetrain, 0.5, 1.238, 0, false)            
+                    );
+                }
+            }
+        }
     }
 
 

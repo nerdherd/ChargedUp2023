@@ -80,10 +80,10 @@ public final class Constants {
   }
 
   public static class ArmConstants{
+    public static final int kRotatingArmID = 0;
     public static final int kArmID = 19;
     public static final int kArmStow = 0;
-    public static final int kArmMiddleNode = 0;
-    public static final int kArmTopNode = 0;
+    public static final int kArmScore = 0;
     public static final int kArmMotionAcceleration = 0;
     public static final int kArmCruiseVelocity = 0;
     public static final int kArmDeadband = 0;
@@ -92,6 +92,15 @@ public final class Constants {
     public static final int kArmD = 0;
     public static final int kPistonForwardID = 4;
     public static final int kPistonReverseID = 5;
+    public static final double kJoystickMultiplier = 1; 
+
+    public static final double kP = 0;
+    public static final double kI = 0;
+    public static final double kD = 0; 
+
+    public static final double kCruiseVelocity = 0;
+    public static final double kMotionAcceleration = 0;
+
   }
 
   public static class VisionConstants{
@@ -224,4 +233,8 @@ public final class Constants {
 
     public static final double kDeadband = 0.05;    }
         
+  public static final class ConeRunnerConstants {
+    public static final int kRightMasterID = 0;
+    public static final int kLeftMasterID = 0;
+  }
 }

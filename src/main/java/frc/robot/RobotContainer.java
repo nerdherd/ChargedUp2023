@@ -8,6 +8,7 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.PreloadTaxi;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
@@ -55,6 +56,7 @@ public class RobotContainer {
   public static Vision vision = new Vision();
   public static Drivetrain drive = new Drivetrain(vision);
   public static Limelight objDetectCamera = new Limelight();
+  public static ConeRunner coneRunner= new ConeRunner();
   // public static Drivetrain drive = new Drivetrain();
 
   // private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
@@ -103,6 +105,12 @@ public class RobotContainer {
     driverController.L1().whileTrue(drive.shiftHigh());
     driverController.R1().whileTrue(drive.shiftLow());
 
+    // operatorController.L1().onTrue(arm.moveArmScore());
+    // operatorController.R1().onTrue(arm.moveArmStow());
+
+    // driverController.circle().onTrue(coneRunner.runConeRunner());
+    // driverController.cross().onTrue(coneRunner.stopConeRunner());
+
     // driverController.circle().onFalse(arcadeRunCommand);
     // driverController.circle().whileTrue(visionRunCommand);
     // driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
@@ -118,6 +126,8 @@ public class RobotContainer {
   public void configurePeriodic() {
     drive.tankDrive(-driverController.getLeftY(), -driverController.getRightY());
     claw.periodic();
+    // arm.moveArmJoystick(operatorController.getLeftY());
+
   }
 
   /**
