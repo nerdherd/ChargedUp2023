@@ -196,7 +196,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     //****************************** SETTERS ******************************/
 
-    public void setSpeed(double xSpeed, double ySpeed, double turnSpeed) {
+    public void drive(double xSpeed, double ySpeed, double turnSpeed) {
         setModuleStates(
             SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
                 new ChassisSpeeds(xSpeed, ySpeed, turnSpeed)
@@ -204,8 +204,20 @@ public class SwerveDrivetrain extends SubsystemBase {
         );
     }
 
-    public void setSpeed(double xSpeed, double ySpeed) {
-        setSpeed(xSpeed, ySpeed, 0);
+    public void drive(double xSpeed, double ySpeed) {
+        drive(xSpeed, ySpeed, 0);
+    }
+
+    public void driveFieldOriented(double xSpeed, double ySpeed, double turnSpeed) {
+        setModuleStates(
+            SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
+                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turnSpeed, getRotation2d())
+            )
+        );
+    }
+
+    public void driveFieldOriented(double xSpeed, double ySpeed) {
+        driveFieldOriented(xSpeed, ySpeed, 0);
     }
 
     /**

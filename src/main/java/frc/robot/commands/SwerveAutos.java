@@ -76,10 +76,10 @@ public class SwerveAutos {
         //     trajectoryConfig);
         
         Trajectory trajectory6 = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(-0.1, 0, new Rotation2d(180)), 
+            new Pose2d(-0.5, 0, new Rotation2d(180)), 
             List.of(
-            new Translation2d(-0.25, -1.7)), 
-            new Pose2d(0.5, -1.5, Rotation2d.fromDegrees(0)), 
+            new Translation2d(-0.75, -1.7)), 
+            new Pose2d(0, -1.5, Rotation2d.fromDegrees(0)), 
             trajectoryConfig);
 
         //Create PID Controllers
@@ -141,7 +141,7 @@ public class SwerveAutos {
                 new TurnToAngle(180, swerveDrive)                
             ),
             autoCommand6,
-            new TheGreatBalancingAct(swerveDrive),
+            // new TheGreatBalancingAct(swerveDrive),
             new TimedBalancingAct(swerveDrive, 0.5, SwerveAutoConstants.kPBalancingInitial, SwerveAutoConstants.kPBalancing),
             Commands.runOnce(() -> swerveDrive.stopModules()));
     } 
