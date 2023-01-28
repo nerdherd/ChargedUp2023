@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -164,6 +165,15 @@ public class SwerveDrivetrain extends SubsystemBase {
             gyro.getYaw() * Math.PI / 180) ;
     }
 
+    public Rotation3d getRotation3dRaw() {
+        
+        return new Rotation3d(
+            Math.toRadians(gyro.getRawGyroX()),
+            Math.toRadians(gyro.getRawGyroY()),
+            Math.toRadians(gyro.getRawGyroZ())
+        );
+    }
+
     /**
      * Gets a pose2d representing the position of the drivetrain
      * @return A pose2d representing the position of the drivetrain
@@ -187,7 +197,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     //****************************** SETTERS ******************************/
 
-    public void setSpeed(double xSpeed, double ySpeed, double turnSpeed) {
+    public void drive(double xSpeed, double ySpeed, double turnSpeed) {
         setModuleStates(
             SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
                 new ChassisSpeeds(xSpeed, ySpeed, turnSpeed)
@@ -195,8 +205,20 @@ public class SwerveDrivetrain extends SubsystemBase {
         );
     }
 
-    public void setSpeed(double xSpeed, double ySpeed) {
-        setSpeed(xSpeed, ySpeed, 0);
+    public void drive(double xSpeed, double ySpeed) {
+        drive(xSpeed, ySpeed, 0);
+    }
+
+    public void driveFieldOriented(double xSpeed, double ySpeed, double turnSpeed) {
+        setModuleStates(
+            SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
+                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turnSpeed, getRotation2d())
+            )
+        );
+    }
+
+    public void driveFieldOriented(double xSpeed, double ySpeed) {
+        driveFieldOriented(xSpeed, ySpeed, 0);
     }
 
     /**

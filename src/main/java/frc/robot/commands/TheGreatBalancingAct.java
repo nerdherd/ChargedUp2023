@@ -87,8 +87,7 @@ public class TheGreatBalancingAct extends CommandBase {
         // }
 
         // Convert speed into swerve states
-        ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                xSpeed, ySpeed, 0, swerveDrive.getRotation2d());
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0.0);
         SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         
         // Set swerve states
