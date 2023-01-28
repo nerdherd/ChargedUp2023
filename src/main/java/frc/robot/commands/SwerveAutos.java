@@ -27,6 +27,35 @@ import static frc.robot.Constants.SwerveAutoConstants.*;
 import java.util.List;
 
 public class SwerveAutos {
+    public static CommandBase translateBy(SwerveDrivetrain swerveDrive, double xTranslation, double yTranslation, double angle) {
+        // Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+    
+        // Create Actual Trajectory
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)), 
+            List.of(),
+            new Pose2d(xTranslation, yTranslation, new Rotation2d(angle)), 
+            trajectoryConfig);
+        
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, 0, 0);
+        PIDController yController = new PIDController(kPYController, 0, 0);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, 0, 0, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand autoCommand = new SwerveControllerCommand(
+            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return Commands.sequence(
+            autoCommand,
+            Commands.runOnce(swerveDrive::stopModules, swerveDrive)
+        );
+    }
+
     /**
      * Start with the front left swerve module aligned with the charging station's edge
      * in the x axis and around 8 inches to the right in the y axis
