@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -78,19 +79,17 @@ public final class Constants {
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 0;
-    public static final int kArmID = 19;
     public static final int kArmStow = 0;
     public static final int kArmScore = 0;
     public static final int kArmMotionAcceleration = 0;
     public static final int kArmCruiseVelocity = 0;
     public static final int kArmDeadband = 0;
-    public static final int kArmP = 0;
-    public static final int kArmI = 0;
-    public static final int kArmD = 0;
+    public static final double kArmP = SmartDashboard.getNumber("kP Arm", 0);
+    public static final double kArmI = SmartDashboard.getNumber("kI Arm", 0);
+    public static final double kArmD = SmartDashboard.getNumber("kD Arm", 0);
     public static final int kPistonForwardID = 4;
     public static final int kPistonReverseID = 5;
     public static final double kJoystickMultiplier = 1; 
-
   }
 
   public static class VisionConstants{
@@ -207,11 +206,18 @@ public final class Constants {
       SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
     public static final double kMaxAccelerationMetersPerSecondSquared = 2;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
-    public static final double kPXController = 1.5;
-    public static final double kPYController = 1.5;
-    public static final double kPThetaController = 3.0;
-    public static final double kPTurnToAngle = 10.0;
-    public static final double kDTurnToAngle = 0.2;
+    public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 1.5);
+    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0);
+    public static final double kDXController = SmartDashboard.getNumber("kD X Speed", 0);
+    public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 1.5);
+    public static final double kIYController = SmartDashboard.getNumber("kI Y Speed", 0);
+    public static final double kDYController = SmartDashboard.getNumber("kD Y Speed", 0);
+    public static final double kPThetaController = SmartDashboard.getNumber("kP Theta Auto", 3.0);
+    public static final double kIThetaController = SmartDashboard.getNumber("kI Theta Auto", 0);
+    public static final double kDThetaController = SmartDashboard.getNumber("kD Theta Auto", 0);
+    public static final double kPTurnToAngle = SmartDashboard.getNumber("kP Theta Teleop", 10.0);
+    public static final double kITurnToAngle = SmartDashboard.getNumber("kI Theta Teleop", 0);
+    public static final double kDTurnToAngle = SmartDashboard.getNumber("kD Theta Teleop", 0.2);
     public static final double kTurnToAnglePositionToleranceAngle = 5;
     public static final double kTurnToAngleVelocityToleranceAnglesPerSec = 2;
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = //
@@ -238,7 +244,7 @@ public final class Constants {
 
     public static class BananaConstants {
       public static final double kPIDControllerP = 0.1;
-      public static final double kPIDControllerD = 0;
+      public static final double kPIDControllerD = 0.1;
     }
         
 }

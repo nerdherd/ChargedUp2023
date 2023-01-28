@@ -12,10 +12,10 @@ import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 public class SwerveDriveBy extends CommandBase {
-    private PIDController xPidController = new PIDController(SwerveAutoConstants.kPXController, 0, 0);
-    private PIDController yPidController = new PIDController(SwerveAutoConstants.kPXController, 0, 0);
+    private PIDController xPidController = new PIDController(SwerveAutoConstants.kPXController, SwerveAutoConstants.kIXController, SwerveAutoConstants.kDXController);
+    private PIDController yPidController = new PIDController(SwerveAutoConstants.kPYController, SwerveAutoConstants.kIYController, SwerveAutoConstants.kDYController);
     ProfiledPIDController thetaController = new ProfiledPIDController(
-        SwerveAutoConstants.kPThetaController, 0, 0, 
+        SwerveAutoConstants.kPThetaController, SwerveAutoConstants.kIThetaController, SwerveAutoConstants.kDThetaController, 
         SwerveAutoConstants.kThetaControllerConstraints);
     
     private SwerveDrivetrain swerveDrive;

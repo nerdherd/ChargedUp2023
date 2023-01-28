@@ -21,6 +21,7 @@ public class Arm extends SubsystemBase {
     private DoubleSolenoid arm;
     private TalonSRX rotatingArm;
     private boolean armExtended = false;
+    private int targetTicks;
 
     public Arm() {
         arm = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
@@ -59,9 +60,10 @@ public class Arm extends SubsystemBase {
 
     }
 
-    public void moveArmMotionMagic(double position) {
+    public void moveArmMotionMagic(int position) {
         // config tuning params in slot 0
         rotatingArm.set(ControlMode.MotionMagic, position);
+        targetTicks = position;
 
     }
 
@@ -112,5 +114,10 @@ public class Arm extends SubsystemBase {
         ShuffleboardTab tab = Shuffleboard.getTab("Arm");
         
         tab.addBoolean("Arm Extended", () -> armExtended);
+        tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
+        tab.addNumber("Target Arm Ticks", () -> targetTicks);
     }
 }
+
+  
+

@@ -53,7 +53,7 @@ public class SwerveJoystickCommand extends CommandBase {
 
         this.pidController = new PIDController(
             SwerveAutoConstants.kPTurnToAngle, 
-            0, 
+            SwerveAutoConstants.kITurnToAngle, 
             SwerveAutoConstants.kDTurnToAngle, 
             0.02);
         
