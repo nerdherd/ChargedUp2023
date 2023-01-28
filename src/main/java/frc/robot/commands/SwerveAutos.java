@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.commands.TheGreatBalancingAct;
 import static frc.robot.Constants.SwerveAutoConstants.*;
@@ -62,7 +64,8 @@ public class SwerveAutos {
      * @param swerveDrive
      * @return
      */
-    public static CommandBase twoPieceChargeAuto(SwerveDrivetrain swerveDrive) {
+    public static CommandBase twoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Claw claw) {
+        
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
@@ -153,10 +156,19 @@ public class SwerveAutos {
             autoCommand,
             // new TurnToAngle(180, swerveDrive),
             Commands.runOnce(() -> swerveDrive.stopModules()),
-            new WaitCommand(0.5),
+            arm.moveArmScore(),
+            arm.armExtend(),
+            claw.clawOpen(),
+            new WaitCommand(1),
+            claw.clawClose(),
+            arm.armStow(),
             autoCommand2, 
             Commands.runOnce(() -> swerveDrive.stopModules()),
+            arm.armExtend(),
+            claw.clawOpen(),
             new WaitCommand(0.5),
+            claw.clawClose(),
+            arm.armStow(),
             autoCommand3,
             // Commands.runOnce(() -> swerveDrive.stopModules()),
             // new WaitCommand(1),

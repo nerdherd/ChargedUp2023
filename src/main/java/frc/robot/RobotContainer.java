@@ -51,8 +51,8 @@ import frc.robot.subsystems.SwerveDrivetrain;
  */// 10.6.87.98:5800
 public class RobotContainer {
 
-  // public static Arm arm = new Arm();
-  // public static Claw claw = new Claw();
+  public static Arm arm = new Arm();
+  public static Claw claw = new Claw();
   // public static Vision vision = new Vision();
   public Limelight objDetectCamera = new Limelight();
   public static Imu ahrs = new Imu();
@@ -100,7 +100,7 @@ public class RobotContainer {
     autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
     autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
     autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
-    autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive));
+    autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw));
     SmartDashboard.putData(autoChooser);
 
     swerveDrive.setDefaultCommand(swerveJoystickCommand);
@@ -113,8 +113,10 @@ public class RobotContainer {
     // These button bindings are chosen for testing, and may be changed based on driver preference
     // operatorController.circle().whileTrue(arm.armToMiddleNodePosition());
     // operatorController.triangle().whileTrue(arm.armToTopNodePosition());
-    // operatorController.square().whileTrue(claw.clawOpen());
-    // operatorController.cross().whileTrue(claw.clawClose());
+    operatorController.triangle().whileTrue(arm.armExtend());
+    operatorController.square().whileTrue(arm.armStow());
+    operatorController.circle().onTrue(claw.clawOpen());
+    operatorController.cross().onTrue(claw.clawClose());
 
     // driverController.circle().onFalse(arcadeRunCommand);
     // driverController.circle().whileTrue(visionRunCommand);
@@ -140,6 +142,7 @@ public class RobotContainer {
   }
 
   public void configurePeriodic() {
+    arm.moveArmJoystick(operatorController.getLeftY());
     // arm.movePercentOutput(operatorController.getRightY());
     // drive.tankDrive(-driverController.getRightY(), driverController.getLeftY());
     // claw.periodic();
@@ -155,7 +158,7 @@ public class RobotContainer {
     // An example command will be run in autonomous
     // return new PreloadTaxi(drive, claw, arm);
     // return autoChooser.getSelected();
-    return SwerveAutos.twoPieceChargeAuto(swerveDrive);
+    return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw);
     // return new TheGreatBalancingAct(swerveDrive);
     // return SwerveAutos.chargeAuto(swerveDrive);
   }
