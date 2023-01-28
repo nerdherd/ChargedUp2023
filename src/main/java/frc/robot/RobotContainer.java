@@ -90,7 +90,8 @@ public class RobotContainer {
       // () -> 0.0, 
       driverController::getRightY, 
       driverControllerButtons::getSquareButton,
-      driverControllerButtons::getTriangleButton,
+      () -> false,
+      // driverControllerButtons::getTriangleButton,
       driverControllerButtons::getCrossButton);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -130,6 +131,8 @@ public class RobotContainer {
     // );
     driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
     driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+
+    driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
 
     // driverController.R1().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 5));
   }

@@ -164,6 +164,15 @@ public class SwerveDrivetrain extends SubsystemBase {
             gyro.getYaw() * Math.PI / 180) ;
     }
 
+    public Rotation3d getRotation3dRaw() {
+        
+        return new Rotation3d(
+            Math.toRadians(gyro.getRawGyroX()),
+            Math.toRadians(gyro.getRawGyroY()),
+            Math.toRadians(gyro.getRawGyroZ())
+        );
+    }
+
     /**
      * Gets a pose2d representing the position of the drivetrain
      * @return A pose2d representing the position of the drivetrain
