@@ -234,7 +234,7 @@ public final class Constants {
 
     public static class BananaConstants {
       public static final double kPIDControllerP = 0.1;
-      public static final double kPIDControllerD = 0.1;
+      public static final double kPIDControllerD = 0;
     }
         
 }
