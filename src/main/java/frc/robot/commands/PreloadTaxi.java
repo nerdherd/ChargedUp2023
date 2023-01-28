@@ -12,7 +12,7 @@ public class PreloadTaxi extends SequentialCommandGroup {
     public PreloadTaxi(Drivetrain drive, Claw claw, Arm arm) {
         addCommands(
             claw.clawClose(),
-            arm.armToMiddleNodePosition(),
+            // arm.armToMiddleNodePosition(),
             claw.clawOpen(),
             arm.armStow(),
             new WaitCommand(2),

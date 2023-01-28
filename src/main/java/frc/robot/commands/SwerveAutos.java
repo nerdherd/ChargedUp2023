@@ -40,10 +40,10 @@ public class SwerveAutos {
             trajectoryConfig);
         
         //Create PID Controllers
-        PIDController xController = new PIDController(kPXController, 0, 0);
-        PIDController yController = new PIDController(kPYController, 0, 0);
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController,kIYController, kDYController);
         ProfiledPIDController thetaController = new ProfiledPIDController(
-            kPThetaController, 0, 0, kThetaControllerConstraints);
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         SwerveControllerCommand autoCommand = new SwerveControllerCommand(
@@ -112,10 +112,10 @@ public class SwerveAutos {
             trajectoryConfig);
 
         //Create PID Controllers
-        PIDController xController = new PIDController(kPXController, 0, 0);
-        PIDController yController = new PIDController(kPYController, 0, 0);
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
         ProfiledPIDController thetaController = new ProfiledPIDController(
-            kPThetaController, 0, 0, kThetaControllerConstraints);
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
     
         SwerveControllerCommand autoCommand = new SwerveControllerCommand(
@@ -188,10 +188,10 @@ public class SwerveAutos {
             trajectoryConfig);
 
         //Create PID Controllers
-        PIDController xController = new PIDController(kPXController, 0, 0);
-        PIDController yController = new PIDController(kPYController, 0, 0);
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
         ProfiledPIDController thetaController = new ProfiledPIDController(
-            kPThetaController, 0, 0, kThetaControllerConstraints);
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         SwerveControllerCommand autoCommand = new SwerveControllerCommand(
@@ -238,10 +238,10 @@ public class SwerveAutos {
             trajectoryConfig);
 
         //Create PID Controllers
-        PIDController xController = new PIDController(kPXController, 0, 0);
-        PIDController yController = new PIDController(kPYController, 0, 0);
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
         ProfiledPIDController thetaController = new ProfiledPIDController(
-            kPThetaController, 0, 0, kThetaControllerConstraints);
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
     
         SwerveControllerCommand autoCommand = new SwerveControllerCommand(
@@ -303,10 +303,10 @@ public class SwerveAutos {
             trajectoryConfig);
 
         //Create PID Controllers
-        PIDController xController = new PIDController(kPXController, 0, 0);
-        PIDController yController = new PIDController(kPYController, 0, 0);
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
         ProfiledPIDController thetaController = new ProfiledPIDController(
-            kPThetaController, 0, 0, kThetaControllerConstraints);
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
     
         SwerveControllerCommand autoCommand = new SwerveControllerCommand(
