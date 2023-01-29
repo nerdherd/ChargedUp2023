@@ -143,6 +143,7 @@ public class RobotContainer {
 
   public void configurePeriodic() {
     arm.moveArmJoystick(operatorController.getLeftY());
+    // SmartDashboard.putData("Set arm encoder 0", new InstantCommand(() -> arm.resetEncoder()));
     // arm.movePercentOutput(operatorController.getRightY());
     // drive.tankDrive(-driverController.getRightY(), driverController.getLeftY());
     // claw.periodic();

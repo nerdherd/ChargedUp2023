@@ -70,13 +70,17 @@ public class Arm extends SubsystemBase {
 
     public void moveArmMotionMagic(int position) {
         // config tuning params in slot 0
-        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ArmConstants.kArbitraryFF);
+        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, Math.cos(position)*ArmConstants.kArbitraryFF);
         targetTicks = position;
 
     }
 
     public void setPowerZero() {
         rotatingArm.set(ControlMode.PercentOutput, 0.0);
+    }
+
+    public void ticksToAngle() {
+        
     }
 
     @Override
