@@ -3,16 +3,16 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.util.NerdyMath;
 
 public class TurnToAngleTank extends CommandBase{
     private double heading;
-    private Drivetrain drive;
+    private TankDrivetrain drive;
     private PIDController pidController;
     private boolean finished;
 
-    public TurnToAngleTank(Drivetrain drive, double heading) {
+    public TurnToAngleTank(TankDrivetrain drive, double heading) {
         // Default period is 20 ms
         this.drive = drive;
         this.heading = heading;

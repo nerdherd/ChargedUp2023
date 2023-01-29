@@ -40,7 +40,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.util.NerdyMath;
  
-public class Drivetrain extends SubsystemBase{
+public class TankDrivetrain extends SubsystemBase{
     private TalonFX rightMaster;
     private TalonFX leftMaster;
     private TalonFX rightFollower;
@@ -57,7 +57,7 @@ public class Drivetrain extends SubsystemBase{
     private AHRS ahrs;//; = new AHRS();
     private DoubleSolenoid shifter;
 
-    public Drivetrain(Vision vision) {
+    public TankDrivetrain(Vision vision) {
         ahrs = RobotContainer.imu.ahrs;
         
         shifter = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 

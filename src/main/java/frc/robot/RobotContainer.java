@@ -9,7 +9,7 @@ import frc.robot.commands.PreloadTaxi;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
@@ -54,7 +54,7 @@ public class RobotContainer {
   public static Claw claw = new Claw();
   public static Imu imu = new Imu();// AHRS(SPI.Port.kMXP);
   public static Vision vision = new Vision();
-  public static Drivetrain drive = new Drivetrain(vision);
+  public static TankDrivetrain drive = new TankDrivetrain(vision);
   public static Limelight objDetectCamera = new Limelight();
   public static ConeRunner coneRunner= new ConeRunner();
   // public static Drivetrain drive = new Drivetrain();

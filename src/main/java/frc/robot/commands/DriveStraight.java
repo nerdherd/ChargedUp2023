@@ -7,11 +7,11 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.util.NerdyMath;
 
 public class DriveStraight extends CommandBase {
-  private Drivetrain drive;
+  private TankDrivetrain drive;
   private double maxForwardDriveSpeed;
   private double distanceMeter;
   private double heading;
@@ -19,7 +19,7 @@ public class DriveStraight extends CommandBase {
   private boolean finished;
 
   /** Creates a new DriveStraight. */
-  public DriveStraight(Drivetrain drive, 
+  public DriveStraight(TankDrivetrain drive, 
                         double maxForwardDriveSpeed,
                         double distanceMeter,
                         double heading,

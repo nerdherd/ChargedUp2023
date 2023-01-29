@@ -5,11 +5,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.TankDrivetrain;
 
 public class PreloadTaxi extends SequentialCommandGroup {
     
-    public PreloadTaxi(Drivetrain drive, Claw claw, Arm arm) {
+    public PreloadTaxi(TankDrivetrain drive, Claw claw, Arm arm) {
         addCommands(
             claw.clawClose(),
             // arm.armToMiddleNodePosition(),

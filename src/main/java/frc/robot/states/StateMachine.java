@@ -35,7 +35,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Limelight.LightMode;
@@ -74,7 +74,7 @@ public class StateMachine {
     WPI_TalonSRX leftFollower = new WPI_TalonSRX(3);
     WPI_TalonSRX rightFollower = new WPI_TalonSRX(2);
     DifferentialDrive drive = new DifferentialDrive(leftMotor, rightMotor);*/
-    Drivetrain drive;// = new Drivetrain(apriltagCamera);
+    TankDrivetrain drive;// = new Drivetrain(apriltagCamera);
     // Claw claw = new Claw();
 
     private final Timer autoTimer15Sec = new Timer();

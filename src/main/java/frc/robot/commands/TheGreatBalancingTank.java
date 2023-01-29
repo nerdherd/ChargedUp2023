@@ -9,11 +9,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.TankAutoConstants;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 public class TheGreatBalancingTank extends CommandBase {
-    private Drivetrain tankDrive;
+    private TankDrivetrain tankDrive;
     private PIDController rollPidController;
     private PIDController pitchPidController;
 
@@ -23,7 +23,7 @@ public class TheGreatBalancingTank extends CommandBase {
      * @param period      
      *   Time between each calculation (default 20ms)
      */
-    public TheGreatBalancingTank(Drivetrain tankDrive, double period) {
+    public TheGreatBalancingTank(TankDrivetrain tankDrive, double period) {
         this.tankDrive = tankDrive;
         
         this.pitchPidController = new PIDController(
@@ -34,7 +34,7 @@ public class TheGreatBalancingTank extends CommandBase {
         addRequirements(tankDrive);
     }
 
-    public TheGreatBalancingTank(Drivetrain tankDrive) {
+    public TheGreatBalancingTank(TankDrivetrain tankDrive) {
         // Default period is 20 ms
         this(tankDrive, 0.02);
     }

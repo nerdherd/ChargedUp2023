@@ -6,10 +6,10 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.TankDrivetrain;
 
 public class PreloadRamp extends SequentialCommandGroup {
-    public PreloadRamp(Drivetrain drive) {
+    public PreloadRamp(TankDrivetrain drive) {
         addCommands(
             RobotContainer.claw.clawOpen()
 
