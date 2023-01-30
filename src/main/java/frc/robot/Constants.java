@@ -4,10 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -55,7 +58,7 @@ public final class Constants {
 
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
-    
+    //public static final int kTicksPerFoot = 11738;
     public static final int kTicksPerMeter = 111555;
     public static final double kErrorBound = 0;
 
@@ -80,16 +83,16 @@ public final class Constants {
   }
 
   public static class ArmConstants{
-    public static final int kRotatingArmID = 0;
-    public static final int kArmID = 19;
+    public static final int kRotatingArmID = 20;
     public static final int kArmStow = 0;
     public static final int kArmScore = 0;
     public static final int kArmMotionAcceleration = 0;
     public static final int kArmCruiseVelocity = 0;
-    public static final int kArmDeadband = 0;
-    public static final int kArmP = 0;
-    public static final int kArmI = 0;
-    public static final int kArmD = 0;
+    public static final double kArmDeadband = 0.05;
+    public static final double kArmP = SmartDashboard.getNumber("kP Arm", 0);
+    public static final double kArmI = SmartDashboard.getNumber("kI Arm", 0);
+    public static final double kArmD = SmartDashboard.getNumber("kD Arm", 0);
+    public static final double kArbitraryFF = 0;
     public static final int kPistonForwardID = 4;
     public static final int kPistonReverseID = 5;
     public static final double kJoystickMultiplier = 1; 
@@ -127,9 +130,9 @@ public final class Constants {
     public static final double kDriveTicksPer100MsToMetersPerSec = kDriveTicksToMeters * 10;
     public static final double kTurningTicksPer100MsToRadPerSec = kTurningTicksToRad * 10;
     
-    public static final double kPTurning = 0.6;
+    public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
-    public static final double kDTurning = 0; // TODO: need to tune when on the ground
+    public static final double kDTurning = 0.02; 
     
     // TODO: tune PID for drive motor velocity control
     public static final double kPDrive = 0;
@@ -194,31 +197,51 @@ public final class Constants {
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 2;
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
       kPhysicalMaxAngularSpeedRadiansPerSecond / 2;
+    public static final double kTurnToAngleMaxAngularSpeedRadiansPerSecond 
+      = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
     public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
     public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 3;
     
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
+
+    public static final SwerveModuleState[] towModuleStates = 
+    new SwerveModuleState[] {
+        new SwerveModuleState(0.01, Rotation2d.fromDegrees(45)),
+        new SwerveModuleState(0.01, Rotation2d.fromDegrees(135)),
+        new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
+        new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
+    };
   }
 
   public static final class SwerveAutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 8;
+    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 2;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
       SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 2;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
-    public static final double kPXController = 1.5;
-    public static final double kPYController = 1.5;
-    public static final double kPThetaController = 3.0;
-    public static final double kPTurnToAngle = 6.0;
-    public static final double kDTurnToAngle = 0.2;
-    public static final double kTurnToAnglePositionToleranceAngle = 1;
+    public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 1.5);
+    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0);
+    public static final double kDXController = SmartDashboard.getNumber("kD X Speed", 0);
+    public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 1.5);
+    public static final double kIYController = SmartDashboard.getNumber("kI Y Speed", 0);
+    public static final double kDYController = SmartDashboard.getNumber("kD Y Speed", 0);
+    public static final double kPThetaController = SmartDashboard.getNumber("kP Theta Auto", 3.0);
+    public static final double kIThetaController = SmartDashboard.getNumber("kI Theta Auto", 0);
+    public static final double kDThetaController = SmartDashboard.getNumber("kD Theta Auto", 0);
+    public static final double kPTurnToAngle = SmartDashboard.getNumber("kP Theta Teleop", 10.0);
+    public static final double kITurnToAngle = SmartDashboard.getNumber("kI Theta Teleop", 0);
+    public static final double kDTurnToAngle = SmartDashboard.getNumber("kD Theta Teleop", 0.2);
+    public static final double kTurnToAnglePositionToleranceAngle = 5;
     public static final double kTurnToAngleVelocityToleranceAnglesPerSec = 2;
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = //
       new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
+    public static final double kPBalancingInitial = 0.6;
     public static final double kPBalancing = 0.3;
+    public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
+    public static final double kBalancingTowPeriod = 0.5;
   }
 
   // this needs to get remapped to PS4 controller
@@ -232,9 +255,15 @@ public final class Constants {
     public static final int kDriverFieldOrientedButtonIdx = 1;
 
     public static final double kDeadband = 0.05;    }
+
+    public static class BananaConstants {
+      public static final double kPIDControllerP = 0.1;
+      public static final double kPIDControllerD = 0.1;
+    }
+
+    public static final class ConeRunnerConstants {
+      public static final int kRightMasterID = 0;
+      public static final int kLeftMasterID = 0;
+    }
         
-  public static final class ConeRunnerConstants {
-    public static final int kRightMasterID = 0;
-    public static final int kLeftMasterID = 0;
-  }
 }

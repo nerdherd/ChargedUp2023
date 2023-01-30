@@ -3,58 +3,54 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.TankDrivetrain;
-import frc.robot.util.NerdyMath;
 
 public class TurnToAngleTank extends CommandBase{
-    private double heading;
-    private TankDrivetrain drive;
+    private double targetAngle;
+    private TankDrivetrain drivetrain;
     private PIDController pidController;
-    private boolean finished;
 
-    public TurnToAngleTank(TankDrivetrain drive, double heading) {
+    /**
+     * Construct a new TurnToAngle Command
+     * @param targetAngle   Target angle (degrees)
+     * @param swerveDrive   Swerve drivetrain to rotate
+     * @param period        Time between each calculation (default 20ms)
+     */
+    public TurnToAngleTank(double targetAngle, TankDrivetrain drivetrain, double period) {
+        this.targetAngle = targetAngle;
+        this.drivetrain = drivetrain;
+
+        this.pidController = new PIDController(0.1, 0, 0, period);
+        
+        this.pidController.setTolerance(4, 2 * period);
+        
+        this.pidController.enableContinuousInput(0, 360);
+        
+        addRequirements(drivetrain);
+    }
+
+    public TurnToAngleTank(TankDrivetrain drivetrain, double targetAngle) {
         // Default period is 20 ms
-        this.drive = drive;
-        this.heading = heading;
+        this(targetAngle, drivetrain, 0.02);
     }
 
     @Override
     public void initialize() {
+
     }
 
     @Override
     public void execute() {
         // Calculate turning speed with PID
-        PIDController turnControllerProfiledImu =
-        new PIDController(0.006, 0.0, 0);
-        double[] turnLog = new double[3];
-        double angleYawRobot;
-        // angleYawRobot = drive.getHeading()%360;
-        double turningSpeed = turnControllerProfiledImu.calculate(drive.getHeading(), heading);
-        turningSpeed = NerdyMath.clamp(turningSpeed, -0.5, 0.5);
-        double tankDriveLeftSpeed = turningSpeed + 0.05;
-        double tankDriveRightSpeed = turningSpeed + 0.05;
-        drive.setPower(tankDriveLeftSpeed, -tankDriveRightSpeed);
-        turnLog[0] = turnControllerProfiledImu.getPositionError();
-        turnLog[1] = turningSpeed;
-        turnLog[2] = drive.getHeading();
-        if(NerdyMath.inRangeLess(drive.getHeading(), heading-1, heading+1)) {
-            drive.setPower(0, 0);
-            finished = true;
-        }
-        else{
-            finished = false;
-        }
-    }
-
-    // Called once the command ends or is interrupted.
-    @Override
-    public void end(boolean interrupted) {
-        drive.setPower(0, 0);
+        double turningSpeed = pidController.calculate(drivetrain.getHeading(), targetAngle);
+        
+        //swerveDrive.setModuleStates(moduleStates);
+        drivetrain.tankDrive(turningSpeed, turningSpeed * -1);
     }
 
     @Override
     public boolean isFinished() {
-        return finished;
+        return pidController.atSetpoint();
     }
 }

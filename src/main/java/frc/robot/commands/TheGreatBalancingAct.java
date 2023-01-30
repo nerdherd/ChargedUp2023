@@ -15,30 +15,39 @@ public class TheGreatBalancingAct extends CommandBase {
     private PIDController rollPidController;
     private PIDController pitchPidController;
 
+    private double towTime = 0;
+    private double period = 0.02;
+
     /**
      * Construct a new TurnToAngle Command
      * @param swerveDrive   Swerve drivetrain to rotate
      * @param period      
      *   Time between each calculation (default 20ms)
      */
-    public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double period) {
+    public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double period, double pBalancing) {
         this.swerveDrive = swerveDrive;
 
         this.rollPidController = new PIDController(
-            SwerveAutoConstants.kPBalancing, 0, 0, period);
+            pBalancing, 0, 0, period);
         
         this.rollPidController.enableContinuousInput(0, 360);
         
         this.pitchPidController = new PIDController(
-            SwerveAutoConstants.kPBalancing, 0, 0, period);
+            pBalancing, 0, 0, period);
         
         this.pitchPidController.enableContinuousInput(0, 360);
         addRequirements(swerveDrive);
+
+        this.period = period;
+    }
+
+    public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double pBalancing) {
+        this(swerveDrive, 0.02, pBalancing);
     }
 
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive) {
         // Default period is 20 ms
-        this(swerveDrive, 0.02);
+        this(swerveDrive, 0.02, SwerveAutoConstants.kPBalancing);
     }
 
     @Override
@@ -64,9 +73,21 @@ public class TheGreatBalancingAct extends CommandBase {
         SmartDashboard.putNumber("roll", currentRotation.getX());
         SmartDashboard.putNumber("yaw", currentRotation.getZ());
 
+        // Tow the swerve
+        // if (currentRotation.getX() < SwerveAutoConstants.kBalancingDeadbandDegrees
+        //     && currentRotation.getY() < SwerveAutoConstants.kBalancingDeadbandDegrees) {
+        //     towTime += period;
+        // } else {
+        //     towTime = 0;
+        // }
+
+        // if (towTime > SwerveAutoConstants.kBalancingTowPeriod) {
+        //     swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates);
+        //     return;
+        // }
+
         // Convert speed into swerve states
-        ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                xSpeed, ySpeed, 0, swerveDrive.getRotation2d());
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0.0);
         SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         
         // Set swerve states

@@ -5,11 +5,14 @@
 package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.commands.ApproachSequential;
+import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.PreloadTaxi;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.TankDrivetrain;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
@@ -24,8 +27,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 
+import org.opencv.objdetect.Objdetect;
+
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.SPI;
@@ -43,9 +49,12 @@ import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */// 10.6.87.98:5800
 public class RobotContainer {
@@ -54,56 +63,92 @@ public class RobotContainer {
   public static Claw claw = new Claw();
   public static Imu imu = new Imu();// AHRS(SPI.Port.kMXP);
   public static Vision vision = new Vision();
-  public static TankDrivetrain drive = new TankDrivetrain(vision);
   public static Limelight objDetectCamera = new Limelight();
-  public static ConeRunner coneRunner= new ConeRunner();
-  // public static Drivetrain drive = new Drivetrain();
+  public static ConeRunner coneRunner = new ConeRunner();
+  // public static Drivetrain drive;
+  public static final boolean IsSwerveDrive = true;
+  public static TankDrivetrain tankDrive;// = new TankDrivetrain(vision);
+  private SwerveDrivetrain swerveDrive;
 
-  // private SwerveDrivetrain swerveDrive = new SwerveDrivetrain();
-
-  private final CommandPS4Controller driverController = 
-      new CommandPS4Controller(ControllerConstants.kDriverControllerPort);
+  private final CommandPS4Controller driverController = new CommandPS4Controller(
+      ControllerConstants.kDriverControllerPort);
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandPS4Controller operatorController =
-      new CommandPS4Controller(ControllerConstants.kOperatorControllerPort);
-  
-  private final PS4Controller driverControllerButtons = 
-    new PS4Controller(ControllerConstants.kDriverControllerPort);
-    
+  private final CommandPS4Controller operatorController = new CommandPS4Controller(
+      ControllerConstants.kOperatorControllerPort);
+
+  private final PS4Controller driverControllerButtons = new PS4Controller(ControllerConstants.kDriverControllerPort);
+
+  SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
+
+  public double swerveTargetAngle = 180;
+
   // Two different drivetrain modes
-  private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
-  private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
+  private RunCommand arcadeRunCommand;
+  private RunCommand visionRunCommand;
 
-  private SendableChooser<CommandBase> autoChooser;
-  // public Command swerveCommand = new RepeatCommand(
-  //   new SequentialCommandGroup(
-  //       new WaitCommand(5),
-  //       new InstantCommand(swerveDrive::resetEncoders)
-  //   ));
+  public Command swerveCommand;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  public SwerveJoystickCommand swerveJoystickCommand;
+
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
-    
-    // swerveDrive.setDefaultCommand(
-    //       new SwerveJoystickCommand(swerveDrive, 
-    //         () -> -driverController.getLeftY(),  
-    //         driverController::getLeftX, 
-    //         driverController::getRightY, 
-    //         driverControllerButtons::getSquareButton));
-      
-	// Configure the trigger bindings
+
+    if (IsSwerveDrive) {
+      swerveDrive = new SwerveDrivetrain(imu.ahrs);
+
+      swerveCommand = new RepeatCommand(
+          new SequentialCommandGroup(
+              new WaitCommand(5),
+              new InstantCommand(swerveDrive::resetEncoders)));
+
+      swerveJoystickCommand = new SwerveJoystickCommand(swerveDrive,
+          () -> -driverController.getLeftY(),
+          driverController::getLeftX,
+          // () -> 0.0,
+          driverController::getRightY,
+          driverControllerButtons::getSquareButton,
+          () -> false,
+          // driverControllerButtons::getTriangleButton,
+          driverControllerButtons::getCrossButton);
+
+      autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
+      autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
+      autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
+      autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw));
+      SmartDashboard.putData(autoChooser);
+
+      swerveDrive.setDefaultCommand(swerveJoystickCommand);
+    } else {
+      tankDrive = new TankDrivetrain(vision);
+      arcadeRunCommand = new RunCommand(
+          () -> tankDrive.tankDrive(driverController.getLeftY(), driverController.getRightY()), tankDrive);
+
+      visionRunCommand = new RunCommand(
+          () -> tankDrive.arcadeDrive(tankDrive.getApriltagLinear(), tankDrive.getApriltagRotation()), tankDrive);
+    }
+    // Configure the trigger bindings
     configureBindings();
   }
 
   private void configureBindings() {
-    // Note: whileTrue() does not restart the command if it ends while the button is still being held
-    // These button bindings are chosen for testing, and may be changed based on driver preference
+    // Note: whileTrue() does not restart the command if it ends while the button is
+    // still being held
+    // These button bindings are chosen for testing, and may be changed based on
+    // driver preference
     driverController.square().whileTrue(arm.armExtend());
     driverController.triangle().whileTrue(arm.armStow());
     driverController.circle().onTrue(claw.clawOpen());
     driverController.cross().onTrue(claw.clawClose());
-    driverController.L1().whileTrue(drive.shiftHigh());
-    driverController.R1().whileTrue(drive.shiftLow());
+    if (!IsSwerveDrive) {
+      driverController.L1().whileTrue(tankDrive.shiftHigh());
+      driverController.R1().whileTrue(tankDrive.shiftLow());
+    }
+    operatorController.triangle().whileTrue(arm.armExtend());
+    operatorController.square().whileTrue(arm.armStow());
+    operatorController.circle().onTrue(claw.clawOpen());
+    operatorController.cross().onTrue(claw.clawClose());
 
     // operatorController.L1().onTrue(arm.moveArmScore());
     // operatorController.R1().onTrue(arm.moveArmStow());
@@ -113,18 +158,39 @@ public class RobotContainer {
 
     // driverController.circle().onFalse(arcadeRunCommand);
     // driverController.circle().whileTrue(visionRunCommand);
-    // driverController.circle().onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", false)));
-    // driverController.circle().whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("Vision Mode", true)));
-    
-    // driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
-    // driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
-    // SmartDashboard.putData("Turn to 180 degrees", new TurnToAngle(180, swerveDrive));
-    // driverController.cross().whileTrue(new TurnToAngle(180, swerveDrive));
+    // driverController.circle().onFalse(new InstantCommand(() ->
+    // SmartDashboard.putBoolean("Vision Mode", false)));
+    // driverController.circle().whileTrue(new InstantCommand(() ->
+    // SmartDashboard.putBoolean("Vision Mode", true)));
+    if (IsSwerveDrive) {
+      driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
+      driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+      
+      // driverController.cross().onTrue(new InstantCommand(() ->
+      // swerveJoystickCommand.setTargetAngle((swerveJoystickCommand.getTargetAngle()
+      // + 90) % 360)));
+      // driverController.cross().onTrue(new InstantCommand(() ->
+      // swerveDrive.resetOdometry(new Pose2d())));
+      // SmartDashboard.p utData("Turn to 180 degrees", new TurnToAngle(180,
+      // swerveDrive));
+      // driverController.cross().whileTrue(new SequentialCommandGroup(
+      // new TurnToAngle(swerveTargetAngle, swerveDrive),
+      // new InstantCommand(() -> swerveTargetAngle = (swerveTargetAngle + 180) %
+      // 360))
+      // );
+      driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
+      driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+      driverController.triangle().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 2));
+    }
+
     // driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
   }
 
   public void configurePeriodic() {
-    drive.tankDrive(-driverController.getLeftY(), -driverController.getRightY());
+    arm.moveArmJoystick(operatorController.getLeftY());
+    if (!IsSwerveDrive) {
+      tankDrive.tankDrive(-driverController.getLeftY(), -driverController.getRightY());
+    }
     claw.periodic();
     // arm.moveArmJoystick(operatorController.getLeftY());
 
@@ -136,28 +202,34 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
 
-   
   public void initShuffleboard() {
-    drive.initShuffleboard();
+    if (!IsSwerveDrive) {
+      tankDrive.initShuffleboard();
+    }
     // autoChooser = new SendableChooser<CommandBase>();
-    // autoChooser.setDefaultOption("Hard Carry Auto", 
-    //           TankAutos.HardCarryAuto(drive, claw, arm));
+    // autoChooser.setDefaultOption("Hard Carry Auto",
+    // TankAutos.HardCarryAuto(drive, claw, arm));
 
     // autoChooser.addOption("Diet Coke Auto",
-    //           TankAutos.DietCokeAuto(drive, claw, arm));
+    // TankAutos.DietCokeAuto(drive, claw, arm));
   }
 
   public Command getAutonomousCommand() {
     // return autoChooser.getSelected();
-    return TankAutos.HardCarryAuto(drive, claw, arm);
+    if (IsSwerveDrive)
+      return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw);
+    else
+      return TankAutos.HardCarryAuto(tankDrive, claw, arm);
     // An example command will be run in autonomous
     // return SwerveAutos.testAuto(swerveDrive);
   }
 
-
   public void autonomousInit() {
-    drive.resetEncoder();
-    // drive.setEncoder(drive.meterToTicks(0.381));
-    drive.zeroHeading();
+    if (!IsSwerveDrive) {
+      tankDrive.resetEncoder();
+      // drive.setEncoder(drive.meterToTicks(0.381));
+      tankDrive.zeroHeading();
+
+    }
   }
 }

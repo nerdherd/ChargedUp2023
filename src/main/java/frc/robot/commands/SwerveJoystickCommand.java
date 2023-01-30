@@ -2,7 +2,9 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -10,15 +12,20 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import static frc.robot.Constants.SwerveDriveConstants.*;
 
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.SwerveAutoConstants;
+import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.util.NerdyMath;
 
 public class SwerveJoystickCommand extends CommandBase {
     private final SwerveDrivetrain swerveDrive;
     private final Supplier<Double> xSpdFunction, ySpdFunction, turningSpdFunction;
     private final Supplier<Boolean> fieldOrientedFunction;
+    private final Supplier<Boolean> towSupplier, turnToAngleSupplier;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
-
-    private double prevXInput, prevYInput = 0.0;
+    private PIDController pidController;
+    private double prevXInput, prevYInput, prevTurningSpeed = 0.0;
+    private double targetAngle = 180;
 
     /**
      * Construct a new SwerveJoystickCommand
@@ -31,18 +38,32 @@ public class SwerveJoystickCommand extends CommandBase {
      */
     public SwerveJoystickCommand(SwerveDrivetrain swerveDrive,
             Supplier<Double> xSpdFunction, Supplier<Double> ySpdFunction, Supplier<Double> turningSpdFunction,
-            Supplier<Boolean> fieldOrientedFunction) {
+            Supplier<Boolean> fieldOrientedFunction, Supplier<Boolean> towSupplier, Supplier<Boolean> turnToAngle) {
         this.swerveDrive = swerveDrive;
         this.xSpdFunction = xSpdFunction;
         this.ySpdFunction = ySpdFunction;
         this.turningSpdFunction = turningSpdFunction;
         this.fieldOrientedFunction = fieldOrientedFunction;
+        this.towSupplier = towSupplier;
+        this.turnToAngleSupplier = turnToAngle;
         this.xLimiter = new SlewRateLimiter(kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(kTeleDriveMaxAngularAccelerationUnitsPerSecond);
         addRequirements(swerveDrive);
+
+        this.pidController = new PIDController(
+            SwerveAutoConstants.kPTurnToAngle, 
+            SwerveAutoConstants.kITurnToAngle, 
+            SwerveAutoConstants.kDTurnToAngle, 
+            0.02);
+        
+        this.pidController.setTolerance(
+            SwerveAutoConstants.kTurnToAnglePositionToleranceAngle, 
+            SwerveAutoConstants.kTurnToAngleVelocityToleranceAnglesPerSec * 0.02);
+        
+        this.pidController.enableContinuousInput(0, 360);
     }
-     
+
     @Override
     public void initialize() {}
 
@@ -55,12 +76,38 @@ public class SwerveJoystickCommand extends CommandBase {
         return (Math.abs(input) > OIConstants.kDeadband) ? input : 0; 
     }
 
+    public void setTargetAngle(double angle) {
+        this.targetAngle = angle;
+    }
+
+    public double getTargetAngle() {
+        return targetAngle;
+    }
+
     @Override
     public void execute() {
+        if (towSupplier.get()) {
+            swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates);
+            return;
+        }
+
+        double turningSpeed = turningSpdFunction.get();
+
+        // if (this.turnToAngleSupplier.get()) {
+        //     // Calculate turning speed with PID
+        //     turningSpeed = pidController.calculate(swerveDrive.getHeading(), targetAngle);
+        //     turningSpeed = Math.toRadians(turningSpeed);
+        //     turningSpeed = NerdyMath.clamp(
+        //         turningSpeed, 
+        //         -SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond, 
+        //         SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond);
+        // } else {
+        //     turningSpeed = turningSpdFunction.get();
+        // }
+
         // get speeds
         double xSpeed = xSpdFunction.get();
         double ySpeed = ySpdFunction.get();
-        double turningSpeed = turningSpdFunction.get();
 
         // Apply deadband to the speeds
         xSpeed = applyDeadband(xSpeed);
@@ -70,13 +117,21 @@ public class SwerveJoystickCommand extends CommandBase {
         // Apply low pass filter
         xSpeed = (kDriveAlpha * xSpeed) + (kDriveOneMinusAlpha * prevXInput);
         ySpeed = (kDriveAlpha * ySpeed) + (kDriveOneMinusAlpha * prevYInput);
+        turningSpeed = (kDriveAlpha * turningSpeed)
+            + (kDriveOneMinusAlpha * prevTurningSpeed);
 
         prevXInput = xSpeed;
         prevYInput = ySpeed;
+        prevTurningSpeed = turningSpeed;
 
         // Apply quadratic
-        xSpeed = Math.signum(xSpeed) * xSpeed * xSpeed;
-        ySpeed = Math.signum(ySpeed) * ySpeed * ySpeed;
+        // xSpeed = Math.signum(xSpeed) * xSpeed * xSpeed;
+        // ySpeed = Math.signum(ySpeed) * ySpeed * ySpeed;
+
+        // Apply cubic
+        xSpeed = Math.signum(xSpeed) * Math.abs(xSpeed * xSpeed * xSpeed);
+        ySpeed = Math.signum(ySpeed) * Math.abs(ySpeed * ySpeed * ySpeed);
+        turningSpeed = Math.signum(turningSpeed) * turningSpeed * turningSpeed;
 
         // Apply the slew rate limiter to the speeds
         xSpeed = xLimiter.calculate(xSpeed);
@@ -86,7 +141,7 @@ public class SwerveJoystickCommand extends CommandBase {
         // Convert speeds to meters per second
         xSpeed *= kTeleDriveMaxSpeedMetersPerSecond;
         ySpeed *= kTeleDriveMaxSpeedMetersPerSecond;
-        turningSpeed *= kTeleDriveMaxAccelerationUnitsPerSecond;
+        turningSpeed *= kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
         SmartDashboard.putNumber("xspeeddrivecommmand", xSpeed);
         SmartDashboard.putNumber("yspeeddrivecommmand", ySpeed);
@@ -104,6 +159,7 @@ public class SwerveJoystickCommand extends CommandBase {
 
         SmartDashboard.putNumber("xspeedchassis", chassisSpeeds.vxMetersPerSecond);
         SmartDashboard.putNumber("yspeedchassis", chassisSpeeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("Turning speed", turningSpeed);
 
         // Calculate swerve module states
         SwerveModuleState[] moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds);

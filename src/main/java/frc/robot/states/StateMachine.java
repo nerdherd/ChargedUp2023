@@ -119,7 +119,7 @@ public class StateMachine {
     public StateMachine() {
         gamepad = new Joystick(2);
 
-        drive = RobotContainer.drive;
+        drive = RobotContainer.tankDrive;
         apriltagCamera = RobotContainer.vision;
         objDetectCamera = RobotContainer.objDetectCamera;
         ahrs = RobotContainer.imu.ahrs;
