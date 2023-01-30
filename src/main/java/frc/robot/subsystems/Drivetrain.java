@@ -14,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
@@ -32,7 +33,7 @@ public abstract class Drivetrain extends SubsystemBase{
     public Drivetrain() {
     }
 
-
+    public abstract void reportToSmartDashboard();
 
     public abstract void buildDiffDrive();
 
@@ -46,7 +47,7 @@ public abstract class Drivetrain extends SubsystemBase{
 
     public abstract void setPower(double leftPower, double rightPower);
 
-    public abstract void resetEncoder();
+    public abstract void resetEncoders();
 
     public abstract double getTicks();
 
@@ -67,5 +68,13 @@ public abstract class Drivetrain extends SubsystemBase{
     public abstract Rotation3d getRotation3d();
 
     public abstract void zeroHeading();
+
+    public abstract void resetOdometry(Pose2d pose);
+
+    public abstract void stopModules();
+
+    public abstract Rotation3d getRotation3dRaw();
+
+    public abstract Pose2d getPose();
 
 }

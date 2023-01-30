@@ -68,7 +68,7 @@ public class RobotContainer {
   // public static Drivetrain drive;
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;// = new TankDrivetrain(vision);
-  private SwerveDrivetrain swerveDrive;
+  public static SwerveDrivetrain swerveDrive;
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);
