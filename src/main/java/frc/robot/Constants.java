@@ -74,13 +74,12 @@ public final class Constants {
   public static class ClawConstants{
     public static final int kPistonForwardID = 2;
     public static final int kPistonReverseID = 3;
-    public static final int kPCMPort = 3;
   }
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 20;
-    public static final int kArmStow = 0;
-    public static final int kArmScore = 0;
+    public static final int kArmStow = -344320;
+    public static final int kArmScore = -196323;
     public static final int kArmMotionAcceleration = 0;
     public static final int kArmCruiseVelocity = 0;
     public static final double kArmDeadband = 0.05;
@@ -91,6 +90,7 @@ public final class Constants {
     public static final int kPistonForwardID = 4;
     public static final int kPistonReverseID = 5;
     public static final double kJoystickMultiplier = 1; 
+    public static final double kAnglePerTicks = 0.000078755;
   }
 
   public static class VisionConstants{
@@ -247,5 +247,10 @@ public final class Constants {
       public static final double kPIDControllerP = 0.1;
       public static final double kPIDControllerD = 0.1;
     }
+
+  public static final class PneumaticsConstants {
+    public static final int kPCMPort = 3;
+    public static final int kPressureSensorPort = 2;
+  }
         
 }
