@@ -5,6 +5,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.WrapperCommand;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.commands.DriveToTarget.pipeline;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveDrivetrain;
 
@@ -19,10 +20,10 @@ public class ApproachCombined extends CommandBase {
      * 
      * @param meterOffset   Setpoint distance between drivetrain and vision target
      */
-    public ApproachCombined(Limelight limelight, SwerveDrivetrain drivetrain, double meterOffset) {
+    public ApproachCombined(SwerveDrivetrain drivetrain, Limelight limelight, double meterOffset, pipeline pipeline) {
         this.drivetrain = drivetrain;
         
-        driveToTarget = new DriveToTarget(limelight, drivetrain, meterOffset);
+        driveToTarget = new DriveToTarget(drivetrain, limelight, meterOffset, pipeline);
         turnToAngle = new TurnToAngle(0, drivetrain);
     }
 

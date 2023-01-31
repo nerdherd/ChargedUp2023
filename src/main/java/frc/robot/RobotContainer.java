@@ -41,6 +41,7 @@ import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
+import frc.robot.commands.DriveToTarget.pipeline;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 /**
@@ -57,6 +58,7 @@ public class RobotContainer {
   public Limelight objDetectCamera = new Limelight();
   public static Imu ahrs = new Imu();
   // public static Drivetrain drive = new Drivetrain(vision);
+  private pipeline obj;
 
   private SwerveDrivetrain swerveDrive = new SwerveDrivetrain(ahrs.ahrs);
 
@@ -134,7 +136,7 @@ public class RobotContainer {
     // );
     driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
     driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
-    driverController.triangle().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 2));
+    driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 2, obj));
 
     // driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
 
