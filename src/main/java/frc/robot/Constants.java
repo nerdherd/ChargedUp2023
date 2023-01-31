@@ -256,14 +256,18 @@ public final class Constants {
 
     public static final double kDeadband = 0.05;    }
 
-    public static class BananaConstants {
-      public static final double kPIDControllerP = 0.1;
-      public static final double kPIDControllerD = 0.1;
-    }
+  public static class BananaConstants {
+    public static final double kPIDControllerP = 0.1;
+    public static final double kPIDControllerD = 0.1;
+  }
 
-    public static final class ConeRunnerConstants {
-      public static final int kRightMasterID = 0;
-      public static final int kLeftMasterID = 0;
-    }
+  public static final class ConeRunnerConstants {
+    public static final int kRightMasterID = 0;
+    public static final int kLeftMasterID = 0;
+  }
+  public static final class PneumaticsConstants {
+    public static final int kPCMPort = 3;
+    public static final int kPressureSensorPort = 2;
+  }
         
 }

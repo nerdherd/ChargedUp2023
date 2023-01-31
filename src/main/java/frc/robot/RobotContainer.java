@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.DriveToTarget;
+import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
@@ -52,6 +53,7 @@ public class RobotContainer {
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;// = new TankDrivetrain(vision);
   public static SwerveDrivetrain swerveDrive;
+  public AirCompressor airCompressor = new AirCompressor();
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);
