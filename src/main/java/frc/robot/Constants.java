@@ -79,8 +79,8 @@ public final class Constants {
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 20;
-    public static final int kArmStow = 0;
-    public static final int kArmScore = 0;
+    public static final int kArmStow = -344320;
+    public static final int kArmScore = -196323;
     public static final int kArmMotionAcceleration = 0;
     public static final int kArmCruiseVelocity = 0;
     public static final double kArmDeadband = 0.05;
@@ -91,6 +91,7 @@ public final class Constants {
     public static final int kPistonForwardID = 4;
     public static final int kPistonReverseID = 5;
     public static final double kJoystickMultiplier = 1; 
+    public static final double kAnglePerTicks = 0.000078755;
   }
 
   public static class VisionConstants{
