@@ -48,7 +48,7 @@ public class TankDrivetrain extends SubsystemBase{
     private AHRS ahrs;//; = new AHRS();
     private DoubleSolenoid shifter;
 
-    public TankDrivetrain(Vision vision) {
+    public TankDrivetrain() {
         ahrs = RobotContainer.imu.ahrs;
         
         shifter = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
@@ -91,7 +91,7 @@ public class TankDrivetrain extends SubsystemBase{
         // check inversion to make drivetrain extend differential drive
         // drive = new DifferentialDrive(leftMaster, rightMaster);
  
-        this.vision = vision;
+        // this.vision = vision;
     }
 
 
@@ -211,53 +211,53 @@ public class TankDrivetrain extends SubsystemBase{
         return meterDist;
     }
 
-    public double getApriltagRotation() {
-        double rotationSpeed;
-        if(vision.limelightHasTargets){
-            rotationSpeed = -turnController.calculate(vision.getYaw(), 0);
-        }else{
-        rotationSpeed = 0;
-        }
-        SmartDashboard.putNumber("RotationSpeed", rotationSpeed);
-        return rotationSpeed;
-    }
+    // public double getApriltagRotation() {
+    //     double rotationSpeed;
+    //     if(vision.limelightHasTargets){
+    //         rotationSpeed = -turnController.calculate(vision.getYaw(), 0);
+    //     }else{
+    //     rotationSpeed = 0;
+    //     }
+    //     SmartDashboard.putNumber("RotationSpeed", rotationSpeed);
+    //     return rotationSpeed;
+    // }
    
     public void arcadeDrive(double forwardSpeed, double rotationSpeed){
         drive.arcadeDrive(forwardSpeed, rotationSpeed);
     }
 
-    public double getApriltagLinear(){
-        double forwardSpeed;
-        if(vision.limelightHasTargets){
-            double range = PhotonUtils.calculateDistanceToTargetMeters(
-                VisionConstants.kCameraHeightMeters, 
-                VisionConstants.kTargetHeightMeters, 
-                VisionConstants.kCameraPitchRadians, 
-                Units.degreesToRadians(vision.getPitch()));
+    // public double getApriltagLinear(){
+    //     double forwardSpeed;
+    //     if(vision.limelightHasTargets){
+    //         double range = PhotonUtils.calculateDistanceToTargetMeters(
+    //             VisionConstants.kCameraHeightMeters, 
+    //             VisionConstants.kTargetHeightMeters, 
+    //             VisionConstants.kCameraPitchRadians, 
+    //             Units.degreesToRadians(vision.getPitch()));
 
-            SmartDashboard.putNumber("Range", range);
-            forwardSpeed = -forwardController.calculate(range, VisionConstants.kGoalRangeMeters);
-        }
-        else{
-            forwardSpeed = 0;
-        }
-        SmartDashboard.putNumber("ForwardSpeed", forwardSpeed);
-        return forwardSpeed;
-    }
+    //         SmartDashboard.putNumber("Range", range);
+    //         forwardSpeed = -forwardController.calculate(range, VisionConstants.kGoalRangeMeters);
+    //     }
+    //     else{
+    //         forwardSpeed = 0;
+    //     }
+    //     SmartDashboard.putNumber("ForwardSpeed", forwardSpeed);
+    //     return forwardSpeed;
+    // }
 
-    public double getAprilTagAreaLinear(){
-        double forwardSpeed;
-        if(vision.limelightHasTargets){
-            double range = vision.getArea()*VisionConstants.kAreaConstant;
-            forwardSpeed = - forwardController.calculate(range, VisionConstants.kGoalRangeMeters);
-            SmartDashboard.putNumber("Range", range);
-        }
-        else{
-            forwardSpeed = 0;
-        }
-        SmartDashboard.putNumber("ForwardSpeed", forwardSpeed);
-        return forwardSpeed;
-    }
+    // public double getAprilTagAreaLinear(){
+    //     double forwardSpeed;
+    //     if(vision.limelightHasTargets){
+    //         double range = vision.getArea()*VisionConstants.kAreaConstant;
+    //         forwardSpeed = - forwardController.calculate(range, VisionConstants.kGoalRangeMeters);
+    //         SmartDashboard.putNumber("Range", range);
+    //     }
+    //     else{
+    //         forwardSpeed = 0;
+    //     }
+    //     SmartDashboard.putNumber("ForwardSpeed", forwardSpeed);
+    //     return forwardSpeed;
+    // }
 
     public double getHeading() {
         return ahrs.getYaw();

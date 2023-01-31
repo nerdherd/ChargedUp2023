@@ -42,7 +42,7 @@ public class DriveToTarget extends CommandBase{
         // double range = 0.628 - 1.71*Math.log(limelight.getArea());
         double objArea = limelight.getArea();
         double ySpeed = pidX.calculate(limelight.getXAngle(), 0);   // SOMEBODY SWAP THE PIDX and Y NAMES
-        double xSpeed = pidY.calculate(objArea, goalArea);
+        double xSpeed = -pidY.calculate(objArea, goalArea);
 
         ChassisSpeeds chassisSpeeds;
 

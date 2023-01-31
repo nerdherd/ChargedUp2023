@@ -46,7 +46,7 @@ public class RobotContainer {
   public static Arm arm = new Arm();
   public static Claw claw = new Claw();
   public static Imu imu = new Imu();// AHRS(SPI.Port.kMXP);
-  public static Vision vision = new Vision();
+  // public static Vision vision = new Vision();
   public static Limelight objDetectCamera = new Limelight();
   public static ConeRunner coneRunner = new ConeRunner();
   // public static Drivetrain drive;
@@ -76,22 +76,9 @@ public class RobotContainer {
   // private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
   // private RunCommand visionRunCommandArea = new RunCommand(() -> drive.arcadeDrive(drive.getAprilTagAreaLinear(), drive.getApriltagRotation()), drive);
 
-  public Command swerveCommand = new RepeatCommand(
-    new SequentialCommandGroup(
-        new WaitCommand(5),
-        new InstantCommand(swerveDrive::resetEncoders)
-    ));
+  public Command swerveCommand;
 
-  public SwerveJoystickCommand swerveJoystickCommand = 
-    new SwerveJoystickCommand(swerveDrive, 
-      () -> -driverController.getLeftY(),  
-      driverController::getLeftX,
-      // () -> 0.0, 
-      driverController::getRightY, 
-      driverControllerButtons::getSquareButton,
-      () -> false,
-      // driverControllerButtons::getTriangleButton,
-      driverControllerButtons::getCrossButton);
+  public SwerveJoystickCommand swerveJoystickCommand;
   
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -124,12 +111,12 @@ public class RobotContainer {
 
       swerveDrive.setDefaultCommand(swerveJoystickCommand);
     } else {
-      tankDrive = new TankDrivetrain(vision);
+      tankDrive = new TankDrivetrain();
       arcadeRunCommand = new RunCommand(
           () -> tankDrive.tankDrive(driverController.getLeftY(), driverController.getRightY()), tankDrive);
 
-      visionRunCommand = new RunCommand(
-          () -> tankDrive.arcadeDrive(tankDrive.getApriltagLinear(), tankDrive.getApriltagRotation()), tankDrive);
+      // visionRunCommand = new RunCommand(
+      //     () -> tankDrive.arcadeDrive(tankDrive.getApriltagLinear(), tankDrive.getApriltagRotation()), tankDrive);
     }
     // Configure the trigger bindings
     configureBindings();
@@ -140,10 +127,10 @@ public class RobotContainer {
     // still being held
     // These button bindings are chosen for testing, and may be changed based on
     // driver preference
-    driverController.square().whileTrue(arm.armExtend());
-    driverController.triangle().whileTrue(arm.armStow());
-    driverController.circle().onTrue(claw.clawOpen());
-    driverController.cross().onTrue(claw.clawClose());
+    // driverController.square().whileTrue(arm.armExtend());
+    // driverController.triangle().whileTrue(arm.armStow());
+    // driverController.circle().onTrue(claw.clawOpen());
+    // driverController.cross().onTrue(claw.clawClose());
     if (!IsSwerveDrive) {
       driverController.L1().whileTrue(tankDrive.shiftHigh());
       driverController.R1().whileTrue(tankDrive.shiftLow());
