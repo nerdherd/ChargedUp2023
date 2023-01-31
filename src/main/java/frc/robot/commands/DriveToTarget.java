@@ -20,17 +20,38 @@ public class DriveToTarget extends CommandBase{
 
     private static final double kMaxOutputPercent = 0.6;
 
-    public DriveToTarget(Limelight limelight, SwerveDrivetrain drivetrain, double goalArea){
+    public static enum pipeline {
+        CONE,
+        CUBE,
+        TAPE,
+        ATAG
+    }
+
+    public DriveToTarget(SwerveDrivetrain drivetrain, Limelight limelight, double goalArea, pipeline pipeline){
         this.limelight = limelight;
         this.drivetrain = drivetrain;
         this.goalArea = goalArea;
+
+        switch(pipeline) {
+            case CONE:
+                limelight.setPipeline(1);
+                break;
+            case CUBE:
+                limelight.setPipeline(2);
+                break;
+            case TAPE:
+                limelight.setPipeline(3);
+                break;
+            case ATAG:
+                limelight.setPipeline(4);
+                break;
+        }
         
         pidX = new PIDController(BananaConstants.kPIDControllerP, 0, BananaConstants.kPIDControllerD);
         pidX.setTolerance(0.5);
         pidY = new PIDController(BananaConstants.kPIDControllerP, 0, BananaConstants.kPIDControllerD);
         pidY.setTolerance(0.5);
 
-        limelight.setPipeline(4);
         addRequirements(drivetrain);
     }
 
