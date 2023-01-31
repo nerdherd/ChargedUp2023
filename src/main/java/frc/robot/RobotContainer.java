@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -108,6 +109,7 @@ public class RobotContainer {
       autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
       autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw));
       SmartDashboard.putData(autoChooser);
+      SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
       swerveDrive.setDefaultCommand(swerveJoystickCommand);
     } else {
@@ -170,7 +172,8 @@ public class RobotContainer {
       // );
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
-      driverController.triangle().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 2));
+      driverController.triangle().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 2))
+                      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
 
     // driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
