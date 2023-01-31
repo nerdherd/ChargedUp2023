@@ -85,11 +85,29 @@ public class RobotContainer {
   // Two different drivetrain modes
   private RunCommand arcadeRunCommand;
   private RunCommand visionRunCommand;
+  
+  // Two different drivetrain modes
+  // private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
+  // private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
+  // private RunCommand visionRunCommandArea = new RunCommand(() -> drive.arcadeDrive(drive.getAprilTagAreaLinear(), drive.getApriltagRotation()), drive);
 
-  public Command swerveCommand;
+  public Command swerveCommand = new RepeatCommand(
+    new SequentialCommandGroup(
+        new WaitCommand(5),
+        new InstantCommand(swerveDrive::resetEncoders)
+    ));
 
-  public SwerveJoystickCommand swerveJoystickCommand;
-
+  public SwerveJoystickCommand swerveJoystickCommand = 
+    new SwerveJoystickCommand(swerveDrive, 
+      () -> -driverController.getLeftY(),  
+      driverController::getLeftX,
+      // () -> 0.0, 
+      driverController::getRightY, 
+      driverControllerButtons::getSquareButton,
+      () -> false,
+      // driverControllerButtons::getTriangleButton,
+      driverControllerButtons::getCrossButton);
+  
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -184,6 +202,8 @@ public class RobotContainer {
     }
 
     // driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
+
+    // driverController.R1().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 5));
   }
 
   public void configurePeriodic() {
