@@ -5,13 +5,11 @@
 package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.commands.ApproachSequential;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.TankDrivetrain;
-import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
@@ -26,24 +24,10 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 
-import org.opencv.objdetect.Objdetect;
-
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.BadPS4.Button;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TankAutos;
-import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.SwerveDrivetrain;
 
