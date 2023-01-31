@@ -74,7 +74,6 @@ public final class Constants {
   public static class ClawConstants{
     public static final int kPistonForwardID = 2;
     public static final int kPistonReverseID = 3;
-    public static final int kPCMPort = 3;
   }
 
   public static class ArmConstants{
@@ -248,5 +247,10 @@ public final class Constants {
       public static final double kPIDControllerP = 0.1;
       public static final double kPIDControllerD = 0.1;
     }
+
+  public static final class PneumaticsConstants {
+    public static final int kPCMPort = 3;
+    public static final int kPressureSensorPort = 2;
+  }
         
 }

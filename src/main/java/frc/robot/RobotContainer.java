@@ -8,6 +8,7 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.ApproachSequential;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.PreloadTaxi;
+import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
@@ -55,6 +56,7 @@ public class RobotContainer {
   public static Claw claw = new Claw();
   // public static Vision vision = new Vision();
   public Limelight objDetectCamera = new Limelight();
+  public AirCompressor airCompressor = new AirCompressor();
   public static Imu ahrs = new Imu();
   // public static Drivetrain drive = new Drivetrain(vision);
 

@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ClawConstants;
+import frc.robot.Constants.PneumaticsConstants;
 
 public class Arm extends SubsystemBase {
     private DoubleSolenoid arm;
@@ -27,7 +28,7 @@ public class Arm extends SubsystemBase {
     private int targetTicks;
 
     public Arm() {
-        arm = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
+        arm = new DoubleSolenoid(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
         
         // gear ratio 27:1
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
