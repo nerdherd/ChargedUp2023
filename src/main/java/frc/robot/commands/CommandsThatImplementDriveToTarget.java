@@ -25,10 +25,10 @@ public class CommandsThatImplementDriveToTarget {
         }
     }
     public class scoreObj extends SequentialCommandGroup{
-        public scoreObj(SwerveDrivetrain drivetrain, Limelight limelight, Arm arm, Claw claw, pipeline pipeline){
+        public scoreObj(SwerveDrivetrain drivetrain, Limelight limelight, Arm arm, Claw claw){
             addCommands(
                 arm.moveArmScore(),
-                new ApproachCombined(drivetrain, limelight, 2, pipeline),
+                new ApproachCombined(drivetrain, limelight, 2, pipeline.TAPE),
                 arm.armExtend(),
                 claw.clawOpen(),
                 arm.armStow()
