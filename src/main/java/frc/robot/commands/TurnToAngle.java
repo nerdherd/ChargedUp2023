@@ -3,15 +3,18 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.SwerveAutoConstants;
+import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.util.NerdyMath;
 
 public class TurnToAngle extends CommandBase {
     private double targetAngle;
     private SwerveDrivetrain swerveDrive;
     private PIDController pidController;
+    // private SlewRateLimiter limiter;
 
     /**
      * Construct a new TurnToAngle Command
@@ -24,14 +27,19 @@ public class TurnToAngle extends CommandBase {
         this.swerveDrive = swerveDrive;
 
         this.pidController = new PIDController(
-            AutoConstants.kPThetaController, 0, 0, period);
+            SwerveAutoConstants.kPTurnToAngle, 
+            SwerveAutoConstants.kITurnToAngle, 
+            SwerveAutoConstants.kDTurnToAngle, 
+            period);
         
         this.pidController.setTolerance(
-            AutoConstants.kTurnToAnglePositionToleranceAngle, 
-            AutoConstants.kTurnToAngleVelocityToleranceAnglesPerSec * period);
+            SwerveAutoConstants.kTurnToAnglePositionToleranceAngle, 
+            SwerveAutoConstants.kTurnToAngleVelocityToleranceAnglesPerSec * period);
         
         this.pidController.enableContinuousInput(0, 360);
         
+        // this.limiter = new SlewRateLimiter(Math.PI / 4);
+
         addRequirements(swerveDrive);
     }
 
@@ -49,11 +57,20 @@ public class TurnToAngle extends CommandBase {
     public void execute() {
         // Calculate turning speed with PID
         double turningSpeed = pidController.calculate(swerveDrive.getHeading(), targetAngle);
+        turningSpeed = Math.toRadians(turningSpeed);
+
+        SmartDashboard.putNumber("Turning speed", turningSpeed);
+
+        turningSpeed = NerdyMath.clamp(
+            turningSpeed, 
+            -SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond, 
+            SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond);
+        // SmartDashboard.putNumber("Turning speed limited", turningSpeed);
         
         // Convert speed into swerve states
         ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 0, 0, turningSpeed, swerveDrive.getRotation2d());
-        SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         
         // Set swerve states
         swerveDrive.setModuleStates(moduleStates);
@@ -62,5 +79,23 @@ public class TurnToAngle extends CommandBase {
     @Override
     public boolean isFinished() {
         return pidController.atSetpoint();
+    }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        // Calculate turning speed with PID
+        double turningSpeed = pidController.calculate(swerveDrive.getHeading(), targetAngle);
+        turningSpeed = Math.toRadians(turningSpeed);
+        SmartDashboard.putNumber("Turning speed", turningSpeed);
+        turningSpeed = NerdyMath.clamp(
+            turningSpeed, 
+            -SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond, 
+            SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond);
+        SmartDashboard.putNumber("Turning speed limited", turningSpeed);
+        
+        // SmartDashboard.putNumber("TurningSpeed", turningSpeed);
+
+        // Convert speed into swerve states
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+                0, 0, turningSpeed, swerveDrive.getRotation2d());
     }
 }

@@ -1,20 +1,15 @@
-package frc.robot;
+package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import java.util.Arrays;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.LimeLight.LightMode.SnapMode;
+import frc.robot.util.NerdyMath;
 
 public class Limelight {
-    private static LimeLight m_Instance;
+    private static Limelight m_Instance;
 
     private NetworkTable table; // Network table to access Lime Light Values
 
@@ -145,7 +140,8 @@ public class Limelight {
      * @return Whether the limelight has any valid targets (0 or 1)
      */
     public boolean hasValidTarget() {
-        return (table.getEntry("tv").getDouble(0) == 0) ? false : true;
+        boolean has = NerdyMath.inRange(table.getEntry("tv").getDouble(0), -0.01, 0.01);
+        return !has;
     }
 
     /**
@@ -336,9 +332,9 @@ public class Limelight {
      * 
      * @return The Lime Light instance
      */
-    public static LimeLight getInstance() {
+    public static Limelight getInstance() {
         if (m_Instance == null) {
-            m_Instance = new LimeLight();
+            m_Instance = new Limelight();
         }
 
         return m_Instance;

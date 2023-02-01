@@ -4,57 +4,131 @@
 
 package frc.robot.subsystems;
 
-import java.util.ResourceBundle.Control;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.PneumaticsConstants;
 
 public class Arm extends SubsystemBase {
-    public TalonFX armMotor;
+    private DoubleSolenoid arm;
+    private TalonFX rotatingArm;
+    private boolean armExtended = false;
+    private int targetTicks;
 
     public Arm() {
-        armMotor = new TalonFX(ArmConstants.kArmID);
-        armMotor.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
-        armMotor.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
-        armMotor.configNeutralDeadband(ArmConstants.kArmDeadband);
-        armMotor.config_kP(0, ArmConstants.kArmP);
-        armMotor.config_kI(0, ArmConstants.kArmI);
-        armMotor.config_kD(0, ArmConstants.kArmD);
+        arm = new DoubleSolenoid(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
+        
+        // gear ratio 27:1
+        rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
+
+        CommandScheduler.getInstance().registerSubsystem(this);
+        initShuffleboard();
+
+        rotatingArm.setInverted(false);
+
+        rotatingArm.config_kP(0, ArmConstants.kArmP);
+        rotatingArm.config_kI(0, ArmConstants.kArmI);
+        rotatingArm.config_kD(0, ArmConstants.kArmD);
+
+        rotatingArm.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
+        rotatingArm.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
+    }
+
+    public void moveArmJoystick(double currentJoystickOutput) {
+        // double armTicks = rotatingArm.getSelectedSensorPosition();
+
+        if (currentJoystickOutput >= 0.5 ) {
+            currentJoystickOutput = 0.5;
+        }
+
+        
+        if (currentJoystickOutput > ArmConstants.kArmDeadband) {
+            rotatingArm.set(ControlMode.PercentOutput, 0.4);
+            rotatingArm.setNeutralMode(NeutralMode.Coast);
+            //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
+        } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
+            rotatingArm.set(ControlMode.PercentOutput, -0.4);
+            rotatingArm.setNeutralMode(NeutralMode.Coast);
+                //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
+        } else {
+            rotatingArm.set(ControlMode.PercentOutput, 0);
+            rotatingArm.setNeutralMode(NeutralMode.Brake);
+        }
+
+    }
+
+    public void moveArmMotionMagic(int position) {
+        // config tuning params in slot 0
+        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, Math.cos(position)*ArmConstants.kArbitraryFF);
+        targetTicks = position;
+
+    }
+
+    public void setPowerZero() {
+        rotatingArm.set(ControlMode.PercentOutput, 0.0);
+    }
+
+    public void ticksToAngle() {
+        
+    }
+
+    @Override
+    public void periodic() {}
+
+    public CommandBase moveArmScore() {
+        return runOnce(
+            () -> {
+                moveArmMotionMagic(ArmConstants.kArmScore);
+            }
+        );
+
+    }
+
+    public CommandBase moveArmStow() {
+        return runOnce(
+            () -> {
+                moveArmMotionMagic(ArmConstants.kArmStow);;
+            }
+        );
+
     }
 
     public CommandBase armStow() {
         return runOnce(
             () -> {
-                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmStow);
+                arm.set(Value.kReverse);
+                armExtended = false;
             }
         );
     }
 
-    public CommandBase armToMiddleNodePosition() {
+    public CommandBase armExtend() {
         return runOnce(
             () -> {
-                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmMiddleNode);
-            });
-      }
-
-    public CommandBase armToTopNodePosition() {
-        return runOnce(
-            () -> {
-                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmTopNode);
-            });
+                arm.set(Value.kForward);
+                armExtended = true;
+            }
+        );
     }
-
-    public void movePercentOutput(double joystickOutput) {
-        if (Math.abs(joystickOutput) > ControllerConstants.kOperatorJoystickDeadband) {
-            armMotor.set(ControlMode.PercentOutput, joystickOutput);
-        } else {
-            armMotor.set(ControlMode.PercentOutput, 0);
-        }
+    
+    private void initShuffleboard() {
+        ShuffleboardTab tab = Shuffleboard.getTab("Arm");
+        
+        tab.addBoolean("Arm Extended", () -> armExtended);
+        tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
+        tab.addNumber("Target Arm Ticks", () -> targetTicks);
     }
-  
 }
+
+  
+

@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -49,7 +51,10 @@ public class SwerveModule {
         this.turnMotorID = turningMotorId;
         this.absoluteEncoderId = absoluteEncoderId;
 
-        this.turningController = new PIDController(ModuleConstants.kPTurning, ModuleConstants.kITurning, ModuleConstants.kDTurning);
+        this.turningController = new PIDController(
+            SmartDashboard.getNumber("kPTurning", ModuleConstants.kPTurning),
+            SmartDashboard.getNumber("kITurning", ModuleConstants.kITurning),
+            SmartDashboard.getNumber("kDTurning", ModuleConstants.kDTurning));
         turningController.enableContinuousInput(-Math.PI, Math.PI);
         turningController.setTolerance(.025);
 
@@ -58,10 +63,49 @@ public class SwerveModule {
         this.absoluteTurningEncoder = new TalonSRX(absoluteEncoderId);
         this.absoluteEncoderOffset = absoluteEncoderOffset;
         this.invertTurningEncoder = absoluteEncoderReversed;
+
+        initEncoders();
     }
 
     /**
-     * Reset the SRX's quadrature encoder (slot 0) using the SRX's builtin encoder (slot 1)
+     * Initialize the encoder type on each slot of the motor controllers
+     * <p>
+     * Note: avoid using PID 0 on the turning motor, 
+     * as it is the same as PID 0 on the SRX.
+     * <p>
+     * Motor Encoders:
+     *  <table>
+     *      <tr>
+     *          <td> Drive Motor </td> 
+     *          <td> PID 0 </td> 
+     *          <td> Integrated Sensor </td> 
+     *      </tr>
+     *      <tr>
+     *          <td> Turn Motor </td> 
+     *          <td> PID 0 </td> 
+     *          <td> Integrated Sensor </td>
+     *      </tr>
+     *      <tr>
+     *          <td> Talon SRX </td> 
+     *          <td> PID 0 </td> 
+     *          <td> Quadrature Encoder </td>
+     *      </tr>
+     *      <tr>
+     *          <td> Talon SRX </td> 
+     *          <td> PID 1 </td> 
+     *          <td> PWM Mag Encoder (Absolute) </td>
+     *      </tr>
+     *  </table>
+     */
+    private void initEncoders() {
+        driveMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
+        turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
+        absoluteTurningEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.QuadEncoder, 0, 1000);
+        absoluteTurningEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.PulseWidthEncodedPosition, 1, 1000);
+    }
+
+    /**
+     * Reset the SRX's quadrature encoder (slot 0) using the SRX's mag encoder (slot 1)
      */
     public void resetEncoder() {
         double startPos = (absoluteTurningEncoder.getSelectedSensorPosition(1) - absoluteEncoderOffset) % 4096;
@@ -85,7 +129,9 @@ public class SwerveModule {
      * @return Distance travelled by motor (in meters)
      */
     public double getDrivePosition() {
-        return driveMotor.getSelectedSensorPosition(0) * ModuleConstants.kDriveTicksToMeters;
+        return driveMotor.getSelectedSensorPosition(0) 
+            * ModuleConstants.kDriveTicksToMeters
+            * ModuleConstants.kDriveMotorGearRatio;
     }
 
     /**
@@ -93,9 +139,9 @@ public class SwerveModule {
      * @return Angle in radians
      */
     public double getTurningPosition() {
-        double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0), 4096) * ModuleConstants.kTurningTicksToRad);
-        SmartDashboard.putNumber("turning position motor #" + turnMotorID, turningPosition);
-        SmartDashboard.putNumber("Turning angle #" + turnMotorID, 180 * turningPosition / Math.PI);
+        double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0) + 1024, 4096) * ModuleConstants.kTurningTicksToRad);
+        // SmartDashboard.putNumber("turning position motor #" + turnMotorID, turningPosition);
+        // SmartDashboard.putNumber("Turning angle #" + turnMotorID, 180 * turningPosition / Math.PI);
         return turningPosition;
     }
 
@@ -113,17 +159,17 @@ public class SwerveModule {
      */
     public double getTurningVelocity() {
         double turnVelocity = turnMotor.getSelectedSensorVelocity(0) * ModuleConstants.kTurningTicksPer100MsToRadPerSec;
-        SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, turnVelocity);
+        // SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, turnVelocity);
         return turnVelocity;
     }
 
     /**
-     * Get the position of the absolute encoder
-     * @return Position of the absolute encoder (in radians)
+     * Get the position of the absolute mag encoder
+     * @return Position of the absolute mag encoder (in radians)
      */
     public double getAbsoluteEncoderRadians() {
         double angle = (absoluteTurningEncoder.getSelectedSensorPosition(1) % 4096) * ModuleConstants.kTurningTicksToRad + absoluteEncoderOffset;
-        SmartDashboard.putNumber("AbsoluteEncoder in rad", angle * (invertTurningEncoder ? -1 : 1));
+        // SmartDashboard.putNumber("AbsoluteEncoder in rad", angle * (invertTurningEncoder ? -1 : 1));
         return angle * (invertTurningEncoder ? -1 : 1);
     }
 
@@ -152,19 +198,29 @@ public class SwerveModule {
         }
         // state.angle = state.angle.rotateBy(Rotation2d.fromDegrees(-90));
         state = SwerveModuleState.optimize(state, getState().angle);
-        SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, state.angle.getDegrees());
-        SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, state.angle.getDegrees() - (getTurningPosition() * 180 / Math.PI));
         
         // TODO: switch to velocity control
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
-        driveMotor.set(ControlMode.PercentOutput, state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+        double percentOutput = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        driveMotor.set(ControlMode.PercentOutput, percentOutput);
         
         double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
-        SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
+        // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
 
         turnMotor.set(ControlMode.PercentOutput, turnPower);
+
+        SmartDashboard.putNumber("Target velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Motor percent #" + turnMotorID, percentOutput);
+        SmartDashboard.putNumber("Turn angle #" + turnMotorID, Math.toDegrees(getTurningPosition()));
+        SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, state.angle.getDegrees());
+        SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, state.angle.getDegrees() - (getTurningPosition() * 180 / Math.PI));
+        SmartDashboard.putNumber("Current Motor #" + turnMotorID, driveMotor.getStatorCurrent());
     }
 
+    /**
+     * Enable or disable the break mode on the motors
+     * @param breaking  Whether or not the motor should be on break mode
+     */
     public void setBreak(boolean breaking) {
         NeutralMode mode = (breaking ? NeutralMode.Brake : NeutralMode.Coast);
         this.driveMotor.setNeutralMode(mode);
