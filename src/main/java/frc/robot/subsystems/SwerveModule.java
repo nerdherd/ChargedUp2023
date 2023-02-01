@@ -67,6 +67,36 @@ public class SwerveModule {
         initEncoders();
     }
 
+    /**
+     * Initialize the encoder type on each slot of the motor controllers
+     * <p>
+     * Note: avoid using PID 0 on the turning motor, 
+     * as it is the same as PID 0 on the SRX.
+     * <p>
+     * Motor Encoders:
+     *  <table>
+     *      <tr>
+     *          <td> Drive Motor </td> 
+     *          <td> PID 0 </td> 
+     *          <td> Integrated Sensor </td> 
+     *      </tr>
+     *      <tr>
+     *          <td> Turn Motor </td> 
+     *          <td> PID 0 </td> 
+     *          <td> Integrated Sensor </td>
+     *      </tr>
+     *      <tr>
+     *          <td> Talon SRX </td> 
+     *          <td> PID 0 </td> 
+     *          <td> Quadrature Encoder </td>
+     *      </tr>
+     *      <tr>
+     *          <td> Talon SRX </td> 
+     *          <td> PID 1 </td> 
+     *          <td> PWM Mag Encoder (Absolute) </td>
+     *      </tr>
+     *  </table>
+     */
     private void initEncoders() {
         driveMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
         turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
@@ -75,7 +105,7 @@ public class SwerveModule {
     }
 
     /**
-     * Reset the SRX's quadrature encoder (slot 0) using the SRX's builtin encoder (slot 1)
+     * Reset the SRX's quadrature encoder (slot 0) using the SRX's mag encoder (slot 1)
      */
     public void resetEncoder() {
         double startPos = (absoluteTurningEncoder.getSelectedSensorPosition(1) - absoluteEncoderOffset) % 4096;
@@ -109,7 +139,7 @@ public class SwerveModule {
      * @return Angle in radians
      */
     public double getTurningPosition() {
-        double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0), 4096) * ModuleConstants.kTurningTicksToRad);
+        double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0) + 1024, 4096) * ModuleConstants.kTurningTicksToRad);
         // SmartDashboard.putNumber("turning position motor #" + turnMotorID, turningPosition);
         // SmartDashboard.putNumber("Turning angle #" + turnMotorID, 180 * turningPosition / Math.PI);
         return turningPosition;
@@ -134,8 +164,8 @@ public class SwerveModule {
     }
 
     /**
-     * Get the position of the absolute encoder
-     * @return Position of the absolute encoder (in radians)
+     * Get the position of the absolute mag encoder
+     * @return Position of the absolute mag encoder (in radians)
      */
     public double getAbsoluteEncoderRadians() {
         double angle = (absoluteTurningEncoder.getSelectedSensorPosition(1) % 4096) * ModuleConstants.kTurningTicksToRad + absoluteEncoderOffset;
@@ -187,6 +217,10 @@ public class SwerveModule {
         SmartDashboard.putNumber("Current Motor #" + turnMotorID, driveMotor.getStatorCurrent());
     }
 
+    /**
+     * Enable or disable the break mode on the motors
+     * @param breaking  Whether or not the motor should be on break mode
+     */
     public void setBreak(boolean breaking) {
         NeutralMode mode = (breaking ? NeutralMode.Brake : NeutralMode.Coast);
         this.driveMotor.setNeutralMode(mode);

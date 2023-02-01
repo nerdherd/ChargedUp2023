@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -17,11 +16,18 @@ public class Claw extends SubsystemBase {
     public DoubleSolenoid clawPiston;
     public boolean clawOpen;
 
+    /**
+     * Construct a new Claw subsystem.
+     */
     public Claw() {
         clawPiston = new DoubleSolenoid(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
             ClawConstants.kPistonForwardID, ClawConstants.kPistonReverseID);
     }
 
+    /**
+     * Return an Instant Command that opens the claw.
+     * @return  An Instant Command that opens the claw.
+     */
     public CommandBase clawOpen() {
         return runOnce(
             () -> {
@@ -30,6 +36,10 @@ public class Claw extends SubsystemBase {
             });
     }
 
+    /**
+     * Return an Instant Command that closes the claw.
+     * @return  An Instant Command that closes the claw.
+     */
     public CommandBase clawClose() {
         return runOnce(
             () -> {
@@ -38,6 +48,10 @@ public class Claw extends SubsystemBase {
             });
     }
 
+    /**
+     * Return an Instant Command that toggles the claw.
+     * @return  An Instant Command that toggles the claw.
+     */
     public CommandBase toggleClaw() {
         return runOnce(
             () -> {
@@ -57,13 +71,5 @@ public class Claw extends SubsystemBase {
      */
     public boolean isClawOpen() {
         return clawOpen;
-    }
-
-    public void periodic() {
-        if (isClawOpen()) {
-            clawOpen();
-        } else {
-            clawClose();
-        }
     }
 }

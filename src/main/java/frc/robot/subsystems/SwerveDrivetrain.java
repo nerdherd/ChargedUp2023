@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -19,7 +18,7 @@ import frc.robot.Constants.SwerveDriveConstants;
 import static frc.robot.Constants.SwerveDriveConstants.*;
 
 public class SwerveDrivetrain extends SubsystemBase {
-    private final SwerveModule frontLeft = new SwerveModule(
+    private final SwerveModule backLeft = new SwerveModule(
             kFrontLeftDriveMotorPort,
             kFrontLeftTurningMotorPort,
             kFrontLeftDriveMotorReversed,
@@ -28,7 +27,7 @@ public class SwerveDrivetrain extends SubsystemBase {
             kFrontLeftDriveAbsoluteEncoderOffsetRad,
             kFrontLeftDriveAbsoluteEncoderReversed);
 
-    private final SwerveModule frontRight = new SwerveModule(
+    private final SwerveModule frontLeft = new SwerveModule(
             kFrontRightDriveMotorPort,
             kFrontRightTurningMotorPort,
             kFrontRightDriveMotorReversed,
@@ -37,7 +36,7 @@ public class SwerveDrivetrain extends SubsystemBase {
             kFrontRightDriveAbsoluteEncoderOffsetRad,
             kFrontRightDriveAbsoluteEncoderReversed);
 
-    private final SwerveModule backLeft = new SwerveModule(
+    private final SwerveModule backRight = new SwerveModule(
             kBackLeftDriveMotorPort,
             kBackLeftTurningMotorPort,
             kBackLeftDriveMotorReversed,
@@ -46,7 +45,7 @@ public class SwerveDrivetrain extends SubsystemBase {
             kBackLeftDriveAbsoluteEncoderOffsetRad,
             kBackLeftDriveAbsoluteEncoderReversed);
 
-    private final SwerveModule backRight = new SwerveModule(
+    private final SwerveModule frontRight = new SwerveModule(
             kBackRightDriveMotorPort,
             kBackRightTurningMotorPort,
             kBackRightDriveMotorReversed,
@@ -122,20 +121,20 @@ public class SwerveDrivetrain extends SubsystemBase {
      */
     public void resetEncoders() {
         SmartDashboard.putNumber("Encoder resets", SmartDashboard.getNumber("Encoder resets", 0)+1);
-        frontLeft.resetEncoder();
-        frontRight.resetEncoder();
         backLeft.resetEncoder();
+        frontLeft.resetEncoder();
         backRight.resetEncoder();
+        frontRight.resetEncoder();
     }
 
     /**
      * Stops all modules. See {@link SwerveModule#stop()} for more info.
      */
     public void stopModules() {
-        frontLeft.stop();
-        frontRight.stop();
         backLeft.stop();
+        frontLeft.stop();
         backRight.stop();
+        frontRight.stop();
     }
 
     //****************************** GETTERS ******************************/
@@ -189,7 +188,7 @@ public class SwerveDrivetrain extends SubsystemBase {
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
             frontLeft.getPosition(), 
-            frontRight.getPosition(), 
+            frontRight.getPosition(),
             backLeft.getPosition(),
             backRight.getPosition()
         };
@@ -229,10 +228,10 @@ public class SwerveDrivetrain extends SubsystemBase {
      * @param breaking  Whether or not the modules should be in break
      */
     public void setBreak(boolean breaking) {
-        frontLeft.setBreak(breaking);
-        frontRight.setBreak(breaking);
         backLeft.setBreak(breaking);
+        frontLeft.setBreak(breaking);
         backRight.setBreak(breaking);
+        frontRight.setBreak(breaking);
     }
 
     /**

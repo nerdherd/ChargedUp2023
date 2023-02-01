@@ -2,12 +2,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.TankDrivetrain;
 
 public class TurnToAngleTank extends CommandBase{
     private double targetAngle;
-    private Drivetrain drivetrain;
+    private TankDrivetrain drivetrain;
     private PIDController pidController;
 
     /**
@@ -16,7 +15,7 @@ public class TurnToAngleTank extends CommandBase{
      * @param swerveDrive   Swerve drivetrain to rotate
      * @param period        Time between each calculation (default 20ms)
      */
-    public TurnToAngleTank(double targetAngle, Drivetrain drivetrain, double period) {
+    public TurnToAngleTank(double targetAngle, TankDrivetrain drivetrain, double period) {
         this.targetAngle = targetAngle;
         this.drivetrain = drivetrain;
 
@@ -29,7 +28,7 @@ public class TurnToAngleTank extends CommandBase{
         addRequirements(drivetrain);
     }
 
-    public TurnToAngleTank(double targetAngle, Drivetrain drivetrain) {
+    public TurnToAngleTank(TankDrivetrain drivetrain, double targetAngle) {
         // Default period is 20 ms
         this(targetAngle, drivetrain, 0.02);
     }

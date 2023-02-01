@@ -39,30 +39,35 @@ public final class Constants {
     // public static final double kLinearD = 0;
 
     // ============== PrototypeBOT =============
-    // public static final int kRightMasterID = 0;
-    // public static final int kLeftMasterID = 0;
+    public static final int kRightMasterID = 0;
+    public static final int kLeftMasterID = 0;
     public static final double kAngularP = 0.1;
     public static final double kAngularD = 0;
     public static final double kLinearP = 0.1;
     public static final double kLinearD = 0;
-    // public static final int kRightFollowerID = 17;
-    // public static final int kLeftFollowerID = 31;
+    public static final int kRightFollowerID = 17;
+    public static final int kLeftFollowerID = 31;
     public static final int kRightFollower2ID = 1;
     public static final int kLeftFollower2ID = 18;
 
     // thomas
-    public static final int kRightMasterID = 9;
-    public static final int kLeftMasterID = 20;
-    public static final int kRightFollowerID = 15;
-    public static final int kLeftFollowerID = 19;
+    // public static final int kRightMasterID = 9;
+    // public static final int kLeftMasterID = 20;
+    // public static final int kRightFollowerID = 15;
+    // public static final int kLeftFollowerID = 19;
 
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
-    
-    public static final int kTicksPerFoot = 11738;
+    //public static final int kTicksPerFoot = 11738;
+    public static final int kTicksPerMeter = 111555;
     public static final double kErrorBound = 0;
 
     public static final double kAutoPower = 0;
+
+    public static final int kPistonForwardID = 0;
+    public static final int kPistonReverseID = 1;
+
+    public static final int kFalconMaxCurrent = 50;
   }
 
   public static class ControllerConstants {
@@ -74,6 +79,7 @@ public final class Constants {
   public static class ClawConstants{
     public static final int kPistonForwardID = 2;
     public static final int kPistonReverseID = 3;
+    public static final int kPCMPort = 3;
   }
 
   public static class ArmConstants{
@@ -90,7 +96,14 @@ public final class Constants {
     public static final int kPistonForwardID = 4;
     public static final int kPistonReverseID = 5;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kAnglePerTicks = 0.000078755;
+
+    public static final double kP = 0;
+    public static final double kI = 0;
+    public static final double kD = 0; 
+
+    public static final double kCruiseVelocity = 0;
+    public static final double kMotionAcceleration = 0;
+
   }
 
   public static class VisionConstants{
@@ -243,11 +256,15 @@ public final class Constants {
 
     public static final double kDeadband = 0.05;    }
 
-    public static class BananaConstants {
-      public static final double kPIDControllerP = 0.1;
-      public static final double kPIDControllerD = 0.1;
-    }
+  public static class BananaConstants {
+    public static final double kPIDControllerP = 0.1;
+    public static final double kPIDControllerD = 0.1;
+  }
 
+  public static final class ConeRunnerConstants {
+    public static final int kRightMasterID = 0;
+    public static final int kLeftMasterID = 0;
+  }
   public static final class PneumaticsConstants {
     public static final int kPCMPort = 3;
     public static final int kPressureSensorPort = 2;

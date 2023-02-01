@@ -9,7 +9,6 @@ import frc.robot.Constants.BananaConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveDrivetrain;
-import frc.robot.util.NerdyMath;
 
 public class DriveToTarget extends CommandBase{
     private Limelight limelight;
@@ -63,8 +62,8 @@ public class DriveToTarget extends CommandBase{
     public void execute() {
         // double range = 0.628 - 1.71*Math.log(limelight.getArea());
         double objArea = limelight.getArea();
-        double ySpeed = pidX.calculate(limelight.getXAngle(), 0);   // SOMEBODY SWAP THE PIDX and Y NAMES
-        double xSpeed = pidY.calculate(objArea, goalArea);
+        double ySpeed = -pidX.calculate(limelight.getXAngle(), 0);   // SOMEBODY SWAP THE PIDX and Y NAMES
+        double xSpeed = -pidY.calculate(objArea, goalArea);
 
         ChassisSpeeds chassisSpeeds;
 
@@ -79,7 +78,7 @@ public class DriveToTarget extends CommandBase{
         SmartDashboard.putBoolean("Setpoint reached y", pidY.atSetpoint());
         chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
         SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-        // drivetrain.setModuleStates(moduleStates);
+        drivetrain.setModuleStates(moduleStates);
     }
 
     @Override
