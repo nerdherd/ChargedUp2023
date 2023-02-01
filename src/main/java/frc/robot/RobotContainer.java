@@ -31,6 +31,7 @@ import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
+import frc.robot.commands.DriveToTarget.pipeline;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 /**
@@ -55,6 +56,10 @@ public class RobotContainer {
   public static TankDrivetrain tankDrive;// = new TankDrivetrain(vision);
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
+
+  public static Imu ahrs = new Imu();
+  // public static Drivetrain drive = new Drivetrain(vision);
+  private pipeline obj;
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);
@@ -150,6 +155,7 @@ public class RobotContainer {
 
     // driverController.circle().onFalse(arcadeRunCommand);
     // driverController.circle().whileTrue(visionRunCommand);
+
     // driverController.circle().onFalse(new InstantCommand(() ->
     // SmartDashboard.putBoolean("Vision Mode", false)));
     // driverController.circle().whileTrue(new InstantCommand(() ->
@@ -172,7 +178,7 @@ public class RobotContainer {
       // );
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
-      driverController.triangle().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 2))
+      driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 2, obj))
                       .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
 
