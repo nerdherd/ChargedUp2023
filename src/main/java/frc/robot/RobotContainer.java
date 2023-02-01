@@ -57,7 +57,6 @@ public class RobotContainer {
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
 
-  public static Imu ahrs = new Imu();
   // public static Drivetrain drive = new Drivetrain(vision);
   private pipeline obj;
 
