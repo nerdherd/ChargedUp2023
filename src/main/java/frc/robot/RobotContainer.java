@@ -191,12 +191,7 @@ public class RobotContainer {
 
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-
+  
   public void initShuffleboard() {
     if (!IsSwerveDrive) {
       tankDrive.initShuffleboard();
@@ -204,18 +199,22 @@ public class RobotContainer {
     // autoChooser = new SendableChooser<CommandBase>();
     // autoChooser.setDefaultOption("Hard Carry Auto",
     // TankAutos.HardCarryAuto(drive, claw, arm));
-
+    
     // autoChooser.addOption("Diet Coke Auto",
     // TankAutos.DietCokeAuto(drive, claw, arm));
   }
-
+  
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
   public Command getAutonomousCommand() {
     // return autoChooser.getSelected();
     if (IsSwerveDrive)
       return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw);
     else
       return TankAutos.HardCarryAuto(tankDrive, claw, arm);
-    // An example command will be run in autonomous
     // return SwerveAutos.testAuto(swerveDrive);
   }
 
@@ -224,7 +223,6 @@ public class RobotContainer {
       tankDrive.resetEncoder();
       // drive.setEncoder(drive.meterToTicks(0.381));
       tankDrive.zeroHeading();
-
     }
   }
 }

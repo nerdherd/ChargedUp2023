@@ -4,30 +4,29 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ClawConstants;
 import edu.wpi.first.wpilibj.SPI;
+
+// TODO: Wrap crucial ahrs methods so that functionality is swappable between the NavX and Pigeon IMU
 
 public class Imu extends SubsystemBase {
     public AHRS ahrs;
-    // add compressor
     
+    /**
+     * Attempt to instantiate a new NavX IMU.
+     * 
+     * If an exception is thrown, it is caught and reported to the drivetrain.
+     */
     public Imu() {
-        try { // attempt to instantiate the NavX2. If it throws an exception, catch it and
-            // report it.
-          ahrs = new AHRS(SPI.Port.kMXP); // SPI is the protocol on the MXP connector that the navigator is plugged
-                                          // into
-      } catch (RuntimeException ex) {
-          DriverStation.reportError("Error instantiating navX2 MXP:  " + ex.getMessage(), true);
-      }
+        try { 
+            // SPI is the protocol on the MXP connector that 
+            // the NavX is plugged into
+            ahrs = new AHRS(SPI.Port.kMXP); 
+        } catch (RuntimeException ex) {
+            DriverStation.reportError("Error instantiating navX2 MXP:  " + ex.getMessage(), true);
+        }
     }
 }

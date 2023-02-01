@@ -15,8 +15,8 @@ public class TheGreatBalancingAct extends CommandBase {
     private PIDController rollPidController;
     private PIDController pitchPidController;
 
-    private double towTime = 0;
-    private double period = 0.02;
+    // private double towTime = 0;
+    // private double period = 0.02;
 
     /**
      * Construct a new TurnToAngle Command
@@ -38,7 +38,7 @@ public class TheGreatBalancingAct extends CommandBase {
         this.pitchPidController.enableContinuousInput(0, 360);
         addRequirements(swerveDrive);
 
-        this.period = period;
+        // this.period = period;
     }
 
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double pBalancing) {

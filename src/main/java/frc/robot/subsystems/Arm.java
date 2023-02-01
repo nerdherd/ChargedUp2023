@@ -8,7 +8,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -18,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.PneumaticsConstants;
 
 public class Arm extends SubsystemBase {
@@ -47,7 +45,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void moveArmJoystick(double currentJoystickOutput) {
-        double armTicks = rotatingArm.getSelectedSensorPosition();
+        // double armTicks = rotatingArm.getSelectedSensorPosition();
 
         if (currentJoystickOutput >= 0.5 ) {
             currentJoystickOutput = 0.5;
@@ -122,7 +120,7 @@ public class Arm extends SubsystemBase {
             }
         );
     }
-
+    
     private void initShuffleboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Arm");
         

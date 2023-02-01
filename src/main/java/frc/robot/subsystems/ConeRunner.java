@@ -11,10 +11,10 @@ public class ConeRunner extends SubsystemBase{
     private TalonSRX leftMaster;
 
     public ConeRunner(){
-      rightMaster = new TalonSRX(ConeRunnerConstants.kRightMasterID);
-      leftMaster = new TalonSRX(ConeRunnerConstants.kLeftMasterID);
-      rightMaster.setInverted(false);
-      leftMaster.setInverted(false);
+        rightMaster = new TalonSRX(ConeRunnerConstants.kRightMasterID);
+        leftMaster = new TalonSRX(ConeRunnerConstants.kLeftMasterID);
+        rightMaster.setInverted(false);
+        leftMaster.setInverted(false);
     }
 
     public void runConeRunner(){
