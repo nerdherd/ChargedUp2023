@@ -119,7 +119,7 @@ public class RobotContainer {
     } else {
       tankDrive = new TankDrivetrain();
       arcadeRunCommand = new RunCommand(
-          () -> tankDrive.tankDrive(driverController.getLeftY(), driverController.getRightY()), tankDrive);
+          () -> tankDrive.drive(driverController.getLeftY(), driverController.getRightY()), tankDrive);
 
       // visionRunCommand = new RunCommand(
       //     () -> tankDrive.arcadeDrive(tankDrive.getApriltagLinear(), tankDrive.getApriltagRotation()), tankDrive);
@@ -138,7 +138,7 @@ public class RobotContainer {
     // driverController.circle().onTrue(claw.clawOpen());
     // driverController.cross().onTrue(claw.clawClose());
     if (!IsSwerveDrive) {
-      driverController.L1().whileTrue(tankDrive.shiftHigh());
+      driverController.L1().whileTrue(tankDrive.shiftHigh()); // TODO: use it for swerve too? inch-drive
       driverController.R1().whileTrue(tankDrive.shiftLow());
     }
     operatorController.triangle().whileTrue(arm.armExtend());
@@ -186,10 +186,11 @@ public class RobotContainer {
     // driverController.R1().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 5));
   }
 
+  /** This function is called periodically during operator control. */
   public void configurePeriodic() {
     arm.moveArmJoystick(operatorController.getLeftY());
-    if (!IsSwerveDrive) {
-      tankDrive.tankDrive(-driverController.getLeftY(), -driverController.getRightY());
+    if (!IsSwerveDrive) { // TODO: use a command? move it to constructor?
+      tankDrive.drive(-driverController.getLeftY(), -driverController.getRightY());
     }
     claw.periodic();
     // arm.moveArmJoystick(operatorController.getLeftY());
@@ -199,7 +200,7 @@ public class RobotContainer {
   
   public void initShuffleboard() {
     if (!IsSwerveDrive) {
-      tankDrive.initShuffleboard();
+      tankDrive.reportToSmartDashboard();
     }
     // autoChooser = new SendableChooser<CommandBase>();
     // autoChooser.setDefaultOption("Hard Carry Auto",
@@ -224,8 +225,8 @@ public class RobotContainer {
   }
 
   public void autonomousInit() {
-    if (!IsSwerveDrive) {
-      tankDrive.resetEncoder();
+    if (!IsSwerveDrive) { // TODO: Move resets to robot init? 
+      tankDrive.resetEncoders();
       // drive.setEncoder(drive.meterToTicks(0.381));
       tankDrive.zeroHeading();
     }

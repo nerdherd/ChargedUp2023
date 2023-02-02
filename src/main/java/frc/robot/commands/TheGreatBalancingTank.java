@@ -55,7 +55,7 @@ public class TheGreatBalancingTank extends CommandBase {
         SmartDashboard.putNumber("yaw", currentRotation.getZ());
 
         // Convert speed into swerve states
-        tankDrive.tankDrive(xSpeed, xSpeed);
+        tankDrive.drive(xSpeed, xSpeed);
     }
 
     @Override

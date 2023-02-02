@@ -98,7 +98,7 @@ public class TankDrivetrain extends SubsystemBase{
     
    
  
-    public void tankDrive(double leftInput, double rightInput) {
+    public void drive(double leftInput, double rightInput) {
         double prevLeftOutput = leftMaster.getMotorOutputPercent();
         double prevRightOutput = rightMaster.getMotorOutputPercent();
    
@@ -186,7 +186,7 @@ public class TankDrivetrain extends SubsystemBase{
         // rightMotors.setVoltage(rightPower);
     }
 
-    public void resetEncoder() {
+    public void resetEncoders() {
         leftMaster.setSelectedSensorPosition(0);
         rightMaster.setSelectedSensorPosition(0);
     }
@@ -278,7 +278,7 @@ public class TankDrivetrain extends SubsystemBase{
         ahrs.reset();
     }
 
-    public void initShuffleboard() {  
+    public void reportToSmartDashboard() {  
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
         ShuffleboardLayout power =
