@@ -183,6 +183,12 @@ public class SwerveAutos {
             Commands.runOnce(() -> swerveDrive.stopModules()));
     } 
 
+    /**
+     * Start with the front left swerve module aligned with the charging station's edge
+     * in the x axis and around 8 inches to the right in the y axis
+     * @param swerveDrive 
+     * @return Command to reset odometry run auto to go onto charging station then run balancing auto
+     */
     public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
@@ -217,6 +223,13 @@ public class SwerveAutos {
         );
     }
 
+    /**
+     * Start with the front left swerve module aligned with the charging station's edge
+     * in the x axis and around 8 inches to the right in the y axis
+     * @param swerveDrive
+     * @return Command sequence to turn to grids, move back to pick up a piece, go to the grid 
+     * and then onto the charging station with balancing code
+     */
     public static CommandBase hardCarryAuto(SwerveDrivetrain swerveDrive) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(

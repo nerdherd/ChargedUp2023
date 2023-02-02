@@ -19,10 +19,10 @@ public class TheGreatBalancingAct extends CommandBase {
     // private double period = 0.02;
 
     /**
-     * Construct a new TurnToAngle Command
-     * @param swerveDrive   Swerve drivetrain to rotate
-     * @param period      
-     *   Time between each calculation (default 20ms)
+     * Construct a new BalancingAct Command
+     * @param swerveDrive   Swerve drivetrain to balance
+     * @param period        Time intervals for pid controller calculations (default 20ms)
+     * @param pBalancing    Constant P for roll and pitch pid controllers
      */
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double period, double pBalancing) {
         this.swerveDrive = swerveDrive;
@@ -41,10 +41,21 @@ public class TheGreatBalancingAct extends CommandBase {
         // this.period = period;
     }
 
+    /**
+     * Construct a new BalancingAct Command and assume period is the default (20ms)
+     * @param swerveDrive   Swerve drivetrain to balance
+     * @param pBalancing    Constant P for roll and pitch pid controllers
+     */
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double pBalancing) {
         this(swerveDrive, 0.02, pBalancing);
     }
 
+    /**
+     * Construct a new BalancingAct Command
+     * assumes period is the default (20ms)
+     * Uses swerve auto constant for roll and pitch pid controllers
+     * @param swerveDrive   Swerve drivetrain to balance
+     */
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive) {
         // Default period is 20 ms
         this(swerveDrive, 0.02, SwerveAutoConstants.kPBalancing);
@@ -55,6 +66,10 @@ public class TheGreatBalancingAct extends CommandBase {
 
     }
 
+    /**
+     * Balances robot by using its pitch and roll as inputs for pid controllers
+     * and then sends the values given by the pid controllers to swerve states
+     */
     @Override
     public void execute() {
         Rotation3d currentRotation = swerveDrive.getRotation3d();
