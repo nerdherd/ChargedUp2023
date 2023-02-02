@@ -115,7 +115,7 @@ public class RobotContainer {
       SmartDashboard.putData(autoChooser);
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
-      swerveDrive.setDefaultCommand(swerveJoystickCommand);
+      swerveDrive.setDefaultCommand(swerveJoystickCommand); // TODO: need to confirm it's not conflict with auto command
     } else {
       tankDrive = new TankDrivetrain();
       arcadeRunCommand = new RunCommand(

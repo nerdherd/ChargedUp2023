@@ -69,7 +69,7 @@ public class SwerveDrivetrain extends SubsystemBase {
             kDriveKinematics, 
             new Rotation2d(0), 
             getModulePositions());
-        new Thread(() -> {
+        new Thread(() -> {  //TODO: move it to robot init?
             try {
                 resetEncoders();
                 Thread.sleep(1000);
@@ -81,7 +81,7 @@ public class SwerveDrivetrain extends SubsystemBase {
         }).run();
     }
 
-    public SwerveDrivetrain() {
+    public SwerveDrivetrain() { // TODO: remove it?
         this(new AHRS(SPI.Port.kMXP));
     }
 
@@ -104,6 +104,7 @@ public class SwerveDrivetrain extends SubsystemBase {
      */
     public void zeroHeading() {
         gyro.reset();
+        //gyro.zeroYaw(); TODO: better to use this?
         SmartDashboard.putNumber("Gyro resets", SmartDashboard.getNumber("Gyro resets", 0)+1);
     }
 
