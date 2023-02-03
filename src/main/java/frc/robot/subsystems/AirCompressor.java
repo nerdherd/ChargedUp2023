@@ -15,8 +15,8 @@ public class AirCompressor extends SubsystemBase {
 
     public AirCompressor() {
         compressor = new Compressor(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM);
-        // compressor.enableDigital();
-        compressor.disable();
+        compressor.enableDigital();
+        // compressor.disable();
     }
 
     @Override

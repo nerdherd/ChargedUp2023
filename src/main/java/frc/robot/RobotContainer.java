@@ -58,7 +58,7 @@ public class RobotContainer {
   public AirCompressor airCompressor = new AirCompressor();
 
   // public static Drivetrain drive = new Drivetrain(vision);
-  private pipeline obj;
+  private pipeline obj = pipeline.ATAG;
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);

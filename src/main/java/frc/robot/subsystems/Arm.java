@@ -31,7 +31,7 @@ public class Arm extends SubsystemBase {
         // gear ratio 27:1
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
 
-        CommandScheduler.getInstance().registerSubsystem(this);
+        // CommandScheduler.getInstance().registerSubsystem(this);
         initShuffleboard();
 
         rotatingArm.setInverted(false);
