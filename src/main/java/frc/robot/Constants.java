@@ -85,7 +85,7 @@ public final class Constants {
   public static class ArmConstants{
     public static final int kRotatingArmID = 20;
     public static final int kArmStow = -344320;
-    public static final int kArmScore = -196323;
+    public static final int kArmScore = 39626;
     public static final int kArmMotionAcceleration = 0;
     public static final int kArmCruiseVelocity = 0;
     public static final double kArmDeadband = 0.05;

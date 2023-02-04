@@ -10,6 +10,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -28,6 +30,7 @@ public class Arm extends SubsystemBase implements Reportable {
     private TalonFX rotatingArm;
     private boolean armExtended = false;
     private int targetTicks;
+    private PIDController armPID;
 
     public Arm() {
         arm = new DoubleSolenoid(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
@@ -46,6 +49,11 @@ public class Arm extends SubsystemBase implements Reportable {
 
         rotatingArm.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
         rotatingArm.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
+   
+        armPID = new PIDController(
+            SmartDashboard.getNumber("Arm kP", 0), 
+            SmartDashboard.getNumber("Arm kI", 0), 
+            SmartDashboard.getNumber("Arm kD", 0));
     }
 
     public void moveArmJoystick(double currentJoystickOutput) {
@@ -83,6 +91,22 @@ public class Arm extends SubsystemBase implements Reportable {
 
     }
 
+    public void moveArm(double position) {
+        armPID.setSetpoint(position);
+        double speed = armPID.calculate(rotatingArm.getSelectedSensorPosition(), position);
+        if (speed > 3000) {
+            speed = 3000;
+        } else if (speed < -3000) {
+            speed = -3000;
+        }
+        rotatingArm.set(ControlMode.Velocity, speed);
+        if (armPID.atSetpoint()) {
+            rotatingArm.setNeutralMode(NeutralMode.Brake);
+        } else {
+            rotatingArm.setNeutralMode(NeutralMode.Coast);
+        }
+    }
+
     public void setPowerZero() {
         rotatingArm.set(ControlMode.PercentOutput, 0.0);
     }
@@ -97,7 +121,7 @@ public class Arm extends SubsystemBase implements Reportable {
     public CommandBase moveArmScore() {
         return runOnce(
             () -> {
-                moveArmMotionMagic(ArmConstants.kArmScore);
+                moveArm(ArmConstants.kArmScore);
             }
         );
     }
