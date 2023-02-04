@@ -133,10 +133,6 @@ public class RobotContainer {
     // still being held
     // These button bindings are chosen for testing, and may be changed based on
     // driver preference
-    // driverController.square().whileTrue(arm.armExtend());
-    // driverController.triangle().whileTrue(arm.armStow());
-    // driverController.circle().onTrue(claw.clawOpen());
-    // driverController.cross().onTrue(claw.clawClose());
     if (!IsSwerveDrive) {
       driverController.L1().whileTrue(tankDrive.shiftHigh()); // TODO: use it for swerve too? inch-drive
       driverController.R1().whileTrue(tankDrive.shiftLow());
@@ -146,44 +142,15 @@ public class RobotContainer {
     operatorController.circle().onTrue(claw.clawOpen());
     operatorController.cross().onTrue(claw.clawClose());
 
-    // operatorController.L1().onTrue(arm.moveArmScore());
-    // operatorController.R1().onTrue(arm.moveArmStow());
-
-    // driverController.circle().onTrue(coneRunner.runConeRunner());
-    // driverController.cross().onTrue(coneRunner.stopConeRunner());
-
-    // driverController.circle().onFalse(arcadeRunCommand);
-    // driverController.circle().whileTrue(visionRunCommand);
-
-    // driverController.circle().onFalse(new InstantCommand(() ->
-    // SmartDashboard.putBoolean("Vision Mode", false)));
-    // driverController.circle().whileTrue(new InstantCommand(() ->
-    // SmartDashboard.putBoolean("Vision Mode", true)));
     if (IsSwerveDrive) {
       driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
       driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
       
-      // driverController.cross().onTrue(new InstantCommand(() ->
-      // swerveJoystickCommand.setTargetAngle((swerveJoystickCommand.getTargetAngle()
-      // + 90) % 360)));
-      // driverController.cross().onTrue(new InstantCommand(() ->
-      // swerveDrive.resetOdometry(new Pose2d())));
-      // SmartDashboard.p utData("Turn to 180 degrees", new TurnToAngle(180,
-      // swerveDrive));
-      // driverController.cross().whileTrue(new SequentialCommandGroup(
-      // new TurnToAngle(swerveTargetAngle, swerveDrive),
-      // new InstantCommand(() -> swerveTargetAngle = (swerveTargetAngle + 180) %
-      // 360))
-      // );
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
       driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 2, obj))
                       .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
-
-    // driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
-
-    // driverController.R1().whileTrue(new DriveToTarget(objDetectCamera, swerveDrive, 5));
   }
 
   /** This function is called periodically during operator control. */
@@ -193,8 +160,6 @@ public class RobotContainer {
       tankDrive.drive(-driverController.getLeftY(), -driverController.getRightY());
     }
     claw.periodic();
-    // arm.moveArmJoystick(operatorController.getLeftY());
-
   }
 
   
@@ -221,7 +186,6 @@ public class RobotContainer {
       return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw);
     else
       return TankAutos.HardCarryAuto(tankDrive, claw, arm);
-    // return SwerveAutos.testAuto(swerveDrive);
   }
 
   public void autonomousInit() {
