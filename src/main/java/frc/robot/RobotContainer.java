@@ -117,7 +117,7 @@ public class RobotContainer {
   public void initDefaultCommands() {
     arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
-    if (!IsSwerveDrive) {
+    if (IsSwerveDrive) {
       swerveDrive.setDefaultCommand(
         new SwerveJoystickCommand(
           swerveDrive,
