@@ -58,17 +58,18 @@ public class Arm extends SubsystemBase implements Reportable {
     public void moveArmJoystick(double currentJoystickOutput) {
         // double armTicks = rotatingArm.getSelectedSensorPosition();
 
-        if (currentJoystickOutput >= 0.5 ) {
-            currentJoystickOutput = 0.5;
+
+        if (currentJoystickOutput >= 0.75 ) {
+            currentJoystickOutput = 0.75;
         }
 
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
-            rotatingArm.set(ControlMode.PercentOutput, 0.4);
+            rotatingArm.set(ControlMode.PercentOutput, 0.75);
             rotatingArm.setNeutralMode(NeutralMode.Coast);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
-            rotatingArm.set(ControlMode.PercentOutput, -0.4);
+            rotatingArm.set(ControlMode.PercentOutput, -0.75);
             rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
