@@ -209,7 +209,7 @@ public class SwerveModule implements Reportable{
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
         currentPercent = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
         driveMotor.set(ControlMode.PercentOutput, currentPercent);
-        
+        SmartDashboard.putNumber("Percentoutputmotor#"+driveMotorID, currentPercent);
         double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
         // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
 
