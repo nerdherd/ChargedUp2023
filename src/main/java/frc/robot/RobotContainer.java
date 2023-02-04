@@ -193,7 +193,6 @@ public class RobotContainer {
     coneRunner.reportToSmartDashboard();
     if (IsSwerveDrive) {
       swerveDrive.reportToSmartDashboard();
-      swerveDrive.reportModulesToSmartDashboard();
     } else {
       tankDrive.reportToSmartDashboard();
     }
