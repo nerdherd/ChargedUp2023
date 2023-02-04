@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PneumaticsConstants;
 
-public class AirCompressor extends SubsystemBase {
+public class AirCompressor extends SubsystemBase implements Reportable {
     private Compressor compressor;
 
     // Pressure sensor is connected to analog port on RoboRIO
@@ -20,7 +20,9 @@ public class AirCompressor extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void periodic() {}
+
+    public void reportToSmartDashboard() {
         SmartDashboard.putNumber("Air Pressure", pressureSensor.getValue());
     }
 }

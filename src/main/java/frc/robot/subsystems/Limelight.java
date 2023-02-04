@@ -8,7 +8,7 @@ import java.util.Arrays;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.NerdyMath;
 
-public class Limelight {
+public class Limelight implements Reportable{
     private static Limelight m_Instance;
 
     private NetworkTable table; // Network table to access Lime Light Values
@@ -357,7 +357,7 @@ public class Limelight {
     /**
      * Output diagnostics
      */
-    public void outputTelemetry() {
+    public void reportToSmartDashboard() {
         SmartDashboard.putBoolean("HasTarget", hasValidTarget());
         SmartDashboard.putNumber("Horizontal Offset", getXAngle());
         SmartDashboard.putNumber("Vertical Offset", getYAngle());

@@ -28,7 +28,7 @@ import frc.robot.RobotContainer;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriveConstants;
  
-public class TankDrivetrain extends SubsystemBase{
+public class TankDrivetrain extends SubsystemBase implements Reportable{
     private TalonFX rightMaster;
     private TalonFX leftMaster;
     private TalonFX rightFollower;
@@ -160,30 +160,19 @@ public class TankDrivetrain extends SubsystemBase{
     public void setPower(double power) {
         leftMaster.set(ControlMode.PercentOutput, power);
         rightMaster.set(ControlMode.PercentOutput, power);
+
         SmartDashboard.putNumber("Left Power", power);
         SmartDashboard.putNumber("Right Power", power);
-
-        SmartDashboard.putNumber("Left Master Current", leftMaster.getStatorCurrent());
-        SmartDashboard.putNumber("Left Follower Current", leftFollower.getStatorCurrent());
-        SmartDashboard.putNumber("Right Master Current", rightMaster.getStatorCurrent());
-        SmartDashboard.putNumber("Right Follower Current", rightFollower.getStatorCurrent());
-        SmartDashboard.putNumber("Right Master Current Input", rightMaster.getSupplyCurrent());
-        SmartDashboard.putNumber("Right Follower Current Input", rightFollower.getSupplyCurrent());
-        
+        reportCurrent();
     }
 
     public void setPower(double leftPower, double rightPower) {
         leftMaster.set(ControlMode.PercentOutput, leftPower);
         rightMaster.set(ControlMode.PercentOutput, rightPower);
+
         SmartDashboard.putNumber("Left Power", leftPower);
         SmartDashboard.putNumber("Right Power", rightPower);
-
-        SmartDashboard.putNumber("Left Master Current", leftMaster.getStatorCurrent());
-        SmartDashboard.putNumber("Left Follower Current", leftFollower.getStatorCurrent());
-        SmartDashboard.putNumber("Right Master Current", rightMaster.getStatorCurrent());
-        SmartDashboard.putNumber("Right Follower Current", rightFollower.getStatorCurrent());
-        SmartDashboard.putNumber("Right Master Current Input", rightMaster.getSupplyCurrent());
-        SmartDashboard.putNumber("Right Follower Current Input", rightFollower.getSupplyCurrent());
+        reportCurrent();
         // leftMotors.setVoltage(leftPower);
         // rightMotors.setVoltage(rightPower);
     }
@@ -261,7 +250,20 @@ public class TankDrivetrain extends SubsystemBase{
     //     return forwardSpeed;
     // }
     
-    public void reportToSmartDashboard() {  
+    public void reportCurrent() {
+        SmartDashboard.putNumber("Left Master Current", leftMaster.getStatorCurrent());
+        SmartDashboard.putNumber("Left Follower Current", leftFollower.getStatorCurrent());
+        SmartDashboard.putNumber("Right Master Current", rightMaster.getStatorCurrent());
+        SmartDashboard.putNumber("Right Follower Current", rightFollower.getStatorCurrent());
+        SmartDashboard.putNumber("Right Master Current Input", rightMaster.getSupplyCurrent());
+        SmartDashboard.putNumber("Right Follower Current Input", rightFollower.getSupplyCurrent());
+    }
+
+    public void reportToSmartDashboard() {
+        reportCurrent();
+    }
+    
+    public void initShuffleboard() {  
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
         ShuffleboardLayout power =

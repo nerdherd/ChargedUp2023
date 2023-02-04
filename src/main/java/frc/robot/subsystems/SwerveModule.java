@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static frc.robot.Constants.*;
 
-public class SwerveModule {
+public class SwerveModule implements Reportable{
     private final TalonFX driveMotor;
     private final TalonFX turnMotor;
 
@@ -27,6 +27,10 @@ public class SwerveModule {
     private final TalonSRX absoluteTurningEncoder;
     private final boolean invertTurningEncoder;
     private final double absoluteEncoderOffset;
+
+    private double currentAngle = 0;
+    private double desiredAngle = 0;
+    private double currentPercent = 0;
 
     /**
      * Constuct a new Swerve Module
@@ -198,22 +202,28 @@ public class SwerveModule {
         }
         // state.angle = state.angle.rotateBy(Rotation2d.fromDegrees(-90));
         state = SwerveModuleState.optimize(state, getState().angle);
+
+        desiredAngle = state.angle.getDegrees();
         
         // TODO: switch to velocity control
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
-        double percentOutput = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        driveMotor.set(ControlMode.PercentOutput, percentOutput);
+        currentPercent = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        driveMotor.set(ControlMode.PercentOutput, currentPercent);
         
         double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
         // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
 
         turnMotor.set(ControlMode.PercentOutput, turnPower);
+    }
 
-        SmartDashboard.putNumber("Target velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
-        SmartDashboard.putNumber("Motor percent #" + turnMotorID, percentOutput);
-        SmartDashboard.putNumber("Turn angle #" + turnMotorID, Math.toDegrees(getTurningPosition()));
-        SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, state.angle.getDegrees());
-        SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, state.angle.getDegrees() - (getTurningPosition() * 180 / Math.PI));
+    public void reportToSmartDashboard() {
+        currentAngle = Math.toDegrees(Math.toDegrees(getTurningPosition()));
+
+        SmartDashboard.putNumber("Module velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Turn percent #" + turnMotorID, currentPercent);
+        SmartDashboard.putNumber("Turn angle #" + turnMotorID, currentAngle);
+        SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, desiredAngle);
+        SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, desiredAngle - currentAngle);
         SmartDashboard.putNumber("Current Motor #" + turnMotorID, driveMotor.getStatorCurrent());
     }
 

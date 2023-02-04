@@ -15,8 +15,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // TODO: Wrap crucial ahrs methods so that functionality is swappable between the NavX and Pigeon IMU
 
-public class Imu extends SubsystemBase {
+public class Imu extends SubsystemBase implements Reportable {
     public AHRS ahrs;
+    private int numResets = 0;
     
     /**
      * Attempt to instantiate a new NavX IMU.
@@ -24,6 +25,8 @@ public class Imu extends SubsystemBase {
      * If an exception is thrown, it is caught and reported to the drivetrain.
      */
     public Imu() {
+        this.numResets = 0;
+        
         try { 
             // SPI is the protocol on the MXP connector that 
             // the NavX is plugged into
@@ -38,7 +41,8 @@ public class Imu extends SubsystemBase {
      */
     public void zeroHeading() {
         ahrs.reset();
-        SmartDashboard.putNumber("Gyro resets", SmartDashboard.getNumber("Gyro resets", 0)+1);
+        numResets += 1;
+        SmartDashboard.putNumber("Gyro resets", numResets);
     }
 
     /**

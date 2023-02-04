@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.PneumaticsConstants;
 
-public class Claw extends SubsystemBase {
+public class Claw extends SubsystemBase implements Reportable {
     public DoubleSolenoid clawPiston;
     public boolean clawOpen;
 
@@ -71,5 +71,9 @@ public class Claw extends SubsystemBase {
      */
     public boolean isClawOpen() {
         return clawOpen;
+    }
+
+    public void reportToSmartDashboard() {
+
     }
 }

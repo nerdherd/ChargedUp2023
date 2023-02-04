@@ -13,13 +13,14 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.PneumaticsConstants;
 
-public class Arm extends SubsystemBase {
+public class Arm extends SubsystemBase implements Reportable {
     private DoubleSolenoid arm;
     private TalonFX rotatingArm;
     private boolean armExtended = false;
@@ -127,6 +128,12 @@ public class Arm extends SubsystemBase {
         tab.addBoolean("Arm Extended", () -> armExtended);
         tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
         tab.addNumber("Target Arm Ticks", () -> targetTicks);
+    }
+
+    public void reportToSmartDashboard() {
+        SmartDashboard.putBoolean("Arm Extended", armExtended);
+        SmartDashboard.putNumber("Current Arm Ticks", rotatingArm.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Target Arm Ticks", targetTicks);
     }
 }
 

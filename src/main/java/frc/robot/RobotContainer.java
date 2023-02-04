@@ -162,7 +162,7 @@ public class RobotContainer {
   
   public void initShuffleboard() {
     if (!IsSwerveDrive) {
-      tankDrive.reportToSmartDashboard();
+      tankDrive.initShuffleboard();
     }
     // autoChooser = new SendableChooser<CommandBase>();
     // autoChooser.setDefaultOption("Hard Carry Auto",
@@ -170,6 +170,20 @@ public class RobotContainer {
     
     // autoChooser.addOption("Diet Coke Auto",
     // TankAutos.DietCokeAuto(drive, claw, arm));
+  }
+
+  public void reportAllToSmartDashboard() {
+    imu.reportToSmartDashboard();
+    claw.reportToSmartDashboard();
+    arm.reportToSmartDashboard();
+    objDetectCamera.reportToSmartDashboard();
+    coneRunner.reportToSmartDashboard();
+    if (IsSwerveDrive) {
+      swerveDrive.reportToSmartDashboard();
+    } else {
+      tankDrive.reportToSmartDashboard();
+    }
+    airCompressor.reportToSmartDashboard();
   }
   
   /**
@@ -190,6 +204,10 @@ public class RobotContainer {
       tankDrive.resetEncoders();
       // drive.setEncoder(drive.meterToTicks(0.381));
       imu.zeroHeading();
+    }
+
+    if (IsSwerveDrive) {
+      swerveDrive.resetEncoders();
     }
   }
 }

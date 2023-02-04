@@ -17,7 +17,7 @@ import frc.robot.Constants.SwerveDriveConstants;
 
 import static frc.robot.Constants.SwerveDriveConstants.*;
 
-public class SwerveDrivetrain extends SubsystemBase {
+public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     private final SwerveModule backLeft = new SwerveModule(
             kFrontLeftDriveMotorPort,
             kFrontLeftTurningMotorPort,
@@ -57,28 +57,20 @@ public class SwerveDrivetrain extends SubsystemBase {
     private final Imu gyro;
     private final SwerveDriveOdometry odometer;
 
+    private int numEncoderResets = 0;
+
     /**
-     * Construct a new {@link SwerveDriveTrain}
+     * Construct a new {@link SwerveDrivetrain}
      */
     public SwerveDrivetrain(Imu gyro) {
-        SmartDashboard.putNumber("Gyro resets", 0);
+        numEncoderResets = 0;
         SmartDashboard.putNumber("Encoder resets", 0);
 
         this.gyro = gyro;
         this.odometer = new SwerveDriveOdometry(
             kDriveKinematics, 
             new Rotation2d(0), 
-            getModulePositions());
-        new Thread(() -> {  //TODO: move it to robot init?
-            try {
-                resetEncoders();
-                Thread.sleep(1000);
-                // zeroHeading();
-                SmartDashboard.putBoolean("Startup failed", false);
-            } catch (InterruptedException e) {
-                SmartDashboard.putBoolean("Startup failed", true);
-            }
-        }).run();
+            getModulePositions());   
     }
 
     /**
@@ -89,8 +81,6 @@ public class SwerveDrivetrain extends SubsystemBase {
         reportToSmartDashboard();
         // SwerveModulePosition[] modules = getModulePositions();
         odometer.update(gyro.getRotation2d(), getModulePositions());
-        SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
-        SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
     }
     
     //****************************** RESETTERS ******************************/
@@ -109,7 +99,9 @@ public class SwerveDrivetrain extends SubsystemBase {
      * See {@link SwerveModule#resetEncoder() resetEncoder} for more details.
      */
     public void resetEncoders() {
-        SmartDashboard.putNumber("Encoder resets", SmartDashboard.getNumber("Encoder resets", 0)+1);
+        numEncoderResets += 1;
+        SmartDashboard.putNumber("Encoder resets", numEncoderResets);
+        // SmartDashboard.putNumber("Encoder resets", SmartDashboard.getNumber("Encoder resets", 0)+1);
         backLeft.resetEncoder();
         frontLeft.resetEncoder();
         backRight.resetEncoder();
@@ -209,8 +201,14 @@ public class SwerveDrivetrain extends SubsystemBase {
      * Report values to smartdashboard.
      */
     public void reportToSmartDashboard() {
-        // SmartDashboard.putNumber("xpos", getPose().getX());
-        // SmartDashboard.putNumber("ypos", getPose().getY());
-        SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+        SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
+        SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
+    }
+
+    public void reportModulesToSmartDashboard() {
+        frontLeft.reportToSmartDashboard();
+        frontRight.reportToSmartDashboard();
+        backLeft.reportToSmartDashboard();
+        backRight.reportToSmartDashboard();
     }
 }

@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Vision extends SubsystemBase{
+public class Vision extends SubsystemBase implements Reportable{
     private PhotonCamera photonCamera = null; // protect proton camera
     private PhotonTrackedTarget photonTrackedTarget;
 
@@ -34,7 +34,7 @@ public class Vision extends SubsystemBase{
 
         if (limelightHasTargets) { 
             photonTrackedTarget = result.getBestTarget();
-            logToSmartDashboard();
+            reportToSmartDashboard();
         } 
     }
 
@@ -54,7 +54,7 @@ public class Vision extends SubsystemBase{
         return photonTrackedTarget.getArea();
     }
 
-    private void logToSmartDashboard() {
+    public void reportToSmartDashboard() {
         SmartDashboard.putNumber("Yaw", getYaw());
         SmartDashboard.putNumber("ID", getFiducialId());
         SmartDashboard.putNumber("Pitch", getPitch());
