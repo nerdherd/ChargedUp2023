@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.initShuffleboard();
 	
-    DataLogManager.start("/lvuser/logs/");
+    DataLogManager.start("/home/lvuser/logs/");
     DataLogManager.logNetworkTables(true);
   }
 
@@ -61,6 +61,8 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     CommandScheduler.getInstance().cancelAll();
+    DataLogManager.getLog().flush();
+    DataLogManager.getLog().close();
   }
 
   @Override
