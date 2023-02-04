@@ -54,17 +54,17 @@ public class SwerveDrivetrain extends SubsystemBase {
             kBackRightDriveAbsoluteEncoderOffsetRad,
             kBackRightDriveAbsoluteEncoderReversed);
 
-    private final AHRS gyro;
+    private final Imu gyro;
     private final SwerveDriveOdometry odometer;
 
     /**
      * Construct a new {@link SwerveDriveTrain}
      */
-    public SwerveDrivetrain(AHRS ahrs) {
+    public SwerveDrivetrain(Imu gyro) {
         SmartDashboard.putNumber("Gyro resets", 0);
         SmartDashboard.putNumber("Encoder resets", 0);
 
-        this.gyro = ahrs;
+        this.gyro = gyro;
         this.odometer = new SwerveDriveOdometry(
             kDriveKinematics, 
             new Rotation2d(0), 
@@ -81,10 +81,6 @@ public class SwerveDrivetrain extends SubsystemBase {
         }).run();
     }
 
-    public SwerveDrivetrain() { // TODO: remove it?
-        this(new AHRS(SPI.Port.kMXP));
-    }
-
     /**
      * Periodically update the odometry based on the state of each module
      */
@@ -92,28 +88,20 @@ public class SwerveDrivetrain extends SubsystemBase {
     public void periodic() {
         reportToSmartDashboard();
         // SwerveModulePosition[] modules = getModulePositions();
-        odometer.update(getRotation2d(), getModulePositions());
+        odometer.update(gyro.getRotation2d(), getModulePositions());
         SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
         SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
     }
     
     //****************************** RESETTERS ******************************/
 
-    /**
-     * Set the current gyro direction to north
-     */
-    public void zeroHeading() {
-        gyro.reset();
-        //gyro.zeroYaw(); TODO: better to use this?
-        SmartDashboard.putNumber("Gyro resets", SmartDashboard.getNumber("Gyro resets", 0)+1);
-    }
 
     /**
      * Resets the odometry to given pose 
      * @param pose  A Pose2D representing the pose of the robot
      */
     public void resetOdometry(Pose2d pose) {
-        odometer.resetPosition(getRotation2d(), getModulePositions(), pose);
+        odometer.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
     }
 
     /**
@@ -140,38 +128,8 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     //****************************** GETTERS ******************************/
 
-    /**
-     * Gets angle robot is facing
-     * @return Angle of the robot (degrees)
-     */
-    public double getHeading() {
-        double heading = Math.IEEEremainder(gyro.getAngle(), 360);
-        SmartDashboard.putNumber("Heading degrees", heading);
-        return heading;
-    }
-
-    /**
-     * Gets a rotation2d representing rotation of the drivetrain
-     * @return A rotation2d representing rotation of the drivetrain
-     */
-    public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
-    }
-
-    public Rotation3d getRotation3d() {
-        return new Rotation3d(
-            gyro.getRoll() * Math.PI / 180, 
-            gyro.getPitch()* Math.PI / 180, 
-            gyro.getYaw() * Math.PI / 180) ;
-    }
-
-    public Rotation3d getRotation3dRaw() {
-        
-        return new Rotation3d(
-            Math.toRadians(gyro.getRawGyroX()),
-            Math.toRadians(gyro.getRawGyroY()),
-            Math.toRadians(gyro.getRawGyroZ())
-        );
+    public Imu getImu() {
+        return this.gyro;
     }
 
     /**
@@ -212,7 +170,7 @@ public class SwerveDrivetrain extends SubsystemBase {
     public void driveFieldOriented(double xSpeed, double ySpeed, double turnSpeed) {
         setModuleStates(
             SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turnSpeed, getRotation2d())
+                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turnSpeed, gyro.getRotation2d())
             )
         );
     }
@@ -253,7 +211,6 @@ public class SwerveDrivetrain extends SubsystemBase {
     public void reportToSmartDashboard() {
         // SmartDashboard.putNumber("xpos", getPose().getX());
         // SmartDashboard.putNumber("ypos", getPose().getY());
-        SmartDashboard.putNumber("Robot Heading", getHeading());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
     }
 }

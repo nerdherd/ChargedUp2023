@@ -47,17 +47,14 @@ public class RobotContainer {
 
   public static Arm arm = new Arm();
   public static Claw claw = new Claw();
-  public static Imu imu = new Imu();// AHRS(SPI.Port.kMXP);
-  // public static Vision vision = new Vision();
+  public static Imu imu = new Imu();
   public static Limelight objDetectCamera = new Limelight();
   public static ConeRunner coneRunner = new ConeRunner();
-  // public static Drivetrain drive;
   public static final boolean IsSwerveDrive = true;
-  public static TankDrivetrain tankDrive;// = new TankDrivetrain(vision);
+  public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
 
-  // public static Drivetrain drive = new Drivetrain(vision);
   private pipeline obj = pipeline.ATAG;
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
@@ -91,7 +88,7 @@ public class RobotContainer {
   public RobotContainer() {
 
     if (IsSwerveDrive) {
-      swerveDrive = new SwerveDrivetrain(imu.ahrs);
+      swerveDrive = new SwerveDrivetrain(imu);
 
       swerveCommand = new RepeatCommand(
           new SequentialCommandGroup(
@@ -143,7 +140,7 @@ public class RobotContainer {
     operatorController.cross().onTrue(claw.clawClose());
 
     if (IsSwerveDrive) {
-      driverController.circle().onTrue(new InstantCommand(swerveDrive::zeroHeading));
+      driverController.circle().onTrue(new InstantCommand(imu::zeroHeading));
       driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
       
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
@@ -192,7 +189,7 @@ public class RobotContainer {
     if (!IsSwerveDrive) { // TODO: Move resets to robot init? 
       tankDrive.resetEncoders();
       // drive.setEncoder(drive.meterToTicks(0.381));
-      tankDrive.zeroHeading();
+      imu.zeroHeading();
     }
   }
 }

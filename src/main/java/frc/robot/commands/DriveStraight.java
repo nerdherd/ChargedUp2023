@@ -60,72 +60,69 @@ public class DriveStraight extends CommandBase {
     SmartDashboard.putNumber("Ticks To Go", ticks2Go);
     SmartDashboard.putNumber("Current Ticks", currentTicks);
     
-
-
-        if (distanceMeter >= 0) {
-          double position = drive.getTicks();
-          if (position >= ticks2SlowDown) {
-              drivePower = 0.15; // cut power prepare to stop
-          }
-          if (position >= ticks2Go) { // reached desired encoder position
-              if (continueMove) {
-                  drive.setPower(0.1,0.1);
-              } 
-              else {
-                  drive.setPower(0, 0);
-              }
-              SmartDashboard.putString("Finished", "Yes");
-              finished = true;
-
-          } 
-          else { // move straight
-              // drivePower = forwardControllerImu.calculate(currentMeters, distanceMeter);
-              SmartDashboard.putNumber("Drive Power", drivePower);
-              double rotateToAngleRate = turnControllerImu.calculate(drive.getHeading(), heading); // calc error correction
-              //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
-              //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
-              double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
-              double tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
-              drive.setPower(tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
-              SmartDashboard.putNumber("Tank Drive Left Speed", tankDriveLeftSpeed);
-              SmartDashboard.putNumber("Tank Drive Right Speed", tankDriveRightSpeed);
-              
-              SmartDashboard.putString("Finished", "No");
-              finished = false;
-          } 
-        } else {
-          drivePower = -0.3;
-          double position = drive.getTicks();
-          if (position <= ticks2SlowDown)
-              drivePower = -0.15; // cut power prepare to stop
-
-          if (position <= ticks2Go) { // reached desired encoder position
-              if (continueMove) {
-                  drive.setPower(-0.1,-0.1);
-              } 
-              else {
-                  drive.setPower(0, 0);
-              }
-              
-              SmartDashboard.putString("Finished Back", "Yes");
-              finished = true;
-          } 
-          else { // move straight
-              // drivePower = forwardControllerImu.calculate(currentMeters, distanceMeter);
-              double rotateToAngleRate = turnControllerImu.calculate(drive.getHeading(), heading); // calc error correction
-              //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
-              //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
-              double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
-              double tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
-              drive.setPower(tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
-              SmartDashboard.putNumber("Tank Drive Left Speed", tankDriveLeftSpeed);
-              SmartDashboard.putNumber("Tank Drive Right Speed", tankDriveRightSpeed);
-              
-              
-              SmartDashboard.putString("Finished Back", "No");
-              finished = false;
-          }
+    if (distanceMeter >= 0) {
+      double position = drive.getTicks();
+      if (position >= ticks2SlowDown) {
+        drivePower = 0.15; // cut power prepare to stop
+      }
+      if (position >= ticks2Go) { // reached desired encoder position
+        if (continueMove) {
+            drive.setPower(0.1,0.1);
+        } 
+        else {
+            drive.setPower(0, 0);
         }
+        SmartDashboard.putString("Finished", "Yes");
+        finished = true;
+      } 
+      else { // move straight
+        // drivePower = forwardControllerImu.calculate(currentMeters, distanceMeter);
+        SmartDashboard.putNumber("Drive Power", drivePower);
+        double rotateToAngleRate = turnControllerImu.calculate(drive.getImu().getHeading(), heading); // calc error correction
+        //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
+        //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
+        double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
+        double tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
+        drive.setPower(tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
+        SmartDashboard.putNumber("Tank Drive Left Speed", tankDriveLeftSpeed);
+        SmartDashboard.putNumber("Tank Drive Right Speed", tankDriveRightSpeed);
+        
+        SmartDashboard.putString("Finished", "No");
+        finished = false;
+      } 
+    } else {
+      drivePower = -0.3;
+      double position = drive.getTicks();
+      if (position <= ticks2SlowDown)
+        drivePower = -0.15; // cut power prepare to stop
+
+      if (position <= ticks2Go) { // reached desired encoder position
+        if (continueMove) {
+            drive.setPower(-0.1,-0.1);
+        } 
+        else {
+            drive.setPower(0, 0);
+        }
+        
+        SmartDashboard.putString("Finished Back", "Yes");
+        finished = true;
+      } 
+      else { // move straight
+        // drivePower = forwardControllerImu.calculate(currentMeters, distanceMeter);
+        double rotateToAngleRate = turnControllerImu.calculate(drive.getImu().getHeading(), heading); // calc error correction
+        //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
+        //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
+        double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
+        double tankDriveRightSpeed = NerdyMath.clamp((drivePower - rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
+        drive.setPower(tankDriveLeftSpeed*1.5, tankDriveRightSpeed*1.5);
+        SmartDashboard.putNumber("Tank Drive Left Speed", tankDriveLeftSpeed);
+        SmartDashboard.putNumber("Tank Drive Right Speed", tankDriveRightSpeed);
+        
+        
+        SmartDashboard.putString("Finished Back", "No");
+        finished = false;
+      }
+    }
   }
 
   // Called once the command ends or is interrupted.

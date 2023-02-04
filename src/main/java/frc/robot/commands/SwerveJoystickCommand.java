@@ -149,7 +149,7 @@ public class SwerveJoystickCommand extends CommandBase {
         if (!fieldOrientedFunction.get()) {
             SmartDashboard.putString("Mode", "Field Oriented");
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                xSpeed, ySpeed, turningSpeed, swerveDrive.getRotation2d());
+                xSpeed, ySpeed, turningSpeed, swerveDrive.getImu().getRotation2d());
         } else {
             SmartDashboard.putString("Mode", "Robot Oriented");
             chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);

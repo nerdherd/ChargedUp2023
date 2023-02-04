@@ -51,7 +51,7 @@ public class SwerveDriveBy extends CommandBase {
 
         ChassisSpeeds chassisSpeeds = 
             ChassisSpeeds.fromFieldRelativeSpeeds(
-                xSpeed, ySpeed, thetaSpeed, swerveDrive.getRotation2d());
+                xSpeed, ySpeed, thetaSpeed, swerveDrive.getImu().getRotation2d());
         
         SwerveModuleState[] swerveModuleStates = 
             SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);

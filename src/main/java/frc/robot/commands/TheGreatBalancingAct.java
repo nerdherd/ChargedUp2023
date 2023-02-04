@@ -72,7 +72,7 @@ public class TheGreatBalancingAct extends CommandBase {
      */
     @Override
     public void execute() {
-        Rotation3d currentRotation = swerveDrive.getRotation3d();
+        Rotation3d currentRotation = swerveDrive.getImu().getRotation3d();
 
         // Calculate turning speed with PID
         double xSpeed = -7.5 * pitchPidController.calculate(

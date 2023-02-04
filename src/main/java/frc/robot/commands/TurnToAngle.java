@@ -56,7 +56,7 @@ public class TurnToAngle extends CommandBase {
     @Override
     public void execute() {
         // Calculate turning speed with PID
-        double turningSpeed = pidController.calculate(swerveDrive.getHeading(), targetAngle);
+        double turningSpeed = pidController.calculate(swerveDrive.getImu().getHeading(), targetAngle);
         turningSpeed = Math.toRadians(turningSpeed);
 
         SmartDashboard.putNumber("Turning speed", turningSpeed);
@@ -69,7 +69,7 @@ public class TurnToAngle extends CommandBase {
         
         // Convert speed into swerve states
         ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                0, 0, turningSpeed, swerveDrive.getRotation2d());
+                0, 0, turningSpeed, swerveDrive.getImu().getRotation2d());
         SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         
         // Set swerve states
@@ -83,7 +83,7 @@ public class TurnToAngle extends CommandBase {
 
     public ChassisSpeeds getChassisSpeeds() {
         // Calculate turning speed with PID
-        double turningSpeed = pidController.calculate(swerveDrive.getHeading(), targetAngle);
+        double turningSpeed = pidController.calculate(swerveDrive.getImu().getHeading(), targetAngle);
         turningSpeed = Math.toRadians(turningSpeed);
         SmartDashboard.putNumber("Turning speed", turningSpeed);
         turningSpeed = NerdyMath.clamp(
@@ -96,6 +96,6 @@ public class TurnToAngle extends CommandBase {
 
         // Convert speed into swerve states
         return ChassisSpeeds.fromFieldRelativeSpeeds(
-                0, 0, turningSpeed, swerveDrive.getRotation2d());
+                0, 0, turningSpeed, swerveDrive.getImu().getRotation2d());
     }
 }

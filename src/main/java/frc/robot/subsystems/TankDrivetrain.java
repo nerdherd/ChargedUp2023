@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import java.util.HashMap;
 
-import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -12,7 +11,6 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -29,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
  
 public class TankDrivetrain extends SubsystemBase{
     private TalonFX rightMaster;
@@ -45,12 +42,13 @@ public class TankDrivetrain extends SubsystemBase{
     private Vision vision;
     private PIDController turnController = new PIDController(DriveConstants.kAngularP, 0, DriveConstants.kAngularD);
     private PIDController forwardController = new PIDController(DriveConstants.kLinearP, 0, DriveConstants.kLinearD);
-    private AHRS ahrs;//; = new AHRS();
+    // private AHRS ahrs;//; = new AHRS();
+    private Imu imu;
     private DoubleSolenoid shifter;
 
-    public TankDrivetrain() {
-        ahrs = RobotContainer.imu.ahrs;
-        
+    public TankDrivetrain(Imu imu) {
+        this.imu = imu;
+
         shifter = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
             DriveConstants.kPistonForwardID, DriveConstants.kPistonReverseID);
 
@@ -94,9 +92,9 @@ public class TankDrivetrain extends SubsystemBase{
         // this.vision = vision;
     }
 
-
-    
-   
+    public TankDrivetrain() {
+        this(RobotContainer.imu);
+    }
  
     public void drive(double leftInput, double rightInput) {
         double prevLeftOutput = leftMaster.getMotorOutputPercent();
@@ -129,6 +127,10 @@ public class TankDrivetrain extends SubsystemBase{
             rightOutput = 0.6;
         }
         setPower(leftOutput, rightOutput);
+    }
+
+    public Imu getImu() {
+        return this.imu;
     }
 
     boolean shiftedHigh;
@@ -258,26 +260,7 @@ public class TankDrivetrain extends SubsystemBase{
     //     SmartDashboard.putNumber("ForwardSpeed", forwardSpeed);
     //     return forwardSpeed;
     // }
-
-    public double getHeading() {
-        return ahrs.getYaw();
-    }
-
-    public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
-    }
-
-    public Rotation3d getRotation3d() {
-        return new Rotation3d(
-            ahrs.getRoll() * Math.PI / 180, 
-            ahrs.getPitch()* Math.PI / 180, 
-            ahrs.getYaw() * Math.PI / 180) ;
-    }
-
-    public void zeroHeading() {
-        ahrs.reset();
-    }
-
+    
     public void reportToSmartDashboard() {  
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 

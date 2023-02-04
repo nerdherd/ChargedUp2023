@@ -40,7 +40,7 @@ public class TheGreatBalancingTank extends CommandBase {
 
     @Override
     public void execute() {
-        Rotation3d currentRotation = tankDrive.getRotation3d();
+        Rotation3d currentRotation = tankDrive.getImu().getRotation3d();
 
         // Calculate turning speed with PID
         double xSpeed = pitchPidController.calculate(
