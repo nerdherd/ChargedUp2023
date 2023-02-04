@@ -115,7 +115,12 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
-    arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
+    arm.setDefaultCommand(
+      new RunCommand(
+        () -> arm.moveArmJoystick(operatorController.getLeftY()), 
+        arm
+      ));
+    // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
     if (IsSwerveDrive) {
       swerveDrive.setDefaultCommand(
@@ -125,6 +130,7 @@ public class RobotContainer {
           driverController::getLeftX,
           // () -> 0.0,
           driverController::getRightY,
+          // () -> true,
           driverControllerButtons::getSquareButton,
           () -> false,
           // driverControllerButtons::getTriangleButton,
@@ -158,12 +164,12 @@ public class RobotContainer {
 
     if (IsSwerveDrive) {
       driverController.circle().onTrue(new InstantCommand(imu::zeroHeading));
-      driverController.square().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+      driverController.cross().onTrue(new InstantCommand(swerveDrive::resetEncoders));
       
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
-      driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 2, obj))
-                      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 2, obj))
+      //                 .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
   }
   
@@ -213,8 +219,8 @@ public class RobotContainer {
       imu.zeroHeading();
     }
 
-    if (IsSwerveDrive) {
-      swerveDrive.resetEncoders();
-    }
+    // if (IsSwerveDrive) {
+    //   swerveDrive.resetEncoders();
+    // }
   }
 }

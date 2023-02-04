@@ -65,7 +65,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     public SwerveDrivetrain(Imu gyro) {
         numEncoderResets = 0;
         SmartDashboard.putNumber("Encoder resets", 0);
-
+        resetEncoders();
         this.gyro = gyro;
         this.odometer = new SwerveDriveOdometry(
             kDriveKinematics, 

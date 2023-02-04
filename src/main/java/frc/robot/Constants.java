@@ -181,10 +181,15 @@ public final class Constants {
     public static final boolean kBLAbsoluteReversed = false;       
     public static final boolean kBRAbsoluteReversed = false;      
 
-    public static final double kFRAbsoluteOffsetTicks = 2048;       
-    public static final double kFLAbsoluteOffsetTicks = 237;         
-    public static final double kBLAbsouteOffsetTicks = 2794;          
-    public static final double kBRAbsoluteOffsetTicks = 2354;
+    // public static final double kFRAbsoluteOffsetTicks = 4411;       
+    // public static final double kFLAbsoluteOffsetTicks = 3782;         
+    // public static final double kBLAbsouteOffsetTicks = 3042;          
+    // public static final double kBRAbsoluteOffsetTicks = 2364;
+
+    public static final double kFRAbsoluteOffsetTicks = 2794 + 1024;       
+    public static final double kFLAbsoluteOffsetTicks = 2354 + 1024 + 52;         
+    public static final double kBLAbsouteOffsetTicks = 2048 + 1024 + 46;          
+    public static final double kBRAbsoluteOffsetTicks = 237 + 1024 + 25;
 
     public static final double kPhysicalMaxSpeedMetersPerSecond = 5;    
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
