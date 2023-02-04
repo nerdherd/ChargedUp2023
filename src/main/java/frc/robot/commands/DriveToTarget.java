@@ -47,9 +47,9 @@ public class DriveToTarget extends CommandBase{
         }
         
         pidX = new PIDController(BananaConstants.kPIDControllerP, 0, BananaConstants.kPIDControllerD);
-        pidX.setTolerance(0.5);
+        pidX.setTolerance(0.2);
         pidY = new PIDController(BananaConstants.kPIDControllerP, 0, BananaConstants.kPIDControllerD);
-        pidY.setTolerance(0.5);
+        pidY.setTolerance(0.2);
 
         addRequirements(drivetrain);
     }
@@ -63,7 +63,7 @@ public class DriveToTarget extends CommandBase{
         // double range = 0.628 - 1.71*Math.log(limelight.getArea());
         double objArea = limelight.getArea();
         double ySpeed = -pidX.calculate(limelight.getXAngle(), 0);   // SOMEBODY SWAP THE PIDX and Y NAMES
-        double xSpeed = -pidY.calculate(objArea, goalArea);
+        double xSpeed = pidY.calculate(objArea, goalArea);
 
         ChassisSpeeds chassisSpeeds;
 
@@ -78,7 +78,7 @@ public class DriveToTarget extends CommandBase{
         SmartDashboard.putBoolean("Setpoint reached y", pidY.atSetpoint());
         chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
         SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-        drivetrain.setModuleStates(moduleStates);
+        // drivetrain.setModuleStates(moduleStates);
     }
 
     @Override
