@@ -44,8 +44,8 @@ public class SwerveJoystickCommand extends CommandBase {
         this.fieldOrientedFunction = fieldOrientedFunction;
         this.towSupplier = towSupplier;
         this.turnToAngleSupplier = turnToAngle;
-        this.xLimiter = new SlewRateLimiter(kTeleMaxAcceleration, kTeleMaxDeceleration, 0);
-        this.yLimiter = new SlewRateLimiter(kTeleMaxAcceleration, kTeleMaxDeceleration, 0);
+        this.xLimiter = new SlewRateLimiter(kTeleDriveMaxAccelerationUnitsPerSecond);
+        this.yLimiter = new SlewRateLimiter(kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(kTeleDriveMaxAngularAccelerationUnitsPerSecond);
         addRequirements(swerveDrive);
 
