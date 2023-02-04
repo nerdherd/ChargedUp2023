@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -16,6 +18,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.PneumaticsConstants;
@@ -68,6 +71,11 @@ public class Arm extends SubsystemBase implements Reportable {
 
     }
 
+    public CommandBase moveArmJoystickCommand(Supplier<Double> joystickInput) {
+        return Commands.run(
+            () -> moveArmJoystickCommand(joystickInput), this);
+    }
+
     public void moveArmMotionMagic(int position) {
         // config tuning params in slot 0
         rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, Math.cos(position)*ArmConstants.kArbitraryFF);
@@ -92,7 +100,6 @@ public class Arm extends SubsystemBase implements Reportable {
                 moveArmMotionMagic(ArmConstants.kArmScore);
             }
         );
-
     }
 
     public CommandBase moveArmStow() {

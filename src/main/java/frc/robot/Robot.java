@@ -92,13 +92,14 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
+    m_robotContainer.initDefaultCommands();
+
     // m_robotContainer.swerveCommand.schedule();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    m_robotContainer.configurePeriodic();
   }
 
   @Override

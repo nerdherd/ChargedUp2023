@@ -95,16 +95,6 @@ public class RobotContainer {
               new WaitCommand(5),
               new InstantCommand(swerveDrive::resetEncoders)));
 
-      swerveJoystickCommand = new SwerveJoystickCommand(swerveDrive,
-          () -> -driverController.getLeftY(),
-          driverController::getLeftX,
-          // () -> 0.0,
-          driverController::getRightY,
-          driverControllerButtons::getSquareButton,
-          () -> false,
-          // driverControllerButtons::getTriangleButton,
-          driverControllerButtons::getCrossButton);
-
       autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
@@ -112,17 +102,44 @@ public class RobotContainer {
       SmartDashboard.putData(autoChooser);
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
-      swerveDrive.setDefaultCommand(swerveJoystickCommand); // TODO: need to confirm it's not conflict with auto command
     } else {
       tankDrive = new TankDrivetrain();
-      arcadeRunCommand = new RunCommand(
-          () -> tankDrive.drive(driverController.getLeftY(), driverController.getRightY()), tankDrive);
 
       // visionRunCommand = new RunCommand(
       //     () -> tankDrive.arcadeDrive(tankDrive.getApriltagLinear(), tankDrive.getApriltagRotation()), tankDrive);
     }
+
+
     // Configure the trigger bindings
     configureBindings();
+  }
+
+  public void initDefaultCommands() {
+    arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
+
+    if (!IsSwerveDrive) {
+      swerveDrive.setDefaultCommand(
+        new SwerveJoystickCommand(
+          swerveDrive,
+          () -> -driverController.getLeftY(),
+          driverController::getLeftX,
+          // () -> 0.0,
+          driverController::getRightY,
+          driverControllerButtons::getSquareButton,
+          () -> false,
+          // driverControllerButtons::getTriangleButton,
+          driverControllerButtons::getCrossButton
+        ));
+    } else {
+      tankDrive.setDefaultCommand(
+        new RunCommand(
+          () -> tankDrive.drive(
+            -driverController.getLeftY(), 
+            -driverController.getRightY()
+          ), tankDrive));
+    }
+
+
   }
 
   private void configureBindings() {
@@ -149,16 +166,6 @@ public class RobotContainer {
                       .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
   }
-
-  /** This function is called periodically during operator control. */
-  public void configurePeriodic() {
-    arm.moveArmJoystick(operatorController.getLeftY());
-    if (!IsSwerveDrive) { // TODO: use a command? move it to constructor?
-      tankDrive.drive(-driverController.getLeftY(), -driverController.getRightY());
-    }
-    claw.periodic();
-  }
-
   
   public void initShuffleboard() {
     if (!IsSwerveDrive) {
