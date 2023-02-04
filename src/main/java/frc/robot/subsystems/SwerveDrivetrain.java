@@ -18,41 +18,41 @@ import frc.robot.Constants.SwerveDriveConstants;
 import static frc.robot.Constants.SwerveDriveConstants.*;
 
 public class SwerveDrivetrain extends SubsystemBase implements Reportable {
-    private final SwerveModule backLeft = new SwerveModule(
-            kFrontLeftDriveMotorPort,
-            kFrontLeftTurningMotorPort,
-            kFrontLeftDriveMotorReversed,
-            kFrontLeftTurningMotorReversed,
-            kFrontLeftDriveAbsoluteEncoderPort,
-            kFrontLeftDriveAbsoluteEncoderOffsetRad,
-            kFrontLeftDriveAbsoluteEncoderReversed);
+    private final SwerveModule frontLeftOld = new SwerveModule(
+            kFLDriveID,
+            kFLTurningID,
+            kFLDriveReversed,
+            kFLTurningReversed,
+            kFLAbsoluteID,
+            kFLAbsoluteOffsetTicks,
+            kFLAbsoluteReversed);
 
-    private final SwerveModule frontLeft = new SwerveModule(
-            kFrontRightDriveMotorPort,
-            kFrontRightTurningMotorPort,
-            kFrontRightDriveMotorReversed,
-            kFrontRightTurningMotorReversed,
-            kFrontRightDriveAbsoluteEncoderPort,
-            kFrontRightDriveAbsoluteEncoderOffsetRad,
-            kFrontRightDriveAbsoluteEncoderReversed);
+    private final SwerveModule frontRightOld = new SwerveModule(
+            kFRDriveID,
+            kFRTurningID,
+            kFRDriveReversed,
+            kFRTurningReversed,
+            kFRAbsoluteID,
+            kFRAbsoluteOffsetTicks,
+            kFRAbsoluteReversed);
 
-    private final SwerveModule backRight = new SwerveModule(
-            kBackLeftDriveMotorPort,
-            kBackLeftTurningMotorPort,
-            kBackLeftDriveMotorReversed,
-            kBackLeftTurningMotorReversed,
-            kBackLeftDriveAbsoluteEncoderPort,
-            kBackLeftDriveAbsoluteEncoderOffsetRad,
-            kBackLeftDriveAbsoluteEncoderReversed);
+    private final SwerveModule backLeftOld = new SwerveModule(
+            kBLDriveID,
+            kBLTurningID,
+            kBLDriveReversed,
+            kBLTurningReversed,
+            kBLAbsoluteID,
+            kBLAbsouteOffsetTicks,
+            kBLAbsoluteReversed);
 
-    private final SwerveModule frontRight = new SwerveModule(
-            kBackRightDriveMotorPort,
-            kBackRightTurningMotorPort,
-            kBackRightDriveMotorReversed,
-            kBackRightTurningMotorReversed,
-            kBackRightDriveAbsoluteEncoderPort,
-            kBackRightDriveAbsoluteEncoderOffsetRad,
-            kBackRightDriveAbsoluteEncoderReversed);
+    private final SwerveModule backRightOld = new SwerveModule(
+            kBRDriveID,
+            kBRTurningID,
+            kBRDriveReversed,
+            kBRTurningReversed,
+            kBRAbsoluteID,
+            kBRAbsoluteOffsetTicks,
+            kBRAbsoluteReversed);
 
     private final Imu gyro;
     private final SwerveDriveOdometry odometer;
@@ -102,20 +102,20 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         numEncoderResets += 1;
         SmartDashboard.putNumber("Encoder resets", numEncoderResets);
         // SmartDashboard.putNumber("Encoder resets", SmartDashboard.getNumber("Encoder resets", 0)+1);
-        backLeft.resetEncoder();
-        frontLeft.resetEncoder();
-        backRight.resetEncoder();
-        frontRight.resetEncoder();
+        frontLeftOld.resetEncoder();
+        frontRightOld.resetEncoder();
+        backLeftOld.resetEncoder();
+        backRightOld.resetEncoder();
     }
 
     /**
      * Stops all modules. See {@link SwerveModule#stop()} for more info.
      */
     public void stopModules() {
-        backLeft.stop();
-        frontLeft.stop();
-        backRight.stop();
-        frontRight.stop();
+        frontLeftOld.stop();
+        frontRightOld.stop();
+        backLeftOld.stop();
+        backRightOld.stop();
     }
 
     //****************************** GETTERS ******************************/
@@ -138,10 +138,10 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
-            frontLeft.getPosition(), 
-            frontRight.getPosition(),
-            backLeft.getPosition(),
-            backRight.getPosition()
+            frontLeftOld.getPosition(),
+            frontRightOld.getPosition(), 
+            backLeftOld.getPosition(),
+            backRightOld.getPosition()
         };
     }
 
@@ -179,10 +179,10 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      * @param breaking  Whether or not the modules should be in break
      */
     public void setBreak(boolean breaking) {
-        backLeft.setBreak(breaking);
-        frontLeft.setBreak(breaking);
-        backRight.setBreak(breaking);
-        frontRight.setBreak(breaking);
+        frontLeftOld.setBreak(breaking);
+        frontRightOld.setBreak(breaking);
+        backLeftOld.setBreak(breaking);
+        backRightOld.setBreak(breaking);
     }
 
     /**
@@ -191,10 +191,10 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, kPhysicalMaxSpeedMetersPerSecond);
-        frontLeft.setDesiredState(desiredStates[0]);
-        frontRight.setDesiredState(desiredStates[1]);
-        backLeft.setDesiredState(desiredStates[2]);
-        backRight.setDesiredState(desiredStates[3]);
+        frontLeftOld.setDesiredState(desiredStates[0]);
+        frontRightOld.setDesiredState(desiredStates[1]);
+        backLeftOld.setDesiredState(desiredStates[2]);
+        backRightOld.setDesiredState(desiredStates[3]);
     }
 
     /**
@@ -206,9 +206,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     }
 
     public void reportModulesToSmartDashboard() {
-        frontLeft.reportToSmartDashboard();
-        frontRight.reportToSmartDashboard();
-        backLeft.reportToSmartDashboard();
-        backRight.reportToSmartDashboard();
+        frontRightOld.reportToSmartDashboard();
+        backRightOld.reportToSmartDashboard();
+        frontLeftOld.reportToSmartDashboard();
+        backLeftOld.reportToSmartDashboard();
     }
 }

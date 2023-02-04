@@ -151,45 +151,40 @@ public final class Constants {
       new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
 
-    public static final int kFrontLeftDriveMotorPort = 21;
-    public static final int kBackLeftDriveMotorPort = 31;
-    public static final int kFrontRightDriveMotorPort = 11;
-    public static final int kBackRightDriveMotorPort = 41;
+    public static final int kFRDriveID = 11;
+    public static final int kFLDriveID = 21;
+    public static final int kBLDriveID = 31;
+    public static final int kBRDriveID = 41;
 
-    public static final int kFrontLeftTurningMotorPort = 22;
-    public static final int kBackLeftTurningMotorPort = 32;
-    public static final int kFrontRightTurningMotorPort = 12;
-    public static final int kBackRightTurningMotorPort = 42;
+    public static final int kFRTurningID = 12;
+    public static final int kFLTurningID = 22;
+    public static final int kBLTurningID = 32;
+    public static final int kBRTurningID = 42;
 
-    public static final boolean kFrontLeftTurningMotorReversed = false; 
-    public static final boolean kBackLeftTurningMotorReversed = false; 
-    public static final boolean kFrontRightTurningMotorReversed = false; 
-    public static final boolean kBackRightTurningMotorReversed = false; 
+    public static final boolean kFRTurningReversed = false; 
+    public static final boolean kFLTurningReversed = false; 
+    public static final boolean kBLTurningReversed = false; 
+    public static final boolean kBRTurningReversed = false; 
 
-    public static final boolean kFrontLeftDriveMotorReversed = false;     
-    public static final boolean kBackLeftDriveMotorReversed = false;      
-    public static final boolean kFrontRightDriveMotorReversed = false;
-    public static final boolean kBackRightDriveMotorReversed = false;
+    public static final boolean kFRDriveReversed = false;
+    public static final boolean kFLDriveReversed = false;     
+    public static final boolean kBLDriveReversed = false;      
+    public static final boolean kBRDriveReversed = false;
 
-    public static final int kFrontLeftDriveAbsoluteEncoderPort = 23;
-    public static final int kBackLeftDriveAbsoluteEncoderPort = 33;
-    public static final int kFrontRightDriveAbsoluteEncoderPort = 13;
-    public static final int kBackRightDriveAbsoluteEncoderPort = 43;
+    public static final int kFRAbsoluteID = 13;
+    public static final int kFLAbsoluteID = 23;
+    public static final int kBLAbsoluteID = 33;
+    public static final int kBRAbsoluteID = 43;
 
-    public static final boolean kFrontLeftDriveAbsoluteEncoderReversed = false;      
-    public static final boolean kBackLeftDriveAbsoluteEncoderReversed = false;       
-    public static final boolean kFrontRightDriveAbsoluteEncoderReversed = false;    
-    public static final boolean kBackRightDriveAbsoluteEncoderReversed = false;      
+    public static final boolean kFRAbsoluteReversed = false;    
+    public static final boolean kFLAbsoluteReversed = false;      
+    public static final boolean kBLAbsoluteReversed = false;       
+    public static final boolean kBRAbsoluteReversed = false;      
 
-    public static final double kFrontLeftDriveAbsoluteEncoderOffsetRad = 2794;         
-    public static final double kBackLeftDriveAbsoluteEncoderOffsetRad = 2354;          
-    public static final double kFrontRightDriveAbsoluteEncoderOffsetRad = 237;       
-    public static final double kBackRightDriveAbsoluteEncoderOffsetRad = 2048;
-
-    public static final double kFrontLeftDriveAbsoluteEncoderOffsetTicks = 2794;         
-    public static final double kBackLeftDriveAbsoluteEncoderOffsetTicks = 2354;          
-    public static final double kFrontRightDriveAbsoluteEncoderOffsetTicks = 237; //237        
-    public static final double kBackRightDriveAbsoluteEncoderOffsetTicks = 2048;
+    public static final double kFRAbsoluteOffsetTicks = 2048;       
+    public static final double kFLAbsoluteOffsetTicks = 237;         
+    public static final double kBLAbsouteOffsetTicks = 2794;          
+    public static final double kBRAbsoluteOffsetTicks = 2354;
 
     public static final double kPhysicalMaxSpeedMetersPerSecond = 5;    
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;

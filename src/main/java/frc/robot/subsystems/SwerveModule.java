@@ -143,7 +143,7 @@ public class SwerveModule implements Reportable{
      * @return Angle in radians
      */
     public double getTurningPosition() {
-        double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0) + 1024, 4096) * ModuleConstants.kTurningTicksToRad);
+        double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0), 4096) * ModuleConstants.kTurningTicksToRad);
         // SmartDashboard.putNumber("turning position motor #" + turnMotorID, turningPosition);
         // SmartDashboard.putNumber("Turning angle #" + turnMotorID, 180 * turningPosition / Math.PI);
         return turningPosition;
