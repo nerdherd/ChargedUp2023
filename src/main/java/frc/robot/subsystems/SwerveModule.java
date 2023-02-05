@@ -220,7 +220,7 @@ public class SwerveModule implements Reportable{
         currentAngle = Math.toDegrees(Math.toDegrees(getTurningPosition()));
 
         SmartDashboard.putNumber("Module velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
-        SmartDashboard.putNumber("Turn percent #" + turnMotorID, currentPercent);
+        SmartDashboard.putNumber("Drive percent #" + driveMotorID, currentPercent);
         SmartDashboard.putNumber("Turn angle #" + turnMotorID, currentAngle);
         SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, desiredAngle);
         SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, desiredAngle - currentAngle);
