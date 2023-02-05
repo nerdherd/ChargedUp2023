@@ -191,12 +191,13 @@ public final class Constants {
     public static final double kBLAbsouteOffsetTicks = 2048 + 1024 + 46;          
     public static final double kBRAbsoluteOffsetTicks = 237 + 1024 + 25;
 
-    public static final double kPhysicalMaxSpeedMetersPerSecond = 10;    
+    public static final double kPhysicalMaxSpeedMetersPerSecond = 5;    
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;
     public static final double kTeleMaxAcceleration = 3;
-    public static final double kTeleMaxDeceleration = 2;
+    // THIS CONSTANT HAS TO BE NEGATIVE OTHERWISE THE ROBOT WILL CRASH
+    public static final double kTeleMaxDeceleration = -2;
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
       kPhysicalMaxAngularSpeedRadiansPerSecond / 2;
