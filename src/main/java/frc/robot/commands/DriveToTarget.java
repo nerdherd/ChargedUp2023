@@ -13,7 +13,7 @@ import frc.robot.subsystems.SwerveDrivetrain;
 public class DriveToTarget extends CommandBase{
     private Limelight limelight;
     private PIDController pidX;
-    private PIDController pidY;
+    private PIDController pidDistance;
     private SwerveDrivetrain drivetrain;
     private double goalArea;
 
@@ -31,6 +31,13 @@ public class DriveToTarget extends CommandBase{
         this.drivetrain = drivetrain;
         this.goalArea = goalArea;
 
+        SmartDashboard.putNumber("tX P", 0.05);
+        SmartDashboard.putNumber("area P", 0.24);
+        SmartDashboard.putNumber("tX I", 0);
+        SmartDashboard.putNumber("area I", 0);
+        SmartDashboard.putNumber("tX D", 0);
+        SmartDashboard.putNumber("area D", 0);
+
         switch(pipeline) {
             case CONE:
                 limelight.setPipeline(1);
@@ -46,10 +53,10 @@ public class DriveToTarget extends CommandBase{
                 break;
         }
         
-        pidX = new PIDController(BananaConstants.kPIDControllerP, 0, BananaConstants.kPIDControllerD);
+        pidX = new PIDController(SmartDashboard.getNumber("tX P", 0.05), SmartDashboard.getNumber("tX I", 0.05), SmartDashboard.getNumber("tX D", 0.05)); //0.03
         pidX.setTolerance(0.2);
-        pidY = new PIDController(BananaConstants.kPIDControllerP, 0, BananaConstants.kPIDControllerD);
-        pidY.setTolerance(0.2);
+        pidDistance = new PIDController(SmartDashboard.getNumber("area P", 0.05), SmartDashboard.getNumber("area I", 0.05), SmartDashboard.getNumber("area D", 0.05)); //0.05
+        pidDistance.setTolerance(0.2);
 
         addRequirements(drivetrain);
     }
@@ -63,10 +70,12 @@ public class DriveToTarget extends CommandBase{
         // double range = 0.628 - 1.71*Math.log(limelight.getArea());
         double objArea = limelight.getArea();
         double ySpeed = -pidX.calculate(limelight.getXAngle(), 0);   // SOMEBODY SWAP THE PIDX and Y NAMES
-        double xSpeed = pidY.calculate(objArea, goalArea);
-
+        double xSpeed = pidDistance.calculate(objArea, goalArea);
+        
         ChassisSpeeds chassisSpeeds;
-
+        
+        xSpeed*=SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond; //*6
+        ySpeed*=SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond; //*2
 
         SmartDashboard.putNumber("Vision X speed", xSpeed);
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
@@ -75,26 +84,33 @@ public class DriveToTarget extends CommandBase{
         SmartDashboard.putNumber("Limelight x", limelight.getXAngle());
 
         SmartDashboard.putBoolean("Setpoint reached x", pidX.atSetpoint());
-        SmartDashboard.putBoolean("Setpoint reached y", pidY.atSetpoint());
+        SmartDashboard.putBoolean("Setpoint reached y", pidDistance.atSetpoint());
+
+        if(!limelight.hasValidTarget()) {
+            xSpeed = 0;
+            ySpeed = 0;
+        }
         chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
         SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-        // drivetrain.setModuleStates(moduleStates);
+        drivetrain.setModuleStates(moduleStates);
     }
 
     @Override
     public boolean isFinished() {
         // TODO Auto-generated method stub
-        return pidX.atSetpoint() && pidY.atSetpoint();
+        return pidX.atSetpoint() && pidDistance.atSetpoint();
     }
 
     public ChassisSpeeds getChassisSpeeds() {
-
+        // double range = 0.628 - 1.71*Math.log(limelight.getArea());
         double objArea = limelight.getArea();
-        double ySpeed = pidX.calculate(limelight.getXAngle(), 0);
-        double xSpeed = pidY.calculate(objArea, goalArea);
+        double ySpeed = -pidX.calculate(limelight.getXAngle(), 0);   // SOMEBODY SWAP THE PIDX and Y NAMES
+        double xSpeed = pidDistance.calculate(objArea, goalArea);
 
         ChassisSpeeds chassisSpeeds;
 
+        xSpeed*=SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond; //*6
+        ySpeed*=SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond; //*2
 
         SmartDashboard.putNumber("Vision X speed", xSpeed);
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
@@ -103,10 +119,13 @@ public class DriveToTarget extends CommandBase{
         SmartDashboard.putNumber("Limelight x", limelight.getXAngle());
 
         SmartDashboard.putBoolean("Setpoint reached x", pidX.atSetpoint());
-        SmartDashboard.putBoolean("Setpoint reached y", pidY.atSetpoint());
+        SmartDashboard.putBoolean("Setpoint reached y", pidDistance.atSetpoint());
+
+        if(!limelight.hasValidTarget()) {
+            xSpeed = 0;
+            ySpeed = 0;
+        }
         chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
-        
-        //SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
 
         return chassisSpeeds;
     }

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.commands.ApproachCombined;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
@@ -168,8 +169,11 @@ public class RobotContainer {
       
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
-      // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 2, obj))
-      //                 .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 4, obj))
+      //                  .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+
+      driverController.triangle().whileTrue(new ApproachCombined(swerveDrive, objDetectCamera, 4, obj))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
   }
   
@@ -193,6 +197,7 @@ public class RobotContainer {
     coneRunner.reportToSmartDashboard();
     if (IsSwerveDrive) {
       swerveDrive.reportToSmartDashboard();
+      swerveDrive.reportModulesToSmartDashboard();
     } else {
       tankDrive.reportToSmartDashboard();
     }
