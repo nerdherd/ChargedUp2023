@@ -32,7 +32,7 @@ import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
-import frc.robot.commands.DriveToTarget.pipeline;
+import frc.robot.commands.DriveToTarget.PipelineType;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 /**
@@ -56,7 +56,7 @@ public class RobotContainer {
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
 
-  private pipeline obj = pipeline.ATAG;
+  private PipelineType obj = PipelineType.ATAG;
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);

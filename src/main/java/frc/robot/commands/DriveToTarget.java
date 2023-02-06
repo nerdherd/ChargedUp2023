@@ -19,14 +19,14 @@ public class DriveToTarget extends CommandBase{
 
     private static final double kMaxOutputPercent = 0.6;
 
-    public static enum pipeline {
+    public static enum PipelineType {
         CONE,
         CUBE,
         TAPE,
         ATAG
     }
 
-    public DriveToTarget(SwerveDrivetrain drivetrain, Limelight limelight, double goalArea, pipeline pipeline){
+    public DriveToTarget(SwerveDrivetrain drivetrain, Limelight limelight, double goalArea, PipelineType pipeline){
         this.limelight = limelight;
         this.drivetrain = drivetrain;
         this.goalArea = goalArea;
