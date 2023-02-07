@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.initShuffleboard();
 	
-    DataLogManager.start("/lvuser/logs/");
+    DataLogManager.start("/home/lvuser/logs/");
     DataLogManager.logNetworkTables(true);
   }
 
