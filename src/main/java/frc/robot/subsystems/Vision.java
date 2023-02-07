@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase implements Reportable{
-    public Limelight limelightLow = null;
-    public Limelight limelightHigh = null;
+    public Limelight limelightLow = new Limelight("limelight");
+    public Limelight limelightHigh = new Limelight("limelight1");
 
     public static enum PipelineType {
         CONE,
@@ -29,8 +29,8 @@ public class Vision extends SubsystemBase implements Reportable{
     private PipelineType pipeline = null;
 
     public Vision(){
-
-
+        limelightLow.setLightState(Limelight.LightMode.OFF);
+        limelightHigh.setLightState(Limelight.LightMode.OFF);
     }
 
     @Override
@@ -81,14 +81,18 @@ public class Vision extends SubsystemBase implements Reportable{
     private void SwitchPipes(PipelineType pipeline) {
         this.pipeline = pipeline;
     }
-    public Limelight getLimelight(){
-        switch (state) {
+    public Limelight getLimelight(boolean isHigh){
+        /*switch (state) {
             case HIGH:
                 return limelightHigh;
             case LOW:
                 return limelightLow;
             default:
                 return null;
-        }
+        }*/
+        if(isHigh)
+            return limelightHigh;
+            else
+        return limelightLow; 
     }
 }
