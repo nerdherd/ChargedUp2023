@@ -15,6 +15,7 @@ import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Limelight.LightMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -87,6 +88,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    objDetectCamera.setLightState(LightMode.OFF);
 
     if (IsSwerveDrive) {
       swerveDrive = new SwerveDrivetrain(imu);
@@ -116,11 +118,11 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
-    arm.setDefaultCommand(
-      new RunCommand(
-        () -> arm.moveArmJoystick(operatorController.getLeftY()), 
-        arm
-      ));
+    // arm.setDefaultCommand(
+    //   new RunCommand(
+    //     () -> arm.moveArmJoystick(operatorController.getLeftY()), 
+    //     arm
+    //   ));
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
     if (IsSwerveDrive) {
@@ -162,6 +164,9 @@ public class RobotContainer {
     operatorController.square().whileTrue(arm.armStow());
     operatorController.circle().onTrue(claw.clawOpen());
     operatorController.cross().onTrue(claw.clawClose());
+
+    operatorController.L1().onTrue(arm.moveArmScore());
+    operatorController.R1().onTrue(arm.moveArmStow());
 
     if (IsSwerveDrive) {
       driverController.circle().onTrue(new InstantCommand(imu::zeroHeading));
