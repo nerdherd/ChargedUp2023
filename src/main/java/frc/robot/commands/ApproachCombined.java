@@ -4,7 +4,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveDriveConstants;
-import frc.robot.commands.DriveToTarget.PipelineType;
+import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveDrivetrain;
 
