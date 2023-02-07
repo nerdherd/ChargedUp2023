@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -9,6 +11,8 @@ import frc.robot.Constants.BananaConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.Vision.PipelineType;
+
 
 public class DriveToTarget extends CommandBase{
     private Limelight limelight;
@@ -18,13 +22,6 @@ public class DriveToTarget extends CommandBase{
     private double goalArea;
 
     private static final double kMaxOutputPercent = 0.6;
-
-    public static enum PipelineType {
-        CONE,
-        CUBE,
-        TAPE,
-        ATAG
-    }
 
     public DriveToTarget(SwerveDrivetrain drivetrain, Limelight limelight, double goalArea, PipelineType pipeline){
         this.limelight = limelight;

@@ -1,12 +1,15 @@
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveDriveConstants;
-import frc.robot.commands.DriveToTarget.PipelineType;
+import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.Vision;
 
 public class ApproachCombined extends CommandBase {
     
@@ -19,11 +22,11 @@ public class ApproachCombined extends CommandBase {
      * 
      * @param meterOffset   Setpoint distance between drivetrain and vision target
      */
-    public ApproachCombined(SwerveDrivetrain drivetrain, Limelight limelight, double meterOffset, PipelineType pipeline) {
+    public ApproachCombined(SwerveDrivetrain drivetrain, double orientation, double meterOffset, PipelineType pipeline, Limelight limelight) {
         this.drivetrain = drivetrain;
         
         driveToTarget = new DriveToTarget(drivetrain, limelight, meterOffset, pipeline);
-        turnToAngle = new TurnToAngle(0, drivetrain);
+        turnToAngle = new TurnToAngle(orientation, drivetrain);
     }
 
     @Override

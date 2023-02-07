@@ -151,6 +151,8 @@ public final class Constants {
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
+    
+    public static final double kRotationOffset = kTrackWidth;
 
     public static final int kFRDriveID = 11;
     public static final int kFLDriveID = 21;
