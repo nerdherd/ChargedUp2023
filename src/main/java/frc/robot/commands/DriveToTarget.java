@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -20,8 +22,6 @@ public class DriveToTarget extends CommandBase{
     private double goalArea;
 
     private static final double kMaxOutputPercent = 0.6;
-
-
 
     public DriveToTarget(SwerveDrivetrain drivetrain, Limelight limelight, double goalArea, PipelineType pipeline){
         this.limelight = limelight;

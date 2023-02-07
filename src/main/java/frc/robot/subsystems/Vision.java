@@ -81,4 +81,14 @@ public class Vision extends SubsystemBase implements Reportable{
     private void SwitchPipes(PipelineType pipeline) {
         this.pipeline = pipeline;
     }
+    public Limelight getLimelight(){
+        switch (state) {
+            case HIGH:
+                return limelightHigh;
+            case LOW:
+                return limelightLow;
+            default:
+                return null;
+        }
+    }
 }

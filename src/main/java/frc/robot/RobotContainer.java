@@ -49,7 +49,7 @@ public class RobotContainer {
   public static Arm arm = new Arm();
   public static Claw claw = new Claw();
   public static Imu imu = new Imu();
-  public static Limelight objDetectCamera = new Limelight();
+  public static Vision vision = new Vision();
   public static ConeRunner coneRunner = new ConeRunner();
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;
@@ -67,8 +67,6 @@ public class RobotContainer {
   private final PS4Controller driverControllerButtons = new PS4Controller(ControllerConstants.kDriverControllerPort);
 
   SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
-
-  public double swerveTargetAngle = 180;
 
   // Two different drivetrain modes
   private RunCommand arcadeRunCommand;
@@ -164,11 +162,25 @@ public class RobotContainer {
     operatorController.cross().onTrue(claw.clawClose());
 
     if (IsSwerveDrive) {
-      driverController.circle().onTrue(new InstantCommand(imu::zeroHeading));
-      driverController.cross().onTrue(new InstantCommand(swerveDrive::resetEncoders));
-      
-      driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
-      driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+      // Driver Bindings
+      driverController.L1().onTrue(new InstantCommand(imu::zeroHeading));
+      driverController.R1().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+
+      driverController.R2().whileTrue(new TurnToAngle(180, swerveDrive));
+      driverController.L2().whileTrue(new TurnToAngle(0, swerveDrive));
+
+      driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
+      driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
+      driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
+      driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
+
+
+      // Operator Bindings
+      operatorController.R1().onTrue(vision.SwitchHigh());
+      operatorController.L1().onTrue(vision.SwitchLow());
+
+
+
       // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 4, obj))
       //                  .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
@@ -194,7 +206,6 @@ public class RobotContainer {
     imu.reportToSmartDashboard();
     claw.reportToSmartDashboard();
     arm.reportToSmartDashboard();
-    objDetectCamera.reportToSmartDashboard();
     coneRunner.reportToSmartDashboard();
     if (IsSwerveDrive) {
       swerveDrive.reportToSmartDashboard();
