@@ -11,8 +11,9 @@ public class DriverFilter extends FilterSeries {
     private SlewRateLimiter slewRateLimiter;
 
     public DriverFilter(double deadband, double alpha, 
-            double oneMinusAlpha, double posRateLimit, 
-            int power, double negRateLimit) {
+            double oneMinusAlpha, double maxSpeed, 
+            double posRateLimit, int power, 
+            double negRateLimit) {
         super();
 
         slewRateLimiter = new SlewRateLimiter(posRateLimit, negRateLimit, 0);
@@ -23,20 +24,21 @@ public class DriverFilter extends FilterSeries {
             new PowerFilter(power),
             new WrapperFilter(
                 (x) -> {
-                    SmartDashboard.putNumber("Pre-slew", x);
                     return slewRateLimiter.calculate(x);
                 }
-            )
+            ),
+            new ScaleFilter(maxSpeed),
+            new ClampFilter(maxSpeed, -maxSpeed)
         );
     }
 
     public DriverFilter(double deadband, double alpha, 
-            double oneMinusAlpha, double posRateLimit, int power) {
-        this(deadband, alpha, oneMinusAlpha, posRateLimit, power, -posRateLimit);
+            double oneMinusAlpha, double maxSpeed, double rateLimit, int power) {
+        this(deadband, alpha, oneMinusAlpha, maxSpeed, rateLimit, power, -rateLimit);
     }
 
     public DriverFilter(double deadband, double alpha, 
-        double oneMinusAlpha, double posRateLimit) {
-        this(deadband, alpha, oneMinusAlpha, posRateLimit, 3, -posRateLimit);
+        double oneMinusAlpha, double maxSpeed, double rateLimit) {
+        this(deadband, alpha, oneMinusAlpha, maxSpeed, rateLimit, 3, -rateLimit);
     }
 }
