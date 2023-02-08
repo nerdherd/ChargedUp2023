@@ -12,6 +12,11 @@ public class ClampFilter implements Filter {
         this.min = min;
     }
 
+    public ClampFilter(double bound) {
+        this.max = bound;
+        this.min = bound;
+    }
+
     public double calculate(double input) {
         return NerdyMath.clamp(input, min, max);
     }
