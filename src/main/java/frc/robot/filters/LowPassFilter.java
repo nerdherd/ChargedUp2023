@@ -27,7 +27,7 @@ public class LowPassFilter implements Filter {
 
     public double calculate(double input) {
         double output = (alpha * input) + (oneMinusAlpha * lastInput);
-        lastInput = input;
+        lastInput = output;
         return output;
     }
 }

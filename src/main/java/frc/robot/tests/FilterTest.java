@@ -20,7 +20,7 @@ public class FilterTest {
         SwerveDriveConstants.kTeleMaxAcceleration,
         3,
         -SwerveDriveConstants.kTeleMaxAcceleration);
-    public SlewRateLimiter yLimiter = new SlewRateLimiter(3);
+    public SlewRateLimiter originalLimiter = new SlewRateLimiter(3);
     public double prevYInput = 0;
 
     public SlewRateLimiter limiter = new SlewRateLimiter(3);
@@ -62,8 +62,10 @@ public class FilterTest {
         // Apply cubic
         originalFilterValue = Math.signum(originalFilterValue) * Math.abs(originalFilterValue * originalFilterValue * originalFilterValue);
 
+        SmartDashboard.putNumber("Original pre-slew:", originalFilterValue);
+
         // Apply the slew rate limiter to the speeds
-        originalFilterValue = yLimiter.calculate(originalFilterValue);
+        originalFilterValue = originalLimiter.calculate(originalFilterValue);
 
         SmartDashboard.putNumber("Original filter output:", originalFilterValue);
     }

@@ -8,6 +8,13 @@ public class FilterSeries implements Filter {
     }
 
     /**
+     * Create a filter series with an empty filter.
+     */
+    public FilterSeries() {
+        this.filters = new Filter[] {new WrapperFilter()};
+    }
+
+    /**
      * Calculate the input filtered by all filters in the series.
      * @param input     The input to filter
      * @return output   The output of the filters
@@ -25,7 +32,7 @@ public class FilterSeries implements Filter {
         return filters;
     }
 
-    public void setFilters(Filter[] filters) {
+    public void setFilters(Filter... filters) {
         this.filters = filters;
     }
 }
