@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.commands.ApproachCombined;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
@@ -14,6 +15,7 @@ import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Limelight.LightMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,13 +27,13 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
-
+import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.PS4Controller;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
-import frc.robot.commands.DriveToTarget.pipeline;
+import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 /**
@@ -48,14 +50,14 @@ public class RobotContainer {
   public static Arm arm = new Arm();
   public static Claw claw = new Claw();
   public static Imu imu = new Imu();
-  public static Limelight objDetectCamera = new Limelight();
+  public static Vision vision = new Vision();
   public static ConeRunner coneRunner = new ConeRunner();
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
 
-  private pipeline obj = pipeline.ATAG;
+  private PipelineType obj = PipelineType.ATAG;
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);
@@ -66,8 +68,6 @@ public class RobotContainer {
   private final PS4Controller driverControllerButtons = new PS4Controller(ControllerConstants.kDriverControllerPort);
 
   SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
-
-  public double swerveTargetAngle = 180;
 
   // Two different drivetrain modes
   private RunCommand arcadeRunCommand;
@@ -115,11 +115,11 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
-    arm.setDefaultCommand(
-      new RunCommand(
-        () -> arm.moveArmJoystick(operatorController.getLeftY()), 
-        arm
-      ));
+    // arm.setDefaultCommand(
+    //   new RunCommand(
+    //     () -> arm.moveArmJoystick(operatorController.getLeftY()), 
+    //     arm
+    //   ));
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
     if (IsSwerveDrive) {
@@ -162,14 +162,34 @@ public class RobotContainer {
     operatorController.circle().onTrue(claw.clawOpen());
     operatorController.cross().onTrue(claw.clawClose());
 
+    operatorController.L1().onTrue(arm.moveArmScore());
+    operatorController.R1().onTrue(arm.moveArmStow());
+
     if (IsSwerveDrive) {
-      driverController.circle().onTrue(new InstantCommand(imu::zeroHeading));
-      driverController.cross().onTrue(new InstantCommand(swerveDrive::resetEncoders));
-      
-      driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
-      driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
-      // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 2, obj))
-      //                 .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // Driver Bindings
+      driverController.L1().onTrue(new InstantCommand(imu::zeroHeading));
+      driverController.R1().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+
+      driverController.R2().whileTrue(new TurnToAngle(180, swerveDrive));
+      driverController.L2().whileTrue(new TurnToAngle(0, swerveDrive));
+
+      driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight(false)));  
+      driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight(true)));      
+      driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight(true)));      
+      driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight(false))); 
+
+
+      // Operator Bindings
+      operatorController.R1().onTrue(vision.SwitchHigh());
+      operatorController.L1().onTrue(vision.SwitchLow());
+
+
+
+      // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 4, obj))
+      //                  .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+
+      //driverController.triangle().whileTrue(new ApproachCombined(swerveDrive, objDetectCamera, 4, obj))
+      //.onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
   }
   
@@ -186,10 +206,10 @@ public class RobotContainer {
   }
 
   public void reportAllToSmartDashboard() {
+    // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
     imu.reportToSmartDashboard();
     claw.reportToSmartDashboard();
     arm.reportToSmartDashboard();
-    objDetectCamera.reportToSmartDashboard();
     coneRunner.reportToSmartDashboard();
     if (IsSwerveDrive) {
       swerveDrive.reportToSmartDashboard();

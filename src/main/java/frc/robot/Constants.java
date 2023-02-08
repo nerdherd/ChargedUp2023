@@ -84,18 +84,19 @@ public final class Constants {
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 20;
-    public static final int kArmStow = -344320;
-    public static final int kArmScore = 39626;
-    public static final int kArmMotionAcceleration = 0;
-    public static final int kArmCruiseVelocity = 0;
+    public static final int kArmStow = 432840;
+    public static final int kArmScore = 596443;
+    public static final int kArmMotionAcceleration = 5;
+    public static final int kArmCruiseVelocity = 3000;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = SmartDashboard.getNumber("kP Arm", 0);
     public static final double kArmI = SmartDashboard.getNumber("kI Arm", 0);
     public static final double kArmD = SmartDashboard.getNumber("kD Arm", 0);
-    public static final double kArbitraryFF = 0;
+    public static final double kArbitraryFF = 0.07;
     public static final int kPistonForwardID = 4;
     public static final int kPistonReverseID = 5;
     public static final double kJoystickMultiplier = 1; 
+    public static final double kTicksPerAngle = 6441;
 
     public static final double kP = 0;
     public static final double kI = 0;
@@ -150,6 +151,8 @@ public final class Constants {
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
+    
+    public static final double kRotationOffset = kTrackWidth;
 
     public static final int kFRDriveID = 11;
     public static final int kFLDriveID = 21;
@@ -191,7 +194,7 @@ public final class Constants {
     public static final double kBLAbsouteOffsetTicks = 2048 + 1024 + 46;          
     public static final double kBRAbsoluteOffsetTicks = 237 + 1024 + 25;
 
-    public static final double kPhysicalMaxSpeedMetersPerSecond = 5;    
+    public static final double kPhysicalMaxSpeedMetersPerSecond = 4;    
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;

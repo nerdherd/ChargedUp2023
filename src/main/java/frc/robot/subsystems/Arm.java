@@ -41,18 +41,16 @@ public class Arm extends SubsystemBase implements Reportable {
         initShuffleboard();
 
         rotatingArm.setInverted(false);
-
-        rotatingArm.config_kP(0, ArmConstants.kArmP);
-        rotatingArm.config_kI(0, ArmConstants.kArmI);
-        rotatingArm.config_kD(0, ArmConstants.kArmD);
+        rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        
 
         rotatingArm.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
         rotatingArm.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
+
+        SmartDashboard.putNumber("Arm kP", 0);
+        SmartDashboard.putNumber("Arm kI", 0);
+        SmartDashboard.putNumber("Arm kD", 0);
    
-        armPID = new PIDController(
-            SmartDashboard.getNumber("Arm kP", 0), 
-            SmartDashboard.getNumber("Arm kI", 0), 
-            SmartDashboard.getNumber("Arm kD", 0));
     }
 
     public void moveArmJoystick(double currentJoystickOutput) {
@@ -85,13 +83,26 @@ public class Arm extends SubsystemBase implements Reportable {
     }
 
     public void moveArmMotionMagic(int position) {
+        
+        rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", 0));
+        rotatingArm.config_kI(0, SmartDashboard.getNumber("Arm kI", 0));
+        rotatingArm.config_kD(0, SmartDashboard.getNumber("Arm kD", 0));
         // config tuning params in slot 0
-        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, Math.cos(position)*ArmConstants.kArbitraryFF);
+        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, -ArmConstants.kArbitraryFF * Math.cos(Math.toRadians((ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle)));
         targetTicks = position;
 
+        // if (Math.abs(rotatingArm.getSelectedSensorPosition() - position) > 10) {
+        //     rotatingArm.setNeutralMode(NeutralMode.Brake);
+        // } else {
+        //     rotatingArm.setNeutralMode(NeutralMode.Coast);
+        // }
     }
 
     public void moveArm(double position) {
+        armPID = new PIDController(
+            SmartDashboard.getNumber("Arm kP", 0), 
+            SmartDashboard.getNumber("Arm kI", 0), 
+            SmartDashboard.getNumber("Arm kD", 0));
         armPID.setSetpoint(position);
         double speed = armPID.calculate(rotatingArm.getSelectedSensorPosition(), position);
         if (speed > 3000) {
@@ -121,7 +132,7 @@ public class Arm extends SubsystemBase implements Reportable {
     public CommandBase moveArmScore() {
         return runOnce(
             () -> {
-                moveArm(ArmConstants.kArmScore);
+                moveArmMotionMagic(ArmConstants.kArmScore);
             }
         );
     }
@@ -129,7 +140,7 @@ public class Arm extends SubsystemBase implements Reportable {
     public CommandBase moveArmStow() {
         return runOnce(
             () -> {
-                moveArmMotionMagic(ArmConstants.kArmStow);;
+                moveArmMotionMagic(ArmConstants.kArmStow);
             }
         );
 
@@ -162,6 +173,8 @@ public class Arm extends SubsystemBase implements Reportable {
     }
 
     public void reportToSmartDashboard() {
+        SmartDashboard.putNumber("Arm Motor Output", rotatingArm.getMotorOutputPercent());
+
         SmartDashboard.putBoolean("Arm Extended", armExtended);
         SmartDashboard.putNumber("Current Arm Ticks", rotatingArm.getSelectedSensorPosition());
         SmartDashboard.putNumber("Target Arm Ticks", targetTicks);
