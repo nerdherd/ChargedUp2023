@@ -1,5 +1,8 @@
 package frc.robot.filters;
 
+/**
+ * Raises an input to a power.
+ */
 public class PowerFilter implements Filter {
     private int power;
 

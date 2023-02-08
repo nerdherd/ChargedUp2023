@@ -1,5 +1,8 @@
 package frc.robot.filters;
 
+/**
+ * A series of filters that calculate in order
+ */
 public class FilterSeries implements Filter {
     private Filter[] filters;
 

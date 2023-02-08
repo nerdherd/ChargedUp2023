@@ -1,5 +1,8 @@
 package frc.robot.filters;
 
+/**
+ * New driver filter for swerve drive teleop input. Accepts a value in [-1, 1]
+ */
 public class NewDriverFilter extends FilterSeries {
     public NewDriverFilter() {
         super(

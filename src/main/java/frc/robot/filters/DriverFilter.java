@@ -3,6 +3,10 @@ package frc.robot.filters;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+/**
+ * The original driver filter used to filter swerve drive teleop input.
+ * Accepts a value in [-1, 1]
+ */
 public class DriverFilter extends FilterSeries {
     private SlewRateLimiter slewRateLimiter;
 
@@ -15,7 +19,7 @@ public class DriverFilter extends FilterSeries {
         
         super.setFilters(
             new DeadbandFilter(deadband),
-            new LowPassFilter(alpha, oneMinusAlpha),
+            new ExponentialSmoothingFilter(alpha, oneMinusAlpha),
             new PowerFilter(power),
             new WrapperFilter(
                 (x) -> {

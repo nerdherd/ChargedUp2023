@@ -14,7 +14,7 @@ public class WrapperFilter implements Filter {
     }
 
     /**
-     * Initialize an empty filter.
+     * Initialize an empty wrapper filter (returns the input as output)
      */
     public WrapperFilter() {
         this.filterFunction = (x) -> x;
