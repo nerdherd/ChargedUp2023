@@ -124,9 +124,9 @@ public class Limelight implements Reportable{
     // calculate distance
     //double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
 
-    public Limelight()
+    public Limelight(String keyN)
     {
-        table = NetworkTableInstance.getDefault().getTable("limelight");
+        table = NetworkTableInstance.getDefault().getTable(keyN);
 
         tx = table.getEntry("tx");
         ty = table.getEntry("ty");
@@ -332,9 +332,9 @@ public class Limelight implements Reportable{
      * 
      * @return The Lime Light instance
      */
-    public static Limelight getInstance() {
+    public static Limelight getInstance(String keyN) {
         if (m_Instance == null) {
-            m_Instance = new Limelight();
+            m_Instance = new Limelight(keyN);
         }
 
         return m_Instance;
