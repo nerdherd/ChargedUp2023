@@ -80,18 +80,21 @@ public final class Constants {
     public static final int kPistonForwardID = 2;
     public static final int kPistonReverseID = 3;
     public static final int kPCMPort = 3;
+
+    public static final int kLeftMotorID = 51;
+    public static final int kRightMotorID = 50;
   }
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 20;
     public static final int kArmStow = 432840;
     public static final int kArmScore = 596443;
-    public static final int kArmMotionAcceleration = 5;
+    public static final int kArmMotionAcceleration = 3000;
     public static final int kArmCruiseVelocity = 3000;
     public static final double kArmDeadband = 0.05;
-    public static final double kArmP = SmartDashboard.getNumber("kP Arm", 0);
+    public static final double kArmP = SmartDashboard.getNumber("kP Arm", 0.01);
     public static final double kArmI = SmartDashboard.getNumber("kI Arm", 0);
-    public static final double kArmD = SmartDashboard.getNumber("kD Arm", 0);
+    public static final double kArmD = SmartDashboard.getNumber("kD Arm", 0.01);
     public static final double kArbitraryFF = 0.07;
     public static final int kPistonForwardID = 4;
     public static final int kPistonReverseID = 5;

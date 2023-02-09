@@ -14,6 +14,7 @@ import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.MotorClaw;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Limelight.LightMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -49,8 +50,11 @@ public class RobotContainer {
 
   public static Arm arm = new Arm();
   public static Claw claw = new Claw();
+  
+  public static MotorClaw motorClaw = new MotorClaw();
+
   public static Imu imu = new Imu();
-  public static Vision vision = new Vision();
+  // public static Vision vision = new Vision();
   public static ConeRunner coneRunner = new ConeRunner();
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;
@@ -86,7 +90,6 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    objDetectCamera.setLightState(LightMode.OFF);
 
     if (IsSwerveDrive) {
       swerveDrive = new SwerveDrivetrain(imu);
@@ -116,11 +119,14 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
-    // arm.setDefaultCommand(
-    //   new RunCommand(
-    //     () -> arm.moveArmJoystick(operatorController.getLeftY()), 
-    //     arm
-    //   ));
+    arm.setDefaultCommand(
+      new RunCommand(
+        () -> {
+          arm.moveArmJoystick(operatorController.getLeftY());
+          SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
+        }, 
+        arm
+      ));
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
     if (IsSwerveDrive) {
@@ -160,11 +166,15 @@ public class RobotContainer {
     }
     operatorController.triangle().whileTrue(arm.armExtend());
     operatorController.square().whileTrue(arm.armStow());
-    operatorController.circle().onTrue(claw.clawOpen());
-    operatorController.cross().onTrue(claw.clawClose());
+    operatorController.L1().whileTrue(motorClaw.setPower(0.4))
+        .onFalse(motorClaw.setPowerZero());
+    operatorController.R1().whileTrue(motorClaw.setPower(-0.4))
+        .onFalse(motorClaw.setPowerZero());
+    // operatorController.circle().onTrue(claw.clawOpen());
+    // operatorController.cross().onTrue(claw.clawClose());
 
-    operatorController.L1().onTrue(arm.moveArmScore());
-    operatorController.R1().onTrue(arm.moveArmStow());
+    // operatorController.L1().whileTrue(arm.moveArmScore());
+    // operatorController.R1().whileTrue(arm.moveArmStow());
 
     if (IsSwerveDrive) {
       // Driver Bindings
@@ -174,15 +184,15 @@ public class RobotContainer {
       driverController.R2().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L2().whileTrue(new TurnToAngle(0, swerveDrive));
 
-      driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
-      driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
-      driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
-      driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
+      // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
+      // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
+      // driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
+      // driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
 
 
       // Operator Bindings
-      operatorController.R1().onTrue(vision.SwitchHigh());
-      operatorController.L1().onTrue(vision.SwitchLow());
+      // operatorController.R1().onTrue(vision.SwitchHigh());
+      // operatorController.L1().onTrue(vision.SwitchLow());
 
 
 

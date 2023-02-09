@@ -84,12 +84,14 @@ public class Arm extends SubsystemBase implements Reportable {
 
     public void moveArmMotionMagic(int position) {
         
-        rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", 0));
+        rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", 0.001));
         rotatingArm.config_kI(0, SmartDashboard.getNumber("Arm kI", 0));
         rotatingArm.config_kD(0, SmartDashboard.getNumber("Arm kD", 0));
         // config tuning params in slot 0
         rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, -ArmConstants.kArbitraryFF * Math.cos(Math.toRadians((ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle)));
         targetTicks = position;
+
+        SmartDashboard.putBoolean("motion magic :(", true);
 
         // if (Math.abs(rotatingArm.getSelectedSensorPosition() - position) > 10) {
         //     rotatingArm.setNeutralMode(NeutralMode.Brake);
@@ -130,18 +132,16 @@ public class Arm extends SubsystemBase implements Reportable {
     public void periodic() {}
 
     public CommandBase moveArmScore() {
-        return runOnce(
-            () -> {
-                moveArmMotionMagic(ArmConstants.kArmScore);
-            }
+        return Commands.runOnce(
+            () -> moveArmMotionMagic(ArmConstants.kArmScore), this
+            
         );
     }
 
     public CommandBase moveArmStow() {
-        return runOnce(
-            () -> {
-                moveArmMotionMagic(ArmConstants.kArmStow);
-            }
+        return Commands.runOnce(
+            () -> moveArmMotionMagic(ArmConstants.kArmStow), this
+   
         );
 
     }
@@ -174,6 +174,7 @@ public class Arm extends SubsystemBase implements Reportable {
 
     public void reportToSmartDashboard() {
         SmartDashboard.putNumber("Arm Motor Output", rotatingArm.getMotorOutputPercent());
+        SmartDashboard.putNumber("Arm Angle", (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
 
         SmartDashboard.putBoolean("Arm Extended", armExtended);
         SmartDashboard.putNumber("Current Arm Ticks", rotatingArm.getSelectedSensorPosition());
