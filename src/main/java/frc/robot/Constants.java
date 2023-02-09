@@ -114,6 +114,11 @@ public final class Constants {
     public static final double kCameraPitchRadians = Units.degreesToRadians(30);
     public static final double kGoalRangeMeters = Units.inchesToMeters(0);
     public static final double kAreaConstant = 0;
+
+    public static final double kFloorPickupArea = 2;
+    public static final double kSubstationPickupArea = 2;
+    public static final double kTapeAlignArea = 2;
+    public static final double kTagAlignArea = 2;
   }
 
   public static final class TankAutoConstants {

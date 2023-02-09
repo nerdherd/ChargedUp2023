@@ -60,8 +60,7 @@ public class RobotContainer {
   public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
-
-  private PipelineType obj = PipelineType.ATAG;
+  public Vision vision = new Vision(swerveDrive);
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);
@@ -194,17 +193,17 @@ public class RobotContainer {
       driverController.R2().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L2().whileTrue(new TurnToAngle(0, swerveDrive));
 
-      // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
-      // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
-      // driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
-      // driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
+      // ======== Vision Button Bindings ========
 
+      // Here, we only want to pass in the pipeline type, everything else should be done in the Vision class
+      driverController.triangle().onTrue(vision.ChaseTarget(PipelineType.CONE));
+      driverController.square().onTrue(vision.ChaseTarget(PipelineType.CUBE));
+      driverController.circle().onTrue(vision.ChaseTarget(PipelineType.TAPE));
+      driverController.cross().onTrue(vision.ChaseTarget(PipelineType.ATAG));
 
       // Operator Bindings
-      // operatorController.R1().onTrue(vision.SwitchHigh());
-      // operatorController.L1().onTrue(vision.SwitchLow());
-
-
+      operatorController.R1().onTrue(vision.SwitchHigh());
+      operatorController.L1().onTrue(vision.SwitchLow());
 
       // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 4, obj))
       //                  .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
@@ -235,6 +234,7 @@ public class RobotContainer {
     if (IsSwerveDrive) {
       swerveDrive.reportToSmartDashboard();
       swerveDrive.reportModulesToSmartDashboard();
+      vision.reportToSmartDashboard(); // Currently, vision only supports swerve drive
     } else {
       tankDrive.reportToSmartDashboard();
     }

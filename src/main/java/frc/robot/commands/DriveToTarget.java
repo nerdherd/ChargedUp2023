@@ -23,7 +23,7 @@ public class DriveToTarget extends CommandBase{
 
     private static final double kMaxOutputPercent = 0.6;
 
-    public DriveToTarget(SwerveDrivetrain drivetrain, Limelight limelight, double goalArea, PipelineType pipeline){
+    public DriveToTarget(SwerveDrivetrain drivetrain, Limelight limelight, double goalArea, PIDController pidX, PIDController pidDistance){
         this.limelight = limelight;
         this.drivetrain = drivetrain;
         this.goalArea = goalArea;
@@ -34,35 +34,11 @@ public class DriveToTarget extends CommandBase{
         SmartDashboard.putNumber("area I", 0);
         SmartDashboard.putNumber("tX D", 0);
         SmartDashboard.putNumber("area D", 0);
-
-        // Replace PID values with working numbers later (PID values shouldn't affect anything since the robot gets the numbers from the SmartDashboard)
-        switch(pipeline) {
-            case CONE:
-                limelight.setPipeline(1);
-                pidX = new PIDController(0, 0, 0);
-                pidDistance = new PIDController(0, 0, 0);
-                break;
-            case CUBE:
-                limelight.setPipeline(2);
-                pidX = new PIDController(0, 0, 0);
-                pidDistance = new PIDController(0, 0, 0);
-                break;
-            case TAPE:
-                limelight.setPipeline(3);
-                pidX = new PIDController(0, 0, 0);
-                pidDistance = new PIDController(0, 0, 0);
-                break;
-            case ATAG:
-                limelight.setPipeline(4);
-                pidX = new PIDController(0, 0, 0);
-                pidDistance = new PIDController(0, 0, 0);
-                break;
-        }
         
         // Allows for tuning in Dashboard; Get rid of later once everything is tuned
-        pidX = new PIDController(SmartDashboard.getNumber("tX P", 0.05), SmartDashboard.getNumber("tX I", 0.05), SmartDashboard.getNumber("tX D", 0.05)); //0.03
+        this.pidX = pidX;
         pidX.setTolerance(0.2);
-        pidDistance = new PIDController(SmartDashboard.getNumber("area P", 0.05), SmartDashboard.getNumber("area I", 0.05), SmartDashboard.getNumber("area D", 0.05)); //0.05
+        this.pidDistance = pidDistance;
         pidDistance.setTolerance(0.2);
 
         addRequirements(drivetrain);
