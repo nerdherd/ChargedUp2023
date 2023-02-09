@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -105,17 +105,22 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
   }
 
+  // FilterTest filterTest;
+
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
     // autoTest.ReinitExecution();
+    // filterTest = new FilterTest();
+    // filterTest.initialize();
   }
   // StateMachine autoTest = new StateMachine();
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
+    // filterTest.periodic();
     // autoTest.ExecutionPeriod();
   }
 
