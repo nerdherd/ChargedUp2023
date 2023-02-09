@@ -89,21 +89,19 @@ public final class Constants {
     public static final int kRotatingArmID = 20;
     public static final int kArmStow = 432840;
     public static final int kArmScore = 596443;
-    public static final int kArmMotionAcceleration = 3000;
-    public static final int kArmCruiseVelocity = 3000;
+    public static final int kArmGround = 767054;
+    public static final int kArmMotionAcceleration = 160000;
+    public static final int kArmCruiseVelocity = 21777;
     public static final double kArmDeadband = 0.05;
-    public static final double kArmP = SmartDashboard.getNumber("kP Arm", 0.01);
-    public static final double kArmI = SmartDashboard.getNumber("kI Arm", 0);
-    public static final double kArmD = SmartDashboard.getNumber("kD Arm", 0.01);
+    public static final double kArmP = 0.1;
+    public static final double kArmI = 0;
+    public static final double kArmD = 0.0;
     public static final double kArbitraryFF = 0.07;
     public static final int kPistonForwardID = 4;
     public static final int kPistonReverseID = 5;
     public static final double kJoystickMultiplier = 1; 
     public static final double kTicksPerAngle = 6441;
 
-    public static final double kP = 0;
-    public static final double kI = 0;
-    public static final double kD = 0; 
 
     public static final double kCruiseVelocity = 0;
     public static final double kMotionAcceleration = 0;

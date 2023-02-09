@@ -127,6 +127,8 @@ public class RobotContainer {
         }, 
         arm
       ));
+    
+    arm.resetEncoder();
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
     if (IsSwerveDrive) {
@@ -164,10 +166,18 @@ public class RobotContainer {
       driverController.L1().whileTrue(tankDrive.shiftHigh()); // TODO: use it for swerve too? inch-drive
       driverController.R1().whileTrue(tankDrive.shiftLow());
     }
+    operatorController.circle().whileTrue(arm.moveArmScore())
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    operatorController.cross().whileTrue(arm.moveArmStow())
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    operatorController.L1().whileTrue(arm.moveArmGround())
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    
+    
     operatorController.triangle().whileTrue(arm.armExtend());
     operatorController.square().whileTrue(arm.armStow());
-    operatorController.L1().whileTrue(motorClaw.setPower(0.4))
-        .onFalse(motorClaw.setPowerZero());
+    // operatorController.L1().whileTrue(motorClaw.setPower(0.4))
+    //     .onFalse(motorClaw.setPowerZero());
     operatorController.R1().whileTrue(motorClaw.setPower(-0.4))
         .onFalse(motorClaw.setPowerZero());
     // operatorController.circle().onTrue(claw.clawOpen());
