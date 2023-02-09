@@ -9,6 +9,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -145,26 +146,49 @@ public class SwerveAutos {
         return Commands.sequence(
             // Commands.runOnce(swerveDrive::zeroHeading),
             new ParallelRaceGroup(
-                new TurnToAngle(0, swerveDrive),
+                //new TurnToAngle(0, swerveDrive),
                 new WaitCommand(1)               
             ),
+            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Start")),
             Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             autoCommand,
             // new TurnToAngle(180, swerveDrive),
             Commands.runOnce(() -> swerveDrive.stopModules()),
-            arm.moveArmScore(),
+            new ParallelRaceGroup(
+                arm.moveArmScore(),
+                Commands.waitUntil(arm.atTargetPosition),
+                new WaitCommand(2)
+            ),
+            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
             arm.armExtend(),
-            claw.clawOpen(),
-            new WaitCommand(1),
-            claw.clawClose(),
+            //claw.clawOpen(),
+            // new WaitCommand(1),
+            // claw.clawClose(),
             arm.armStow(),
+            new ParallelRaceGroup(
+                arm.moveArmStow(),
+                Commands.waitUntil(arm.atTargetPosition),
+                new WaitCommand(2)
+            ),
+            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
             autoCommand2, 
             Commands.runOnce(() -> swerveDrive.stopModules()),
-            arm.armExtend(),
-            claw.clawOpen(),
-            new WaitCommand(0.5),
-            claw.clawClose(),
-            arm.armStow(),
+            // arm.armExtend(),
+            // claw.clawOpen(),
+            // new WaitCommand(0.5),
+            new ParallelRaceGroup(
+                arm.moveArmGround(),
+                Commands.waitUntil(arm.atTargetPosition),
+                new WaitCommand(2)
+            ),
+            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Ground")),
+            //claw.clawClose(),
+            new ParallelRaceGroup(
+                arm.moveArmStow(),
+                Commands.waitUntil(arm.atTargetPosition),
+                new WaitCommand(2)
+            ),
+            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow 2")),
             autoCommand3,
             // Commands.runOnce(() -> swerveDrive.stopModules()),
             // new WaitCommand(1),
@@ -174,9 +198,24 @@ public class SwerveAutos {
             // autoCommand5,
             Commands.runOnce(() -> swerveDrive.stopModules()),
             new ParallelRaceGroup(
-                new WaitCommand(0.5),
-                new TurnToAngle(180, swerveDrive)                
+                new WaitCommand(0.5)
+                // new TurnToAngle(180, swerveDrive)                
             ),
+            new ParallelRaceGroup(
+                arm.moveArmScore(),
+                Commands.waitUntil(arm.atTargetPosition),
+                new WaitCommand(2)
+            ),
+            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
+            arm.armExtend(),
+            // claw.clawOpen(),
+            arm.armStow(),
+            new ParallelRaceGroup(
+                arm.moveArmStow(),
+                Commands.waitUntil(arm.atTargetPosition),
+                new WaitCommand(2)
+            ),
+            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
             autoCommand6,
             // new TheGreatBalancingAct(swerveDrive),
             new TimedBalancingAct(swerveDrive, 0.5, SwerveAutoConstants.kPBalancingInitial, SwerveAutoConstants.kPBalancing),

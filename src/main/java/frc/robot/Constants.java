@@ -97,8 +97,8 @@ public final class Constants {
     public static final double kArmI = 0;
     public static final double kArmD = 0.0;
     public static final double kArbitraryFF = 0.07;
-    public static final int kPistonForwardID = 4;
-    public static final int kPistonReverseID = 5;
+    public static final int kPistonForwardID = 5;
+    public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
     public static final double kTicksPerAngle = 6441;
 

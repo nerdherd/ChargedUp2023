@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.PneumaticsConstants;
+import frc.robot.util.NerdyMath;
 
 public class Arm extends SubsystemBase implements Reportable {
     private DoubleSolenoid arm;
@@ -30,6 +32,7 @@ public class Arm extends SubsystemBase implements Reportable {
     private boolean armExtended = false;
     private int targetTicks;
     private PIDController armPID;
+    public BooleanSupplier atTargetPosition;
 
     public Arm() {
         arm = new DoubleSolenoid(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
@@ -50,6 +53,8 @@ public class Arm extends SubsystemBase implements Reportable {
         SmartDashboard.putNumber("Arm kP", ArmConstants.kArmP);
         SmartDashboard.putNumber("Arm kI", ArmConstants.kArmI);
         SmartDashboard.putNumber("Arm kD", ArmConstants.kArmD);
+
+        atTargetPosition = () -> (NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500));
    
     }
 
