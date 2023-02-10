@@ -5,15 +5,10 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import java.util.Arrays;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.Limelight.LightMode.SnapMode;
+import frc.robot.util.NerdyMath;
 
-public class Limelight {
+public class Limelight implements Reportable{
     private static Limelight m_Instance;
 
     private NetworkTable table; // Network table to access Lime Light Values
@@ -129,9 +124,9 @@ public class Limelight {
     // calculate distance
     //double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
 
-    public Limelight()
+    public Limelight(String keyN)
     {
-        table = NetworkTableInstance.getDefault().getTable("limelight");
+        table = NetworkTableInstance.getDefault().getTable(keyN);
 
         tx = table.getEntry("tx");
         ty = table.getEntry("ty");
@@ -145,7 +140,8 @@ public class Limelight {
      * @return Whether the limelight has any valid targets (0 or 1)
      */
     public boolean hasValidTarget() {
-        return (table.getEntry("tv").getDouble(0) == 0) ? false : true;
+        boolean has = NerdyMath.inRange(table.getEntry("tv").getDouble(0), -0.01, 0.01);
+        return !has;
     }
 
     /**
@@ -336,9 +332,9 @@ public class Limelight {
      * 
      * @return The Lime Light instance
      */
-    public static Limelight getInstance() {
+    public static Limelight getInstance(String keyN) {
         if (m_Instance == null) {
-            m_Instance = new Limelight();
+            m_Instance = new Limelight(keyN);
         }
 
         return m_Instance;
@@ -361,7 +357,7 @@ public class Limelight {
     /**
      * Output diagnostics
      */
-    public void outputTelemetry() {
+    public void reportToSmartDashboard() {
         SmartDashboard.putBoolean("HasTarget", hasValidTarget());
         SmartDashboard.putNumber("Horizontal Offset", getXAngle());
         SmartDashboard.putNumber("Vertical Offset", getYAngle());

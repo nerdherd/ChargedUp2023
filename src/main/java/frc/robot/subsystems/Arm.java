@@ -4,57 +4,256 @@
 
 package frc.robot.subsystems;
 
-import java.util.ResourceBundle.Control;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.PneumaticsConstants;
+import frc.robot.util.NerdyMath;
 
-public class Arm extends SubsystemBase {
-    public TalonFX armMotor;
+public class Arm extends SubsystemBase implements Reportable {
+    private DoubleSolenoid arm;
+    private TalonFX rotatingArm;
+    private boolean armExtended = false;
+    private int targetTicks = ArmConstants.kArmStow;
+    private PIDController armPID;
+    public BooleanSupplier atTargetPosition;
 
     public Arm() {
-        armMotor = new TalonFX(ArmConstants.kArmID);
-        armMotor.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
-        armMotor.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
-        armMotor.configNeutralDeadband(ArmConstants.kArmDeadband);
-        armMotor.config_kP(0, ArmConstants.kArmP);
-        armMotor.config_kI(0, ArmConstants.kArmI);
-        armMotor.config_kD(0, ArmConstants.kArmD);
+        arm = new DoubleSolenoid(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
+        
+        // gear ratio 27:1
+        rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
+
+        // CommandScheduler.getInstance().registerSubsystem(this);
+        initShuffleboard();
+
+        rotatingArm.setInverted(false);
+        rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        
+
+        rotatingArm.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
+        rotatingArm.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
+
+        SmartDashboard.putNumber("Arm kP", ArmConstants.kArmP);
+        SmartDashboard.putNumber("Arm kI", ArmConstants.kArmI);
+        SmartDashboard.putNumber("Arm kD", ArmConstants.kArmD);
+        SmartDashboard.putNumber("Arm kF", ArmConstants.kArmF);
+
+        SmartDashboard.putNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity);
+        SmartDashboard.putNumber("Arm Accel", ArmConstants.kArmMotionAcceleration);
+
+        atTargetPosition = () -> (NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500));
+   
+    }
+
+    public void moveArmJoystick(double currentJoystickOutput) {
+        // double armTicks = rotatingArm.getSelectedSensorPosition();
+
+
+        if (currentJoystickOutput >= 0.40 ) {
+            currentJoystickOutput = 0.40;
+        }
+
+        
+        if (currentJoystickOutput > ArmConstants.kArmDeadband) {
+            rotatingArm.set(ControlMode.PercentOutput, 0.40);
+            rotatingArm.setNeutralMode(NeutralMode.Coast);
+            //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
+        } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
+            rotatingArm.set(ControlMode.PercentOutput, -0.40);
+            rotatingArm.setNeutralMode(NeutralMode.Coast);
+                //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
+        } else {
+            rotatingArm.set(ControlMode.PercentOutput, 0);
+            rotatingArm.setNeutralMode(NeutralMode.Brake);
+        }
+
+    }
+
+    public CommandBase moveArmJoystickCommand(Supplier<Double> joystickInput) {
+        return Commands.run(
+            () -> moveArmJoystickCommand(joystickInput), this);
+    }
+
+    public void moveArmMotionMagic(int position) {
+        
+        rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", ArmConstants.kArmP));
+        rotatingArm.config_kI(0, SmartDashboard.getNumber("Arm kI", ArmConstants.kArmI));
+        rotatingArm.config_kD(0, SmartDashboard.getNumber("Arm kD", ArmConstants.kArmD));
+        rotatingArm.config_kF(0, SmartDashboard.getNumber("Arm kF", ArmConstants.kArmF));
+
+        rotatingArm.configMotionCruiseVelocity(SmartDashboard.getNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity));
+        rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
+        // config tuning params in slot 0
+        double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
+        double angleRadians = Math.toRadians(angle);
+        double ff = -ArmConstants.kArbitraryFF * Math.cos(angleRadians);
+        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
+        targetTicks = position;
+
+        SmartDashboard.putNumber("FF", ff);
+
+        SmartDashboard.putBoolean("motion magic :(", true);
+
+        // if (Math.abs(rotatingArm.getSelectedSensorPosition() - position) > 10) {
+        //     rotatingArm.setNeutralMode(NeutralMode.Brake);
+        // } else {
+        //     rotatingArm.setNeutralMode(NeutralMode.Coast);
+        // }
+    }
+
+    public void moveArmMotionMagic() {
+        
+        rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", ArmConstants.kArmP));
+        rotatingArm.config_kI(0, SmartDashboard.getNumber("Arm kI", ArmConstants.kArmI));
+        rotatingArm.config_kD(0, SmartDashboard.getNumber("Arm kD", ArmConstants.kArmD));
+        rotatingArm.config_kF(0, SmartDashboard.getNumber("Arm kF", ArmConstants.kArmF));
+
+        rotatingArm.configMotionCruiseVelocity(SmartDashboard.getNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity));
+        rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
+        // config tuning params in slot 0
+        double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
+        double angleRadians = Math.toRadians(angle);
+        double ff = -ArmConstants.kArbitraryFF * Math.cos(angleRadians);
+        rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+
+        SmartDashboard.putNumber("FF", ff);
+
+        SmartDashboard.putBoolean("motion magic :(", true);
+
+        // if (Math.abs(rotatingArm.getSelectedSensorPosition() - position) > 10) {
+        //     rotatingArm.setNeutralMode(NeutralMode.Brake);
+        // } else {
+        //     rotatingArm.setNeutralMode(NeutralMode.Coast);
+        // }
+    }
+
+    public void setTargetTicks(int targetTicks) {
+        this.targetTicks = targetTicks;
+    }
+
+    public void moveArm(double position) {
+        armPID = new PIDController(
+            SmartDashboard.getNumber("Arm kP", 0), 
+            SmartDashboard.getNumber("Arm kI", 0), 
+            SmartDashboard.getNumber("Arm kD", 0));
+        armPID.setSetpoint(position);
+        double speed = armPID.calculate(rotatingArm.getSelectedSensorPosition(), position);
+        if (speed > 3000) {
+            speed = 3000;
+        } else if (speed < -3000) {
+            speed = -3000;
+        }
+        rotatingArm.set(ControlMode.Velocity, speed);
+        if (armPID.atSetpoint()) {
+            rotatingArm.setNeutralMode(NeutralMode.Brake);
+        } else {
+            rotatingArm.setNeutralMode(NeutralMode.Coast);
+        }
+    }
+
+    public void setPowerZero() {
+        rotatingArm.set(ControlMode.PercentOutput, 0.0);
+    }
+
+    public void setBrakeMode() {
+        rotatingArm.setNeutralMode(NeutralMode.Brake);
+    }
+
+    public void ticksToAngle() {
+        
+    }
+
+    @Override
+    public void periodic() {}
+
+    public CommandBase moveArmScore() {
+        return Commands.run(
+            () -> moveArmMotionMagic(ArmConstants.kArmScore), this
+            
+        );
+    }
+
+    public CommandBase moveArmGround() {
+        return Commands.run(
+            () -> moveArmMotionMagic(ArmConstants.kArmGround), this
+            
+        );
+    }
+
+    public CommandBase moveArmStow() {
+        return Commands.run(
+            () -> moveArmMotionMagic(ArmConstants.kArmStow), this
+   
+        );
+
     }
 
     public CommandBase armStow() {
         return runOnce(
             () -> {
-                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmStow);
+                arm.set(Value.kReverse);
+                armExtended = false;
             }
         );
     }
 
-    public CommandBase armToMiddleNodePosition() {
+    public CommandBase armExtend() {
         return runOnce(
             () -> {
-                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmMiddleNode);
-            });
-      }
-
-    public CommandBase armToTopNodePosition() {
-        return runOnce(
-            () -> {
-                armMotor.set(ControlMode.MotionMagic, ArmConstants.kArmTopNode);
-            });
+                arm.set(Value.kForward);
+                armExtended = true;
+            }
+        );
     }
 
-    public void movePercentOutput(double joystickOutput) {
-        if (Math.abs(joystickOutput) > ControllerConstants.kOperatorJoystickDeadband) {
-            armMotor.set(ControlMode.PercentOutput, joystickOutput);
-        } else {
-            armMotor.set(ControlMode.PercentOutput, 0);
+    public void resetEncoder() {
+        rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+    }
+    
+    private void initShuffleboard() {
+        ShuffleboardTab tab = Shuffleboard.getTab("Arm");
+        
+        tab.addBoolean("Arm Extended", () -> armExtended);
+        tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
+        tab.addNumber("Target Arm Ticks", () -> targetTicks);
+    }
+
+    public void reportToSmartDashboard() {
+        SmartDashboard.putNumber("Arm Motor Output", rotatingArm.getMotorOutputPercent());
+        SmartDashboard.putNumber("Arm Angle", (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
+
+        SmartDashboard.putString("Arm Control Mode", rotatingArm.getControlMode().toString());
+        // SmartDashboard.putNumber("Closed Loop Target", rotatingArm.getClosedLoopTarget());
+        SmartDashboard.putNumber("arm target velocity", rotatingArm.getActiveTrajectoryVelocity());
+        SmartDashboard.putNumber("arm velocity", rotatingArm.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("arm target velocity", rotatingArm.getActiveTrajectoryVelocity());
+        SmartDashboard.putNumber("Closed loop error", rotatingArm.getClosedLoopError());
+
+        SmartDashboard.putBoolean("Arm Extended", armExtended);
+        SmartDashboard.putNumber("Arm Ticks", rotatingArm.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Target Arm Ticks", targetTicks);
+        if (this.getCurrentCommand() != null) {
+            SmartDashboard.putBoolean("Arm subsystem", this.getCurrentCommand() == this.getDefaultCommand());
         }
     }
-  
 }
+
+  
+
