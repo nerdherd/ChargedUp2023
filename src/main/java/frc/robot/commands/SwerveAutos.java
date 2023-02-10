@@ -12,10 +12,14 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
@@ -143,83 +147,216 @@ public class SwerveAutos {
             trajectory6, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
-        return Commands.sequence(
-            // Commands.runOnce(swerveDrive::zeroHeading),
-            new ParallelRaceGroup(
-                //new TurnToAngle(0, swerveDrive),
-                new WaitCommand(1)               
-            ),
-            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-            Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
-            autoCommand,
-            // new TurnToAngle(180, swerveDrive),
-            Commands.runOnce(() -> swerveDrive.stopModules()),
-            new ParallelRaceGroup(
-                arm.moveArmScore(),
-                Commands.waitUntil(arm.atTargetPosition),
-                new WaitCommand(2)
-            ),
-            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
-            arm.armExtend(),
-            //claw.clawOpen(),
+        return Commands.parallel(
+            new RunCommand(() -> arm.moveArmMotionMagic()),
+            new SequentialCommandGroup(
+                            // Commands.runOnce(swerveDrive::zeroHeading),
+                    new ParallelRaceGroup(
+                        //new TurnToAngle(0, swerveDrive),
+                        new WaitCommand(1)               
+                    ),
+                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+                    Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
+                    // autoCommand,
+                    // new TurnToAngle(180, swerveDrive),
+                    Commands.runOnce(() -> swerveDrive.stopModules()),
+                    new ParallelRaceGroup(
+                        new SequentialCommandGroup(
+                            new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                            new WaitCommand(0.5),
+                            Commands.waitUntil(arm.atTargetPosition)
+                        ),
+                        new WaitCommand(2)
+                    ),
+                    // new WaitCommand(1),
+
+                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
+                    arm.armExtend(),
+                    new WaitCommand(1),
+
+                    claw.clawOpen(),
+                    new WaitCommand(1),
+                    // claw.clawClose(),
+                    arm.armStow(),
+                    new WaitCommand(1),
+
+                    new ParallelRaceGroup(
+                        new SequentialCommandGroup(
+                            new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                            new WaitCommand(0.5),
+                            Commands.waitUntil(arm.atTargetPosition)
+                        ),
+                        new WaitCommand(2)
+                    ),
+                    // new WaitCommand(1),
+                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
+                    autoCommand2,
+                    Commands.runOnce(() -> swerveDrive.stopModules()),
+                    // arm.armExtend(),
+                    // claw.clawOpen(),
+                    // new WaitCommand(0.5),
+                    new ParallelRaceGroup(
+                        // new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGround)),
+                        new SequentialCommandGroup(
+                            new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGround)),
+                            new WaitCommand(0.5),
+                            Commands.waitUntil(arm.atTargetPosition)
+                        ),
+                        new WaitCommand(2)
+                    ),
+                    // claw.clawClose(),
+                    // new WaitCommand(2),
+
+                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Ground")),
+                    claw.clawClose(),
+                    new WaitCommand(1),
+                    new ParallelRaceGroup(
+                        new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+
+                        Commands.waitUntil(arm.atTargetPosition),
+                        new WaitCommand(2)
+                    ),
+                    // new WaitCommand(1),
+
+                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow 2")),
+                    autoCommand3,
+                    // Commands.runOnce(() -> swerveDrive.stopModules()),
+                    // new WaitCommand(1),
+                    // autoCommand4,
+                    // Commands.runOnce(() -> swerveDrive.stopModules()),
+                    // new WaitCommand(1),
+                    // autoCommand5,
+                    Commands.runOnce(() -> swerveDrive.stopModules()),
+                    new ParallelRaceGroup(
+                        new WaitCommand(0.5)
+                        // new TurnToAngle(180, swerveDrive)                
+                    ),
+                    
+                    new ParallelRaceGroup(
+                        new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+
+                        Commands.waitUntil(arm.atTargetPosition),
+                        new WaitCommand(2)
+                    ),
+                    
+                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
+                    arm.armExtend(),
+                    new WaitCommand(1),
+
+                    claw.clawOpen(),
+                    new WaitCommand(1),
+                    
+                    arm.armStow(),
+                    new WaitCommand(1),
+
+                    new ParallelRaceGroup(
+                        new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+
+                        Commands.waitUntil(arm.atTargetPosition),
+                        new WaitCommand(2)
+                    ),
+                    new WaitCommand(1),
+
+                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
+                    autoCommand6,
+                    // new TheGreatBalancingAct(swerveDrive),
+                    new TimedBalancingAct(swerveDrive, 0.5, SwerveAutoConstants.kPBalancingInitial, SwerveAutoConstants.kPBalancing),
+                    Commands.runOnce(() -> swerveDrive.stopModules()))
+                    
+                );
+    
+        // return Commands.sequence(
+            // new ParallelCommandGroup(
+                
+            // );
+            // // Commands.runOnce(swerveDrive::zeroHeading),
+            // new ParallelRaceGroup(
+            //     //new TurnToAngle(0, swerveDrive),
+            //     new WaitCommand(1)               
+            // ),
+            // Commands.runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+            // Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
+            // // autoCommand,
+            // // new TurnToAngle(180, swerveDrive),
+            // Commands.runOnce(() -> swerveDrive.stopModules()),
+            // new ParallelRaceGroup(
+            //     arm.moveArmScore(),
+            //     Commands.waitUntil(arm.atTargetPosition),
+            //     new WaitCommand(2)
+            // ),
             // new WaitCommand(1),
-            // claw.clawClose(),
-            arm.armStow(),
-            new ParallelRaceGroup(
-                arm.moveArmStow(),
-                Commands.waitUntil(arm.atTargetPosition),
-                new WaitCommand(2)
-            ),
-            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
-            autoCommand2, 
-            Commands.runOnce(() -> swerveDrive.stopModules()),
+
+            // Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
             // arm.armExtend(),
-            // claw.clawOpen(),
-            // new WaitCommand(0.5),
-            new ParallelRaceGroup(
-                arm.moveArmGround(),
-                Commands.waitUntil(arm.atTargetPosition),
-                new WaitCommand(2)
-            ),
-            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Ground")),
-            //claw.clawClose(),
-            new ParallelRaceGroup(
-                arm.moveArmStow(),
-                Commands.waitUntil(arm.atTargetPosition),
-                new WaitCommand(2)
-            ),
-            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow 2")),
-            autoCommand3,
-            // Commands.runOnce(() -> swerveDrive.stopModules()),
+            // //claw.clawOpen(),
             // new WaitCommand(1),
-            // autoCommand4,
-            // Commands.runOnce(() -> swerveDrive.stopModules()),
+            // // claw.clawClose(),
+            // arm.armStow(),
+            // new ParallelRaceGroup(
+            //     arm.moveArmStow(),
+            //     Commands.waitUntil(arm.atTargetPosition),
+            //     new WaitCommand(2)
+            // ),
             // new WaitCommand(1),
-            // autoCommand5,
-            Commands.runOnce(() -> swerveDrive.stopModules()),
-            new ParallelRaceGroup(
-                new WaitCommand(0.5)
-                // new TurnToAngle(180, swerveDrive)                
-            ),
-            new ParallelRaceGroup(
-                arm.moveArmScore(),
-                Commands.waitUntil(arm.atTargetPosition),
-                new WaitCommand(2)
-            ),
-            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
-            arm.armExtend(),
-            // claw.clawOpen(),
-            arm.armStow(),
-            new ParallelRaceGroup(
-                arm.moveArmStow(),
-                Commands.waitUntil(arm.atTargetPosition),
-                new WaitCommand(2)
-            ),
-            Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
-            autoCommand6,
-            // new TheGreatBalancingAct(swerveDrive),
-            new TimedBalancingAct(swerveDrive, 0.5, SwerveAutoConstants.kPBalancingInitial, SwerveAutoConstants.kPBalancing),
-            Commands.runOnce(() -> swerveDrive.stopModules()));
+            // Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
+            // autoCommand2, 
+            // Commands.runOnce(() -> swerveDrive.stopModules()),
+            // // arm.armExtend(),
+            // // claw.clawOpen(),
+            // // new WaitCommand(0.5),
+            // new ParallelRaceGroup(
+            //     arm.moveArmGround(),
+            //     Commands.waitUntil(arm.atTargetPosition),
+            //     new WaitCommand(2)
+            // ),
+            // new WaitCommand(1),
+
+            // Commands.runOnce(() -> SmartDashboard.putString("Stage", "Ground")),
+            // //claw.clawClose(),
+            // new ParallelRaceGroup(
+            //     arm.moveArmStow(),
+            //     Commands.waitUntil(arm.atTargetPosition),
+            //     new WaitCommand(2)
+            // ),
+            // new WaitCommand(1),
+
+            // Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow 2")),
+            // autoCommand3,
+            // // Commands.runOnce(() -> swerveDrive.stopModules()),
+            // // new WaitCommand(1),
+            // // autoCommand4,
+            // // Commands.runOnce(() -> swerveDrive.stopModules()),
+            // // new WaitCommand(1),
+            // // autoCommand5,
+            // Commands.runOnce(() -> swerveDrive.stopModules()),
+            // new ParallelRaceGroup(
+            //     new WaitCommand(0.5)
+            //     // new TurnToAngle(180, swerveDrive)                
+            // ),
+            // new ParallelRaceGroup(
+            //     arm.moveArmScore(),
+            //     Commands.waitUntil(arm.atTargetPosition),
+            //     new WaitCommand(2)
+            // ),
+            
+            // Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
+            // arm.armExtend(),
+            // // claw.clawOpen(),
+            // new WaitCommand(1),
+            
+            // arm.armStow(),
+            // new ParallelRaceGroup(
+            //     arm.moveArmStow(),
+            //     Commands.waitUntil(arm.atTargetPosition),
+            //     new WaitCommand(2)
+            // ),
+            // new WaitCommand(1),
+
+            // Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
+            // autoCommand6,
+            // // new TheGreatBalancingAct(swerveDrive),
+            // new TimedBalancingAct(swerveDrive, 0.5, SwerveAutoConstants.kPBalancingInitial, SwerveAutoConstants.kPBalancing),
+            // Commands.runOnce(() -> swerveDrive.stopModules()));
     } 
 
     /**
