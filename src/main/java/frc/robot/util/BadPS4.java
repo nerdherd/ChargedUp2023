@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.util;
 
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -46,10 +46,11 @@ public class BadPS4 extends GenericHID {
         kCircle(2),
         kSquare(3),
         kTriangle(4),
-        //TODO: Test share, options, PS, and touchpad
         kShare(7),
         kOptions(8),
+        // Doesn't work
         kPS(13),
+        // Doesn't work
         kTouchpad(14);
 
         public final int value;
@@ -613,6 +614,7 @@ public class BadPS4 extends GenericHID {
      *
      * @return The state of the button.
      */
+    @Deprecated
     public boolean getPSButton() {
         return getRawButton(Button.kPS.value);
     }
@@ -622,6 +624,7 @@ public class BadPS4 extends GenericHID {
      *
      * @return Whether the button was pressed since the last check.
      */
+    @Deprecated
     public boolean getPSButtonPressed() {
         return getRawButtonPressed(Button.kPS.value);
     }
@@ -631,6 +634,7 @@ public class BadPS4 extends GenericHID {
      *
      * @return Whether the button was released since the last check.
      */
+    @Deprecated
     public boolean getPSButtonReleased() {
         return getRawButtonReleased(Button.kPS.value);
     }
@@ -642,6 +646,7 @@ public class BadPS4 extends GenericHID {
      * @return an event instance representing the PS button's digital signal attached to the given
      *     loop.
      */
+    @Deprecated
     @SuppressWarnings("MethodName")
     public BooleanEvent PS(EventLoop loop) {
         return new BooleanEvent(loop, this::getPSButton);
@@ -690,6 +695,7 @@ public class BadPS4 extends GenericHID {
      *
      * @return The state of the touchpad.
      */
+    @Deprecated
     public boolean getTouchpad() {
         return getRawButton(Button.kTouchpad.value);
     }
@@ -699,6 +705,7 @@ public class BadPS4 extends GenericHID {
      *
      * @return Whether the touchpad was pressed since the last check.
      */
+    @Deprecated
     public boolean getTouchpadPressed() {
         return getRawButtonPressed(Button.kTouchpad.value);
     }
@@ -708,6 +715,7 @@ public class BadPS4 extends GenericHID {
      *
      * @return Whether the touchpad was released since the last check.
      */
+    @Deprecated
     public boolean getTouchpadReleased() {
         return getRawButtonReleased(Button.kTouchpad.value);
     }
@@ -719,6 +727,7 @@ public class BadPS4 extends GenericHID {
      * @return an event instance representing the touchpad's digital signal attached to the given
      *     loop.
      */
+    @Deprecated
     public BooleanEvent touchpad(EventLoop loop) {
         return new BooleanEvent(loop, this::getTouchpad);
     }
