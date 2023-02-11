@@ -50,7 +50,6 @@ public class Vision extends SubsystemBase implements Reportable {
         } catch (Exception e) {
             System.out.println("high limelight not initialized");
         }
-    }
 
         this.drivetrain = drivetrain;
 
