@@ -14,7 +14,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.filters.DriverFilter;
 import frc.robot.filters.Filter;
-import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 public class SwerveJoystickCommand extends CommandBase {
     private final SwerveDrivetrain swerveDrive;

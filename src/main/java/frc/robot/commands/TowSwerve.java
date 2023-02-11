@@ -2,7 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveDriveConstants;
-import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 public class TowSwerve extends CommandBase {
     private SwerveDrivetrain swerveDrive;

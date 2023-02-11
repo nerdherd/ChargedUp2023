@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
@@ -37,7 +38,8 @@ import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.Vision.PipelineType;
-import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -94,7 +96,11 @@ public class RobotContainer {
   public RobotContainer() {
 
     if (IsSwerveDrive) {
-      swerveDrive = new SwerveDrivetrain(imu);
+      try {
+        swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.MAG_ENCODER);
+      } catch (IllegalArgumentException e) {
+        DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
+      }
 
       swerveCommand = new RepeatCommand(
           new SequentialCommandGroup(

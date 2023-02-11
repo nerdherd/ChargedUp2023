@@ -7,8 +7,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Vision.PipelineType;
+import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.SwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 
 public class ApproachCombined extends CommandBase {

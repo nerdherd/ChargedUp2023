@@ -129,9 +129,12 @@ public final class Constants {
     public static final double kTurningMotorGearRatio = 1 / 21.428; // 150 : 7 : 1 MK4i
     public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI;
     public static final double kDriveTicksToMeters = (1 / 2048.0) * kMetersPerRevolution; 
-    public static final double kTurningTicksToRad = (1.0 / 4096.0) * 2 * Math.PI;
+    public static final double kAbsoluteTurningTicksToRad = (1.0 / 4096.0) * 2 * Math.PI;
+    public static final double kIntegratedTurningTicksToRad = (1.0 / 2048.0) * 2 * Math.PI;
     public static final double kDriveTicksPer100MsToMetersPerSec = kDriveTicksToMeters * 10;
-    public static final double kTurningTicksPer100MsToRadPerSec = kTurningTicksToRad * 10;
+    public static final double kAbsoluteTurningTicksPer100MsToRadPerSec = kAbsoluteTurningTicksToRad * 10;
+    public static final double kIntegratedTurningTicksPer100MsToRadPerSec = kIntegratedTurningTicksToRad * 10;
+
     
     public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
@@ -176,25 +179,48 @@ public final class Constants {
     public static final boolean kBLDriveReversed = false;      
     public static final boolean kBRDriveReversed = false;
 
-    public static final int kFRAbsoluteID = 13;
-    public static final int kFLAbsoluteID = 23;
-    public static final int kBLAbsoluteID = 33;
-    public static final int kBRAbsoluteID = 43;
+    public static final class MagEncoderConstants {
+      public static final int kFRAbsoluteID = 13;
+      public static final int kFLAbsoluteID = 23;
+      public static final int kBLAbsoluteID = 33;
+      public static final int kBRAbsoluteID = 43;
 
-    public static final boolean kFRAbsoluteReversed = false;    
-    public static final boolean kFLAbsoluteReversed = false;      
-    public static final boolean kBLAbsoluteReversed = false;       
-    public static final boolean kBRAbsoluteReversed = false;      
+      public static final boolean kFRAbsoluteReversed = false;    
+      public static final boolean kFLAbsoluteReversed = false;      
+      public static final boolean kBLAbsoluteReversed = false;       
+      public static final boolean kBRAbsoluteReversed = false; 
 
-    // public static final double kFRAbsoluteOffsetTicks = 4411;       
-    // public static final double kFLAbsoluteOffsetTicks = 3782;         
-    // public static final double kBLAbsouteOffsetTicks = 3042;          
-    // public static final double kBRAbsoluteOffsetTicks = 2364;
+      // public static final double kFRAbsoluteOffsetTicks = 4411;       
+      // public static final double kFLAbsoluteOffsetTicks = 3782;         
+      // public static final double kBLAbsouteOffsetTicks = 3042;          
+      // public static final double kBRAbsoluteOffsetTicks = 2364;
+  
+      public static final double kFRAbsoluteOffsetTicks = 2794 + 1024;       
+      public static final double kFLAbsoluteOffsetTicks = 2354 + 1024 + 52;         
+      public static final double kBLAbsoluteOffsetTicks = 2048 + 1024 + 46;          
+      public static final double kBRAbsoluteOffsetTicks = 237 + 1024 + 25;
+    }
 
-    public static final double kFRAbsoluteOffsetTicks = 2794 + 1024;       
-    public static final double kFLAbsoluteOffsetTicks = 2354 + 1024 + 52;         
-    public static final double kBLAbsouteOffsetTicks = 2048 + 1024 + 46;          
-    public static final double kBRAbsoluteOffsetTicks = 237 + 1024 + 25;
+    public static final class CANCoderConstants {
+      public static final int kFRCANCoderID = 14;
+      public static final int kFLCANCoderID = 24;
+      public static final int kBLCANCoderID = 34;
+      public static final int kBRCANCoderID = 44;
+
+      public static final boolean kFRCANCoderReversed = false;    
+      public static final boolean kFLCANCoderReversed = false;      
+      public static final boolean kBLCANCoderReversed = false;       
+      public static final boolean kBRCANCoderReversed = false; 
+
+      public static final double kFRCANCoderOffsetTicks = 0;       
+      public static final double kFLCANCoderOffsetTicks = 0;         
+      public static final double kBLCANCoderOffsetTicks = 0;          
+      public static final double kBRCANCoderOffsetTicks = 0;
+    }
+
+
+
+
 
     public static final double kPhysicalMaxSpeedMetersPerSecond = 4;    
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;

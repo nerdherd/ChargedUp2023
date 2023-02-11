@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -15,7 +15,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static frc.robot.Constants.*;
 
-public class SwerveModule implements Reportable{
+/**
+ * Swerve module that uses a Mag Encoder and SRX for the absolute angle
+ */
+public class MagSwerveModule implements SwerveModule {
     private final TalonFX driveMotor;
     private final TalonFX turnMotor;
 
@@ -43,7 +46,7 @@ public class SwerveModule implements Reportable{
      * @param absoluteEncoderOffset     Zero position for the absolute encoder (in ticks)
      * @param absoluteEncoderReversed   Whether or not the absolute encoder is inverted
      */
-    public SwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
+    public MagSwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
     int absoluteEncoderId, double absoluteEncoderOffset, boolean absoluteEncoderReversed) {
         this.driveMotor = new TalonFX(driveMotorId);
         this.turnMotor = new TalonFX(turningMotorId);
@@ -143,7 +146,7 @@ public class SwerveModule implements Reportable{
      * @return Angle in radians
      */
     public double getTurningPosition() {
-        double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0), 4096) * ModuleConstants.kTurningTicksToRad);
+        double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0), 4096) * ModuleConstants.kAbsoluteTurningTicksToRad);
         // SmartDashboard.putNumber("turning position motor #" + turnMotorID, turningPosition);
         // SmartDashboard.putNumber("Turning angle #" + turnMotorID, 180 * turningPosition / Math.PI);
         return turningPosition;
@@ -162,7 +165,7 @@ public class SwerveModule implements Reportable{
      * @return Velocity of the turning motor (in radians / sec)
      */
     public double getTurningVelocity() {
-        double turnVelocity = turnMotor.getSelectedSensorVelocity(0) * ModuleConstants.kTurningTicksPer100MsToRadPerSec;
+        double turnVelocity = turnMotor.getSelectedSensorVelocity(0) * ModuleConstants.kAbsoluteTurningTicksPer100MsToRadPerSec;
         // SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, turnVelocity);
         return turnVelocity;
     }
@@ -172,7 +175,7 @@ public class SwerveModule implements Reportable{
      * @return Position of the absolute mag encoder (in radians)
      */
     public double getAbsoluteEncoderRadians() {
-        double angle = (absoluteTurningEncoder.getSelectedSensorPosition(1) % 4096) * ModuleConstants.kTurningTicksToRad + absoluteEncoderOffset;
+        double angle = (absoluteTurningEncoder.getSelectedSensorPosition(1) % 4096) * ModuleConstants.kAbsoluteTurningTicksToRad + absoluteEncoderOffset;
         // SmartDashboard.putNumber("AbsoluteEncoder in rad", angle * (invertTurningEncoder ? -1 : 1));
         return angle * (invertTurningEncoder ? -1 : 1);
     }
