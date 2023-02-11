@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.PS4Controller;
 import frc.robot.commands.SwerveAutos;
@@ -38,6 +39,8 @@ import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.Vision.PipelineType;
+import frc.robot.util.BadPS4;
+import frc.robot.util.CommandBadPS4;
 import frc.robot.subsystems.SwerveDrivetrain;
 
 /**
@@ -66,13 +69,23 @@ public class RobotContainer {
 
   private PipelineType obj = PipelineType.ATAG;
 
-  private final CommandPS4Controller driverController = new CommandPS4Controller(
-      ControllerConstants.kDriverControllerPort);
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandPS4Controller operatorController = new CommandPS4Controller(
-      ControllerConstants.kOperatorControllerPort);
+  // private final CommandPS4Controller driverController = new CommandPS4Controller(
+  //     ControllerConstants.kDriverControllerPort);
+  // // Replace with CommandPS4Controller or CommandJoystick if needed
+  // private final CommandPS4Controller operatorController = new CommandPS4Controller(
+  //     ControllerConstants.kOperatorControllerPort);
 
-  private final PS4Controller driverControllerButtons = new PS4Controller(ControllerConstants.kDriverControllerPort);
+  private final CommandBadPS4 driverController = new CommandBadPS4(ControllerConstants.kDriverControllerPort);
+  private final CommandBadPS4 operatorController = new CommandBadPS4(ControllerConstants.kOperatorControllerPort);
+
+  // private final PS4Controller driverControllerButtons = new PS4Controller(ControllerConstants.kDriverControllerPort);
+
+  private final BadPS4 driverControllerButtons = new BadPS4(ControllerConstants.kDriverControllerPort);
+
+  private POVButton operatorPOVUp = new POVButton(driverControllerButtons, 0);
+  private POVButton operatorPOVRight = new POVButton(driverControllerButtons, 90);
+  private POVButton operatorPOVDown = new POVButton(driverControllerButtons, 180);
+  private POVButton operatorPOVLeft = new POVButton(driverControllerButtons, 270);
 
   SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
 
@@ -184,23 +197,23 @@ public class RobotContainer {
       driverController.R1().whileTrue(tankDrive.shiftLow());
     }
 
-    operatorController.circle().whileTrue(arm.moveArmScore()) // Square
+    operatorPOVRight.whileTrue(arm.moveArmScore())
       .onFalse(Commands.runOnce(arm::setPowerZero));
-    operatorController.triangle().whileTrue(arm.moveArmStow()) // Triangle
+    operatorPOVUp.whileTrue(arm.moveArmStow()) 
       .onFalse(Commands.runOnce(arm::setPowerZero));
-    operatorController.square().whileTrue(arm.moveArmGround()) // Cross
+    operatorPOVDown.whileTrue(arm.moveArmGround()) 
       .onFalse(Commands.runOnce(arm::setPowerZero));
-    operatorController.cross().whileTrue(arm.moveArmPickUp())
+    operatorPOVLeft.whileTrue(arm.moveArmPickUp())
       .onFalse(Commands.runOnce(arm::setPowerZero));
     
-    // operatorController.cross().onTrue(arm.armExtend()); // circle
-    // operatorController.square().whileTrue(arm.armStow());
-    operatorController.L1().whileTrue(motorClaw.setPower(0.4))
+    // operatorController.circle().onTrue(arm.armExtend()); 
+    // operatorController.cross().whileTrue(arm.armStow());
+    operatorController.L2().whileTrue(motorClaw.setPower(0.4))
         .onFalse(motorClaw.setPowerZero());
-    operatorController.R1().whileTrue(motorClaw.setPower(-0.4))
+    operatorController.R2().whileTrue(motorClaw.setPower(-0.4))
         .onFalse(motorClaw.setPowerZero());
-    // operatorController.circle().onTrue(claw.clawOpen());
-    // operatorController.cross().onTrue(claw.clawClose());
+    // operatorController.square().onTrue(claw.clawOpen());
+    // operatorController.triangle().onTrue(claw.clawClose());
 
     // operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
     // operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
