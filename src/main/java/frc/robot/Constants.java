@@ -110,6 +110,23 @@ public final class Constants {
 
   }
 
+  public static class ElevatorConstants{
+    public static final int kElevatorID = 0;
+    public static final int kElevatorStow = 0;
+    public static final int kElevatorScoreMid = 0;
+    public static final int kElevatorScoreHigh = 0;
+    public static final int kElevatorUpperLimit = 0;
+    public static final double kElevatorCruiseVelocity = 6000;
+    public static final double kElevatorMotionAcceleration = 6000;
+    public static final double kElevatorP = 0;
+    public static final double kElevatorI = 0;
+    public static final double kElevatorD = 0;
+    public static final double kElevatorF = 0;
+    public static final double kArbitraryFF = 0;
+    public static final double kElevatorDeadband = 0.05;
+
+  }
+
   public static class VisionConstants{
     public static final double kCameraHeightMeters = Units.inchesToMeters(33.875);
     public static final double kTargetHeightMeters = Units.inchesToMeters(75);

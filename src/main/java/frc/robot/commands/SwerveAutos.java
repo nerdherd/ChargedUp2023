@@ -160,9 +160,9 @@ public class SwerveAutos {
                     Commands.runOnce(() -> swerveDrive.stopModules()),
                     new ParallelRaceGroup(
                         new SequentialCommandGroup(
-                            new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                            new InstantCommand(() -> arm.setArmTargetTicks(ArmConstants.kArmScore)),
                             new WaitCommand(0.5),
-                            Commands.waitUntil(arm.atTargetPosition)
+                            Commands.waitUntil(arm.armAtTargetPosition)
                         ),
                         new WaitCommand(2)
                     ),
@@ -180,9 +180,9 @@ public class SwerveAutos {
 
                     new ParallelRaceGroup(
                         new SequentialCommandGroup(
-                            new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                            new InstantCommand(() -> arm.setArmTargetTicks(ArmConstants.kArmStow)),
                             new WaitCommand(0.5),
-                            Commands.waitUntil(arm.atTargetPosition)
+                            Commands.waitUntil(arm.armAtTargetPosition)
                         ),
                         new WaitCommand(2)
                     ),
@@ -194,11 +194,11 @@ public class SwerveAutos {
                     // claw.clawOpen(),
                     // new WaitCommand(0.5),
                     new ParallelRaceGroup(
-                        // new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGround)),
+                        // new InstantCommand(() -> arm.setArmTargetTicks(ArmConstants.kArmGround)),
                         new SequentialCommandGroup(
-                            new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGround)),
+                            new InstantCommand(() -> arm.setArmTargetTicks(ArmConstants.kArmGround)),
                             new WaitCommand(0.5),
-                            Commands.waitUntil(arm.atTargetPosition)
+                            Commands.waitUntil(arm.armAtTargetPosition)
                         ),
                         new WaitCommand(2)
                     ),
@@ -209,9 +209,9 @@ public class SwerveAutos {
                     claw.clawClose(),
                     new WaitCommand(1),
                     new ParallelRaceGroup(
-                        new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        new InstantCommand(() -> arm.setArmTargetTicks(ArmConstants.kArmStow)),
 
-                        Commands.waitUntil(arm.atTargetPosition),
+                        Commands.waitUntil(arm.armAtTargetPosition),
                         new WaitCommand(2)
                     ),
                     // new WaitCommand(1),
@@ -231,9 +231,9 @@ public class SwerveAutos {
                     ),
                     
                     new ParallelRaceGroup(
-                        new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                        new InstantCommand(() -> arm.setArmTargetTicks(ArmConstants.kArmScore)),
 
-                        Commands.waitUntil(arm.atTargetPosition),
+                        Commands.waitUntil(arm.armAtTargetPosition),
                         new WaitCommand(2)
                     ),
                     
@@ -248,9 +248,9 @@ public class SwerveAutos {
                     new WaitCommand(1),
 
                     new ParallelRaceGroup(
-                        new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        new InstantCommand(() -> arm.setArmTargetTicks(ArmConstants.kArmStow)),
 
-                        Commands.waitUntil(arm.atTargetPosition),
+                        Commands.waitUntil(arm.armAtTargetPosition),
                         new WaitCommand(2)
                     ),
                     new WaitCommand(1),
@@ -279,7 +279,7 @@ public class SwerveAutos {
             // Commands.runOnce(() -> swerveDrive.stopModules()),
             // new ParallelRaceGroup(
             //     arm.moveArmScore(),
-            //     Commands.waitUntil(arm.atTargetPosition),
+            //     Commands.waitUntil(arm.armAtTargetPosition),
             //     new WaitCommand(2)
             // ),
             // new WaitCommand(1),
@@ -292,7 +292,7 @@ public class SwerveAutos {
             // arm.armStow(),
             // new ParallelRaceGroup(
             //     arm.moveArmStow(),
-            //     Commands.waitUntil(arm.atTargetPosition),
+            //     Commands.waitUntil(arm.armAtTargetPosition),
             //     new WaitCommand(2)
             // ),
             // new WaitCommand(1),
@@ -304,7 +304,7 @@ public class SwerveAutos {
             // // new WaitCommand(0.5),
             // new ParallelRaceGroup(
             //     arm.moveArmGround(),
-            //     Commands.waitUntil(arm.atTargetPosition),
+            //     Commands.waitUntil(arm.armAtTargetPosition),
             //     new WaitCommand(2)
             // ),
             // new WaitCommand(1),
@@ -313,7 +313,7 @@ public class SwerveAutos {
             // //claw.clawClose(),
             // new ParallelRaceGroup(
             //     arm.moveArmStow(),
-            //     Commands.waitUntil(arm.atTargetPosition),
+            //     Commands.waitUntil(arm.armAtTargetPosition),
             //     new WaitCommand(2)
             // ),
             // new WaitCommand(1),
@@ -333,7 +333,7 @@ public class SwerveAutos {
             // ),
             // new ParallelRaceGroup(
             //     arm.moveArmScore(),
-            //     Commands.waitUntil(arm.atTargetPosition),
+            //     Commands.waitUntil(arm.armAtTargetPosition),
             //     new WaitCommand(2)
             // ),
             
@@ -345,7 +345,7 @@ public class SwerveAutos {
             // arm.armStow(),
             // new ParallelRaceGroup(
             //     arm.moveArmStow(),
-            //     Commands.waitUntil(arm.atTargetPosition),
+            //     Commands.waitUntil(arm.armAtTargetPosition),
             //     new WaitCommand(2)
             // ),
             // new WaitCommand(1),

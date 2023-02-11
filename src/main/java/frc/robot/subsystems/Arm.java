@@ -23,16 +23,20 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.PneumaticsConstants;
 import frc.robot.util.NerdyMath;
 
 public class Arm extends SubsystemBase implements Reportable {
     private DoubleSolenoid arm;
     private TalonFX rotatingArm;
+    private TalonFX elevator;
     private boolean armExtended = false;
-    private int targetTicks = ArmConstants.kArmStow;
+    private int armTargetTicks = ArmConstants.kArmStow;
+    private int elevatorTargetTicks = ElevatorConstants.kElevatorStow;
     private PIDController armPID;
-    public BooleanSupplier atTargetPosition;
+    public BooleanSupplier armAtTargetPosition;
+    public BooleanSupplier elevatorAtTargetPosition;
 
     public Arm() {
         arm = new DoubleSolenoid(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
@@ -58,8 +62,25 @@ public class Arm extends SubsystemBase implements Reportable {
         SmartDashboard.putNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity);
         SmartDashboard.putNumber("Arm Accel", ArmConstants.kArmMotionAcceleration);
 
-        atTargetPosition = () -> (NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500));
-   
+        armAtTargetPosition = () -> (NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), armTargetTicks - 1500, armTargetTicks + 1500));
+        elevatorAtTargetPosition = () -> (NerdyMath.inRange(elevator.getSelectedSensorPosition(), elevatorTargetTicks - 1500, elevatorTargetTicks + 1500));
+
+        elevator = new TalonFX(ElevatorConstants.kElevatorID);
+        elevator.setInverted(false);
+        elevator.setSelectedSensorPosition(armTargetTicks);
+
+        elevator.configMotionCruiseVelocity(ElevatorConstants.kElevatorCruiseVelocity);
+        elevator.configMotionAcceleration(ElevatorConstants.kElevatorMotionAcceleration);
+
+        SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
+        SmartDashboard.putNumber("Elevator kI", ElevatorConstants.kElevatorI);
+        SmartDashboard.putNumber("Elevator kD", ElevatorConstants.kElevatorD);
+        SmartDashboard.putNumber("Elevator kF", ElevatorConstants.kElevatorF);
+
+        SmartDashboard.putNumber("Elevator Cruise Velocity", ElevatorConstants.kElevatorCruiseVelocity);
+        SmartDashboard.putNumber("Elevator Accel ", ElevatorConstants.kElevatorMotionAcceleration);
+
+
     }
 
     public void moveArmJoystick(double currentJoystickOutput) {
@@ -93,6 +114,28 @@ public class Arm extends SubsystemBase implements Reportable {
             () -> moveArmJoystickCommand(joystickInput), this);
     }
 
+    public void moveElevatorJoystick(double currentJoystickOutput) {
+        if (NerdyMath.inRange(elevator.getSelectedSensorPosition(), ElevatorConstants.kElevatorUpperLimit - 1500, ElevatorConstants.kElevatorStow + 1500)) {
+            if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
+                elevator.set(ControlMode.PercentOutput, 0.40);
+                elevator.setNeutralMode(NeutralMode.Coast);
+            } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
+                elevator.set(ControlMode.PercentOutput, -0.40);
+                elevator.setNeutralMode(NeutralMode.Coast);
+            } else {
+                elevator.set(ControlMode.PercentOutput, 0);
+                elevator.setNeutralMode(NeutralMode.Brake);
+            }
+        }
+
+    }
+
+    public CommandBase moveElevatorJoystickCommand(Supplier<Double> joystickInput) {
+        return Commands.run(
+            () -> moveElevatorJoystickCommand(joystickInput), this);
+
+    }
+
     public void moveArmMotionMagic(int position) {
         
         rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", ArmConstants.kArmP));
@@ -107,11 +150,11 @@ public class Arm extends SubsystemBase implements Reportable {
         double angleRadians = Math.toRadians(angle);
         double ff = -ArmConstants.kArbitraryFF * Math.cos(angleRadians);
         rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
-        targetTicks = position;
+        armTargetTicks = position;
 
-        SmartDashboard.putNumber("FF", ff);
+        SmartDashboard.putNumber("Arm FF", ff);
 
-        SmartDashboard.putBoolean("motion magic :(", true);
+        SmartDashboard.putBoolean("arm motion magic :(", true);
 
         // if (Math.abs(rotatingArm.getSelectedSensorPosition() - position) > 10) {
         //     rotatingArm.setNeutralMode(NeutralMode.Brake);
@@ -133,11 +176,11 @@ public class Arm extends SubsystemBase implements Reportable {
         double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
         double angleRadians = Math.toRadians(angle);
         double ff = -ArmConstants.kArbitraryFF * Math.cos(angleRadians);
-        rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+        rotatingArm.set(ControlMode.MotionMagic, armTargetTicks, DemandType.ArbitraryFeedForward, ff);
 
-        SmartDashboard.putNumber("FF", ff);
+        SmartDashboard.putNumber("Arm FF", ff);
 
-        SmartDashboard.putBoolean("motion magic :(", true);
+        SmartDashboard.putBoolean("arm motion magic :(", true);
 
         // if (Math.abs(rotatingArm.getSelectedSensorPosition() - position) > 10) {
         //     rotatingArm.setNeutralMode(NeutralMode.Brake);
@@ -146,44 +189,71 @@ public class Arm extends SubsystemBase implements Reportable {
         // }
     }
 
-    public void setTargetTicks(int targetTicks) {
-        this.targetTicks = targetTicks;
+    public void moveElevatorMotionMagic(int position) {
+        elevator.config_kP(0, SmartDashboard.getNumber("Elevator kP", ElevatorConstants.kElevatorP));
+        elevator.config_kI(0, SmartDashboard.getNumber("Elevator kI", ElevatorConstants.kElevatorI));
+        elevator.config_kD(0, SmartDashboard.getNumber("Elevator kD", ElevatorConstants.kElevatorD));
+        elevator.config_kF(0, SmartDashboard.getNumber("Elevator kF",ElevatorConstants.kElevatorF));
+
+        elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Velocity", ElevatorConstants.kElevatorCruiseVelocity));
+        elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Motion Acceleration", ElevatorConstants.kElevatorMotionAcceleration));
+
+        double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
+        double angleRadians = Math.toRadians(angle);
+        double ff = -ArmConstants.kArbitraryFF * Math.sin(angleRadians);
+        elevator.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
+        elevatorTargetTicks = position;
+
+        SmartDashboard.putNumber("Elevator FF", ff);
+
+        SmartDashboard.putBoolean("elevator motion magic :(", true);
+
     }
 
-    public void moveArm(double position) {
-        armPID = new PIDController(
-            SmartDashboard.getNumber("Arm kP", 0), 
-            SmartDashboard.getNumber("Arm kI", 0), 
-            SmartDashboard.getNumber("Arm kD", 0));
-        armPID.setSetpoint(position);
-        double speed = armPID.calculate(rotatingArm.getSelectedSensorPosition(), position);
-        if (speed > 3000) {
-            speed = 3000;
-        } else if (speed < -3000) {
-            speed = -3000;
-        }
-        rotatingArm.set(ControlMode.Velocity, speed);
-        if (armPID.atSetpoint()) {
-            rotatingArm.setNeutralMode(NeutralMode.Brake);
-        } else {
-            rotatingArm.setNeutralMode(NeutralMode.Coast);
-        }
+    public void moveElevatorMotionMagic() {
+        
+        elevator.config_kP(0, SmartDashboard.getNumber("Elevator kP", ElevatorConstants.kElevatorP));
+        elevator.config_kI(0, SmartDashboard.getNumber("Elevator kI", ElevatorConstants.kElevatorI));
+        elevator.config_kD(0, SmartDashboard.getNumber("Elevator kD", ElevatorConstants.kElevatorD));
+        elevator.config_kF(0, SmartDashboard.getNumber("Elevator kF", ElevatorConstants.kElevatorF));
+
+        elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Velocity", ElevatorConstants.kElevatorCruiseVelocity));
+        elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
+        // config tuning params in slot 0
+        double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
+        double angleRadians = Math.toRadians(angle);
+        double ff = -ArmConstants.kArbitraryFF * Math.cos(angleRadians);
+        elevator.set(ControlMode.MotionMagic, elevatorTargetTicks, DemandType.ArbitraryFeedForward, ff);
+
+        SmartDashboard.putNumber("Elevator FF", ff);
+
+        SmartDashboard.putBoolean("elevator motion magic :(", true);
+
     }
 
-    public void setPowerZero() {
+    public void setArmTargetTicks(int armTargetTicks) {
+        this.armTargetTicks = armTargetTicks;
+    }
+
+    public void setElevatorTargetTicks(int elevatorTargetTicks) {
+        this.elevatorTargetTicks = elevatorTargetTicks;
+    }
+
+    public void setArmPowerZero() {
         rotatingArm.set(ControlMode.PercentOutput, 0.0);
     }
 
-    public void setBrakeMode() {
+    public void setArmBrakeMode() {
         rotatingArm.setNeutralMode(NeutralMode.Brake);
     }
 
-    public void ticksToAngle() {
-        
+    public void setElevatorPowerZero() {
+        elevator.set(ControlMode.PercentOutput, 0.0);
     }
 
-    @Override
-    public void periodic() {}
+    public void setElevatorBrakeMode() {
+        elevator.setNeutralMode(NeutralMode.Brake);
+    }
 
     public CommandBase moveArmScore() {
         return Commands.run(
@@ -214,6 +284,27 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
+    public CommandBase moveElevatorScoreMid() {
+        return Commands.run(
+            () -> moveArmMotionMagic(ElevatorConstants.kElevatorScoreMid), this
+            
+        );
+    }
+
+    public CommandBase moveElevatorScoreHigh() {
+        return Commands.run(
+            () -> moveArmMotionMagic(ElevatorConstants.kElevatorScoreHigh), this
+            
+        );
+    }
+
+    public CommandBase moveElevatorStow() {
+        return Commands.run(
+            () -> moveArmMotionMagic(ElevatorConstants.kElevatorStow), this
+            
+        );
+    }
+
     public CommandBase armStow() {
         return runOnce(
             () -> {
@@ -232,8 +323,12 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
-    public void resetEncoder() {
+    public void armResetEncoder() {
         rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+    }
+
+    public void elevatorResetEncoder() {
+        elevator.setSelectedSensorPosition(ElevatorConstants.kElevatorStow);
     }
     
     private void initShuffleboard() {
@@ -241,7 +336,7 @@ public class Arm extends SubsystemBase implements Reportable {
         
         tab.addBoolean("Arm Extended", () -> armExtended);
         tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
-        tab.addNumber("Target Arm Ticks", () -> targetTicks);
+        tab.addNumber("Target Arm Ticks", () -> armTargetTicks);
     }
 
     public void reportToSmartDashboard() {
@@ -257,11 +352,22 @@ public class Arm extends SubsystemBase implements Reportable {
 
         SmartDashboard.putBoolean("Arm Extended", armExtended);
         SmartDashboard.putNumber("Arm Ticks", rotatingArm.getSelectedSensorPosition());
-        SmartDashboard.putNumber("Target Arm Ticks", targetTicks);
+        SmartDashboard.putNumber("Target Arm Ticks", armTargetTicks);
         if (this.getCurrentCommand() != null) {
             SmartDashboard.putBoolean("Arm subsystem", this.getCurrentCommand() == this.getDefaultCommand());
         }
+
+        SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
+
+        SmartDashboard.putString("Elevator Control Mode", elevator.getControlMode().toString());
+        SmartDashboard.putNumber("elevator target velocity", elevator.getActiveTrajectoryVelocity());
+        SmartDashboard.putNumber("elevator velocity", elevator.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Closed loop error", elevator.getClosedLoopError());
+
+        SmartDashboard.putNumber("Elevator Ticks", elevator.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Target Elevator Ticks", elevatorTargetTicks);
     }
+
 }
 
   
