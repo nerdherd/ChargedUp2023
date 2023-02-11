@@ -21,6 +21,7 @@ public class Vision extends SubsystemBase implements Reportable {
     private PIDController PIDAngular;
     private PipelineType currentPipeline;
 
+
     public static enum PipelineType {
         CONE,
         CUBE,
@@ -33,9 +34,23 @@ public class Vision extends SubsystemBase implements Reportable {
         LOW
     }
 
+    private HighLowState state = null;
+    private PipelineType pipeline = null;
+
     public Vision(SwerveDrivetrain drivetrain){
-        limelightLow.setLightState(Limelight.LightMode.OFF);
-        limelightHigh.setLightState(Limelight.LightMode.OFF);
+        try {
+            limelightLow = new Limelight("limelight");
+            limelightLow.setLightState(Limelight.LightMode.OFF);
+        } catch (Exception e) {
+            System.out.println("low limelight not initialized");
+        }
+        try {
+            limelightHigh = new Limelight("limelight1");
+            limelightHigh.setLightState(Limelight.LightMode.OFF);
+        } catch (Exception e) {
+            System.out.println("high limelight not initialized");
+        }
+    }
 
         this.drivetrain = drivetrain;
 

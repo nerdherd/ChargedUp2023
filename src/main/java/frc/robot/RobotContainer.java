@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.ApproachCombined;
 import frc.robot.commands.DriveToTarget;
@@ -165,25 +166,26 @@ public class RobotContainer {
       driverController.L1().whileTrue(tankDrive.shiftHigh()); // TODO: use it for swerve too? inch-drive
       driverController.R1().whileTrue(tankDrive.shiftLow());
     }
-    operatorController.circle().whileTrue(arm.moveArmScore())
+
+    operatorController.circle().whileTrue(arm.moveArmScore()) // Square
       .onFalse(Commands.runOnce(arm::setPowerZero));
-    operatorController.cross().whileTrue(arm.moveArmStow())
+    operatorController.triangle().whileTrue(arm.moveArmStow()) // Triangle
       .onFalse(Commands.runOnce(arm::setPowerZero));
-    operatorController.L1().whileTrue(arm.moveArmGround())
+    operatorController.square().whileTrue(arm.moveArmGround()) // Cross
       .onFalse(Commands.runOnce(arm::setPowerZero));
     
     
-    operatorController.triangle().whileTrue(arm.armExtend());
-    operatorController.square().whileTrue(arm.armStow());
+    // operatorController.triangle().whileTrue(arm.armExtend());
+    // operatorController.square().whileTrue(arm.armStow());
     // operatorController.L1().whileTrue(motorClaw.setPower(0.4))
     //     .onFalse(motorClaw.setPowerZero());
-    operatorController.R1().whileTrue(motorClaw.setPower(-0.4))
-        .onFalse(motorClaw.setPowerZero());
+    // operatorController.R1().whileTrue(motorClaw.setPower(-0.4))
+    //     .onFalse(motorClaw.setPowerZero());
     // operatorController.circle().onTrue(claw.clawOpen());
     // operatorController.cross().onTrue(claw.clawClose());
 
-    // operatorController.L1().whileTrue(arm.moveArmScore());
-    // operatorController.R1().whileTrue(arm.moveArmStow());
+    operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
+    operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
 
     if (IsSwerveDrive) {
       // Driver Bindings
@@ -259,7 +261,11 @@ public class RobotContainer {
       tankDrive.resetEncoders();
       // drive.setEncoder(drive.meterToTicks(0.381));
       imu.zeroHeading();
+
     }
+    
+    arm.resetEncoder();
+    arm.setTargetTicks(ArmConstants.kArmStow);
 
     // if (IsSwerveDrive) {
     //   swerveDrive.resetEncoders();
