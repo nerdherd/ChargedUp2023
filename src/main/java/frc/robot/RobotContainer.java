@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.commands.ApproachCombined;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.subsystems.AirCompressor;
@@ -149,7 +150,8 @@ public class RobotContainer {
         arm
       ));
     
-    arm.resetEncoder();
+    arm.armResetEncoder();
+    arm.elevatorResetEncoder();
 
     coneRunner.setDefaultCommand(
       Commands.run(() -> {
@@ -198,20 +200,47 @@ public class RobotContainer {
     }
 
     operatorPOVRight.whileTrue(arm.moveArmScore())
-      .onFalse(Commands.runOnce(arm::setPowerZero));
+      .onFalse(Commands.runOnce(arm::setArmPowerZero));
     operatorPOVUp.whileTrue(arm.moveArmStow()) 
-      .onFalse(Commands.runOnce(arm::setPowerZero));
+      .onFalse(Commands.runOnce(arm::setArmPowerZero));
     operatorPOVDown.whileTrue(arm.moveArmGround()) 
-      .onFalse(Commands.runOnce(arm::setPowerZero));
+      .onFalse(Commands.runOnce(arm::setArmPowerZero));
     operatorPOVLeft.whileTrue(arm.moveArmPickUp())
-      .onFalse(Commands.runOnce(arm::setPowerZero));
-    
+      .onFalse(Commands.runOnce(arm::setArmPowerZero));
+
+    operatorController.triangle().whileTrue(arm.moveElevatorScoreHigh())
+      .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
+    operatorController.square().whileTrue(arm.moveElevatorScoreMid())
+      .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
+    operatorController.cross().whileTrue(arm.moveElevatorStow())
+      .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
+  
     // operatorController.circle().onTrue(arm.armExtend()); 
     // operatorController.cross().whileTrue(arm.armStow());
     operatorController.L2().whileTrue(motorClaw.setPower(0.4))
         .onFalse(motorClaw.setPowerZero());
     operatorController.R2().whileTrue(motorClaw.setPower(-0.4))
         .onFalse(motorClaw.setPowerZero());
+
+    operatorController.L3().whileTrue(
+      new RunCommand(
+        () -> {
+          arm.moveArmJoystick(operatorController.getLeftY());
+          SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
+        }, 
+        arm
+      )
+    );
+
+    operatorController.R3().whileTrue(
+      new RunCommand(
+        () -> {
+          arm.moveElevatorJoystick(operatorController.getRightY());
+          SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
+        }, 
+        arm
+      )
+    );
     // operatorController.square().onTrue(claw.clawOpen());
     // operatorController.triangle().onTrue(claw.clawClose());
 
@@ -294,9 +323,11 @@ public class RobotContainer {
 
     }
     
-    arm.resetEncoder();
-    arm.setTargetTicks(ArmConstants.kArmStow);
+    arm.armResetEncoder();
+    arm.setArmTargetTicks(ArmConstants.kArmStow);
 
+    arm.elevatorResetEncoder();
+    arm.setElevatorTargetTicks(ElevatorConstants.kElevatorStow);
     // if (IsSwerveDrive) {
     //   swerveDrive.resetEncoders();
     // }
