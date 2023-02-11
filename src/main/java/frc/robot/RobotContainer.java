@@ -35,6 +35,7 @@ import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
+import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.subsystems.SwerveDrivetrain;
 
@@ -103,7 +104,7 @@ public class RobotContainer {
       autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
-      autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw));
+      autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
       SmartDashboard.putData(autoChooser);
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
@@ -258,7 +259,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // return autoChooser.getSelected();
     if (IsSwerveDrive)
-      return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw);
+      return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
     else
       return TankAutos.HardCarryAuto(tankDrive, claw, arm);
   }
