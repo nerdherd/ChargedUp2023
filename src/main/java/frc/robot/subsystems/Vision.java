@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase implements Reportable{
-    public Limelight limelightLow = new Limelight("limelight");
-    public Limelight limelightHigh = new Limelight("limelight1");
+    public Limelight limelightLow;
+    public Limelight limelightHigh;
 
     public static enum PipelineType {
         CONE,
@@ -29,8 +29,18 @@ public class Vision extends SubsystemBase implements Reportable{
     private PipelineType pipeline = null;
 
     public Vision(){
-        limelightLow.setLightState(Limelight.LightMode.OFF);
-        limelightHigh.setLightState(Limelight.LightMode.OFF);
+        try {
+            limelightLow = new Limelight("limelight");
+            limelightLow.setLightState(Limelight.LightMode.OFF);
+        } catch (Exception e) {
+            System.out.println("low limelight not initialized");
+        }
+        try {
+            limelightHigh = new Limelight("limelight1");
+            limelightHigh.setLightState(Limelight.LightMode.OFF);
+        } catch (Exception e) {
+            System.out.println("high limelight not initialized");
+        }
     }
 
     @Override
