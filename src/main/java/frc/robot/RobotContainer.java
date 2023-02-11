@@ -138,6 +138,8 @@ public class RobotContainer {
         coneRunner.joystickAngleControl(0.5*operatorController.getRightY());
       }, coneRunner)
     );
+
+    coneRunner.resetEncoders();
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
     if (IsSwerveDrive) {
