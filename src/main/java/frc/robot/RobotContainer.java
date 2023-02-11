@@ -154,7 +154,7 @@ public class RobotContainer {
     coneRunner.setDefaultCommand(
       Commands.run(() -> {
         coneRunner.joystickSpeedControl(0.5*operatorController.getLeftY());
-        coneRunner.joystickAngleControl(0.5*operatorController.getRightY());
+        coneRunner.joystickAngleControl(0.15*operatorController.getRightY() + 0.15);
       }, coneRunner)
     );
 

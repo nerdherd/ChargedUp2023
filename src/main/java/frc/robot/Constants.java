@@ -278,7 +278,7 @@ public final class Constants {
     public static final double kConeRunnerP = 0;
     public static final double kConeRunnerI = 0;
     public static final double kConeRunnerD = 0;
-    public static final double kConeRunnerF = 0;
+    public static final double kConeRunnerF = 0.15;
     public static final double kConeRunnerArbitraryFF = 0;
 
     public static final double kInitialAngleDegrees = 90;
