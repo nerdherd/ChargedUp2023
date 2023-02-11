@@ -18,6 +18,7 @@ public class Vision extends SubsystemBase implements Reportable {
     private HighLowState currentHighLowState;
     private PIDController currentPIDX;
     private PIDController currentPIDDistance;
+    private PIDController PIDAngular;
     private PipelineType currentPipeline;
 
     public static enum PipelineType {
@@ -40,6 +41,8 @@ public class Vision extends SubsystemBase implements Reportable {
 
         // Set default limelight to low
         currentLimelight = limelightLow;
+
+        PIDAngular = new PIDController(0, 0, 0); // Someone tune this please
     }
 
     public void reportToSmartDashboard() {
