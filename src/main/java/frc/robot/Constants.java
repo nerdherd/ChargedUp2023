@@ -274,6 +274,18 @@ public final class Constants {
   public static final class ConeRunnerConstants {
     public static final int kPositionID = 62;
     public static final int kSpeedID = 61;
+
+    public static final double kConeRunnerP = 0;
+    public static final double kConeRunnerI = 0;
+    public static final double kConeRunnerD = 0;
+    public static final double kConeRunnerF = 0;
+    public static final double kConeRunnerArbitraryFF = 0;
+
+    public static final double kInitialAngleDegrees = 90;
+    public static final double kDegreesPerTicks = 360 / 4096;
+
+    public static final double kConeRunnerCruiseVelocity = 100;
+    public static final double kConeRunnerMotionAcceleration = 100;
   }
   public static final class PneumaticsConstants {
     public static final int kPCMPort = 3;

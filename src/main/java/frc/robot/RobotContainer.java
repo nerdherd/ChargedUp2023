@@ -35,6 +35,7 @@ import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
+import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.subsystems.SwerveDrivetrain;
@@ -56,7 +57,7 @@ public class RobotContainer {
   public static MotorClaw motorClaw = new MotorClaw();
 
   public static Imu imu = new Imu();
-  // public static Vision vision = new Vision();
+  public static Vision vision = new Vision();
   public static ConeRunner coneRunner = new ConeRunner();
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;
@@ -105,6 +106,10 @@ public class RobotContainer {
       autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
       autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
+
+      // Add other Vision Autos later
+      autoChooser.addOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision.limelightLow));
+
       SmartDashboard.putData(autoChooser);
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
@@ -139,6 +144,8 @@ public class RobotContainer {
         coneRunner.joystickAngleControl(0.5*operatorController.getRightY());
       }, coneRunner)
     );
+
+    coneRunner.resetEncoders();
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
     if (IsSwerveDrive) {
