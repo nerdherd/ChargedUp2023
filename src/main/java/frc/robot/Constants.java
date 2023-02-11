@@ -271,8 +271,8 @@ public final class Constants {
   }
 
   public static final class ConeRunnerConstants {
-    public static final int kRightMasterID = 0;
-    public static final int kLeftMasterID = 0;
+    public static final int kPositionID = 62;
+    public static final int kSpeedID = 61;
   }
   public static final class PneumaticsConstants {
     public static final int kPCMPort = 3;

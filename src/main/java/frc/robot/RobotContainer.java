@@ -130,6 +130,13 @@ public class RobotContainer {
       ));
     
     arm.resetEncoder();
+
+    coneRunner.setDefaultCommand(
+      Commands.run(() -> {
+        coneRunner.joystickSpeedControl(0.5*operatorController.getLeftY());
+        coneRunner.joystickAngleControl(0.5*operatorController.getRightY());
+      }, coneRunner)
+    );
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
     if (IsSwerveDrive) {
@@ -168,12 +175,12 @@ public class RobotContainer {
       driverController.R1().whileTrue(tankDrive.shiftLow());
     }
 
-    operatorController.circle().whileTrue(arm.moveArmScore()) // Square
-      .onFalse(Commands.runOnce(arm::setPowerZero));
-    operatorController.triangle().whileTrue(arm.moveArmStow()) // Triangle
-      .onFalse(Commands.runOnce(arm::setPowerZero));
-    operatorController.square().whileTrue(arm.moveArmGround()) // Cross
-      .onFalse(Commands.runOnce(arm::setPowerZero));
+    // operatorController.circle().whileTrue(arm.moveArmScore()) // Square
+    //   .onFalse(Commands.runOnce(arm::setPowerZero));
+    // operatorController.triangle().whileTrue(arm.moveArmStow()) // Triangle
+    //   .onFalse(Commands.runOnce(arm::setPowerZero));
+    // operatorController.square().whileTrue(arm.moveArmGround()) // Cross
+    //   .onFalse(Commands.runOnce(arm::setPowerZero));
     
     
     // operatorController.triangle().whileTrue(arm.armExtend());
