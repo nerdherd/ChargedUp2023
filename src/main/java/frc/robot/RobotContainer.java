@@ -121,6 +121,7 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
+    arm.armExtend();
     arm.setDefaultCommand(
       new RunCommand(
         () -> {
@@ -176,25 +177,26 @@ public class RobotContainer {
       driverController.R1().whileTrue(tankDrive.shiftLow());
     }
 
-    // operatorController.circle().whileTrue(arm.moveArmScore()) // Square
-    //   .onFalse(Commands.runOnce(arm::setPowerZero));
-    // operatorController.triangle().whileTrue(arm.moveArmStow()) // Triangle
-    //   .onFalse(Commands.runOnce(arm::setPowerZero));
-    // operatorController.square().whileTrue(arm.moveArmGround()) // Cross
-    //   .onFalse(Commands.runOnce(arm::setPowerZero));
+    operatorController.circle().whileTrue(arm.moveArmScore()) // Square
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    operatorController.triangle().whileTrue(arm.moveArmStow()) // Triangle
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    operatorController.square().whileTrue(arm.moveArmGround()) // Cross
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    operatorController.cross().whileTrue(arm.moveArmPickUp())
+      .onFalse(Commands.runOnce(arm::setPowerZero));
     
-    
-    // operatorController.triangle().whileTrue(arm.armExtend());
+    // operatorController.cross().onTrue(arm.armExtend()); // circle
     // operatorController.square().whileTrue(arm.armStow());
-    // operatorController.L1().whileTrue(motorClaw.setPower(0.4))
-    //     .onFalse(motorClaw.setPowerZero());
-    // operatorController.R1().whileTrue(motorClaw.setPower(-0.4))
-    //     .onFalse(motorClaw.setPowerZero());
+    operatorController.L1().whileTrue(motorClaw.setPower(0.4))
+        .onFalse(motorClaw.setPowerZero());
+    operatorController.R1().whileTrue(motorClaw.setPower(-0.4))
+        .onFalse(motorClaw.setPowerZero());
     // operatorController.circle().onTrue(claw.clawOpen());
     // operatorController.cross().onTrue(claw.clawClose());
 
-    operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
-    operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
+    // operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
+    // operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
 
     if (IsSwerveDrive) {
       // Driver Bindings
