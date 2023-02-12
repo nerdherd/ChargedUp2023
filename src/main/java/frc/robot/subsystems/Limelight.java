@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,6 +20,9 @@ public class Limelight implements Reportable{
     private NetworkTableEntry tx;
     private NetworkTableEntry ty;
     private NetworkTableEntry ta;
+
+    private double tXList[];
+    private double tAList[];
 
     public enum LightMode {
         DEFAULT(0), OFF(1), BLINK(2), ON(3);
@@ -126,6 +132,9 @@ public class Limelight implements Reportable{
 
     public Limelight(String keyN)
     {
+        tXList = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        tAList = new double[]{10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
+
         table = NetworkTableInstance.getDefault().getTable(keyN);
 
         tx = table.getEntry("tx");
@@ -144,13 +153,33 @@ public class Limelight implements Reportable{
         return !has;
     }
 
+    
+
+    
     /**
      * Horizontal offset from crosshair to target
      * 
      * @return Horizontal Offset From Crosshair To Target (LL1: -27 degrees to 27
      *         degrees | LL2: -29.8 to 29.8 degrees)
      */
+    int indexTX = 0;
+
     public double getXAngle() {
+        double TXSum = 0;
+
+        tXList[indexTX] = tx.getDouble(0);
+        indexTX ++;
+        if(indexTX >= 10) {
+            indexTX = 0;
+        }
+
+        SmartDashboard.putNumberArray("txFiltered", tXList);
+
+        for(int i = 0; i < 10; i++) {
+            TXSum += tXList[i];
+        }
+        SmartDashboard.putNumber("TXAverage", TXSum / 10);
+
         return tx.getDouble(0);
     }
 
@@ -169,7 +198,24 @@ public class Limelight implements Reportable{
      * 
      * @return Target Area (0% of image to 100% of image)
      */
+    int indexTA = 0;
+
     public double getArea() {
+        double TASum = 0;
+
+        tAList[indexTA] = tx.getDouble(0);
+        indexTA ++;
+        if(indexTA >= 10) {
+            indexTA = 0;
+        }
+
+        SmartDashboard.putNumberArray("taFiltered", tAList);
+
+        for(int i = 0; i < 10; i++) {
+            TASum += tXList[i];
+        }
+        SmartDashboard.putNumber("TAAverage", TASum / 10);
+
         return ta.getDouble(0);
     }
 

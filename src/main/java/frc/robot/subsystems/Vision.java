@@ -30,7 +30,7 @@ public class Vision extends SubsystemBase implements Reportable{
 
     public Vision(){
         try {
-            limelightLow = new Limelight("limelight");
+            limelightLow = new Limelight("limelight-kaden");
             limelightLow.setLightState(Limelight.LightMode.OFF);
         } catch (Exception e) {
             System.out.println("low limelight not initialized");
@@ -41,6 +41,7 @@ public class Vision extends SubsystemBase implements Reportable{
         } catch (Exception e) {
             System.out.println("high limelight not initialized");
         }
+    
     }
 
     @Override

@@ -121,6 +121,7 @@ public class RobotContainer {
       autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
 
       // Add other Vision Autos later
+      SmartDashboard.putBoolean("Ooga BOOOOGA", vision.limelightLow.hasValidTarget());
       autoChooser.addOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision.limelightLow));
 
       SmartDashboard.putData(autoChooser);
@@ -279,11 +280,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // return autoChooser.getSelected();
-    if (IsSwerveDrive)
-      return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
-    else
-      return TankAutos.HardCarryAuto(tankDrive, claw, arm);
+    return autoChooser.getSelected();
+    // if (IsSwerveDrive)
+    //   return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
+    // else
+    //   return TankAutos.HardCarryAuto(tankDrive, claw, arm);
   }
 
   public void autonomousInit() {
