@@ -220,7 +220,8 @@ public final class Constants {
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;
     public static final double kTeleMaxAcceleration = 3;
     // THIS CONSTANT HAS TO BE NEGATIVE OTHERWISE THE ROBOT WILL CRASH
-    public static final double kTeleMaxDeceleration = -2;
+    //TODO: Change deceleration with driver feedback, only in small increments (-2 is dangerous)
+    public static final double kTeleMaxDeceleration = -3; 
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
       kPhysicalMaxAngularSpeedRadiansPerSecond / 2;

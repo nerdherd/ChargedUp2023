@@ -24,7 +24,8 @@ public class DriverFilter extends FilterSeries {
             new PowerFilter(power),
             new WrapperFilter(
                 (x) -> {
-                    return slewRateLimiter.calculate(x);
+                    return Math.signum(x) 
+                        * slewRateLimiter.calculate(Math.abs(x));
                 }
             ),
             new ScaleFilter(maxSpeed),
