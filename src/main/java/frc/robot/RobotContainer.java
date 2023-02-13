@@ -175,7 +175,8 @@ public class RobotContainer {
           driverControllerButtons::getSquareButton,
           driverControllerButtons::getL3Button,
           // driverControllerButtons::getTriangleButton,
-          driverControllerButtons::getCrossButton
+          // driverControllerButtons::getCrossButton
+          () -> false
         ));
     } else {
       tankDrive.setDefaultCommand(
