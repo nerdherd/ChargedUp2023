@@ -87,9 +87,9 @@ public final class Constants {
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 20;
-    public static final int kArmStow = 144280;//144278;
-    public static final int kArmScore = 198814; // 89744;
-    public static final int kArmGround = 255684;// 34352;
+    public static final int kArmStow = 432840;//144278;
+    public static final int kArmScore = 596443; // 89744;
+    public static final int kArmGround = 767054;// 34352;
     public static final int kArmMotionAcceleration = 800000; //160000;
     public static final int kArmCruiseVelocity = 18000;//21777;
     public static final double kArmDeadband = 0.05;
@@ -101,12 +101,29 @@ public final class Constants {
     public static final int kPistonForwardID = 5;
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kTicksPerAngle = 6441 / 3;
+    public static final double kTicksPerAngle = 6441;
 
 
     // public static final double kCruiseVelocity = 0;
     // public static final double kMotionAcceleration = 0;
 
+  }
+
+  public static class ElevatorConstants{
+    public static final int kElevatorID = 0;
+    public static final int kElevatorStow = 0;
+    public static final int kElevatorScoreMid = 0;
+    public static final int kElevatorScoreHigh = 0;
+    public static final int kElevatorMotionAcceleration = 0;
+    public static final int kElevatorCruiseVelocity = 0;
+    public static final double kElevatorP = 0;
+    public static final double kElevatorI = 0;
+    public static final double kElevatorD = 0;
+    public static final double kElevatorF = 0;
+    public static final double kArbitraryFF = 0;
+    public static final double kElevatorDeadband = 0.05;
+    public static final double kJoystickMultiplier = 1;
+    public static final double kTicksPerAngle = 0;
   }
 
   public static class VisionConstants{

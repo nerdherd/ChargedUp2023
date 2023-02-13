@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -33,6 +34,7 @@ public class Arm extends SubsystemBase implements Reportable {
     private int targetTicks = ArmConstants.kArmStow;
     private PIDController armPID;
     public BooleanSupplier atTargetPosition;
+    public DoubleSupplier armAngle;
 
     public Arm() {
         arm = new DoubleSolenoid(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
@@ -58,18 +60,13 @@ public class Arm extends SubsystemBase implements Reportable {
         SmartDashboard.putNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity);
         SmartDashboard.putNumber("Arm Accel", ArmConstants.kArmMotionAcceleration);
 
+
         atTargetPosition = () -> (NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500));
-   
+        armAngle = () -> ((ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
     }
 
     public void moveArmJoystick(double currentJoystickOutput) {
         // double armTicks = rotatingArm.getSelectedSensorPosition();
-
-
-        if (currentJoystickOutput >= 0.40 ) {
-            currentJoystickOutput = 0.40;
-        }
-
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
             rotatingArm.set(ControlMode.PercentOutput, 0.40);
@@ -148,36 +145,12 @@ public class Arm extends SubsystemBase implements Reportable {
         this.targetTicks = targetTicks;
     }
 
-    public void moveArm(double position) {
-        armPID = new PIDController(
-            SmartDashboard.getNumber("Arm kP", 0), 
-            SmartDashboard.getNumber("Arm kI", 0), 
-            SmartDashboard.getNumber("Arm kD", 0));
-        armPID.setSetpoint(position);
-        double speed = armPID.calculate(rotatingArm.getSelectedSensorPosition(), position);
-        if (speed > 3000) {
-            speed = 3000;
-        } else if (speed < -3000) {
-            speed = -3000;
-        }
-        rotatingArm.set(ControlMode.Velocity, speed);
-        if (armPID.atSetpoint()) {
-            rotatingArm.setNeutralMode(NeutralMode.Brake);
-        } else {
-            rotatingArm.setNeutralMode(NeutralMode.Coast);
-        }
-    }
-
     public void setPowerZero() {
         rotatingArm.set(ControlMode.PercentOutput, 0.0);
     }
 
     public void setBrakeMode() {
         rotatingArm.setNeutralMode(NeutralMode.Brake);
-    }
-
-    public void ticksToAngle() {
-        
     }
 
     @Override

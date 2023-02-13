@@ -12,6 +12,7 @@ import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Limelight;
@@ -53,6 +54,7 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
 public class RobotContainer {
 
   public static Arm arm = new Arm();
+  public static Elevator elevator = new Elevator();
   public static Claw claw = new Claw();
   
   public static MotorClaw motorClaw = new MotorClaw();
@@ -138,6 +140,17 @@ public class RobotContainer {
     
     arm.resetEncoder();
 
+    elevator.setDefaultCommand(
+      new RunCommand(
+        () -> {
+          elevator.moveElevatorJoystick(operatorController.getRightY());
+          SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
+        }, 
+        elevator
+      ));
+
+    elevator.resetEncoder();
+
     coneRunner.setDefaultCommand(
       Commands.run(() -> {
         coneRunner.joystickSpeedControl(0.5*operatorController.getLeftY());
@@ -184,12 +197,12 @@ public class RobotContainer {
       driverController.R1().whileTrue(tankDrive.shiftLow());
     }
 
-    // operatorController.circle().whileTrue(arm.moveArmScore()) // Square
-    //   .onFalse(Commands.runOnce(arm::setPowerZero));
-    // operatorController.triangle().whileTrue(arm.moveArmStow()) // Triangle
-    //   .onFalse(Commands.runOnce(arm::setPowerZero));
-    // operatorController.square().whileTrue(arm.moveArmGround()) // Cross
-    //   .onFalse(Commands.runOnce(arm::setPowerZero));
+    operatorController.circle().whileTrue(arm.moveArmScore()) // Square
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    operatorController.triangle().whileTrue(arm.moveArmStow()) // Triangle
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    operatorController.square().whileTrue(arm.moveArmGround()) // Cross
+      .onFalse(Commands.runOnce(arm::setPowerZero));
     
     
     // operatorController.triangle().whileTrue(arm.armExtend());
@@ -201,8 +214,8 @@ public class RobotContainer {
     // operatorController.circle().onTrue(claw.clawOpen());
     // operatorController.cross().onTrue(claw.clawClose());
 
-    operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
-    operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
+    // operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
+    // operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
 
     if (IsSwerveDrive) {
       // Driver Bindings
