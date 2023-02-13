@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -23,6 +24,7 @@ public class Elevator extends SubsystemBase implements Reportable{
   private TalonFX elevator;
   private int targetTicks;
   public BooleanSupplier atTargetPosition;
+  public DoubleSupplier percentExtended;
 
   /** Creates a new Elevator. */
   public Elevator() {
@@ -30,6 +32,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.setInverted(false);
     atTargetPosition = () -> (NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500));
 
+    percentExtended = () -> (elevator.getSelectedSensorPosition() / (ElevatorConstants.kElevatorScoreHigh + 1500));
     SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
     SmartDashboard.putNumber("Elevator kI", ElevatorConstants.kElevatorI);
     SmartDashboard.putNumber("Elevator kD", ElevatorConstants.kElevatorD);
@@ -39,19 +42,30 @@ public class Elevator extends SubsystemBase implements Reportable{
   }
 
 
-  public void moveElevatorJoystick(double currentJoystickOutput) {
-
+  public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
+          if (percentExtended.getAsDouble() >= 100) {
+            elevator.set(ControlMode.PercentOutput, -ElevatorConstants.kArbitraryFF * Math.sin(angle));
+          } else {
             elevator.set(ControlMode.PercentOutput, 0.40);
             elevator.setNeutralMode(NeutralMode.Coast);
-            //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
+          }//((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
+          if (percentExtended.getAsDouble() <= 0) {
+            elevator.set(ControlMode.PercentOutput, 0);
+          } else {
             elevator.set(ControlMode.PercentOutput, -0.40);
             elevator.setNeutralMode(NeutralMode.Coast);
+          }
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
+          if (percentExtended.getAsDouble() <= 0) {
             elevator.set(ControlMode.PercentOutput, 0);
-            elevator.setNeutralMode(NeutralMode.Brake);
+          } else {
+            elevator.set(ControlMode.PercentOutput, -ElevatorConstants.kArbitraryFF * Math.sin(angle));
+
+          }
+          
         }
 
     }
@@ -64,8 +78,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.config_kF(0, SmartDashboard.getNumber("Elevator kF", ElevatorConstants.kElevatorF));
     elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
     elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
-
-    double ff = ElevatorConstants.kArbitraryFF * Math.sin(Math.toRadians(angle));
+    double ff = ElevatorConstants.kArbitraryFF * Math.sin(angle);
     elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
   }
   
@@ -80,8 +93,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
     elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
 
-    double angleRadians = Math.toRadians(angle);
-    double ff = ElevatorConstants.kArbitraryFF * Math.sin(angleRadians);
+    double ff = ElevatorConstants.kArbitraryFF * Math.sin(angle);
     elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
 
     SmartDashboard.putNumber("FF", ff);

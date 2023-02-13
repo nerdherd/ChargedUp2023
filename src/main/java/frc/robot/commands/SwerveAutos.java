@@ -21,10 +21,12 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 import static frc.robot.Constants.SwerveAutoConstants.*;
@@ -73,7 +75,7 @@ public class SwerveAutos {
      * @param swerveDrive
      * @return
      */
-    public static CommandBase twoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Claw claw, StartPosition position) {
+    public static CommandBase twoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition position) {
         DriverStation.getAlliance();
 
         // Create trajectory settings
@@ -147,7 +149,8 @@ public class SwerveAutos {
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
         return Commands.parallel(
-            new RunCommand(() -> arm.moveArmMotionMagic()),
+            new RunCommand(() -> arm.moveArmMotionMagic(elevator.percentExtended.getAsDouble())),
+            new RunCommand(() -> elevator.moveMotionMagic(arm.armAngle.getAsDouble())),
             new SequentialCommandGroup(
                             // Commands.runOnce(swerveDrive::zeroHeading),
                     new ParallelRaceGroup(
@@ -170,13 +173,29 @@ public class SwerveAutos {
                     // new WaitCommand(1),
 
                     Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
-                    arm.armExtend(),
+                    // arm.armExtend(),
+                    new ParallelRaceGroup(
+                        new SequentialCommandGroup(
+                            new InstantCommand(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                            new WaitCommand(0.5),
+                            Commands.waitUntil(elevator.atTargetPosition)
+                        ),
+                        new WaitCommand(2)
+                    ),
                     new WaitCommand(1),
 
                     claw.clawOpen(),
                     new WaitCommand(1),
                     // claw.clawClose(),
-                    arm.armStow(),
+                    // arm.armStow(),
+                    new ParallelRaceGroup(
+                        new SequentialCommandGroup(
+                            new InstantCommand(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
+                            new WaitCommand(0.5),
+                            Commands.waitUntil(elevator.atTargetPosition)
+                        ),
+                        new WaitCommand(2)
+                    ),
                     new WaitCommand(1),
 
                     new ParallelRaceGroup(
@@ -239,13 +258,29 @@ public class SwerveAutos {
                     ),
                     
                     Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
-                    arm.armExtend(),
+                    // arm.armExtend(),
+                    new ParallelRaceGroup(
+                        new SequentialCommandGroup(
+                            new InstantCommand(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                            new WaitCommand(0.5),
+                            Commands.waitUntil(elevator.atTargetPosition)
+                        ),
+                        new WaitCommand(2)
+                    ),
                     new WaitCommand(1),
 
                     claw.clawOpen(),
                     new WaitCommand(1),
                     
-                    arm.armStow(),
+                    // arm.armStow(),
+                    new ParallelRaceGroup(
+                        new SequentialCommandGroup(
+                            new InstantCommand(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
+                            new WaitCommand(0.5),
+                            Commands.waitUntil(elevator.atTargetPosition)
+                        ),
+                        new WaitCommand(2)
+                    ),
                     new WaitCommand(1),
 
                     new ParallelRaceGroup(

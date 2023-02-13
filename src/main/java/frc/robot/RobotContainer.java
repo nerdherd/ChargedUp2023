@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.commands.ApproachCombined;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.subsystems.AirCompressor;
@@ -30,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
@@ -41,6 +43,8 @@ import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
+import frc.robot.util.BadPS4;
+import frc.robot.util.CommandBadPS4;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -69,13 +73,19 @@ public class RobotContainer {
 
   private PipelineType obj = PipelineType.ATAG;
 
-  private final CommandPS4Controller driverController = new CommandPS4Controller(
+  private final CommandBadPS4 driverController = new CommandBadPS4(
       ControllerConstants.kDriverControllerPort);
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandPS4Controller operatorController = new CommandPS4Controller(
+  private final CommandBadPS4 operatorController = new CommandBadPS4(
       ControllerConstants.kOperatorControllerPort);
+  private final BadPS4 badPS4 = operatorController.getHID();
 
   private final PS4Controller driverControllerButtons = new PS4Controller(ControllerConstants.kDriverControllerPort);
+  private final POVButton upButton = new POVButton(badPS4, 0);
+  private final POVButton rightButton = new POVButton(badPS4, 90);
+  private final POVButton downButton = new POVButton(badPS4, 180);
+  private final POVButton leftButton = new POVButton(badPS4, 270);
+
 
   SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
 
@@ -112,7 +122,7 @@ public class RobotContainer {
       autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
-      autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
+      autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, StartPosition.Right));
       SmartDashboard.putData(autoChooser);
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
@@ -132,7 +142,7 @@ public class RobotContainer {
     arm.setDefaultCommand(
       new RunCommand(
         () -> {
-          arm.moveArmJoystick(operatorController.getLeftY());
+          arm.moveArmJoystick(operatorController.getLeftY(), elevator.percentExtended.getAsDouble());
           SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
         }, 
         arm
@@ -143,7 +153,7 @@ public class RobotContainer {
     elevator.setDefaultCommand(
       new RunCommand(
         () -> {
-          elevator.moveElevatorJoystick(operatorController.getRightY());
+          elevator.moveElevatorJoystick(operatorController.getRightY(), arm.armAngle.getAsDouble());
           SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
         }, 
         elevator
@@ -197,13 +207,21 @@ public class RobotContainer {
       driverController.R1().whileTrue(tankDrive.shiftLow());
     }
 
-    operatorController.circle().whileTrue(arm.moveArmScore()) // Square
+    
+    upButton.whileTrue(arm.moveArmStow()) 
       .onFalse(Commands.runOnce(arm::setPowerZero));
-    operatorController.triangle().whileTrue(arm.moveArmStow()) // Triangle
+    leftButton.whileTrue(arm.moveArmScore()) 
       .onFalse(Commands.runOnce(arm::setPowerZero));
-    operatorController.square().whileTrue(arm.moveArmGround()) // Cross
+    downButton.whileTrue(arm.moveArmGround()) 
       .onFalse(Commands.runOnce(arm::setPowerZero));
     
+    operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm.armAngle.getAsDouble()))
+      .onFalse(Commands.runOnce(elevator::setPowerZero));
+    operatorController.square().whileTrue(elevator.moveElevatorMid(arm.armAngle.getAsDouble()))
+      .onFalse(Commands.runOnce(elevator::setPowerZero));
+    operatorController.cross().whileTrue(elevator.moveElevatorStow(arm.armAngle.getAsDouble()))
+      .onFalse(Commands.runOnce(elevator::setPowerZero));
+  
     
     // operatorController.triangle().whileTrue(arm.armExtend());
     // operatorController.square().whileTrue(arm.armStow());
@@ -280,7 +298,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // return autoChooser.getSelected();
     if (IsSwerveDrive)
-      return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
+      return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, StartPosition.Right);
     else
       return TankAutos.HardCarryAuto(tankDrive, claw, arm);
   }
@@ -295,6 +313,8 @@ public class RobotContainer {
     
     arm.resetEncoder();
     arm.setTargetTicks(ArmConstants.kArmStow);
+    elevator.resetEncoder();
+    elevator.setTargetTicks(ElevatorConstants.kElevatorStow);
 
     // if (IsSwerveDrive) {
     //   swerveDrive.resetEncoders();

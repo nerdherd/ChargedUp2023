@@ -8,6 +8,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -62,23 +63,30 @@ public class Arm extends SubsystemBase implements Reportable {
 
 
         atTargetPosition = () -> (NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500));
-        armAngle = () -> ((ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
+        armAngle = () -> (Math.toRadians((ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle));
     }
 
-    public void moveArmJoystick(double currentJoystickOutput) {
+    public void moveArmJoystick(double currentJoystickOutput, double percentExtended) {
         // double armTicks = rotatingArm.getSelectedSensorPosition();
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
-            rotatingArm.set(ControlMode.PercentOutput, 0.40);
-            rotatingArm.setNeutralMode(NeutralMode.Coast);
+            if (rotatingArm.getSelectedSensorPosition() >= ArmConstants.kArmStow - 1500) {
+                rotatingArm.set(ControlMode.PercentOutput, -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble()));
+            } else {
+                rotatingArm.set(ControlMode.PercentOutput, 0.40);
+                rotatingArm.setNeutralMode(NeutralMode.Coast);
+            }
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
+            if (rotatingArm.getSelectedSensorPosition() <= ArmConstants.kArmGround + 1500) {
+                rotatingArm.set(ControlMode.PercentOutput, -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble()));
+            }
             rotatingArm.set(ControlMode.PercentOutput, -0.40);
             rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
-            rotatingArm.set(ControlMode.PercentOutput, 0);
-            rotatingArm.setNeutralMode(NeutralMode.Brake);
+            rotatingArm.set(ControlMode.PercentOutput, -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble()));
+            // rotatingArm.setNeutralMode(NeutralMode.Brake);
         }
 
     }
@@ -88,7 +96,7 @@ public class Arm extends SubsystemBase implements Reportable {
             () -> moveArmJoystickCommand(joystickInput), this);
     }
 
-    public void moveArmMotionMagic(int position) {
+    public void moveArmMotionMagic(int position, double percentExtended) {
         
         rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", ArmConstants.kArmP));
         rotatingArm.config_kI(0, SmartDashboard.getNumber("Arm kI", ArmConstants.kArmI));
@@ -100,7 +108,7 @@ public class Arm extends SubsystemBase implements Reportable {
         // config tuning params in slot 0
         double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
         double angleRadians = Math.toRadians(angle);
-        double ff = -ArmConstants.kArbitraryFF * Math.cos(angleRadians);
+        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(angleRadians);
         rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
         targetTicks = position;
 
@@ -115,7 +123,7 @@ public class Arm extends SubsystemBase implements Reportable {
         // }
     }
 
-    public void moveArmMotionMagic() {
+    public void moveArmMotionMagic(double percentExtended) {
         
         rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", ArmConstants.kArmP));
         rotatingArm.config_kI(0, SmartDashboard.getNumber("Arm kI", ArmConstants.kArmI));
@@ -127,7 +135,7 @@ public class Arm extends SubsystemBase implements Reportable {
         // config tuning params in slot 0
         double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
         double angleRadians = Math.toRadians(angle);
-        double ff = -ArmConstants.kArbitraryFF * Math.cos(angleRadians);
+        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(angleRadians);
         rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
 
         SmartDashboard.putNumber("FF", ff);
