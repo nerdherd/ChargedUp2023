@@ -115,14 +115,10 @@ public class RobotContainer {
               new WaitCommand(5),
               new InstantCommand(swerveDrive::resetEncoders)));
 
-      autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
+      autoChooser.setDefaultOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision));
       autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
       autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
-
-      // Add other Vision Autos later
-      SmartDashboard.putBoolean("Ooga BOOOOGA", vision.limelightLow.hasValidTarget());
-      autoChooser.addOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision.limelightLow));
 
       SmartDashboard.putData(autoChooser);
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));

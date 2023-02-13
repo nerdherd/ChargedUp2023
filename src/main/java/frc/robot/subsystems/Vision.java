@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -12,11 +14,18 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.util.NerdyMath;
 
 public class Vision extends SubsystemBase implements Reportable{
-    public Limelight limelightLow;
-    public Limelight limelightHigh;
-
+    
+    public enum CAMERA_MODE
+    {
+        WAIT, // found nothing
+        IDLE, // doing nothing, init
+        ACTION,// detected one, and approach to it
+        ARRIVED // found
+    }
+    
     public static enum PipelineType {
         // make sure sync with Camera hardware configuration
         NONE(0), CONE(1), CUBE(2),  TAPE(3), ATAG(4);
@@ -31,16 +40,20 @@ public class Vision extends SubsystemBase implements Reportable{
         }
     }
 
-    public static enum HighLowState {
-        HIGH,
-        LOW
-    }
+    //public Limelight limelightLow;
+    //public Limelight limelightHigh;
+    public BooleanSupplier cameraHighStatusSupplier;
+    public CAMERA_MODE highCameraStatus = CAMERA_MODE.IDLE;
 
-    private HighLowState state = null;
+    PhotonCamera cameraLow;// = new PhotonCamera("photonvisionlow");
+    public BooleanSupplier cameraLowStatusSupplier;
+    CAMERA_MODE lowCameraStatus = CAMERA_MODE.IDLE;
+
+    //private HighLowState state = null;
     private PipelineType pipeline = null;
 
     public Vision(){
-        try {
+        /*try {
             limelightLow = new Limelight("limelight-kaden");
             limelightLow.setLightState(Limelight.LightMode.OFF);
         } catch (Exception e) {
@@ -51,8 +64,18 @@ public class Vision extends SubsystemBase implements Reportable{
             limelightHigh.setLightState(Limelight.LightMode.OFF);
         } catch (Exception e) {
             System.out.println("high limelight not initialized");
+        }*/
+        try {
+            cameraLow = new PhotonCamera("photonvisionlow");
+        } catch (Exception ex) {
+            cameraLow = null;
+            DriverStation.reportWarning("Error instantiating LOW Camera:  " + ex.getMessage(), true);
         }
-    
+        lowCameraStatus = CAMERA_MODE.IDLE;
+        cameraLowStatusSupplier = () -> (lowCameraStatus == CAMERA_MODE.ARRIVED);
+
+        highCameraStatus = CAMERA_MODE.IDLE;
+        cameraHighStatusSupplier = () -> (highCameraStatus == CAMERA_MODE.ARRIVED);
     }
 
     @Override
@@ -65,7 +88,7 @@ public class Vision extends SubsystemBase implements Reportable{
 
     }
 
-    public CommandBase SwitchLow() {
+    /*public CommandBase SwitchLow() {
         return Commands.run(
             () -> SwitchStates(HighLowState.LOW)
         );
@@ -74,7 +97,7 @@ public class Vision extends SubsystemBase implements Reportable{
         return Commands.run(
             () -> SwitchStates(HighLowState.HIGH)
         );
-    }
+    }*/
     public CommandBase SwitchCone() {
         return Commands.run(
             () -> SwitchPipes(PipelineType.CONE)
@@ -96,28 +119,21 @@ public class Vision extends SubsystemBase implements Reportable{
         );
     }
 
-    private void SwitchStates(HighLowState state) {
+    /*private void SwitchStates(HighLowState state) {
         this.state = state;
-    }
+    }*/
 
     private void SwitchPipes(PipelineType pipeline) {
         this.pipeline = pipeline;
     }
-    public Limelight getLimelight(boolean isHigh){
-        /*switch (state) {
-            case HIGH:
-                return limelightHigh;
-            case LOW:
-                return limelightLow;
-            default:
-                return null;
-        }*/
+    /*public Limelight getLimelight(boolean isHigh){
         if(isHigh)
             return limelightHigh;
             else
         return limelightLow; 
-    }
+    }*/
 
+    /* For Limelight camera
     public void getPPAP(SwerveDrivetrain drivetrain) {
         SmartDashboard.putNumber("tX P", 0.05);
         SmartDashboard.putNumber("area P", 0.24);
@@ -195,6 +211,138 @@ public class Vision extends SubsystemBase implements Reportable{
         chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
         SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         // drivetrain.setModuleStates(moduleStates);
+    }*/
+    
+    PIDController pidRobotY = new PIDController(0, 0, 0);
+    PIDController pidRobotX = new PIDController(0, 0, 0);
+    PIDController pidRobotSteer;
+
+    private double lowListRobotX[] = new double[10];
+    private int lowListRobotX_idx = 0;
+    public double getListAveWithNew_lowRobotX(double newValue)
+    {
+        lowListRobotX[lowListRobotX_idx] = newValue;
+        lowListRobotX_idx ++;
+        if(lowListRobotX_idx >= lowListRobotX.length) {
+            lowListRobotX_idx = 0;
+        }
+
+        double TXSum = 0;
+        for(int i = 0; i < lowListRobotX.length; i++) {
+            TXSum += lowListRobotX[i];
+        }
+
+        return TXSum / lowListRobotX.length;
     }
+
+    
+    private double lowListRobotY[] = new double[10];
+    private int lowListRobotY_idx = 0;
+    public double getListAveWithNew_lowRobotY(double newValue)
+    {
+        lowListRobotY[lowListRobotY_idx] = newValue;
+        lowListRobotY_idx ++;
+        if(lowListRobotY_idx >= lowListRobotY.length) {
+            lowListRobotY_idx = 0;
+        }
+
+        double TXSum = 0;
+        for(int i = 0; i < lowListRobotY.length; i++) {
+            TXSum += lowListRobotY[i];
+        }
+
+        return TXSum / lowListRobotY.length;
+    }
+
+    double goalAreaLowCamera = 3;
+
+    public void initObjDetection(boolean isHigh, double targetAreaStop, double headingYaw) {
+        if(!isHigh) {
+            goalAreaLowCamera = targetAreaStop;
+            lowCameraStatus = CAMERA_MODE.IDLE;
+            for(int i = 0; i < lowListRobotX.length; i++) {
+                lowListRobotX[i] = targetAreaStop;
+            }
+            if(cameraLow != null)
+                cameraLow.setPipelineIndex(0);
+        }
+        else{
+
+        }
+     }
+
+     // PhotonVision for finding CONE on ground
+    public void getPPAP(SwerveDrivetrain drivetrain) {
+        if(cameraLow == null)
+            return;
+            
+        // TODO !!!!!!!!
+        pidRobotY.setP(SmartDashboard.getNumber("tX P", 0.05));
+        pidRobotY.setI(SmartDashboard.getNumber("tX I", 0.0));
+        pidRobotY.setD(SmartDashboard.getNumber("tX D", 0.05)); //0.03
+        pidRobotX.setTolerance(0.2);
+        pidRobotX.setP(SmartDashboard.getNumber("area P", 0.05));
+        pidRobotX.setI(SmartDashboard.getNumber("area I", 0.0)); 
+        pidRobotX.setD(SmartDashboard.getNumber("area D", 0.05)); //0.05
+        pidRobotY.setTolerance(0.2);
+
+        ChassisSpeeds chassisSpeeds;
+        double xSpeed;
+        double ySpeed;
+
+        var result = cameraLow.getLatestResult();
+
+        SmartDashboard.putBoolean("Vision has target", result.hasTargets());
+
+        if(!result.hasTargets()) {
+            xSpeed = 0;
+            ySpeed = 0;
+            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+            SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+            drivetrain.setModuleStates(moduleStates);
+            lowCameraStatus = CAMERA_MODE.WAIT;
+        }
+        else {
+            double calculatedX = getListAveWithNew_lowRobotX(result.getBestTarget().getArea());
+            double calculatedY = getListAveWithNew_lowRobotY(result.getBestTarget().getYaw());
+            SmartDashboard.putNumber("Vision robotX avg", calculatedX);
+            SmartDashboard.putNumber("Vision robotY avg", calculatedY);
+
+            xSpeed = pidRobotX.calculate(calculatedX, goalAreaLowCamera);
+            ySpeed = -pidRobotY.calculate(calculatedY, 0);
+
+            //xSpeed*=SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond; //*6
+            //ySpeed*=SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond; //*2
+            
+            // TODO !!!!!!!!
+            if(NerdyMath.inRange(xSpeed, -5, 5) &&
+            NerdyMath.inRange(ySpeed, -5, 5))
+            {
+                xSpeed = 0;
+                ySpeed = 0;
+                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                lowCameraStatus = CAMERA_MODE.ARRIVED; 
+            }
+            else{
+                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                lowCameraStatus = CAMERA_MODE.ACTION;
+            }
+        }
+        
+        SmartDashboard.putString("Vision LOW status", lowCameraStatus.toString());
+
+        //SmartDashboard.putNumber("Vision Tolerance", tolerance);
+        SmartDashboard.putNumber("Vision X speed", xSpeed);
+        SmartDashboard.putNumber("Vision Y speed", ySpeed);
+    }
+
+
+     // for Tape (only with Camera High)
+     public void seekTape(SwerveDrivetrain drivetrain) {
+     }
     
 }
