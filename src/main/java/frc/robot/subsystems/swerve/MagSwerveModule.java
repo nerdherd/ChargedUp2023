@@ -62,7 +62,7 @@ public class MagSwerveModule implements SwerveModule {
             SmartDashboard.getNumber("kPTurning", ModuleConstants.kPTurning),
             SmartDashboard.getNumber("kITurning", ModuleConstants.kITurning),
             SmartDashboard.getNumber("kDTurning", ModuleConstants.kDTurning));
-        turningController.enableContinuousInput(-Math.PI, Math.PI);
+        turningController.enableContinuousInput(-Math.PI, Math.PI); // TODO: Change to [0, 2pi]
         turningController.setTolerance(.025);
 
         this.driveMotor.setInverted(invertDriveMotor);

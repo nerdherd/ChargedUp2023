@@ -93,9 +93,15 @@ public class CANSwerveModule implements SwerveModule {
      *      </tr>
      *      <tr>
      *          <td> CANCoder </td> 
-     *          <td> PID N/A </td> 
-     *          <td> Mag Encoder </td>
+     *          <td> Slot 0 </td> 
+     *          <td> Relative Encoder </td>
      *      </tr>
+     *      <tr>
+     *          <td> CANCoder </td> 
+     *          <td> Slot 1 </td> 
+     *          <td> Absolute Encoder </td>
+     *      </tr>
+     *  </table>
      *  </table>
      */
     private void initEncoders() {
@@ -107,7 +113,7 @@ public class CANSwerveModule implements SwerveModule {
      * Reset the CANCoder's relative encoder using its absolute encoder
      */
     public void resetEncoder() {
-        double startAngle = canCoder.getAbsolutePosition() - this.CANCoderOffsetDegrees;
+        double startAngle = (canCoder.getAbsolutePosition() - this.CANCoderOffsetDegrees) % 360;
         SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
         canCoder.setPosition(startAngle);
     }
