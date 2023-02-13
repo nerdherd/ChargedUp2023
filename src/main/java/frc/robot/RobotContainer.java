@@ -173,7 +173,7 @@ public class RobotContainer {
           driverController::getRightX,
           // () -> true,
           driverControllerButtons::getSquareButton,
-          () -> false,
+          driverControllerButtons::getL3Button,
           // driverControllerButtons::getTriangleButton,
           driverControllerButtons::getCrossButton
         ));
@@ -249,11 +249,11 @@ public class RobotContainer {
 
     if (IsSwerveDrive) {
       // Driver Bindings
-      driverController.L1().onTrue(new InstantCommand(imu::zeroHeading));
-      driverController.R1().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+      driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
+      driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
 
-      driverController.R2().whileTrue(new TurnToAngle(180, swerveDrive));
-      driverController.L2().whileTrue(new TurnToAngle(0, swerveDrive));
+      driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
+      driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
 
       // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
       // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
