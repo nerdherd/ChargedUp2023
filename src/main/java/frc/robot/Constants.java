@@ -229,10 +229,10 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetTicks = 0;       
-      public static final double kFLCANCoderOffsetTicks = 0;         
-      public static final double kBLCANCoderOffsetTicks = 0;          
-      public static final double kBRCANCoderOffsetTicks = 0;
+      public static final double kFRCANCoderOffsetDegrees = 0;       
+      public static final double kFLCANCoderOffsetDegrees = 0;         
+      public static final double kBLCANCoderOffsetDegrees = 0;          
+      public static final double kBRCANCoderOffsetDegrees = 0;
     }
 
 

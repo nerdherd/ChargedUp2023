@@ -28,6 +28,7 @@ public class CANSwerveModule implements SwerveModule {
 
     private final PIDController turningController;
     private final boolean invertTurningEncoder;
+    private final double CANCoderOffsetDegrees;
 
     private double currentAngle = 0;
     private double desiredAngle = 0;
@@ -41,10 +42,11 @@ public class CANSwerveModule implements SwerveModule {
      * @param invertDriveMotor
      * @param invertTurningMotor
      * @param CANCoderId
+     * @param CANCoderOffsetDegrees
      * @param CANCoderReversed
      */
     public CANSwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
-    int CANCoderId, boolean CANCoderReversed) {
+    int CANCoderId, double CANCoderOffsetDegrees, boolean CANCoderReversed) {
         this.driveMotor = new TalonFX(driveMotorId);
         this.turnMotor = new TalonFX(turningMotorId);
 
@@ -66,6 +68,7 @@ public class CANSwerveModule implements SwerveModule {
         this.turnMotor.setInverted(invertTurningMotor);
         this.canCoder = new CANCoder(CANCoderId);
         this.invertTurningEncoder = CANCoderReversed;
+        this.CANCoderOffsetDegrees = CANCoderOffsetDegrees;
 
         initEncoders();
     }
@@ -104,7 +107,7 @@ public class CANSwerveModule implements SwerveModule {
      * Reset the CANCoder's relative encoder using its absolute encoder
      */
     public void resetEncoder() {
-        double startAngle = canCoder.getAbsolutePosition();
+        double startAngle = canCoder.getAbsolutePosition() - this.CANCoderOffsetDegrees;
         SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
         canCoder.setPosition(startAngle);
     }
