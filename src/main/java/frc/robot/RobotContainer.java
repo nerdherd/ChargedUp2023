@@ -115,7 +115,7 @@ public class RobotContainer {
               new WaitCommand(5),
               new InstantCommand(swerveDrive::resetEncoders)));
 
-      autoChooser.setDefaultOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision));
+      autoChooser.setDefaultOption("Pickup Cone Auto", VisionAutos.seekTapeDropCone(swerveDrive, vision));
       autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
       autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
