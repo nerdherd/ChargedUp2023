@@ -4,12 +4,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-import frc.robot.util.CommandBadPS4;
 import frc.robot.util.BadPS4;
+import frc.robot.util.CommandBadPS4;
 
 public class BadPS4Test {
-    BadPS4 badPs4;
     CommandBadPS4 commandPS4;
+    BadPS4 badPs4;
     POVButton upButton;
     POVButton rightButton;
     POVButton downButton;
@@ -17,7 +17,8 @@ public class BadPS4Test {
 
 
     public void initialize() {
-        badPs4 = new BadPS4(0);
+        commandPS4 = new CommandBadPS4(0);
+        badPs4 = commandPS4.getHID();
         upButton = new POVButton(badPs4, 0);
         downButton = new POVButton(badPs4, 180);
         rightButton = new POVButton(badPs4, 90);
@@ -49,9 +50,7 @@ public class BadPS4Test {
     }
 
     public void commandPS4TestInit() {
-        commandPS4 = new CommandBadPS4(0);
 
-        // new JoystickButton(badPs4, BadPS4.Button.kL1.value).onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("L1 Pressed", true)))
         // .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("L1 Pressed", false)));
 
         commandPS4.L1().onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("L1 Pressed", true)))
