@@ -11,12 +11,21 @@ public class NewDriverFilter extends FilterSeries {
     private boolean belowDeadband;
     private final double deadbandScaler;
 
-    public NewDriverFilter(double deadband, double scale, 
+    /**
+     * Construct a new driver filter
+     * @param deadband
+     * @param motorDeadband
+     * @param scale
+     * @param alpha
+     * @param posRateLimit
+     * @param negRateLimit
+     */
+    public NewDriverFilter(double deadband, double motorDeadband, double scale, 
             double alpha, double posRateLimit, double negRateLimit) {
         super();
 
         slewRateLimiter = new SlewRateLimiter(posRateLimit, negRateLimit, 0);
-        deadbandScaler = (1 - deadband) * (1 - deadband);
+        deadbandScaler = (1 - motorDeadband) * (1 - motorDeadband);
 
         super.setFilters(
             new DeadbandFilter(deadband),
@@ -41,7 +50,7 @@ public class NewDriverFilter extends FilterSeries {
                 (x) -> {
                     if (belowDeadband) return 0.0;
                     else {
-                        return Math.signum(x) * ((Math.abs(x) / deadbandScaler) + deadband);
+                        return Math.signum(x) * ((Math.abs(x) / deadbandScaler) + motorDeadband);
                     }
                 }
             ),

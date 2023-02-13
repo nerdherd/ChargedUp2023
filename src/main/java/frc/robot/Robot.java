@@ -111,23 +111,23 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
   }
 
-  // FilterTest filterTest;
+  FilterTest filterTest;
 
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
     // autoTest.ReinitExecution();
-    // filterTest = new FilterTest();
-    // filterTest.initialize();
+    filterTest = new FilterTest();
+    filterTest.initialize();
   }
   // StateMachine autoTest = new StateMachine();
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    // filterTest.periodic();
-    // filterTest.testBothFilters();
+    filterTest.periodic();
+    filterTest.testBothFilters();
     // filterTest.driveFilterTestPeriodic();
     // autoTest.ExecutionPeriod();
   }
