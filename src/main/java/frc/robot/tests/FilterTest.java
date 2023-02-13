@@ -51,9 +51,9 @@ public class FilterTest {
     public double currentYPos = 0;
     public Rotation2d currentAngle = new Rotation2d(0);
 
-    public NewDriverFilter newXFilter = new NewDriverFilter(0.05, SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond, SwerveDriveConstants.kDriveAlpha, 3, -3);
-    public NewDriverFilter newYFilter = new NewDriverFilter(0.05, SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond, SwerveDriveConstants.kDriveAlpha, 3, -3);
-    public NewDriverFilter newRotationFilter = new NewDriverFilter(0.05, SwerveDriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond, SwerveDriveConstants.kDriveAlpha, 3, -3);
+    public NewDriverFilter newXFilter = new NewDriverFilter(0.05, 0.05, SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, SwerveDriveConstants.kTeleMaxDeceleration);
+    public NewDriverFilter newYFilter = new NewDriverFilter(0.05, 0.05, SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, SwerveDriveConstants.kTeleMaxDeceleration);
+    public NewDriverFilter newRotationFilter = new NewDriverFilter(0.05, 0.05, SwerveDriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, SwerveDriveConstants.kTeleMaxDeceleration);    
 
     public BadPS4 badPS4 = new BadPS4(0);
 
@@ -118,7 +118,7 @@ public class FilterTest {
     public void oldDriverFilterTest() {
         double xInput = badPS4.getLeftX();
         double yInput = -badPS4.getLeftY();
-        double rotation = badPS4.getRightY();
+        double rotation = badPS4.getRightX();
 
         double xSpeed = oldXFilter.calculate(xInput);
         double ySpeed = oldYFilter.calculate(yInput);
