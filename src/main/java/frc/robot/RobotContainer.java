@@ -180,7 +180,7 @@ public class RobotContainer {
           () -> -driverController.getLeftY(),
           driverController::getLeftX,
           // () -> 0.0,
-          driverController::getRightY,
+          driverController::getRightX,
           // () -> true,
           badPS4::getSquareButton,
           () -> false,

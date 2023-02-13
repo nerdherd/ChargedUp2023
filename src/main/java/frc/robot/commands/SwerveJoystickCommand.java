@@ -15,6 +15,7 @@ import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.filters.DriverFilter;
 import frc.robot.filters.Filter;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.filters.NewDriverFilter;
 
 public class SwerveJoystickCommand extends CommandBase {
     private final SwerveDrivetrain swerveDrive;
@@ -45,27 +46,30 @@ public class SwerveJoystickCommand extends CommandBase {
         this.fieldOrientedFunction = fieldOrientedFunction;
         this.towSupplier = towSupplier;
         
-        this.xFilter = new DriverFilter(
-            OIConstants.kDeadband, 
-            kDriveAlpha,
-            kDriveOneMinusAlpha, 
-            kTeleDriveMaxSpeedMetersPerSecond,
-            kTeleMaxAcceleration,
-            3, kTeleMaxDeceleration);
-        this.yFilter = new DriverFilter(
-            OIConstants.kDeadband, 
-            kDriveAlpha,
-            kDriveOneMinusAlpha, 
-            kTeleDriveMaxSpeedMetersPerSecond,
-            kTeleMaxAcceleration,
-            3, kTeleMaxDeceleration);
-        this.turningFilter = new DriverFilter(
-            OIConstants.kDeadband, 
-            kDriveAlpha,
-            kDriveOneMinusAlpha, 
-            kTeleDriveMaxSpeedMetersPerSecond,
-            kTeleMaxAcceleration,
-            3, kTeleMaxDeceleration);
+        // this.xFilter = new DriverFilter(
+        //     OIConstants.kDeadband, 
+        //     kDriveAlpha,
+        //     kDriveOneMinusAlpha, 
+        //     kTeleDriveMaxSpeedMetersPerSecond,
+        //     kTeleMaxAcceleration,
+        //     3, kTeleMaxDeceleration);
+        // this.yFilter = new DriverFilter(
+        //     OIConstants.kDeadband, 
+        //     kDriveAlpha,
+        //     kDriveOneMinusAlpha, 
+        //     kTeleDriveMaxSpeedMetersPerSecond,
+        //     kTeleMaxAcceleration,
+        //     3, kTeleMaxDeceleration);
+        // this.turningFilter = new DriverFilter(
+        //     OIConstants.kDeadband, 
+        //     kDriveAlpha,
+        //     kDriveOneMinusAlpha, 
+        //     kTeleDriveMaxSpeedMetersPerSecond,
+        //     kTeleMaxAcceleration,
+        //     3, kTeleMaxDeceleration);
+        this.xFilter = new NewDriverFilter(OIConstants.kDeadband, SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, kTeleMaxDeceleration);
+        this.yFilter = new NewDriverFilter(OIConstants.kDeadband, SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, kTeleMaxDeceleration);
+        this.turningFilter = new NewDriverFilter(OIConstants.kDeadband, SwerveDriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, kTeleMaxDeceleration);
         
         this.dodgeSupplier = dodgeSupplier;
 

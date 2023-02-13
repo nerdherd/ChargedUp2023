@@ -14,7 +14,7 @@ public class ClampFilter implements Filter {
 
     public ClampFilter(double bound) {
         this.max = bound;
-        this.min = bound;
+        this.min = -bound;
     }
 
     public double calculate(double input) {
