@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 //import frc.robot.states.StateMachine;
 // import frc.robot.tests.FilterTest;
+import frc.robot.tests.FilterTest;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -122,6 +123,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     // filterTest.periodic();
+    // filterTest.testBothFilters();
     // filterTest.driveFilterTestPeriodic();
     // autoTest.ExecutionPeriod();
   }
