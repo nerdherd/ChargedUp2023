@@ -28,25 +28,25 @@ public class CANSwerveModule implements SwerveModule {
 
     private final PIDController turningController;
     private final boolean invertTurningEncoder;
-    private final double CANCoderOffset;
+    private final double CANCoderOffsetDegrees;
 
     private double currentAngle = 0;
     private double desiredAngle = 0;
     private double currentPercent = 0;
 
     /**
-     * Constuct a new CANCoder Swerve Module
+     * Construct a new CANCoder Swerve Module.
      * 
-     * @param driveMotorId              CAN ID of the drive motor
-     * @param turningMotorId            CAN ID of the turning motor
-     * @param invertDriveMotor          Whether or not the drive motor is inverted         
-     * @param invertTurningMotor        Whether or not the turning motor is inverted
-     * @param absoluteEncoderId         CAN ID of the absolute encoder
-     * @param absoluteEncoderOffset     Zero position for the absolute encoder (in ticks)
-     * @param absoluteEncoderReversed   Whether or not the absolute encoder is inverted
+     * @param driveMotorId
+     * @param turningMotorId
+     * @param invertDriveMotor
+     * @param invertTurningMotor
+     * @param CANCoderId
+     * @param CANCoderOffsetDegrees
+     * @param CANCoderReversed
      */
     public CANSwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
-    int CANCoderId, double absoluteEncoderOffset, boolean CANCoderReversed) {
+    int CANCoderId, double CANCoderOffsetDegrees, boolean CANCoderReversed) {
         this.driveMotor = new TalonFX(driveMotorId);
         this.turnMotor = new TalonFX(turningMotorId);
 
@@ -61,14 +61,14 @@ public class CANSwerveModule implements SwerveModule {
             SmartDashboard.getNumber("kPTurning", ModuleConstants.kPTurning),
             SmartDashboard.getNumber("kITurning", ModuleConstants.kITurning),
             SmartDashboard.getNumber("kDTurning", ModuleConstants.kDTurning));
-        turningController.enableContinuousInput(-Math.PI, Math.PI);
+        turningController.enableContinuousInput(0, 2 * Math.PI); // Originally was -pi to pi
         turningController.setTolerance(.025);
 
         this.driveMotor.setInverted(invertDriveMotor);
         this.turnMotor.setInverted(invertTurningMotor);
         this.canCoder = new CANCoder(CANCoderId);
-        this.CANCoderOffset = absoluteEncoderOffset;
         this.invertTurningEncoder = CANCoderReversed;
+        this.CANCoderOffsetDegrees = CANCoderOffsetDegrees;
 
         initEncoders();
     }
@@ -93,9 +93,15 @@ public class CANSwerveModule implements SwerveModule {
      *      </tr>
      *      <tr>
      *          <td> CANCoder </td> 
-     *          <td> PID N/A </td> 
-     *          <td> Mag Encoder </td>
+     *          <td> Slot 0 </td> 
+     *          <td> Relative Encoder </td>
      *      </tr>
+     *      <tr>
+     *          <td> CANCoder </td> 
+     *          <td> Slot 1 </td> 
+     *          <td> Absolute Encoder </td>
+     *      </tr>
+     *  </table>
      *  </table>
      */
     private void initEncoders() {
@@ -104,15 +110,12 @@ public class CANSwerveModule implements SwerveModule {
     }
 
     /**
-     * Reset the turning motor's integrated sensor (slot 0) using the CANCoder
+     * Reset the CANCoder's relative encoder using its absolute encoder
      */
     public void resetEncoder() {
-        double startPos = (canCoder.getPosition() - CANCoderOffset) % 4096;
-        double talonStartPos = startPos / 2;
-        
-        double startAngle = startPos / 4096;
+        double startAngle = (canCoder.getAbsolutePosition() - this.CANCoderOffsetDegrees) % 360;
         SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
-        turnMotor.setSelectedSensorPosition(talonStartPos, 0, 100);
+        canCoder.setPosition(startAngle);
     }
 
     /**
@@ -140,9 +143,18 @@ public class CANSwerveModule implements SwerveModule {
      * @return Angle in radians
      */
     public double getTurningPosition() {
-        double turningPosition = -(Math.IEEEremainder(turnMotor.getSelectedSensorPosition(0), 2048) * ModuleConstants.kAbsoluteTurningTicksToRad);
-        // SmartDashboard.putNumber("turning position motor #" + turnMotorID, turningPosition);
-        // SmartDashboard.putNumber("Turning angle #" + turnMotorID, 180 * turningPosition / Math.PI);
+        double turningPosition = Math.toRadians(getTurningPositionDegrees());
+        return turningPosition;
+    }
+
+    /**
+     * Get the angle of the turning motor's integrated sensor
+     * @return Angle in degrees
+     */
+    public double getTurningPositionDegrees() {
+        double turningPosition = canCoder.getPosition() % 360;
+        // SmartDashboard.putNumber("Turning radians #" + turnMotorID, Math.toRadians(turningPosition));
+        // SmartDashboard.putNumber("Turning angle #" + turnMotorID, turningPosition);
         return turningPosition;
     }
 
@@ -159,8 +171,17 @@ public class CANSwerveModule implements SwerveModule {
      * @return Velocity of the turning motor (in radians / sec)
      */
     public double getTurningVelocity() {
-        double turnVelocity = turnMotor.getSelectedSensorVelocity(0) * ModuleConstants.kIntegratedTurningTicksPer100MsToRadPerSec;
-        // SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, turnVelocity);
+        double turnVelocity = Math.toRadians(getTurningVelocityDegrees());
+        return turnVelocity;
+    }
+
+    /**
+     * Get the velocity of the turning motor
+     * @return Velocity of the turning motor (in radians / sec)
+     */
+    public double getTurningVelocityDegrees() {
+        double turnVelocity = canCoder.getVelocity();
+        // SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, Math.toRadians(turnVelocity));
         return turnVelocity;
     }
 
