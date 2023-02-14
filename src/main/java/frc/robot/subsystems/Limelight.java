@@ -132,7 +132,7 @@ public class Limelight implements Reportable{
 
     public Limelight(String keyN)
     {
-        setBuffer(0, 0); // need to reset everytime change pipeline
+        reinitBuffer(); // need to reset everytime change pipeline
 
         table = NetworkTableInstance.getDefault().getTable(keyN);
 
@@ -142,14 +142,12 @@ public class Limelight implements Reportable{
         setLightState(LIGHT_OFF);
     }
 
-    public void setBuffer(double default_tx, double default_ta)
+    public void reinitBuffer()
     {
-        for( int i = 0; i < tXList.length; i++) {
-            tXList[i] = default_tx;
-        }
-        for(int i = 0; i < tAList.length; i++) {
-            tAList[i] = default_ta;
-        }
+        indexTX = 0;
+        initDoneTX = false;
+        indexTA = 0;
+        initDoneTA = false;
     }
     
     /**
@@ -172,24 +170,34 @@ public class Limelight implements Reportable{
      *         degrees | LL2: -29.8 to 29.8 degrees)
      */
     int indexTX = 0;
-
+    boolean initDoneTX = false;
     public double getXAngle_avg() {
         tXList[indexTX] = tx.getDouble(0);
         indexTX ++;
         if(indexTX >= tXList.length) {
             indexTX = 0;
+            initDoneTX = true;
         }
 
-        SmartDashboard.putNumberArray("txFiltered", tXList);
+        //SmartDashboard.putNumberArray("txFiltered", tXList);
 
         double TXSum = 0;
-        for(int i = 0; i < tXList.length; i++) {
-            TXSum += tXList[i];
-        }
-        
-        SmartDashboard.putNumber("TXAverage", TXSum / tXList.length);
+        if(initDoneTX) {
+            for(int i = 0; i < tXList.length; i++) {
+                TXSum += tXList[i];
+            }
+            
+            //SmartDashboard.putNumber("TXAverage", TXSum / tXList.length);
 
-        return TXSum / tXList.length;
+            return TXSum / tXList.length;
+        }
+        else {
+            for(int i = 0; i < indexTX; i++) {
+                TXSum += tXList[i];
+            }
+
+            return TXSum / indexTX;
+        }
     }
 
     public double getXAngle()
@@ -213,23 +221,34 @@ public class Limelight implements Reportable{
      * @return Target Area (0% of image to 100% of image)
      */
     int indexTA = 0;
+    boolean initDoneTA = false;
     public double getArea_avg() {
-        double TASum = 0;
 
         tAList[indexTA] = ta.getDouble(0);
         indexTA ++;
         if(indexTA >= tAList.length) {
             indexTA = 0;
+            initDoneTA = true;
         }
 
-        SmartDashboard.putNumberArray("taFiltered", tAList);
+        //SmartDashboard.putNumberArray("taFiltered", tAList);
+        
+        double TASum = 0;
+        if(initDoneTA) {
+            for(int i = 0; i < tAList.length; i++) {
+                TASum += tAList[i];
+            }
+            //SmartDashboard.putNumber("TAAverage", TASum / tAList.length);
 
-        for(int i = 0; i < tAList.length; i++) {
-            TASum += tAList[i];
+            return TASum / tAList.length;
         }
-        SmartDashboard.putNumber("TAAverage", TASum / tAList.length);
+        else {
+            for(int i = 0; i < indexTA; i++) {
+                TASum += tAList[i];
+            }
 
-        return TASum / tAList.length;
+            return TASum / indexTA;
+        }
     }
 
     public double getArea(){

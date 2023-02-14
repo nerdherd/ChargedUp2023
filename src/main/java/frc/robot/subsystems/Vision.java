@@ -221,39 +221,62 @@ public class Vision extends SubsystemBase implements Reportable{
 
     private double lowListRobotX[] = new double[10];
     private int lowListRobotX_idx = 0;
+    private boolean initDoneLowListRobotX = false;
     public double getListAveWithNew_lowRobotX(double newValue)
     {
         lowListRobotX[lowListRobotX_idx] = newValue;
         lowListRobotX_idx ++;
         if(lowListRobotX_idx >= lowListRobotX.length) {
             lowListRobotX_idx = 0;
+            initDoneLowListRobotX = true;
         }
 
         double TXSum = 0;
-        for(int i = 0; i < lowListRobotX.length; i++) {
-            TXSum += lowListRobotX[i];
-        }
+        if(initDoneLowListRobotX) {
+            for(int i = 0; i < lowListRobotX.length; i++) {
+                TXSum += lowListRobotX[i];
+            }
 
-        return TXSum / lowListRobotX.length;
+            return TXSum / lowListRobotX.length;
+        }
+        else {
+            for(int i = 0; i < lowListRobotX_idx; i++) {
+                TXSum += lowListRobotX[i];
+            }
+
+            return TXSum / lowListRobotX_idx;
+        }
     }
 
     
     private double lowListRobotY[] = new double[10];
     private int lowListRobotY_idx = 0;
+    private boolean initDoneLowListRobotY = false;
     public double getListAveWithNew_lowRobotY(double newValue)
     {
         lowListRobotY[lowListRobotY_idx] = newValue;
         lowListRobotY_idx ++;
         if(lowListRobotY_idx >= lowListRobotY.length) {
             lowListRobotY_idx = 0;
+            initDoneLowListRobotY = true;
         }
 
-        double TXSum = 0;
-        for(int i = 0; i < lowListRobotY.length; i++) {
-            TXSum += lowListRobotY[i];
-        }
+        if(initDoneLowListRobotY) {
+            double TXSum = 0;
+            for(int i = 0; i < lowListRobotY.length; i++) {
+                TXSum += lowListRobotY[i];
+            }
 
-        return TXSum / lowListRobotY.length;
+            return TXSum / lowListRobotY.length;
+        }
+        else {
+            double TXSum = 0;
+            for(int i = 0; i < lowListRobotY_idx; i++) {
+                TXSum += lowListRobotY[i];
+            }
+
+            return TXSum / lowListRobotY_idx;
+        }
     }
 
     double goalAreaLowCamera = 3;
@@ -262,9 +285,10 @@ public class Vision extends SubsystemBase implements Reportable{
         if(!isHigh) { // cone on ground
             goalAreaLowCamera = targetAreaStop;
             lowCameraStatus = CAMERA_MODE.IDLE;
-            for(int i = 0; i < lowListRobotX.length; i++) {
-                lowListRobotX[i] = targetAreaStop;
-            }
+            initDoneLowListRobotX = false;
+            initDoneLowListRobotY = false;
+            lowListRobotX_idx = 0;
+            lowListRobotY_idx = 0;
             if(photonVisionLow != null)
                 photonVisionLow.setPipelineIndex(0);
             
@@ -279,7 +303,7 @@ public class Vision extends SubsystemBase implements Reportable{
             goalAreaHighCamera = targetAreaStop;
             highCameraStatus = CAMERA_MODE.IDLE;
             if(limelightHigh != null ){
-                limelightHigh.setBuffer(0, targetAreaStop);
+                limelightHigh.reinitBuffer();
                 limelightHigh.setPipeline(3);
             }
             // limelight yaw = headingYaw; // have to use IMU to get the job done. TODO
