@@ -116,10 +116,13 @@ public class RobotContainer {
               new WaitCommand(5),
               new InstantCommand(swerveDrive::resetEncoders)));
 
-      autoChooser.setDefaultOption("Pickup Cone Auto", VisionAutos.seekTapeDropCone(swerveDrive, vision));
+      autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
       autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
+
+      // Add other Vision Autos later
+      autoChooser.addOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision.limelightLow));
 
       SmartDashboard.putData(autoChooser);
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
@@ -306,11 +309,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-    // if (IsSwerveDrive)
-    //   return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
-    // else
-    //   return TankAutos.HardCarryAuto(tankDrive, claw, arm);
+    // return autoChooser.getSelected();
+    if (IsSwerveDrive)
+      return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
+    else
+      return TankAutos.HardCarryAuto(tankDrive, claw, arm);
   }
 
   public void autonomousInit() {
