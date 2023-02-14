@@ -159,6 +159,7 @@ public class SwerveAutos {
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
         return Commands.parallel(
+            new InstantCommand(() -> SmartDashboard.putBoolean("2 called", true)),
             new RunCommand(() -> arm.moveArmMotionMagic()),
             new SequentialCommandGroup(
                             // Commands.runOnce(swerveDrive::zeroHeading),
@@ -535,6 +536,7 @@ public class SwerveAutos {
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
 
         return Commands.sequence(
+            new InstantCommand(() -> SmartDashboard.putBoolean("called 2", true)),
             new WaitCommand(2),
             Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             new TurnToAngle(180, swerveDrive),
