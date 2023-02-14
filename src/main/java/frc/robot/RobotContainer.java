@@ -122,7 +122,7 @@ public class RobotContainer {
       autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
 
       // Add other Vision Autos later
-      autoChooser.addOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision.limelightLow));
+      autoChooser.addOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision));
 
       SmartDashboard.putData(autoChooser);
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
