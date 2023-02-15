@@ -90,28 +90,41 @@ public class SwerveAutos {
         
         double pickupAngle = 0;
         double chargeYTranslation = 0;
-        if (position == StartPosition.Right){
-            pickupAngle = -10;
-            chargeYTranslation = -1.7;
+        double pickupXDistance = 0;
+        double pickupYDistance = 0;
+        switch (position) {
+            case Right:
+                pickupAngle = -10;
+                chargeYTranslation = -1.7;
+                pickupXDistance = 4;
+                pickupYDistance = -0.25;
+                break;
+            case Left:
+                pickupAngle = 10;
+                chargeYTranslation = 1.7;
+                pickupXDistance = 4;
+                pickupYDistance = 0.25;
+                break;
+            case Middle:
+                pickupAngle = -20;
+                chargeYTranslation = 0;
+                pickupXDistance = 5; // TODO: Measure IRL
+                pickupYDistance = -0.5;
+                break;
         }
-        if (position == StartPosition.Left){
-            pickupAngle = 10;
-            chargeYTranslation = 1.7;
-        }
-
         
         
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
             new Pose2d(-.5, 0, new Rotation2d(0)), 
             List.of(
-            new Translation2d(4, 0)), 
-            new Pose2d(4, -0.25, Rotation2d.fromDegrees(pickupAngle)), 
+            new Translation2d(pickupXDistance, 0)), 
+            new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupAngle)), 
             trajectoryConfig);
 
         Trajectory pickupToScore = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(4, -0.25, new Rotation2d(pickupAngle)), 
+            new Pose2d(pickupXDistance, pickupYDistance, new Rotation2d(pickupAngle)), 
             List.of(
-            new Translation2d(4, 0)), 
+            new Translation2d(pickupXDistance, 0)), 
             new Pose2d(-0.5, 0, Rotation2d.fromDegrees(180)), 
             trajectoryConfig);
         
@@ -146,6 +159,7 @@ public class SwerveAutos {
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
         return Commands.parallel(
+            new InstantCommand(() -> SmartDashboard.putBoolean("2 called", true)),
             new RunCommand(() -> arm.moveArmMotionMagic()),
             new SequentialCommandGroup(
                             // Commands.runOnce(swerveDrive::zeroHeading),
@@ -364,6 +378,75 @@ public class SwerveAutos {
      * @param swerveDrive 
      * @return Command to reset odometry run auto to go onto charging station then run balancing auto
      */
+    public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, double waitTime, boolean goAround) {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+        
+        double yTranslation = 0;
+        double yOvershoot = 0;
+
+        switch (startPos) {
+            case Left:
+                yTranslation = 1.75;
+                yOvershoot = 2;
+                break;
+            case Right:
+                yTranslation = -1.75;
+                yOvershoot = -2;
+                break;
+            case Middle:
+                break;
+        }
+
+        Trajectory trajectory;
+        
+        if (!goAround || startPos == StartPosition.Middle) {
+            trajectory = TrajectoryGenerator.generateTrajectory(
+                new Pose2d(0, 0, new Rotation2d(0)), 
+                List.of(
+                    new Translation2d(0, yOvershoot)), 
+                new Pose2d(1.5, yTranslation, Rotation2d.fromDegrees(0)), 
+                trajectoryConfig);
+        } else {
+            trajectory = TrajectoryGenerator.generateTrajectory(
+                new Pose2d(0, 0, new Rotation2d(0)), 
+                List.of(
+                    new Translation2d(3, 0),
+                    new Translation2d(3, yTranslation)), 
+                new Pose2d(1.5, yTranslation, Rotation2d.fromDegrees(180)), 
+                trajectoryConfig);
+        }
+
+
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand autoCommand = new SwerveControllerCommand(
+            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
+            new WaitCommand(waitTime),
+            autoCommand,
+            new TimedBalancingAct(swerveDrive, 0.5, 
+                SwerveAutoConstants.kPBalancingInitial, 
+                SwerveAutoConstants.kPBalancing)
+            // new TheGreatBalancingAct(swerveDrive),
+            // new TowSwerve(swerveDrive)
+        );
+    }
+
+     /**
+     * Start with the front left swerve module aligned with the charging station's edge
+     * in the x axis and around 8 inches to the right in the y axis
+     * @param swerveDrive 
+     * @return Command to reset odometry run auto to go onto charging station then run balancing auto
+     */
     public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
@@ -453,6 +536,7 @@ public class SwerveAutos {
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
 
         return Commands.sequence(
+            new InstantCommand(() -> SmartDashboard.putBoolean("called 2", true)),
             new WaitCommand(2),
             Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             new TurnToAngle(180, swerveDrive),

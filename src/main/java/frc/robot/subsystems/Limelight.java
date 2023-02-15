@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,6 +20,9 @@ public class Limelight implements Reportable{
     private NetworkTableEntry tx;
     private NetworkTableEntry ty;
     private NetworkTableEntry ta;
+
+    private double tXList[] = new double[10];
+    private double tAList[] = new double[10];
 
     public enum LightMode {
         DEFAULT(0), OFF(1), BLINK(2), ON(3);
@@ -126,12 +132,22 @@ public class Limelight implements Reportable{
 
     public Limelight(String keyN)
     {
+        reinitBuffer(); // need to reset everytime change pipeline
+
         table = NetworkTableInstance.getDefault().getTable(keyN);
 
         tx = table.getEntry("tx");
         ty = table.getEntry("ty");
         ta = table.getEntry("ta");
         setLightState(LIGHT_OFF);
+    }
+
+    public void reinitBuffer()
+    {
+        indexTX = 0;
+        initDoneTX = false;
+        indexTA = 0;
+        initDoneTA = false;
     }
     
     /**
@@ -144,13 +160,48 @@ public class Limelight implements Reportable{
         return !has;
     }
 
+    
+
+    
     /**
      * Horizontal offset from crosshair to target
      * 
      * @return Horizontal Offset From Crosshair To Target (LL1: -27 degrees to 27
      *         degrees | LL2: -29.8 to 29.8 degrees)
      */
-    public double getXAngle() {
+    int indexTX = 0;
+    boolean initDoneTX = false;
+    public double getXAngle_avg() {
+        tXList[indexTX] = tx.getDouble(0);
+        indexTX ++;
+        if(indexTX >= tXList.length) {
+            indexTX = 0;
+            initDoneTX = true;
+        }
+
+        //SmartDashboard.putNumberArray("txFiltered", tXList);
+
+        double TXSum = 0;
+        if(initDoneTX) {
+            for(int i = 0; i < tXList.length; i++) {
+                TXSum += tXList[i];
+            }
+            
+            //SmartDashboard.putNumber("TXAverage", TXSum / tXList.length);
+
+            return TXSum / tXList.length;
+        }
+        else {
+            for(int i = 0; i < indexTX; i++) {
+                TXSum += tXList[i];
+            }
+
+            return TXSum / indexTX;
+        }
+    }
+
+    public double getXAngle()
+    {
         return tx.getDouble(0);
     }
 
@@ -169,7 +220,38 @@ public class Limelight implements Reportable{
      * 
      * @return Target Area (0% of image to 100% of image)
      */
-    public double getArea() {
+    int indexTA = 0;
+    boolean initDoneTA = false;
+    public double getArea_avg() {
+
+        tAList[indexTA] = ta.getDouble(0);
+        indexTA ++;
+        if(indexTA >= tAList.length) {
+            indexTA = 0;
+            initDoneTA = true;
+        }
+
+        //SmartDashboard.putNumberArray("taFiltered", tAList);
+        
+        double TASum = 0;
+        if(initDoneTA) {
+            for(int i = 0; i < tAList.length; i++) {
+                TASum += tAList[i];
+            }
+            //SmartDashboard.putNumber("TAAverage", TASum / tAList.length);
+
+            return TASum / tAList.length;
+        }
+        else {
+            for(int i = 0; i < indexTA; i++) {
+                TASum += tAList[i];
+            }
+
+            return TASum / indexTA;
+        }
+    }
+
+    public double getArea(){
         return ta.getDouble(0);
     }
 

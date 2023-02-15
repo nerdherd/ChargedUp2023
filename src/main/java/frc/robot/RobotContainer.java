@@ -63,12 +63,12 @@ public class RobotContainer {
   public static Imu imu = new Imu();
   public static Vision vision = new Vision();
   public static ConeRunner coneRunner = new ConeRunner();
-  public static final boolean IsSwerveDrive = true;
-  public static TankDrivetrain tankDrive;
-  public static SwerveDrivetrain swerveDrive;
+  //public static final boolean IsSwerveDrive = true;
+  //public static TankDrivetrain tankDrive;
   public AirCompressor airCompressor = new AirCompressor();
 
-  private PipelineType obj = PipelineType.ATAG;
+  public static SwerveDrivetrain swerveDrive;
+  //private PipelineType obj = PipelineType.ATAG;
 
   // private final CommandPS4Controller driverController = new CommandPS4Controller(
   //     ControllerConstants.kDriverControllerPort);
@@ -91,8 +91,8 @@ public class RobotContainer {
   SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
 
   // Two different drivetrain modes
-  private RunCommand arcadeRunCommand;
-  private RunCommand visionRunCommand;
+  //private RunCommand arcadeRunCommand;
+  //private RunCommand visionRunCommand;
   
   // Two different drivetrain modes
   // private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
@@ -108,31 +108,29 @@ public class RobotContainer {
    */
   public RobotContainer() {
 
-    if (IsSwerveDrive) {
-      swerveDrive = new SwerveDrivetrain(imu);
+    //if (IsSwerveDrive) {
+    swerveDrive = new SwerveDrivetrain(imu);
 
-      swerveCommand = new RepeatCommand(
-          new SequentialCommandGroup(
-              new WaitCommand(5),
-              new InstantCommand(swerveDrive::resetEncoders)));
+    swerveCommand = new RepeatCommand(
+        new SequentialCommandGroup(
+            new WaitCommand(5),
+            new InstantCommand(swerveDrive::resetEncoders)));
 
-      autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
-      autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
-      autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
-      autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
+    autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
+    autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
+    autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
+    autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
+    autoChooser.addOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision));
 
-      // Add other Vision Autos later
-      autoChooser.addOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision.limelightLow));
+    SmartDashboard.putData(autoChooser);
+    SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
-      SmartDashboard.putData(autoChooser);
-      SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
-
-    } else {
+    /* } else {
       tankDrive = new TankDrivetrain();
 
       // visionRunCommand = new RunCommand(
       //     () -> tankDrive.arcadeDrive(tankDrive.getApriltagLinear(), tankDrive.getApriltagRotation()), tankDrive);
-    }
+    }*/
 
 
     // Configure the trigger bindings
@@ -163,28 +161,29 @@ public class RobotContainer {
     coneRunner.resetEncoders();
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
-    if (IsSwerveDrive) {
-      swerveDrive.setDefaultCommand(
-        new SwerveJoystickCommand(
-          swerveDrive,
-          () -> -driverController.getLeftY(),
-          driverController::getLeftX,
-          // () -> 0.0,
-          driverController::getRightX,
-          // () -> true,
-          driverControllerButtons::getSquareButton,
-          driverControllerButtons::getL3Button,
-          // driverControllerButtons::getTriangleButton,
-          driverControllerButtons::getCrossButton
-        ));
-    } else {
+    //if (IsSwerveDrive) {
+    swerveDrive.setDefaultCommand(
+      new SwerveJoystickCommand(
+        swerveDrive,
+        () -> -driverController.getLeftY(),
+        driverController::getLeftX,
+        // () -> 0.0,
+        driverController::getRightX,
+        // () -> true,
+        driverControllerButtons::getSquareButton,
+        driverControllerButtons::getL3Button,
+        // driverControllerButtons::getTriangleButton,
+        // driverControllerButtons::getCrossButton
+        () -> false
+      ));
+     /*} else {
       tankDrive.setDefaultCommand(
         new RunCommand(
           () -> tankDrive.drive(
             -driverController.getLeftY(), 
             -driverController.getRightY()
           ), tankDrive));
-    }
+    }*/
 
 
   }
@@ -194,10 +193,10 @@ public class RobotContainer {
     // still being held
     // These button bindings are chosen for testing, and may be changed based on
     // driver preference
-    if (!IsSwerveDrive) {
+    /*if (!IsSwerveDrive) {
       driverController.L1().whileTrue(tankDrive.shiftHigh()); // TODO: use it for swerve too? inch-drive
       driverController.R1().whileTrue(tankDrive.shiftLow());
-    }
+    }*/
 
     operatorPOVRight.whileTrue(arm.moveArmScore())
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
@@ -247,13 +246,13 @@ public class RobotContainer {
     // operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
     // operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
 
-    if (IsSwerveDrive) {
+    //if (IsSwerveDrive) {
       // Driver Bindings
-      driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
-      driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+    driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
+    driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
 
-      driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
-      driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+    driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
+    driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
 
       // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
       // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
@@ -272,13 +271,13 @@ public class RobotContainer {
 
       //driverController.triangle().whileTrue(new ApproachCombined(swerveDrive, objDetectCamera, 4, obj))
       //.onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-    }
+    //}
   }
   
   public void initShuffleboard() {
-    if (!IsSwerveDrive) {
+    /*if (!IsSwerveDrive) {
       tankDrive.initShuffleboard();
-    }
+    }*/
     // autoChooser = new SendableChooser<CommandBase>();
     // autoChooser.setDefaultOption("Hard Carry Auto",
     // TankAutos.HardCarryAuto(drive, claw, arm));
@@ -293,12 +292,12 @@ public class RobotContainer {
     claw.reportToSmartDashboard();
     arm.reportToSmartDashboard();
     coneRunner.reportToSmartDashboard();
-    if (IsSwerveDrive) {
-      swerveDrive.reportToSmartDashboard();
-      swerveDrive.reportModulesToSmartDashboard();
-    } else {
+    //if (IsSwerveDrive) {
+    swerveDrive.reportToSmartDashboard();
+    swerveDrive.reportModulesToSmartDashboard();
+    /*} else {
       tankDrive.reportToSmartDashboard();
-    }
+    }*/
     airCompressor.reportToSmartDashboard();
   }
   
@@ -309,19 +308,19 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // return autoChooser.getSelected();
-    if (IsSwerveDrive)
+    //if (IsSwerveDrive)
       return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
-    else
-      return TankAutos.HardCarryAuto(tankDrive, claw, arm);
+    /*else
+      return TankAutos.HardCarryAuto(tankDrive, claw, arm);*/
   }
 
   public void autonomousInit() {
-    if (!IsSwerveDrive) { // TODO: Move resets to robot init? 
+    /*if (!IsSwerveDrive) { // TODO: Move resets to robot init? 
       tankDrive.resetEncoders();
       // drive.setEncoder(drive.meterToTicks(0.381));
       imu.zeroHeading();
 
-    }
+    }*/
     
     arm.armResetEncoder();
     arm.setArmTargetTicks(ArmConstants.kArmStow);
