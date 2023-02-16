@@ -124,7 +124,7 @@ public class SwerveModule implements Reportable{
     public void stop() {
         driveMotor.set(ControlMode.PercentOutput, 0);
         turnMotor.set(ControlMode.PercentOutput, 0);
-        setBreak(true);
+        // setBreak(true);
     }
 
     //****************************** GETTERS ******************************/
@@ -201,7 +201,7 @@ public class SwerveModule implements Reportable{
             stop();
             return;
         } else {
-            setBreak(false);
+            // setBreak(false);
         }
         // state.angle = state.angle.rotateBy(Rotation2d.fromDegrees(-90));
         state = SwerveModuleState.optimize(state, getState().angle);
