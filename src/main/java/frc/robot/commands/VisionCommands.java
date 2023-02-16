@@ -17,8 +17,9 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Vision.PipelineType;
 
-public class VisionAutos {
+public class VisionCommands {
 
+    // Approach cone without rotation
     public static CommandBase penPineappleApplePen(SwerveDrivetrain drivetrain, Vision vision) {
         return Commands.parallel(
             new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto1 ended", false)),

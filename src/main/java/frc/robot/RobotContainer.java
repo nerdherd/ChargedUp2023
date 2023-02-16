@@ -13,6 +13,7 @@ import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
@@ -39,7 +40,7 @@ import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
-import frc.robot.commands.VisionAutos;
+import frc.robot.commands.VisionCommands;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
@@ -245,11 +246,7 @@ public class RobotContainer {
       driverController.R2().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L2().whileTrue(new TurnToAngle(0, swerveDrive));
 
-      // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
-      // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
-      // driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
-      // driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
-
+      driverController.triangle().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision));
 
       // Operator Bindings
       // operatorController.R1().onTrue(vision.SwitchHigh());
