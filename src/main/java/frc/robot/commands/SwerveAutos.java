@@ -489,6 +489,7 @@ public class SwerveAutos {
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
 
         return Commands.sequence(
+            new InstantCommand(() -> SmartDashboard.putBoolean("called 2", true)),
             new WaitCommand(2),
             Commands.runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             new TurnToAngle(180, swerveDrive),
