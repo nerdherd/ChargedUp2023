@@ -62,7 +62,7 @@ public class MagSwerveModule implements SwerveModule {
             SmartDashboard.getNumber("kPTurning", ModuleConstants.kPTurning),
             SmartDashboard.getNumber("kITurning", ModuleConstants.kITurning),
             SmartDashboard.getNumber("kDTurning", ModuleConstants.kDTurning));
-        turningController.enableContinuousInput(-Math.PI, Math.PI); // TODO: Change to [0, 2pi]
+        turningController.enableContinuousInput(0, 2*Math.PI);
         turningController.setTolerance(.025);
 
         this.driveMotor.setInverted(invertDriveMotor);
@@ -127,6 +127,7 @@ public class MagSwerveModule implements SwerveModule {
     public void stop() {
         driveMotor.set(ControlMode.PercentOutput, 0);
         turnMotor.set(ControlMode.PercentOutput, 0);
+        setBreak(true);
     }
 
     //****************************** GETTERS ******************************/
@@ -202,6 +203,8 @@ public class MagSwerveModule implements SwerveModule {
         if (Math.abs(state.speedMetersPerSecond) < 0.001) {
             stop();
             return;
+        } else {
+            setBreak(false);
         }
         // state.angle = state.angle.rotateBy(Rotation2d.fromDegrees(-90));
         state = SwerveModuleState.optimize(state, getState().angle);
