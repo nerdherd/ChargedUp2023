@@ -12,6 +12,20 @@ public class EquationFilter implements Filter {
     private boolean isValid;
 
     /**
+     * Construct an equation filter from array values.
+     * <p>
+     * Use for creating equation filters from networktables values.
+     * 
+     * @param equation
+     * @param variables
+     * @param values
+     * @return
+     */
+    public EquationFilter(String equation, String[] variables, double[] values) {
+        setEquation(equation, variables, values);
+    }
+
+    /**
      * Construct a new EquationFilter with no variables.
      * @param equation  The equation string.
      */
@@ -62,6 +76,25 @@ public class EquationFilter implements Filter {
      */
     public void setEquation(String equation) {
         setEquation(equation, null);
+    }
+
+    /**
+     * Set the equation from two arrays of variables.
+     * @param equation
+     * @param variables
+     * @param values
+     */
+    public void setEquation(String equation, String[] variables, double[] values) {
+        if (variables == null || variables.length == 0 || values == null || values.length == 0) {
+            setEquation(equation);
+            return;
+        }
+
+        setEquation(equation, new HashMap<String, Double>() {{   
+            for (int i = 0; i<variables.length; i++) {
+                put(variables[i], values[i]);
+            }
+        }});
     }
 
     public double calculate(double input) {
