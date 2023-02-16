@@ -152,8 +152,9 @@ public class SwerveJoystickCommand extends CommandBase {
                             swerveDrive.getImu().getHeading()))
                         );
                 // Might need to swap x and y on rotation center depending on how it gets interpreted
-                // rotationCenter = new Translation2d(rotationCenter.getX(), rotationCenter.getY());
+                rotationCenter = new Translation2d(rotationCenter.getY(), rotationCenter.getX());
             }
+            // filteredTurningSpeed *= -1;
             moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds, rotationCenter);
         } else {
             rotationCenter = null;
