@@ -35,15 +35,6 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      * Construct a new {@link SwerveDrivetrain}
      */
     public SwerveDrivetrain(Imu gyro, SwerveModuleType moduleType) throws IllegalArgumentException {
-        numEncoderResets = 0;
-        SmartDashboard.putNumber("Encoder resets", 0);
-        resetEncoders();
-        this.gyro = gyro;
-        this.odometer = new SwerveDriveOdometry(
-            kDriveKinematics, 
-            new Rotation2d(0), 
-            getModulePositions()); 
-        
         switch (moduleType) {
             case MAG_ENCODER:
                 frontLeft = new MagSwerveModule(
@@ -116,6 +107,15 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
             default:
                 throw new IllegalArgumentException("Swerve Module Type not provided");
         }
+
+        numEncoderResets = 0;
+        SmartDashboard.putNumber("Encoder resets", 0);
+        resetEncoders();
+        this.gyro = gyro;
+        this.odometer = new SwerveDriveOdometry(
+            kDriveKinematics, 
+            new Rotation2d(0), 
+            getModulePositions()); 
     }
 
     /**
