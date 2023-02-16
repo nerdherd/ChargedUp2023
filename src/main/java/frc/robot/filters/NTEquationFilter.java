@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringArraySubscriber;
 import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.util.WPIUtilJNI;
@@ -50,6 +52,29 @@ public class NTEquationFilter extends EquationFilter {
 
         this.lastUpdateTimestamp = WPIUtilJNI.now() * 1e-6;
     }
+
+    public NTEquationFilter(NetworkTable nt, int equationID) {
+        this(
+            nt.getStringTopic("Equation-"+equationID).subscribe("x"),
+            nt.getStringArrayTopic("Variables-"+equationID).subscribe(new String[0]),
+            nt.getDoubleArrayTopic("Values-"+equationID).subscribe(new double[0]),
+            nt.getBooleanTopic("Updater-"+equationID).subscribe(false));
+    }
+
+    public NTEquationFilter(NetworkTableInstance nt, int equationID) {
+        this(nt.getTable("Equations"), equationID);
+    }
+
+    /**
+     * Create an NTEquationFilter on the table "Equations" on the default instance.
+     * <p>
+     * The equation is contained in the value "Equation-#".
+     * 
+     * @param equationID
+     */
+    public NTEquationFilter(int equationID) {
+        this(NetworkTableInstance.getDefault(), equationID);
+    } 
 
     public NTEquationFilter(StringSubscriber equation, 
             StringArraySubscriber variables, 
