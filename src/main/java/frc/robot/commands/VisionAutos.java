@@ -19,21 +19,20 @@ import frc.robot.subsystems.Vision.PipelineType;
 
 public class VisionAutos {
 
+    // seekConeOnGroundToPickup
     public static CommandBase penPineappleApplePen(SwerveDrivetrain drivetrain, Vision vision) {
         return Commands.parallel(
             new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto1 ended", false)),
             new SequentialCommandGroup(
-                Commands.runOnce(() -> vision.initObjDetection(false, 10, 180)),
+                Commands.runOnce(() -> vision.initObjDetection(false, 21, 180)),
                 new ParallelRaceGroup(
                     new RunCommand(() -> vision.getPPAP(drivetrain)),
                     Commands.waitUntil(vision.cameraLowStatusSupplier),
-                    new WaitCommand(30)
+                    new WaitCommand(3000) //TODO debug
                 ),
                 new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto1 ended", true))
             )
         );
-        //return new RunCommand(() -> getPPAP(drivetrain, limelight));
-        // return new DriveToTarget(drivetrain, limelight, 2, PipelineType.CONE);
     }
 
     public static CommandBase seekTapeDropCone(SwerveDrivetrain drivetrain, Vision vision) {
@@ -44,7 +43,7 @@ public class VisionAutos {
                 new ParallelRaceGroup(
                     new RunCommand(() -> vision.seekTape(drivetrain)),
                     Commands.waitUntil(vision.cameraHighStatusSupplier),
-                    new WaitCommand(30)
+                    new WaitCommand(3000) //DODO debug
                 ),
                 new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto2 ended", true))
             )
