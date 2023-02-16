@@ -246,7 +246,8 @@ public class RobotContainer {
       driverController.R2().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L2().whileTrue(new TurnToAngle(0, swerveDrive));
 
-      driverController.triangle().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision));
+      driverController.triangle().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
+                      .onFalse(new InstantCommand(() -> swerveDrive.stopModules()));
 
       // Operator Bindings
       // operatorController.R1().onTrue(vision.SwitchHigh());
