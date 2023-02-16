@@ -276,6 +276,7 @@ public class CommandBadPS4 extends CommandGenericHID {
    * @return an event instance representing the PS button's digital signal attached to the {@link
    *     CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
    */
+  @Deprecated
   public Trigger PS() {
     return PS(CommandScheduler.getInstance().getDefaultButtonLoop());
   }
@@ -287,6 +288,7 @@ public class CommandBadPS4 extends CommandGenericHID {
    * @return an event instance representing the PS button's digital signal attached to the given
    *     loop.
    */
+  @Deprecated
   public Trigger PS(EventLoop loop) {
     return m_hid.PS(loop).castTo(Trigger::new);
   }
@@ -318,6 +320,7 @@ public class CommandBadPS4 extends CommandGenericHID {
    * @return an event instance representing the touchpad's digital signal attached to the {@link
    *     CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
    */
+  @Deprecated
   public Trigger touchpad() {
     return touchpad(CommandScheduler.getInstance().getDefaultButtonLoop());
   }
@@ -329,6 +332,7 @@ public class CommandBadPS4 extends CommandGenericHID {
    * @return an event instance representing the touchpad's digital signal attached to the given
    *     loop.
    */
+  @Deprecated
   public Trigger touchpad(EventLoop loop) {
     return m_hid.touchpad(loop).castTo(Trigger::new);
   }

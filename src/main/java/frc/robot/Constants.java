@@ -90,6 +90,7 @@ public final class Constants {
     public static final int kArmStow = 432840;//144278;
     public static final int kArmScore = 596443; // 89744;
     public static final int kArmGround = 767054;// 34352;
+    public static final int kArmPickUp = 0;
     public static final int kArmMotionAcceleration = 800000; //160000;
     public static final int kArmCruiseVelocity = 18000;//21777;
     public static final double kArmDeadband = 0.05;

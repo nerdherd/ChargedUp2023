@@ -9,9 +9,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.BananaConstants;
 import frc.robot.Constants.SwerveDriveConstants;
-import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.subsystems.vision.Limelight;
+import frc.robot.subsystems.vision.Vision.PipelineType;
 
 
 public class DriveToTarget extends CommandBase{
