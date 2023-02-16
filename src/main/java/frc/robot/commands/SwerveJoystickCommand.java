@@ -153,14 +153,21 @@ public class SwerveJoystickCommand extends CommandBase {
                         );
                 // Might need to swap x and y on rotation center depending on how it gets interpreted
                 rotationCenter = new Translation2d(rotationCenter.getY(), rotationCenter.getX());
+                SmartDashboard.putNumber("Dodge X", rotationCenter.getX());
+                SmartDashboard.putNumber("Dodge Y", rotationCenter.getY());
             }
-            // filteredTurningSpeed *= -1;
+
+            if (rotationCenter.getX() > 0) {
+                filteredTurningSpeed *= -1;
+            }
+
             moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds, rotationCenter);
         } else {
             rotationCenter = null;
             moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         }
 
+        
         // Calculate swerve module states
         swerveDrive.setModuleStates(moduleStates);
     }
