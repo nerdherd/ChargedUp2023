@@ -1,6 +1,7 @@
 package frc.robot.filters;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -24,8 +25,18 @@ public class NewDriverFilter extends FilterSeries {
             double alpha, double posRateLimit, double negRateLimit) {
         super();
 
-        slewRateLimiter = new SlewRateLimiter(posRateLimit, negRateLimit, 0);
         deadbandScaler = (1 - motorDeadband) * (1 - motorDeadband);
+
+        if (negRateLimit > -3) {
+            DriverStation.reportWarning(
+                String.format(
+                    "Swerve deceleration Value of %d is too low!", 
+                    negRateLimit), 
+                true);
+            return;
+        }
+
+        slewRateLimiter = new SlewRateLimiter(posRateLimit, negRateLimit, 0);
 
         super.setFilters(
             new DeadbandFilter(deadband),
