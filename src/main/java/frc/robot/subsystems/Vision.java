@@ -456,8 +456,26 @@ public class Vision extends SubsystemBase implements Reportable{
             SmartDashboard.putNumber("VHighTape robotSteer avg", calculatedSteer);
 
             xSpeedRequest = pidRobotX_highTape.calculate(calculatedX, goalAreaHighCamera);
-            ySpeedRequest = -pidRobotY_highTape.calculate(calculatedY, 0);
-            steerSpeedRequest = pidRobotSteer_highTape.calculate(calculatedSteer, goalHeadingHighCamera);
+            // Calculate the error terms for the PID controllers
+            double errorX = goalAreaHighCamera - calculatedX;
+            double errorY = 0 - calculatedY;
+            double errorSteer = goalHeadingHighCamera - calculatedSteer;
+            
+            /* // if needed
+            // Apply additional logic to handle off-center and angled targets
+            if (Math.abs(errorY) > 5) {
+                // If the target is off-center, add an additional correction term to the x PID controller
+                errorX -= 0.1 * errorY;
+            }
+            if (Math.abs(errorSteer) > 10) {
+                // If the target is at an angle, add an additional correction term to the y PID controller
+                errorY -= 0.1 * errorSteer;
+            }*/
+
+
+            xSpeedRequest = pidRobotX_highTape.calculate(errorX);
+            ySpeedRequest = -pidRobotY_highTape.calculate(errorY);
+            steerSpeedRequest = pidRobotSteer_highTape.calculate(errorSteer);
             
             // TODO !!!!!!!!
             if(NerdyMath.inRange(xSpeedRequest, -5, 5) &&
