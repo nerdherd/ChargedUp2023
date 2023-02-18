@@ -71,10 +71,10 @@ public class Dodge extends SwerveControllerCommand {
 
         // Up-Left or Down-Right
         if (isLeft && facingForward || !isLeft && !facingForward) {
-            endAngle -= (Math.PI / 2);
+            endAngle += (Math.PI / 2);
         } else {
         // Up-right or Down-Left
-            endAngle += (Math.PI / 2);
+            endAngle -= (Math.PI / 2);
             yTranslation *= -1;
         }
 
