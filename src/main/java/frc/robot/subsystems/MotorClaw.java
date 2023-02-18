@@ -21,7 +21,7 @@ public class MotorClaw extends SubsystemBase {
     rightMotor = new TalonSRX(ClawConstants.kRightMotorID);
 
     leftMotor.setInverted(false);
-    rightMotor.setInverted(true);
+    rightMotor.setInverted(false);
   }
 
   public CommandBase setPower(double power) {

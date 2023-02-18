@@ -94,6 +94,8 @@ public class Arm extends SubsystemBase implements Reportable {
 
     }
 
+    
+
     public CommandBase moveArmJoystickCommand(Supplier<Double> joystickInput) {
         return Commands.run(
             () -> moveArmJoystickCommand(joystickInput), this);
@@ -187,6 +189,13 @@ public class Arm extends SubsystemBase implements Reportable {
    
         );
 
+    }
+
+    public CommandBase moveArmPickUp() {
+        return Commands.run(
+            () -> moveArmMotionMagic(ArmConstants.kArmPickUp), this
+            
+        );
     }
 
     public CommandBase armStow() {

@@ -13,13 +13,11 @@ import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
-import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotorClaw;
-import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.Limelight.LightMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,10 +37,14 @@ import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
+import frc.robot.commands.VisionCommands;
 import frc.robot.commands.SwerveAutos.StartPosition;
-import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
+import frc.robot.subsystems.vision.Limelight;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.Limelight.LightMode;
+import frc.robot.subsystems.vision.Vision.PipelineType;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
 
@@ -64,7 +66,7 @@ public class RobotContainer {
   public static MotorClaw motorClaw = new MotorClaw();
 
   public static Imu imu = new Imu();
-  // public static Vision vision = new Vision();
+  public static Vision vision = new Vision();
   public static ConeRunner coneRunner = new ConeRunner();
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;
@@ -119,7 +121,7 @@ public class RobotContainer {
               new WaitCommand(5),
               new InstantCommand(swerveDrive::resetEncoders)));
 
-      autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
+      autoChooser.setDefaultOption("Pickup Cone Auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, StartPosition.Right));
       autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
       autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
       autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, StartPosition.Right));
@@ -139,6 +141,7 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
+    arm.armExtend();
     arm.setDefaultCommand(
       new RunCommand(
         () -> {
@@ -243,11 +246,8 @@ public class RobotContainer {
       driverController.R2().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L2().whileTrue(new TurnToAngle(0, swerveDrive));
 
-      // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
-      // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
-      // driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
-      // driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
-
+      driverController.triangle().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
+                      .onFalse(new InstantCommand(() -> swerveDrive.stopModules()));
 
       // Operator Bindings
       // operatorController.R1().onTrue(vision.SwitchHigh());
@@ -296,11 +296,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // return autoChooser.getSelected();
-    if (IsSwerveDrive)
-      return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, StartPosition.Right);
-    else
-      return TankAutos.HardCarryAuto(tankDrive, claw, arm);
+    return autoChooser.getSelected();
+    // if (IsSwerveDrive)
+    //   return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
+    // else
+    //   return TankAutos.HardCarryAuto(tankDrive, claw, arm);
   }
 
   public void autonomousInit() {
