@@ -55,7 +55,7 @@ public class Vision extends SubsystemBase implements Reportable{
 
     public Vision(){
         try {
-            limelightHigh = new Limelight("limelight-low");
+            limelightHigh = new Limelight("limelight-high");
             limelightHigh.setLightState(Limelight.LightMode.OFF);
         } catch (Exception ex) {
             limelightHigh = null;
@@ -211,74 +211,86 @@ public class Vision extends SubsystemBase implements Reportable{
         }
      }
 
-    
+    double xSpeedRequest = 0;
+    double ySpeedRequest = 0;
+    double steerSpeedRequest = 0;
 
     // Limelight for finding CONE on ground
+    // PhotonVision for finding CONE on ground, only for the up position
     PIDController pidRobotY_lowCone = new PIDController(0, 0, 0);
     PIDController pidRobotX_lowCone = new PIDController(0, 0, 0);
     public void getPPAP(SwerveDrivetrain drivetrain) {
-
-        if (limelightHigh == null) 
+        if(photonVisionLow == null)
             return;
             
-        // TODO !!!!!!!!
-        pidRobotY_lowCone.setP(SmartDashboard.getNumber("VLowCone Y P", 0.05)); // 0.24
+        // TODO 3: !!!!!!!!, PID, max/min range, and slew rate
+        pidRobotY_lowCone.setP(SmartDashboard.getNumber("VLowCone Y P", 0.05));
         pidRobotY_lowCone.setI(SmartDashboard.getNumber("VLowCone Y I", 0.0));
-        pidRobotY_lowCone.setD(SmartDashboard.getNumber("VLowCone Y D", 0.05)); //0.03 // 0
+        pidRobotY_lowCone.setD(SmartDashboard.getNumber("VLowCone Y D", 0.05)); //0.03
         pidRobotY_lowCone.setTolerance(0.2);
 
         pidRobotX_lowCone.setP(SmartDashboard.getNumber("VLowCone X P", 0.05));
         pidRobotX_lowCone.setI(SmartDashboard.getNumber("VLowCone X I", 0.0)); 
-        pidRobotX_lowCone.setD(SmartDashboard.getNumber("VLowCone X D", 0.05)); //0.05 // 0
+        pidRobotX_lowCone.setD(SmartDashboard.getNumber("VLowCone X D", 0.05)); //0.05
         pidRobotX_lowCone.setTolerance(0.2);
 
         ChassisSpeeds chassisSpeeds;
-        double xSpeed;
-        double ySpeed;
 
-        SmartDashboard.putBoolean("VLowCone has target", limelightHigh.hasValidTarget());
+        var result = photonVisionLow.getLatestResult();
 
-        if(!limelightHigh.hasValidTarget()) {
-            xSpeed = 0;
-            ySpeed = 0;
-            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+        SmartDashboard.putBoolean("VLowCone has target", result.hasTargets());
+
+        if(!result.hasTargets()) {
+            xSpeedRequest = 0;
+            ySpeedRequest = 0;
+            chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, 0);
             SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
             drivetrain.setModuleStates(moduleStates);
             lowCameraStatus = CAMERA_MODE.WAIT;
         }
         else {
-            double calculatedX = getListAveWithNew_lowRobotX(limelightHigh.getArea());
-            double calculatedY = getListAveWithNew_lowRobotY(limelightHigh.getXAngle());
-            SmartDashboard.putNumber("VLowCone robotX avg", calculatedX);
-            SmartDashboard.putNumber("VLowCone robotY avg", calculatedY);
+            double calculatedX = getListAveWithNew_lowRobotX(result.getBestTarget().getArea());// watching pv-area
+            double calculatedY = getListAveWithNew_lowRobotY(result.getBestTarget().getYaw());// watching pv-yaw
+            SmartDashboard.putNumber("VLowCone robotX avg", calculatedX);// watching
+            SmartDashboard.putNumber("VLowCone robotY avg", calculatedY);// watching
 
-            xSpeed = pidRobotX_lowCone.calculate(calculatedX, goalAreaLowCamera);
-            ySpeed = -pidRobotY_lowCone.calculate(calculatedY, 0);
+            xSpeedRequest = pidRobotX_lowCone.calculate(calculatedX, goalAreaLowCamera);
+            ySpeedRequest = -pidRobotY_lowCone.calculate(calculatedY, 0);
             
-            // TODO !!!!!!!!
-            if(NerdyMath.inRange(xSpeed, -.1, .1) &&
-            NerdyMath.inRange(ySpeed, -.1, .1))
+            // TODO 2: !!!!!!!! find the value ranges
+            if(NerdyMath.inRange(xSpeedRequest, -.1, .1) &&
+            NerdyMath.inRange(ySpeedRequest, -.1, .1))
             {
-                xSpeed = 0;
-                ySpeed = 0;
-                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+                //xSpeedRequest = 0; // comment them out so that we can see the last values on SmartDashboard
+                //ySpeedRequest = 0;
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                // lowCameraStatus = CAMERA_MODE.ARRIVED; 
+                lowCameraStatus = CAMERA_MODE.ARRIVED; 
             }
-            else{
+            // TODO 4: !!!!!!!!, if we need min_move_power, to improve the accuracy
+            /*else if(NerdyMath.inRange(xSpeed, -10, 10) &&
+            NerdyMath.inRange(ySpeed, -10, 10))
+            {
+                xSpeed += 15;
+                ySpeed += 15;
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                // lowCameraStatus = CAMERA_MODE.ACTION;
+                lowCameraStatus = CAMERA_MODE.ACTION; 
+            }*/
+            else{
+                chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                lowCameraStatus = CAMERA_MODE.ACTION;
             }
         }
         
         SmartDashboard.putString("VLowCone status", lowCameraStatus.toString());
 
-        //SmartDashboard.putNumber("Vision Tolerance", tolerance);
-        SmartDashboard.putNumber("VLowCone X speed", xSpeed);
-        SmartDashboard.putNumber("VLowCone Y speed", ySpeed);
+        SmartDashboard.putNumber("VLowCone X speed", xSpeedRequest);// watching
+        SmartDashboard.putNumber("VLowCone Y speed", ySpeedRequest);// watching
     }
 
 
