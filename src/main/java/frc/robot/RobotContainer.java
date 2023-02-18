@@ -207,14 +207,14 @@ public class RobotContainer {
     operatorPOVLeft.whileTrue(arm.moveArmPickUp())
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
 
-    operatorController.triangle().whileTrue(arm.moveElevatorScoreHigh())
-      .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
-    operatorController.square().whileTrue(arm.moveElevatorScoreMid())
-      .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
-    operatorController.cross().whileTrue(arm.moveElevatorStow())
-      .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
+    // operatorController.triangle().whileTrue(arm.moveElevatorScoreHigh())
+    //   .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
+    // operatorController.square().whileTrue(arm.moveElevatorScoreMid())
+    //   .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
+    // operatorController.cross().whileTrue(arm.moveElevatorStow())
+    //   .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
   
-    // operatorController.circle().onTrue(arm.armExtend()); 
+    operatorController.circle().onTrue(arm.armExtend()).onFalse(arm.armStow()); 
     // operatorController.cross().whileTrue(arm.armStow());
     operatorController.L2().whileTrue(motorClaw.setPower(0.4))
         .onFalse(motorClaw.setPowerZero());

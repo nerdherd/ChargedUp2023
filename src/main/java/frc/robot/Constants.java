@@ -87,10 +87,10 @@ public final class Constants {
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 20;
-    public static final int kArmStow = 144280; //144278;
-    public static final int kArmPickUp = 180136;
-    public static final int kArmScore = 198814; // piston claw: 198814 // negative going up: 89744;
-    public static final int kArmGround = 255684; // 34352;
+    public static final int kArmStow = 144280*3; //144278;
+    public static final int kArmPickUp = 180136*3;
+    public static final int kArmScore = 198814*3; // piston claw: 198814 // negative going up: 89744;
+    public static final int kArmGround = 255684*3; // 34352;
     public static final int kArmMotionAcceleration = 6000; //160000;
     public static final int kArmCruiseVelocity = 6000; //21777;
     public static final double kArmDeadband = 0.05;
@@ -102,7 +102,7 @@ public final class Constants {
     public static final int kPistonForwardID = 5;
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kTicksPerAngle = 6441 / 3;
+    public static final double kTicksPerAngle = 6441;
 
 
     // public static final double kCruiseVelocity = 0;
