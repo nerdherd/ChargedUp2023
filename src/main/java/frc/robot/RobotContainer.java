@@ -82,7 +82,6 @@ public class RobotContainer {
       ControllerConstants.kOperatorControllerPort);
   private final BadPS4 badPS4 = operatorController.getHID();
 
-  private final PS4Controller driverControllerButtons = new PS4Controller(ControllerConstants.kDriverControllerPort);
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);
   private final POVButton downButton = new POVButton(badPS4, 180);
@@ -183,10 +182,10 @@ public class RobotContainer {
           // () -> 0.0,
           driverController::getRightY,
           // () -> true,
-          driverControllerButtons::getSquareButton,
+          badPS4::getSquareButton,
           () -> false,
           // driverControllerButtons::getTriangleButton,
-          driverControllerButtons::getCrossButton
+          badPS4::getCrossButton
         ));
     } else {
       tankDrive.setDefaultCommand(
