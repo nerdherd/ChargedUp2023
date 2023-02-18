@@ -261,8 +261,11 @@ public class RobotContainer {
       // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 4, obj))
       //                  .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-      //driverController.triangle().whileTrue(new ApproachCombined(swerveDrive, objDetectCamera, 4, obj))
-      //.onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // ====== Vision Bindings ====== 
+      driverController.triangle().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.triangle().whileTrue(VisionCommands.seekTapeDropCone(swerveDrive, vision))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
   }
   
