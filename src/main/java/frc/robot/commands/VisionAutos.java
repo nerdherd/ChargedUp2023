@@ -39,7 +39,7 @@ public class VisionAutos {
         return Commands.parallel(
             new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto2 ended", false)),
             new SequentialCommandGroup(
-                Commands.runOnce(() -> vision.initObjDetection(true, 0.3, 0)),
+                Commands.runOnce(() -> vision.initObjDetection(true, 0.15, 0)),
                 new ParallelRaceGroup(
                     new RunCommand(() -> vision.seekTape(drivetrain)),
                     Commands.waitUntil(vision.cameraHighStatusSupplier),

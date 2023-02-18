@@ -62,16 +62,19 @@ public class Vision extends SubsystemBase implements Reportable{
         } catch (Exception ex) {
             limelightHigh = null;
             DriverStation.reportWarning("Error instantiating High Camera:  " + ex.getMessage(), true);
+            SmartDashboard.putBoolean("Found Photon Limelight-kaden", false);
+
         }
 
         highCameraStatus = CAMERA_MODE.IDLE;
         cameraHighStatusSupplier = () -> (highCameraStatus == CAMERA_MODE.ARRIVED);
 
         try {
-            photonVisionLow = new PhotonCamera("photonvisionlow");
+            photonVisionLow = new PhotonCamera("photonvision-alex");
         } catch (Exception ex) {
             photonVisionLow = null;
             DriverStation.reportWarning("Error instantiating LOW Camera:  " + ex.getMessage(), true);
+            SmartDashboard.putBoolean("Found Photon Limelight-alex", false);
         }
 
         lowCameraStatus = CAMERA_MODE.IDLE;
@@ -300,6 +303,7 @@ public class Vision extends SubsystemBase implements Reportable{
         else{ // tape
             goalAreaHighCamera = targetAreaStop;
             highCameraStatus = CAMERA_MODE.IDLE;
+            limelightHigh.turnLightOn();
             if(limelightHigh != null ){
                 limelightHigh.reinitBuffer();
                 limelightHigh.setPipeline(3);
@@ -425,12 +429,12 @@ public class Vision extends SubsystemBase implements Reportable{
         pidRobotY_highTape.setP(SmartDashboard.getNumber("VHighTape Y P", 0.5));
         pidRobotY_highTape.setI(SmartDashboard.getNumber("VHighTape Y I", 0.0));
         pidRobotY_highTape.setD(SmartDashboard.getNumber("VHighTape Y D", 0.5));
-        pidRobotY_highTape.setTolerance(0.1);
+        pidRobotY_highTape.setTolerance(0.05);
 
         pidRobotX_highTape.setP(SmartDashboard.getNumber("VHighTape X P", 0.5));
         pidRobotX_highTape.setI(SmartDashboard.getNumber("VHighTape X I", 0.0)); 
         pidRobotX_highTape.setD(SmartDashboard.getNumber("VHighTape X D", 0.5)); 
-        pidRobotX_highTape.setTolerance(0.1);
+        pidRobotX_highTape.setTolerance(0.05);
 
         pidRobotSteer_highTape.setP(SmartDashboard.getNumber("VHighTape Steer P", 0));
         pidRobotSteer_highTape.setI(SmartDashboard.getNumber("VHighTape Steer I", 0)); 
@@ -473,27 +477,27 @@ public class Vision extends SubsystemBase implements Reportable{
             }*/
 
 
-            xSpeedRequest = pidRobotX_highTape.calculate(errorX);
-            ySpeedRequest = -pidRobotY_highTape.calculate(errorY);
-            steerSpeedRequest = pidRobotSteer_highTape.calculate(errorSteer);
+            xSpeedRequest = pidRobotX_highTape.calculate(errorX) / 3;
+            ySpeedRequest = -pidRobotY_highTape.calculate(errorY) / 3;
+            // steerSpeedRequest = pidRobotSteer_highTape.calculate(errorSteer) / 3;
             
             // TODO !!!!!!!!
-            if(NerdyMath.inRange(xSpeedRequest, -5, 5) &&
-            NerdyMath.inRange(ySpeedRequest, -5, 5)&&
-            NerdyMath.inRange(steerSpeedRequest, -5, 5))
+            if(NerdyMath.inRange(xSpeedRequest, -0.5, 0.5) &&
+            NerdyMath.inRange(ySpeedRequest, -0.5, 0.5)&&
+            NerdyMath.inRange(steerSpeedRequest, -0.5, 0.5))
             {
                 xSpeedRequest = 0;
                 ySpeedRequest = 0;
                 steerSpeedRequest = 0;
                 chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, steerSpeedRequest);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-                drivetrain.setModuleStates(moduleStates);
+                // drivetrain.setModuleStates(moduleStates);
                 highCameraStatus = CAMERA_MODE.ARRIVED; 
             }
             else{
                 chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, steerSpeedRequest);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-                drivetrain.setModuleStates(moduleStates);
+                // drivetrain.setModuleStates(moduleStates);
                 highCameraStatus = CAMERA_MODE.ACTION;
             }
         }
