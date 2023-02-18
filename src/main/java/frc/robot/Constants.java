@@ -242,6 +242,7 @@ public final class Constants {
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
     };
+    public static final double kDodgeDistance = kTrackWidth * 2;
   }
 
   public static final class SwerveAutoConstants {
