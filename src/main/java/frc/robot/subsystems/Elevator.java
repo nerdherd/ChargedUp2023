@@ -26,14 +26,14 @@ public class Elevator extends SubsystemBase implements Reportable{
   private int targetTicks;
   public BooleanSupplier atTargetPosition;
   public DoubleSupplier percentExtended;
-  private DigitalInput limitSwitch;
+  // private DigitalInput limitSwitch;
 
   /** Creates a new Elevator. */
   public Elevator() {
     elevator = new TalonFX(ElevatorConstants.kElevatorID);
     elevator.setInverted(false);
     atTargetPosition = () -> (NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500));
-    limitSwitch = new DigitalInput(ElevatorConstants.kLimitSwitchID);
+    // limitSwitch = new DigitalInput(ElevatorConstants.kLimitSwitchID);
 
     percentExtended = () -> (elevator.getSelectedSensorPosition() / (ElevatorConstants.kElevatorScoreHigh + 1500));
     SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
@@ -62,7 +62,8 @@ public class Elevator extends SubsystemBase implements Reportable{
           }
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
-          if (limitSwitch.get()) {
+          // if (limitSwitch.get()) {
+          if (percentExtended.getAsDouble() <= 0){
             elevator.set(ControlMode.PercentOutput, 0);
           } else {
             elevator.set(ControlMode.PercentOutput, -ElevatorConstants.kArbitraryFF * Math.sin(angle));

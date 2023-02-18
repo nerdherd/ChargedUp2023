@@ -217,8 +217,9 @@ public class Arm extends SubsystemBase implements Reportable {
     }
 
     public void resetEncoder() {
-        if (limitSwitch.get())
-        rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        if (limitSwitch.get()) {
+            rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        }
     }
     
     private void initShuffleboard() {

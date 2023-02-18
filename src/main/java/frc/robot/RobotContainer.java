@@ -47,6 +47,7 @@ import frc.robot.subsystems.vision.Limelight.LightMode;
 import frc.robot.subsystems.vision.Vision.PipelineType;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
+import pabeles.concurrency.ConcurrencyOps.NewInstance;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -225,6 +226,9 @@ public class RobotContainer {
     operatorController.cross().whileTrue(elevator.moveElevatorStow(arm.armAngle.getAsDouble()))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
   
+    operatorController.share().onTrue(Commands.runOnce(arm::resetEncoder));
+    operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
+    
     
     // operatorController.triangle().whileTrue(arm.armExtend());
     // operatorController.square().whileTrue(arm.armStow());
