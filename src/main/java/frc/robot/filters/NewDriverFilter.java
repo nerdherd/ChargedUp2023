@@ -30,7 +30,7 @@ public class NewDriverFilter extends FilterSeries {
         if (negRateLimit > -3) {
             DriverStation.reportWarning(
                 String.format(
-                    "Swerve deceleration Value of %d is too low!", 
+                    "Swerve deceleration Value of %f is too low!", 
                     negRateLimit), 
                 true);
             return;

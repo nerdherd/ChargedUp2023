@@ -158,9 +158,12 @@ public final class Constants {
     public static final double kIntegratedTurningTicksPer100MsToRadPerSec = kIntegratedTurningTicksToRad * 10;
 
     
+    public static final double kDriveMotorDeadband = 0.05;
+    public static final double kTurnMotorDeadband = 0.02;
+
     public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
-    public static final double kDTurning = 0.02; 
+    public static final double kDTurning = 0.00; 
     
     // TODO: tune PID for drive motor velocity control
     public static final double kPDrive = 0;
@@ -234,10 +237,10 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 0;       
-      public static final double kFLCANCoderOffsetDegrees = 0;         
-      public static final double kBLCANCoderOffsetDegrees = 0;          
-      public static final double kBRCANCoderOffsetDegrees = 0;
+      public static final double kFRCANCoderOffsetDegrees = 254.268;       
+      public static final double kFLCANCoderOffsetDegrees = 225.352;         
+      public static final double kBLCANCoderOffsetDegrees = 126.826;          
+      public static final double kBRCANCoderOffsetDegrees = 5.977;
     }
 
 
@@ -251,7 +254,7 @@ public final class Constants {
     public static final double kTeleMaxAcceleration = 3;
     // THIS CONSTANT HAS TO BE NEGATIVE OTHERWISE THE ROBOT WILL CRASH
     //TODO: Change deceleration with driver feedback, only in small increments (<= -2 is dangerous)
-    public static final double kTeleMaxDeceleration = -2.5; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
+    public static final double kTeleMaxDeceleration = -3; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
       kPhysicalMaxAngularSpeedRadiansPerSecond / 2;

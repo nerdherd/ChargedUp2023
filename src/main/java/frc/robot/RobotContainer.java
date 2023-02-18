@@ -111,7 +111,7 @@ public class RobotContainer {
 
     if (IsSwerveDrive) {
       try {
-        swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.MAG_ENCODER);
+        swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
       } catch (IllegalArgumentException e) {
         DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
       }
@@ -182,8 +182,8 @@ public class RobotContainer {
           driverController::getLeftX,
           // () -> 0.0,
           driverController::getRightX,
-          // () -> true,
-          badPS4::getSquareButton,
+          () -> true,
+          // badPS4::getSquareButton,
           badPS4::getL3Button,
           // driverControllerButtons::getTriangleButton,
           badPS4::getR3Button
