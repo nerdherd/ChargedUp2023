@@ -183,9 +183,9 @@ public class RobotContainer {
           driverController::getRightX,
           // () -> true,
           badPS4::getSquareButton,
-          () -> false,
+          badPS4::getL3Button,
           // driverControllerButtons::getTriangleButton,
-          badPS4::getCrossButton
+          badPS4::getR3Button
         ));
     } else {
       tankDrive.setDefaultCommand(
