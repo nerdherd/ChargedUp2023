@@ -15,6 +15,7 @@ import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.filters.DriverFilter;
 import frc.robot.filters.Filter;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.filters.NewDriverFilter;
 
 public class SwerveJoystickCommand extends CommandBase {
     private final SwerveDrivetrain swerveDrive;
@@ -44,28 +45,54 @@ public class SwerveJoystickCommand extends CommandBase {
         this.turningSpdFunction = turningSpdFunction;
         this.fieldOrientedFunction = fieldOrientedFunction;
         this.towSupplier = towSupplier;
+
+        // Old filters
         
-        this.xFilter = new DriverFilter(
+        // this.xFilter = new DriverFilter(
+        //     OIConstants.kDeadband, 
+        //     kDriveAlpha,
+        //     kDriveOneMinusAlpha, 
+        //     kTeleDriveMaxSpeedMetersPerSecond,
+        //     kTeleMaxAcceleration,
+        //     3, kTeleMaxDeceleration);
+        // this.yFilter = new DriverFilter(
+        //     OIConstants.kDeadband, 
+        //     kDriveAlpha,
+        //     kDriveOneMinusAlpha, 
+        //     kTeleDriveMaxSpeedMetersPerSecond,
+        //     kTeleMaxAcceleration,
+        //     3, kTeleMaxDeceleration);
+        // this.turningFilter = new DriverFilter(
+        //     OIConstants.kDeadband, 
+        //     kDriveAlpha,
+        //     kDriveOneMinusAlpha, 
+        //     kTeleDriveMaxSpeedMetersPerSecond,
+        //     kTeleMaxAcceleration,
+        //     3, kTeleMaxDeceleration);
+
+        // New filters
+
+        this.xFilter = new NewDriverFilter(
             OIConstants.kDeadband, 
-            kDriveAlpha,
-            kDriveOneMinusAlpha, 
-            kTeleDriveMaxSpeedMetersPerSecond,
-            kTeleMaxAcceleration,
-            3, kTeleMaxDeceleration);
-        this.yFilter = new DriverFilter(
+            kMinimumMotorOutput,
+            kTeleDriveMaxSpeedMetersPerSecond, 
+            kDriveAlpha, 
+            kTeleMaxAcceleration, 
+            kTeleMaxDeceleration);
+        this.yFilter = new NewDriverFilter(
             OIConstants.kDeadband, 
-            kDriveAlpha,
-            kDriveOneMinusAlpha, 
-            kTeleDriveMaxSpeedMetersPerSecond,
-            kTeleMaxAcceleration,
-            3, kTeleMaxDeceleration);
-        this.turningFilter = new DriverFilter(
+            kMinimumMotorOutput,
+            kTeleDriveMaxSpeedMetersPerSecond, 
+            kDriveAlpha, 
+            kTeleMaxAcceleration, 
+            kTeleMaxDeceleration);
+        this.turningFilter = new NewDriverFilter(
             OIConstants.kDeadband, 
-            kDriveAlpha,
-            kDriveOneMinusAlpha, 
-            kTeleDriveMaxSpeedMetersPerSecond,
-            kTeleMaxAcceleration,
-            3, kTeleMaxDeceleration);
+            kMinimumMotorOutput,
+            kTeleDriveMaxAngularSpeedRadiansPerSecond, 
+            kDriveAlpha, 
+            kTeleMaxAcceleration, 
+            kTeleMaxDeceleration);
         
         this.dodgeSupplier = dodgeSupplier;
 
@@ -125,14 +152,22 @@ public class SwerveJoystickCommand extends CommandBase {
                             swerveDrive.getImu().getHeading()))
                         );
                 // Might need to swap x and y on rotation center depending on how it gets interpreted
-                // rotationCenter = new Translation2d(rotationCenter.getX(), rotationCenter.getY());
+                rotationCenter = new Translation2d(rotationCenter.getY(), rotationCenter.getX());
+                SmartDashboard.putNumber("Dodge X", rotationCenter.getX());
+                SmartDashboard.putNumber("Dodge Y", rotationCenter.getY());
             }
+
+            if (rotationCenter.getX() > 0) {
+                filteredTurningSpeed *= -1;
+            }
+
             moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds, rotationCenter);
         } else {
             rotationCenter = null;
             moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         }
 
+        
         // Calculate swerve module states
         swerveDrive.setModuleStates(moduleStates);
     }

@@ -82,7 +82,6 @@ public class RobotContainer {
       ControllerConstants.kOperatorControllerPort);
   private final BadPS4 badPS4 = operatorController.getHID();
 
-  private final PS4Controller driverControllerButtons = new PS4Controller(ControllerConstants.kDriverControllerPort);
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);
   private final POVButton downButton = new POVButton(badPS4, 180);
@@ -181,12 +180,12 @@ public class RobotContainer {
           () -> -driverController.getLeftY(),
           driverController::getLeftX,
           // () -> 0.0,
-          driverController::getRightY,
+          driverController::getRightX,
           // () -> true,
-          driverControllerButtons::getSquareButton,
-          () -> false,
+          badPS4::getSquareButton,
+          badPS4::getL3Button,
           // driverControllerButtons::getTriangleButton,
-          driverControllerButtons::getCrossButton
+          badPS4::getR3Button
         ));
     } else {
       tankDrive.setDefaultCommand(
@@ -240,11 +239,11 @@ public class RobotContainer {
 
     if (IsSwerveDrive) {
       // Driver Bindings
-      driverController.L1().onTrue(new InstantCommand(imu::zeroHeading));
-      driverController.R1().onTrue(new InstantCommand(swerveDrive::resetEncoders));
+      driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
+      driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
 
-      driverController.R2().whileTrue(new TurnToAngle(180, swerveDrive));
-      driverController.L2().whileTrue(new TurnToAngle(0, swerveDrive));
+      driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
+      driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
 
       driverController.triangle().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
                       .onFalse(new InstantCommand(() -> swerveDrive.stopModules()));

@@ -179,7 +179,7 @@ public final class Constants {
       new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
     
-    public static final double kRotationOffset = kTrackWidth;
+    public static final double kRotationOffset = 2*kTrackWidth;
 
     public static final int kFRDriveID = 11;
     public static final int kFLDriveID = 21;
@@ -250,7 +250,8 @@ public final class Constants {
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;
     public static final double kTeleMaxAcceleration = 3;
     // THIS CONSTANT HAS TO BE NEGATIVE OTHERWISE THE ROBOT WILL CRASH
-    public static final double kTeleMaxDeceleration = -2;
+    //TODO: Change deceleration with driver feedback, only in small increments (<= -2 is dangerous)
+    public static final double kTeleMaxDeceleration = -2.5; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
       kPhysicalMaxAngularSpeedRadiansPerSecond / 2;
@@ -258,6 +259,8 @@ public final class Constants {
       = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
     public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
     public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 3;
+
+    public static final double kMinimumMotorOutput = 0.05; // Minimum percent output on the falcons
     
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;

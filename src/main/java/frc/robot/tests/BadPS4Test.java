@@ -3,15 +3,26 @@ package frc.robot.tests;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.util.CommandBadPS4;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.util.BadPS4;
+import frc.robot.util.CommandBadPS4;
 
 public class BadPS4Test {
-    BadPS4 badPs4;
     CommandBadPS4 commandPS4;
+    BadPS4 badPs4;
+    POVButton upButton;
+    POVButton rightButton;
+    POVButton downButton;
+    POVButton leftButton;
+
 
     public void initialize() {
-        badPs4 = new BadPS4(0);
+        commandPS4 = new CommandBadPS4(0);
+        badPs4 = commandPS4.getHID();
+        upButton = new POVButton(badPs4, 0);
+        downButton = new POVButton(badPs4, 180);
+        rightButton = new POVButton(badPs4, 90);
+        leftButton = new POVButton(badPs4, 270);
     }
 
 
@@ -39,9 +50,7 @@ public class BadPS4Test {
     }
 
     public void commandPS4TestInit() {
-        commandPS4 = new CommandBadPS4(0);
 
-        // new JoystickButton(badPs4, BadPS4.Button.kL1.value).onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("L1 Pressed", true)))
         // .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("L1 Pressed", false)));
 
         commandPS4.L1().onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("L1 Pressed", true)))
@@ -82,5 +91,17 @@ public class BadPS4Test {
 
         commandPS4.cross().onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("Cross Pressed", true)))
             .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Cross Pressed", false)));   
+        
+        upButton.onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("Up Pressed", true)))
+        .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Up Pressed", false))); 
+        
+        downButton.onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("Down Pressed", true)))
+        .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Down Pressed", false))); 
+
+        leftButton.onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("Left Pressed", true)))
+        .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Left Pressed", false))); 
+
+        rightButton.onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("Right Pressed", true)))
+        .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Right Pressed", false))); 
     }
 }
