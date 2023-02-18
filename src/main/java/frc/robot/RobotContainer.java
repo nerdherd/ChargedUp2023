@@ -249,9 +249,6 @@ public class RobotContainer {
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
 
-      driverController.triangle().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
-                      .onFalse(new InstantCommand(() -> swerveDrive.stopModules()));
-
       // Operator Bindings
       // operatorController.R1().onTrue(vision.SwitchHigh());
       // operatorController.L1().onTrue(vision.SwitchLow());
@@ -261,8 +258,11 @@ public class RobotContainer {
       // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 4, obj))
       //                  .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-      //driverController.triangle().whileTrue(new ApproachCombined(swerveDrive, objDetectCamera, 4, obj))
-      //.onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // ====== Vision Bindings ====== 
+      driverController.square().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.circle().whileTrue(VisionCommands.seekTapeDropCone(swerveDrive, vision))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
   }
   
