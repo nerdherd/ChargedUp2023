@@ -116,7 +116,7 @@ public class RobotContainer {
             new WaitCommand(5),
             new InstantCommand(swerveDrive::resetEncoders)));
 
-    autoChooser.setDefaultOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
+    autoChooser.setDefaultOption("Pickup Cone Auto", VisionAutos.penPineappleApplePen(swerveDrive, vision));
     autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
     autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
     autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right));
@@ -213,7 +213,9 @@ public class RobotContainer {
     //   .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
     // operatorController.cross().whileTrue(arm.moveElevatorStow())
     //   .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
-  
+    operatorController.triangle().whileTrue(VisionAutos.seekTapeDropCone(swerveDrive, vision))
+    .onFalse(new InstantCommand(() -> swerveDrive.stopModules()));
+
     operatorController.circle().onTrue(arm.armExtend()).onFalse(arm.armStow()); 
     // operatorController.cross().whileTrue(arm.armStow());
     operatorController.L2().whileTrue(motorClaw.setPower(0.4))
@@ -307,9 +309,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // return autoChooser.getSelected();
+    return autoChooser.getSelected();
     //if (IsSwerveDrive)
-      return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
+      //return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
     /*else
       return TankAutos.HardCarryAuto(tankDrive, claw, arm);*/
   }
