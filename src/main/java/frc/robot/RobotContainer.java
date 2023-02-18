@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.PS4Controller;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TankAutos;
+import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
@@ -83,10 +84,10 @@ public class RobotContainer {
 
   private final BadPS4 driverControllerButtons = new BadPS4(ControllerConstants.kDriverControllerPort);
 
-  private POVButton operatorPOVUp = new POVButton(driverControllerButtons, 0);
-  private POVButton operatorPOVRight = new POVButton(driverControllerButtons, 90);
-  private POVButton operatorPOVDown = new POVButton(driverControllerButtons, 180);
-  private POVButton operatorPOVLeft = new POVButton(driverControllerButtons, 270);
+  private POVButton operatorPOVUp = new POVButton(operatorController.getHID(), 0);
+  private POVButton operatorPOVRight = new POVButton(operatorController.getHID(), 90);
+  private POVButton operatorPOVDown = new POVButton(operatorController.getHID(), 180);
+  private POVButton operatorPOVLeft = new POVButton(operatorController.getHID(), 270);
 
   SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
 
@@ -206,6 +207,8 @@ public class RobotContainer {
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
     operatorPOVLeft.whileTrue(arm.moveArmPickUp())
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
+
+    driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
 
     // operatorController.triangle().whileTrue(arm.moveElevatorScoreHigh())
     //   .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
