@@ -104,6 +104,7 @@ public final class Constants {
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
     public static final double kTicksPerAngle = 6441;
+    public static final int kLimitSwitchID = 0;
 
 
     // public static final double kCruiseVelocity = 0;
@@ -126,6 +127,7 @@ public final class Constants {
     public static final double kElevatorDeadband = 0.05;
     public static final double kJoystickMultiplier = 1;
     public static final double kTicksPerAngle = 0;
+    public static final int kLimitSwitchID = 0;
   }
 
   public static class VisionConstants{

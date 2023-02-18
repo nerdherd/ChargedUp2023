@@ -15,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -36,9 +37,11 @@ public class Arm extends SubsystemBase implements Reportable {
     private PIDController armPID;
     public BooleanSupplier atTargetPosition;
     public DoubleSupplier armAngle;
+    private DigitalInput limitSwitch;
 
     public Arm() {
         arm = new DoubleSolenoid(PneumaticsConstants.kPCMPort, PneumaticsModuleType.CTREPCM, ArmConstants.kPistonForwardID, ArmConstants.kPistonReverseID);
+        limitSwitch = new DigitalInput(ArmConstants.kLimitSwitchID);
         
         // gear ratio 27:1
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
@@ -205,6 +208,7 @@ public class Arm extends SubsystemBase implements Reportable {
     }
 
     public void resetEncoder() {
+        if (limitSwitch.get())
         rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
     }
     
