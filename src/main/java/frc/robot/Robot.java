@@ -10,7 +10,11 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.tests.BadPS4Test;
+import frc.robot.tests.DodgeTest;
 //import frc.robot.states.StateMachine;
+// import frc.robot.tests.FilterTest;
+import frc.robot.tests.FilterTest;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -56,7 +60,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
     if (m_robotContainer != null) {
-      m_robotContainer.reportAllToSmartDashboard();
+      // m_robotContainer.reportAllToSmartDashboard();
     }
   }
 
@@ -87,6 +91,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    // BadPS4Test test = new BadPS4Test();
+    // test.initialize();
+    // test.commandPS4TestInit();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -105,7 +112,8 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
   }
 
-  // FilterTest filterTest;
+  FilterTest filterTest;
+  DodgeTest dodgeTest;
 
   @Override
   public void testInit() {
@@ -114,13 +122,18 @@ public class Robot extends TimedRobot {
     // autoTest.ReinitExecution();
     // filterTest = new FilterTest();
     // filterTest.initialize();
+    dodgeTest = new DodgeTest();
+    dodgeTest.initialize();
   }
   // StateMachine autoTest = new StateMachine();
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
+    dodgeTest.execute();
     // filterTest.periodic();
+    // filterTest.testBothFilters();
+    // filterTest.driveFilterTestPeriodic();
     // autoTest.ExecutionPeriod();
   }
 
