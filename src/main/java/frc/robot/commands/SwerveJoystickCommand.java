@@ -75,41 +75,41 @@ public class SwerveJoystickCommand extends CommandBase {
 
         // New filters
 
-        // this.xFilter = new NewDriverFilter(
-        //     OIConstants.kDeadband, 
-        //     kMinimumMotorOutput,
-        //     kTeleDriveMaxSpeedMetersPerSecond, 
-        //     kDriveAlpha, 
-        //     kTeleMaxAcceleration, 
-        //     kTeleMaxDeceleration);
-        // this.yFilter = new NewDriverFilter(
-        //     OIConstants.kDeadband, 
-        //     kMinimumMotorOutput,
-        //     kTeleDriveMaxSpeedMetersPerSecond, 
-        //     kDriveAlpha, 
-        //     kTeleMaxAcceleration, 
-        //     kTeleMaxDeceleration);
-        // this.turningFilter = new NewDriverFilter(
-        //     OIConstants.kDeadband, 
-        //     kMinimumMotorOutput,
-        //     kTeleDriveMaxAngularSpeedRadiansPerSecond, 
-        //     kDriveAlpha, 
-        //     kTeleMaxAcceleration, 
-        //     kTeleMaxDeceleration);
+        this.xFilter = new NewDriverFilter(
+            OIConstants.kDeadband, 
+            kMinimumMotorOutput,
+            kTeleDriveMaxSpeedMetersPerSecond, 
+            kDriveAlpha, 
+            kTeleMaxAcceleration, 
+            kTeleMaxDeceleration);
+        this.yFilter = new NewDriverFilter(
+            OIConstants.kDeadband, 
+            kMinimumMotorOutput,
+            kTeleDriveMaxSpeedMetersPerSecond, 
+            kDriveAlpha, 
+            kTeleMaxAcceleration, 
+            kTeleMaxDeceleration);
+        this.turningFilter = new NewDriverFilter(
+            OIConstants.kDeadband, 
+            kMinimumMotorOutput,
+            kTeleDriveMaxAngularSpeedRadiansPerSecond, 
+            kDriveAlpha, 
+            kTeleMaxAcceleration, 
+            kTeleMaxDeceleration);
 
-        this.xFilter = new FilterSeries(
-            new DeadbandFilter(OIConstants.kDeadband),
-            new ScaleFilter(kTeleDriveMaxSpeedMetersPerSecond)
-        );
+        // this.xFilter = new FilterSeries(
+        //     new DeadbandFilter(OIConstants.kDeadband),
+        //     new ScaleFilter(kTeleDriveMaxSpeedMetersPerSecond)
+        // );
         
-        this.yFilter = new FilterSeries(
-            new DeadbandFilter(OIConstants.kDeadband),
-            new ScaleFilter(kTeleDriveMaxSpeedMetersPerSecond)
-        );
-        this.turningFilter = new FilterSeries(
-            new DeadbandFilter(OIConstants.kDeadband),
-            new ScaleFilter(kTeleDriveMaxAngularSpeedRadiansPerSecond)
-        );
+        // this.yFilter = new FilterSeries(
+        //     new DeadbandFilter(OIConstants.kDeadband),
+        //     new ScaleFilter(kTeleDriveMaxSpeedMetersPerSecond)
+        // );
+        // this.turningFilter = new FilterSeries(
+        //     new DeadbandFilter(OIConstants.kDeadband),
+        //     new ScaleFilter(kTeleDriveMaxAngularSpeedRadiansPerSecond)
+        // );
 
         this.dodgeSupplier = dodgeSupplier;
 

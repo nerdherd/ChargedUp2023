@@ -182,8 +182,8 @@ public class RobotContainer {
           driverController::getLeftX,
           // () -> 0.0,
           driverController::getRightX,
-          () -> true,
-          // badPS4::getSquareButton,
+          // () -> true,
+          badPS4::getSquareButton,
           badPS4::getL3Button,
           // driverControllerButtons::getTriangleButton,
           badPS4::getR3Button

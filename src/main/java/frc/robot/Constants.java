@@ -163,7 +163,7 @@ public final class Constants {
 
     public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
-    public static final double kDTurning = 0.00; 
+    public static final double kDTurning = 0.02; 
     
     // TODO: tune PID for drive motor velocity control
     public static final double kPDrive = 0;
@@ -237,10 +237,10 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 254.268;       
-      public static final double kFLCANCoderOffsetDegrees = 225.352;         
-      public static final double kBLCANCoderOffsetDegrees = 126.826;          
-      public static final double kBRCANCoderOffsetDegrees = 5.977;
+      public static final double kFRCANCoderOffsetDegrees = 254.004;       
+      public static final double kFLCANCoderOffsetDegrees = 223.857;         
+      public static final double kBLCANCoderOffsetDegrees = 126.211;          
+      public static final double kBRCANCoderOffsetDegrees = 359.121;
     }
 
 
