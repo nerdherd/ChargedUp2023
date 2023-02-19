@@ -150,7 +150,8 @@ public class RobotContainer {
         arm
       ));
     
-    arm.armResetEncoder();
+    arm.armResetEncoder(500000);
+    // arm.armResetEncoder(ArmConstants.kArmGround + 15000);
     arm.elevatorResetEncoder();
 
     coneRunner.setDefaultCommand(
@@ -217,6 +218,8 @@ public class RobotContainer {
     //   .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
     // operatorController.cross().whileTrue(arm.moveElevatorStow())
     //   .onFalse(Commands.runOnce(arm::setElevatorPowerZero));
+    
+    operatorController.share().onTrue(new InstantCommand(arm::armResetEncoder));
     operatorController.triangle().whileTrue(VisionAutos.seekTapeDropCone(swerveDrive, vision))
     .onFalse(new InstantCommand(() -> swerveDrive.stopModules()));
 
@@ -227,25 +230,25 @@ public class RobotContainer {
     operatorController.R2().whileTrue(motorClaw.setPower(-0.4))
         .onFalse(motorClaw.setPowerZero());
 
-    operatorController.L3().whileTrue(
-      new RunCommand(
-        () -> {
-          arm.moveArmJoystick(operatorController.getLeftY());
-          SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
-        }, 
-        arm
-      )
-    );
+    // operatorController.L3().whileTrue(
+    //   new RunCommand(
+    //     () -> {
+    //       arm.moveArmJoystick(operatorController.getLeftY());
+    //       SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
+    //     }, 
+    //     arm
+    //   )
+    // );
 
-    operatorController.R3().whileTrue(
-      new RunCommand(
-        () -> {
-          arm.moveElevatorJoystick(operatorController.getRightY());
-          SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
-        }, 
-        arm
-      )
-    );
+    // operatorController.R3().whileTrue(
+    //   new RunCommand(
+    //     () -> {
+    //       arm.moveElevatorJoystick(operatorController.getRightY());
+    //       SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
+    //     }, 
+    //     arm
+    //   )
+    // );
     // operatorController.square().onTrue(claw.clawOpen());
     // operatorController.triangle().onTrue(claw.clawClose());
 

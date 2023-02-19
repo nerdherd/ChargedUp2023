@@ -83,28 +83,51 @@ public class Arm extends SubsystemBase implements Reportable {
 
     }
 
+
     public void moveArmJoystick(double currentJoystickOutput) {
         // double armTicks = rotatingArm.getSelectedSensorPosition();
 
+        double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
+        double angleRadians = Math.toRadians(angle);
+        double ff = -ArmConstants.kArbitraryFF * Math.cos(angleRadians);
 
         if (currentJoystickOutput >= 0.40 ) {
             currentJoystickOutput = 0.40;
         }
 
-        
-        if (currentJoystickOutput > ArmConstants.kArmDeadband) {
-            rotatingArm.set(ControlMode.PercentOutput, 0.40);
-            rotatingArm.setNeutralMode(NeutralMode.Coast);
-            //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
-        } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
-            rotatingArm.set(ControlMode.PercentOutput, -0.40);
-            rotatingArm.setNeutralMode(NeutralMode.Coast);
-                //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
-        } else {
-            rotatingArm.set(ControlMode.PercentOutput, 0);
-            rotatingArm.setNeutralMode(NeutralMode.Brake);
-        }
+        // within range
+        // if (rotatingArm.getSelectedSensorPosition() > ArmConstants.kArmScore) {
 
+            if (currentJoystickOutput > ArmConstants.kArmDeadband) {
+                // if (rotatingArm.getSelectedSensorPosition() > 354255) {
+
+                    rotatingArm.set(ControlMode.PercentOutput, 0.70);
+                // } else {
+                //     rotatingArm.set(ControlMode.PercentOutput, 0);
+                // }
+                // rotatingArm.setNeutralMode(NeutralMode.Coast);
+                //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
+            } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
+                if (rotatingArm.getSelectedSensorPosition() > 500000) {
+                    rotatingArm.set(ControlMode.PercentOutput, -0.70);
+
+                } else {
+                    rotatingArm.set(ControlMode.PercentOutput, 0);
+                }
+
+                // rotatingArm.setNeutralMode(NeutralMode.Coast);
+                    //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
+            } else {
+                rotatingArm.set(ControlMode.PercentOutput, 0);
+                rotatingArm.setNeutralMode(NeutralMode.Brake);
+            }
+    
+        // } else { // going up past limit
+        //     rotatingArm.set(ControlMode.PercentOutput, 0);
+        //     rotatingArm.setNeutralMode(NeutralMode.Brake);
+
+        // }
+        
     }
 
     
@@ -325,6 +348,11 @@ public class Arm extends SubsystemBase implements Reportable {
 
     public void armResetEncoder() {
         rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+    }
+
+    
+    public void armResetEncoder(int ticks) {
+        rotatingArm.setSelectedSensorPosition(ticks);
     }
 
     public void elevatorResetEncoder() {

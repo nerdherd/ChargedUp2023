@@ -290,9 +290,9 @@ public class Vision extends SubsystemBase implements Reportable{
             if(photonVisionLow != null)
                 photonVisionLow.setPipelineIndex(0);
             
-            SmartDashboard.putNumber("VLowCone X P", 5);
-            SmartDashboard.putNumber("VLowCone Y P", 4);
-            SmartDashboard.putNumber("VLowCone X I", 0);
+            SmartDashboard.putNumber("VLowCone X P", 0.05);
+            SmartDashboard.putNumber("VLowCone Y P", 0.24);
+            SmartDashboard.putNumber("VLowCone X I", 0.005);
             SmartDashboard.putNumber("VLowCone Y I", 0);
             SmartDashboard.putNumber("VLowCone X D", 0);
             SmartDashboard.putNumber("VLowCone Y D", 0);
