@@ -86,7 +86,7 @@ public final class Constants {
   }
 
   public static class ArmConstants{
-    public static final int kRotatingArmID = 20;
+    public static final int kRotatingArmID = 17;
     public static final int kArmStow = 432840;//144278;
     public static final int kArmScore = 596443; // 89744;
     public static final int kArmGround = 767054;// 34352;
@@ -114,7 +114,7 @@ public final class Constants {
   }
 
   public static class ElevatorConstants{
-    public static final int kElevatorID = 0;
+    public static final int kElevatorID = 18;
     public static final int kElevatorStow = 0;
     public static final int kElevatorScoreMid = 0;
     public static final int kElevatorScoreHigh = 0;
@@ -237,7 +237,7 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 254.004;       
+      public static final double kFRCANCoderOffsetDegrees = 254.795;       
       public static final double kFLCANCoderOffsetDegrees = 314.736;         
       public static final double kBLCANCoderOffsetDegrees = 126.211;          
       public static final double kBRCANCoderOffsetDegrees = 359.121; // 1.406

@@ -77,7 +77,7 @@ public class Arm extends SubsystemBase implements Reportable {
                 rotatingArm.set(ControlMode.PercentOutput, -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble()));
             } else {
                 rotatingArm.set(ControlMode.PercentOutput, 0.40);
-                rotatingArm.setNeutralMode(NeutralMode.Coast);
+                // rotatingArm.setNeutralMode(NeutralMode.Coast);
             }
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
@@ -85,11 +85,11 @@ public class Arm extends SubsystemBase implements Reportable {
                 rotatingArm.set(ControlMode.PercentOutput, -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble()));
             }
             rotatingArm.set(ControlMode.PercentOutput, -0.40);
-            rotatingArm.setNeutralMode(NeutralMode.Coast);
+            // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
             rotatingArm.set(ControlMode.PercentOutput, -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble()));
-            // rotatingArm.setNeutralMode(NeutralMode.Brake);
+            rotatingArm.setNeutralMode(NeutralMode.Brake);
         }
 
     }

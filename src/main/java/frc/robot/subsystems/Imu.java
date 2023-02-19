@@ -81,5 +81,14 @@ public class Imu extends SubsystemBase implements Reportable {
 
     public void reportToSmartDashboard() {
         SmartDashboard.putNumber("Robot Heading", getHeading());
+        SmartDashboard.putNumber("Robot Yaw", ahrs.getYaw());
+        SmartDashboard.putNumber("Robot Pitch", ahrs.getPitch());
+        SmartDashboard.putNumber("Robot Roll", ahrs.getRoll());
+        SmartDashboard.putNumber("Robot Raw Yaw", ahrs.getRawGyroZ());
+        SmartDashboard.putNumber("Robot Raw Pitch", ahrs.getRawGyroX());
+        SmartDashboard.putNumber("Robot Raw Roll", ahrs.getRawGyroY());
+        SmartDashboard.putBoolean("AHRS Calibrating", ahrs.isCalibrating());
+        SmartDashboard.putBoolean("AHRS Connected", ahrs.isConnected());
+        SmartDashboard.putString("NavX Firmware version", ahrs.getFirmwareVersion());
     }
 }
