@@ -123,12 +123,6 @@ public class Limelight implements Reportable{
     private double m_LimelightDriveCommand = 0.0;
     private double m_LimelightSteerCommand = 0.0;
 
-    //double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
-    //double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
-
-    // calculate distance
-    //double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
-
     public Limelight(String keyN)
     {
         reinitBuffer(); // need to reset everytime change pipeline
@@ -490,30 +484,4 @@ public class Limelight implements Reportable{
         m_LimelightDriveCommand = drive_cmd;
   }
 
-  /* public void teleopPeriodic() {
-
-        Update_Limelight_Tracking();
-
-        double steer = m_Controller.getX(Hand.kRight);
-        double drive = -m_Controller.getY(Hand.kLeft);
-        boolean auto = m_Controller.getAButton();
-
-        steer *= 0.70;
-        drive *= 0.70;
-
-        if (auto)
-        {
-          if (m_LimelightHasValidTarget)
-          {
-                m_Drive.arcadeDrive(m_LimelightDriveCommand,m_LimelightSteerCommand);
-          }
-          else
-          {
-                m_Drive.arcadeDrive(0.0,0.0);
-          }
-        }
-        else
-        {
-          m_Drive.arcadeDrive(drive,steer);
-        } */
-}
+  }
