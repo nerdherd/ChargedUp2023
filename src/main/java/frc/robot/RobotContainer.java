@@ -41,6 +41,7 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.Vision.PipelineType;
+import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
 
@@ -189,7 +190,16 @@ public class RobotContainer {
           badPS4::getSquareButton,
           badPS4::getL3Button,
           // driverControllerButtons::getTriangleButton,
-          badPS4::getR3Button
+          badPS4::getR3Button,
+          () -> {
+            if (badPS4.getL2Button()) {
+              return DodgeDirection.LEFT;
+            } 
+            if (badPS4.getR2Button()) {
+              return DodgeDirection.RIGHT;
+            }
+            return DodgeDirection.NONE;
+          }
         ));
     } else {
       tankDrive.setDefaultCommand(
