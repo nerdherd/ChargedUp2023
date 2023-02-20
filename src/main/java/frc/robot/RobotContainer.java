@@ -294,6 +294,7 @@ public class RobotContainer {
       .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
       driverController.circle().whileTrue(VisionCommands.seekTapeDropCone(swerveDrive, vision))
       .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.cross().whileTrue(VisionCommands.FindYourselfATag(swerveDrive, vision));
     }
   }
   
