@@ -2,7 +2,6 @@ package frc.robot.tests;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
@@ -43,7 +42,7 @@ public class BadPS4Test {
         SmartDashboard.putBoolean("R3", badPs4.getR3Button());
         SmartDashboard.putBoolean("L2 Pressed", badPs4.getL2Button());
         SmartDashboard.putBoolean("R2 Pressed", badPs4.getR2Button());
-        SmartDashboard.putBoolean("PS", badPs4.getPSButton());
+        // SmartDashboard.putBoolean("PS", badPs4.getPSButton());
         SmartDashboard.putBoolean("Share", badPs4.getShareButton());
         SmartDashboard.putBoolean("Options", badPs4.getOptionsButton());
         // SmartDashboard.putBoolean("Touchpad", badPs4.getTouchpad());
@@ -71,8 +70,8 @@ public class BadPS4Test {
         commandPS4.R3().onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("R3 Pressed", true)))
             .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("R3 Pressed", false)));
 
-        commandPS4.PS().onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("PS Pressed", true)))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("PS Pressed", false)));
+        // commandPS4.PS().onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("PS Pressed", true)))
+        //     .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("PS Pressed", false)));
         
         commandPS4.share().onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("Share Pressed", true)))
             .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Share Pressed", false)));

@@ -7,14 +7,10 @@ package frc.robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.commands.ApproachCombined;
-import frc.robot.commands.Dodge;
-import frc.robot.commands.DriveToTarget;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
-import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
@@ -29,31 +25,24 @@ import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
-import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionCommands;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
-import frc.robot.subsystems.vision.Limelight;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.Limelight.LightMode;
 import frc.robot.subsystems.vision.Vision.PipelineType;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
-import pabeles.concurrency.ConcurrencyOps.NewInstance;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
