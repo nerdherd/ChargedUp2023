@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Reportable;
@@ -17,11 +18,10 @@ import frc.robot.util.NerdyMath;
 
 public class Vision extends SubsystemBase implements Reportable{
 
-    public enum VisionTask
+    public enum OBJECT_TYPE
     {
-        CONE_ON_GROUND,
-        TAPE_ON_POLE,
-        ATAG_GRID
+        CONE,
+        CUBE
     }
     
     public enum CAMERA_MODE
@@ -45,17 +45,13 @@ public class Vision extends SubsystemBase implements Reportable{
         }
     }
 
-    public Limelight limelightLow;
-    public Limelight limelightHigh;
-    public BooleanSupplier cameraHighStatusSupplier;
-    public CAMERA_MODE highCameraStatus = CAMERA_MODE.IDLE;
+    private Limelight limelightLow;
+    private Limelight limelightHigh;
+    public BooleanSupplier cameraStatusSupplier;
+    private CAMERA_MODE cameraStatus = CAMERA_MODE.IDLE;
+    private OBJECT_TYPE currentGameObject;
 
-    public BooleanSupplier cameraLowStatusSupplier;
-    CAMERA_MODE lowCameraStatus = CAMERA_MODE.IDLE;
-
-    private PipelineType pipeline = null;
-
-    public Vision(){
+    public Vision() {
         try {
             limelightHigh = new Limelight("limelight-high");
             limelightHigh.setLightState(Limelight.LightMode.OFF);
@@ -72,11 +68,11 @@ public class Vision extends SubsystemBase implements Reportable{
             DriverStation.reportWarning("Error instantiating low camera:  " + ex.getMessage(), true);
         }
 
-        highCameraStatus = CAMERA_MODE.IDLE;
-        cameraHighStatusSupplier = () -> (highCameraStatus == CAMERA_MODE.ARRIVED);
+        cameraStatus = CAMERA_MODE.IDLE;
+        cameraStatusSupplier = () -> (cameraStatus == CAMERA_MODE.ARRIVED);
 
-        lowCameraStatus = CAMERA_MODE.IDLE;
-        cameraLowStatusSupplier = () -> (lowCameraStatus == CAMERA_MODE.ARRIVED);
+        cameraStatus = CAMERA_MODE.IDLE;
+        cameraStatusSupplier = () -> (cameraStatus == CAMERA_MODE.ARRIVED);
 
         //low cone
         SmartDashboard.putNumber("VLowCone X P", 5);
@@ -120,47 +116,23 @@ public class Vision extends SubsystemBase implements Reportable{
 
     }
 
-    public CommandBase SwitchCone() {
-        return Commands.run(
-            () -> SwitchPipes(PipelineType.CONE)
-        );
-    }
-    public CommandBase SwitchCube() {
-        return Commands.run(
-            () -> SwitchPipes(PipelineType.CUBE)
-        );
-    }
-    public CommandBase SwitchTape() {
-        return Commands.run(
-            () -> SwitchPipes(PipelineType.TAPE)
-        );
-    }
-    public CommandBase SwitchATag() {
-        return Commands.run(
-            () -> SwitchPipes(PipelineType.ATAG)
-        );
-    }
-
-    private void SwitchPipes(PipelineType pipeline) {
-        this.pipeline = pipeline;
-    }
     
     PIDController pidRobotSteer;
 
     private double lowListRobotX[] = new double[10];
-    private int lowListRobotX_idx = 0;
-    private boolean initDoneLowListRobotX = false;
+    private int listRobotX_idx = 0;
+    private boolean initDoneListRobotX = false;
     public double getListAveWithNew_lowRobotX(double newValue)
     {
-        lowListRobotX[lowListRobotX_idx] = newValue;
-        lowListRobotX_idx ++;
-        if(lowListRobotX_idx >= lowListRobotX.length) {
-            lowListRobotX_idx = 0;
-            initDoneLowListRobotX = true;
+        lowListRobotX[listRobotX_idx] = newValue;
+        listRobotX_idx ++;
+        if(listRobotX_idx >= lowListRobotX.length) {
+            listRobotX_idx = 0;
+            initDoneListRobotX = true;
         }
 
         double TXSum = 0;
-        if(initDoneLowListRobotX) {
+        if(initDoneListRobotX) {
             for(int i = 0; i < lowListRobotX.length; i++) {
                 TXSum += lowListRobotX[i];
             }
@@ -168,28 +140,28 @@ public class Vision extends SubsystemBase implements Reportable{
             return TXSum / lowListRobotX.length;
         }
         else {
-            for(int i = 0; i < lowListRobotX_idx; i++) {
+            for(int i = 0; i < listRobotX_idx; i++) {
                 TXSum += lowListRobotX[i];
             }
 
-            return TXSum / lowListRobotX_idx;
+            return TXSum / listRobotX_idx;
         }
     }
 
     
     private double lowListRobotY[] = new double[10];
-    private int lowListRobotY_idx = 0;
-    private boolean initDoneLowListRobotY = false;
+    private int listRobotY_idx = 0;
+    private boolean initDoneListRobotY = false;
     public double getListAveWithNew_lowRobotY(double newValue)
     {
-        lowListRobotY[lowListRobotY_idx] = newValue;
-        lowListRobotY_idx ++;
-        if(lowListRobotY_idx >= lowListRobotY.length) {
-            lowListRobotY_idx = 0;
-            initDoneLowListRobotY = true;
+        lowListRobotY[listRobotY_idx] = newValue;
+        listRobotY_idx ++;
+        if(listRobotY_idx >= lowListRobotY.length) {
+            listRobotY_idx = 0;
+            initDoneListRobotY = true;
         }
 
-        if(initDoneLowListRobotY) {
+        if(initDoneListRobotY) {
             double TXSum = 0;
             for(int i = 0; i < lowListRobotY.length; i++) {
                 TXSum += lowListRobotY[i];
@@ -199,58 +171,18 @@ public class Vision extends SubsystemBase implements Reportable{
         }
         else {
             double TXSum = 0;
-            for(int i = 0; i < lowListRobotY_idx; i++) {
+            for(int i = 0; i < listRobotY_idx; i++) {
                 TXSum += lowListRobotY[i];
             }
 
-            return TXSum / lowListRobotY_idx;
+            return TXSum / listRobotY_idx;
         }
     }
 
     double goalAreaLowCamera = 3;
     double goalAreaHighCamera = 1.0; // Change this depending on Object for Detection
     double goalHeadingHighCamera = 0;
-    public void initObjDetection(VisionTask task, double targetAreaStop, double headingYaw) {
-        if(task == VisionTask.CONE_ON_GROUND) { // cone on ground
-            goalAreaLowCamera = targetAreaStop;
-            lowCameraStatus = CAMERA_MODE.IDLE;
-            initDoneLowListRobotX = false;
-            initDoneLowListRobotY = false;
-            lowListRobotX_idx = 0;
-            lowListRobotY_idx = 0;
-            if(limelightLow != null)
-                limelightLow.setPipeline(1);;
-            
-            
-        }
-        else if (task == VisionTask.ATAG_GRID){ // april tag; Right now its on APRIL TAG
-            goalAreaHighCamera = targetAreaStop;
-            highCameraStatus = CAMERA_MODE.IDLE;
-
-            if(limelightHigh != null ){
-                limelightHigh.reinitBuffer();
-                limelightHigh.setPipeline(4);
-            }
-            
-            goalHeadingHighCamera = headingYaw;
-        } 
-        else if(task == VisionTask.TAPE_ON_POLE) {
-            goalAreaHighCamera = targetAreaStop;
-            highCameraStatus = CAMERA_MODE.IDLE;
-            limelightHigh.turnLightOn();
-            if(limelightHigh != null ){
-                limelightHigh.reinitBuffer();
-                limelightHigh.setPipeline(3);
-            }
-            
-            goalHeadingHighCamera = headingYaw;
-        }
-        else{}
-
-        xSpeedRequest = 0;
-        ySpeedRequest = 0;
-        steerSpeedRequest = 0;
-     }
+    
 
     double xSpeedRequest = 0;
     double ySpeedRequest = 0;
@@ -283,7 +215,7 @@ public class Vision extends SubsystemBase implements Reportable{
             chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, 0);
             SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
             drivetrain.setModuleStates(moduleStates);
-            lowCameraStatus = CAMERA_MODE.WAIT;
+            cameraStatus = CAMERA_MODE.WAIT;
         }
         else {
             double calculatedX = getListAveWithNew_lowRobotX(limelightLow.getArea_avg());// watching pv-area
@@ -300,17 +232,17 @@ public class Vision extends SubsystemBase implements Reportable{
                 chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                lowCameraStatus = CAMERA_MODE.ARRIVED; 
+                cameraStatus = CAMERA_MODE.ARRIVED; 
             }
             else{
                 chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                lowCameraStatus = CAMERA_MODE.ACTION;
+                cameraStatus = CAMERA_MODE.ACTION;
             }
         }
         
-        SmartDashboard.putString("VLowCone status", lowCameraStatus.toString());
+        SmartDashboard.putString("VLowCone status", cameraStatus.toString());
 
         SmartDashboard.putNumber("VLowCone X speed", xSpeedRequest);// watching
         SmartDashboard.putNumber("VLowCone Y speed", ySpeedRequest);// watching
@@ -347,7 +279,7 @@ public class Vision extends SubsystemBase implements Reportable{
             chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, steerSpeed);
             SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
             drivetrain.setModuleStates(moduleStates);
-            highCameraStatus = CAMERA_MODE.WAIT;
+            cameraStatus = CAMERA_MODE.WAIT;
         }
         else {        
             double calculatedX = limelightHigh.getArea_avg();
@@ -367,17 +299,17 @@ public class Vision extends SubsystemBase implements Reportable{
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, steerSpeed);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                highCameraStatus = CAMERA_MODE.ARRIVED; 
+                cameraStatus = CAMERA_MODE.ARRIVED; 
             }
             else{
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, steerSpeed);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                highCameraStatus = CAMERA_MODE.ACTION;
+                cameraStatus = CAMERA_MODE.ACTION;
             }
         }
 
-        SmartDashboard.putString("VHighTape status", highCameraStatus.toString());
+        SmartDashboard.putString("VHighTape status", cameraStatus.toString());
 
         SmartDashboard.putNumber("VHighTape X speed", xSpeed);
         SmartDashboard.putNumber("VHighTape Y speed", ySpeed);
@@ -420,7 +352,7 @@ public class Vision extends SubsystemBase implements Reportable{
             chassisSpeeds = new ChassisSpeeds(0, 0, 0);
             SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
             drivetrain.setModuleStates(moduleStates);
-            highCameraStatus = CAMERA_MODE.WAIT;
+            cameraStatus = CAMERA_MODE.WAIT;
         }
         else {        
             double calculatedX = limelightHigh.getArea_avg();
@@ -466,20 +398,49 @@ public class Vision extends SubsystemBase implements Reportable{
                 chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                highCameraStatus = CAMERA_MODE.ARRIVED; 
+                cameraStatus = CAMERA_MODE.ARRIVED; 
             }
             else{
                 chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, steerSpeedRequest);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                highCameraStatus = CAMERA_MODE.ACTION;
+                cameraStatus = CAMERA_MODE.ACTION;
             }
         }
 
-        SmartDashboard.putString("VATag status", highCameraStatus.toString());
+        SmartDashboard.putString("VATag status", cameraStatus.toString());
 
         SmartDashboard.putNumber("VATag X speed", xSpeedRequest);
         SmartDashboard.putNumber("VATag Y speed", ySpeedRequest);
         SmartDashboard.putNumber("VATag Steer speed", steerSpeedRequest);
+    }
+
+
+    public void initVisionCommands() {
+            cameraStatus = CAMERA_MODE.IDLE;
+            initDoneListRobotX = false;
+            initDoneListRobotY = false;
+            listRobotX_idx = 0;
+            listRobotY_idx = 0;
+    }
+
+    public SequentialCommandGroup VisionPickup() {
+        if(currentGameObject == OBJECT_TYPE.CONE) {
+            return new SequentialCommandGroup(
+                
+            );
+        }
+        else {
+
+        }
+    }
+
+    public CommandBase VisionScore() {
+        if(currentGameObject == OBJECT_TYPE.CONE) {
+
+        }
+        else {
+
+        }
     }
 }

@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.Vision.VisionTask;
 
 public class VisionCommands {
 
@@ -19,10 +18,10 @@ public class VisionCommands {
         return Commands.parallel(
             new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto1 ended", false)),
             new SequentialCommandGroup(
-                Commands.runOnce(() -> vision.initObjDetection(VisionTask.CONE_ON_GROUND, 21, 179)),
+                Commands.runOnce(() -> vision.initVisionCommands()),
                 new ParallelRaceGroup(
                     new RunCommand(() -> vision.getPPAP(drivetrain)),
-                    Commands.waitUntil(vision.cameraLowStatusSupplier),
+                    Commands.waitUntil(vision.cameraStatusSupplier),
                     new WaitCommand(3000) //TODO debug
                 ),
                 new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto1 ended", true))
@@ -34,10 +33,10 @@ public class VisionCommands {
         return Commands.parallel(
             new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto2 ended", false)),
             new SequentialCommandGroup(
-                Commands.runOnce(() -> vision.initObjDetection(VisionTask.TAPE_ON_POLE, 0.15, 0)),
+                Commands.runOnce(() -> vision.initVisionCommands()),
                 new ParallelRaceGroup(
                     new RunCommand(() -> vision.seekTape(drivetrain)),
-                    Commands.waitUntil(vision.cameraHighStatusSupplier),
+                    Commands.waitUntil(vision.cameraStatusSupplier),
                     new WaitCommand(3000) //DODO debug
                 ),
                 new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto2 ended", true))
@@ -49,10 +48,10 @@ public class VisionCommands {
         return Commands.parallel(
             new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto3 ended", false)),
             new SequentialCommandGroup(
-                Commands.runOnce(() -> vision.initObjDetection(VisionTask.ATAG_GRID, 2, 0)),
+                Commands.runOnce(() -> vision.initVisionCommands()),
                 new ParallelRaceGroup(
                     new RunCommand(() -> vision.seekATag(drivetrain)),
-                    Commands.waitUntil(vision.cameraHighStatusSupplier),
+                    Commands.waitUntil(vision.cameraStatusSupplier),
                     new WaitCommand(3000) //DODO debug
                 ),
                 new InstantCommand(() -> SmartDashboard.putBoolean("VisonAuto3 ended", true))
