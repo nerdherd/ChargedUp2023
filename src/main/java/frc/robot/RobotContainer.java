@@ -8,6 +8,7 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.commands.ApproachCombined;
+import frc.robot.commands.Dodge;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
@@ -247,6 +248,14 @@ public class RobotContainer {
 
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+      
+      // driverController.L2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), true));
+      // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
+
+      // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
+      // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
+      // driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
+      // driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
 
       // Operator Bindings
       // operatorController.R1().onTrue(vision.SwitchHigh());
