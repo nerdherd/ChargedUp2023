@@ -10,6 +10,7 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -75,9 +76,7 @@ public class SwerveAutos {
      * @param swerveDrive
      * @return
      */
-    public static CommandBase twoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition position) {
-        DriverStation.getAlliance();
-
+    public static CommandBase twoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition position, Alliance alliance) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
@@ -95,6 +94,12 @@ public class SwerveAutos {
         double chargeYTranslation = 0;
         double pickupXDistance = 0;
         double pickupYDistance = 0;
+
+        if (alliance == Alliance.Red) {
+            if (position == StartPosition.Right) position = StartPosition.Left;
+            if (position == StartPosition.Left) position = StartPosition.Right;
+        }
+
         switch (position) {
             case Right:
                 pickupAngle = -10;
@@ -116,6 +121,11 @@ public class SwerveAutos {
                 break;
         }
         
+        if (alliance == Alliance.Red) {
+            chargeYTranslation *= -1;
+            pickupYDistance *= -1;
+            pickupAngle *= -1;
+        }
         
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
             new Pose2d(-.5, 0, new Rotation2d(0)), 
