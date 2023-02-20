@@ -2,8 +2,6 @@ package frc.robot.subsystems.vision;
 
 import java.util.function.BooleanSupplier;
 
-import org.photonvision.PhotonCamera;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -28,7 +26,6 @@ public class Vision extends SubsystemBase implements Reportable{
     }
     
     public static enum PipelineType {
-        // make sure sync with Camera hardware configuration
         NONE(0), CONE(1), CUBE(2),  TAPE(3), ATAG(4);
 
         private int type;
@@ -41,36 +38,35 @@ public class Vision extends SubsystemBase implements Reportable{
         }
     }
 
-    //public Limelight limelightLow;
+    public Limelight limelightLow;
     public Limelight limelightHigh;
     public BooleanSupplier cameraHighStatusSupplier;
     public CAMERA_MODE highCameraStatus = CAMERA_MODE.IDLE;
 
-    PhotonCamera photonVisionLow;// = new PhotonCamera("photonvisionlow");
     public BooleanSupplier cameraLowStatusSupplier;
     CAMERA_MODE lowCameraStatus = CAMERA_MODE.IDLE;
 
-    //private HighLowState state = null;
     private PipelineType pipeline = null;
 
     public Vision(){
         try {
-            limelightHigh = new Limelight("limelight-low");
+            limelightHigh = new Limelight("limelight-high");
             limelightHigh.setLightState(Limelight.LightMode.OFF);
         } catch (Exception ex) {
             limelightHigh = null;
-            DriverStation.reportWarning("Error instantiating High Camera:  " + ex.getMessage(), true);
+            DriverStation.reportWarning("Error instantiating high camera:  " + ex.getMessage(), true);
+        }
+
+        try {
+            limelightLow = new Limelight("limelight-low");
+            limelightLow.setLightState(Limelight.LightMode.OFF);
+        } catch (Exception ex) {
+            limelightLow = null;
+            DriverStation.reportWarning("Error instantiating low camera:  " + ex.getMessage(), true);
         }
 
         highCameraStatus = CAMERA_MODE.IDLE;
         cameraHighStatusSupplier = () -> (highCameraStatus == CAMERA_MODE.ARRIVED);
-
-        try {
-            photonVisionLow = new PhotonCamera("photonvisionlow");
-        } catch (Exception ex) {
-            photonVisionLow = null;
-            DriverStation.reportWarning("Error instantiating LOW Camera:  " + ex.getMessage(), true);
-        }
 
         lowCameraStatus = CAMERA_MODE.IDLE;
         cameraLowStatusSupplier = () -> (lowCameraStatus == CAMERA_MODE.ARRIVED);
@@ -183,8 +179,8 @@ public class Vision extends SubsystemBase implements Reportable{
             initDoneLowListRobotY = false;
             lowListRobotX_idx = 0;
             lowListRobotY_idx = 0;
-            if(photonVisionLow != null)
-                photonVisionLow.setPipelineIndex(0);
+            if(limelightLow != null)
+                limelightLow.setPipeline(1);
             
             SmartDashboard.putNumber("VLowCone X P", 0.25);
             SmartDashboard.putNumber("VLowCone Y P", 0.05);
@@ -200,7 +196,6 @@ public class Vision extends SubsystemBase implements Reportable{
                 limelightHigh.reinitBuffer();
                 limelightHigh.setPipeline(3);
             }
-            // limelight yaw = headingYaw; // have to use IMU to get the job done. TODO
 
             SmartDashboard.putNumber("VHighTape X P", 0.05);
             SmartDashboard.putNumber("VHighTape Y P", 0.24);
@@ -211,74 +206,68 @@ public class Vision extends SubsystemBase implements Reportable{
         }
      }
 
-    
+    double xSpeedRequest = 0;
+    double ySpeedRequest = 0;
+    double steerSpeedRequest = 0;
 
     // Limelight for finding CONE on ground
     PIDController pidRobotY_lowCone = new PIDController(0, 0, 0);
     PIDController pidRobotX_lowCone = new PIDController(0, 0, 0);
     public void getPPAP(SwerveDrivetrain drivetrain) {
-
-        if (limelightHigh == null) 
+        if(limelightLow == null)
             return;
             
-        // TODO !!!!!!!!
-        pidRobotY_lowCone.setP(SmartDashboard.getNumber("VLowCone Y P", 0.05)); // 0.24
+        pidRobotY_lowCone.setP(SmartDashboard.getNumber("VLowCone Y P", 0.05));
         pidRobotY_lowCone.setI(SmartDashboard.getNumber("VLowCone Y I", 0.0));
-        pidRobotY_lowCone.setD(SmartDashboard.getNumber("VLowCone Y D", 0.05)); //0.03 // 0
+        pidRobotY_lowCone.setD(SmartDashboard.getNumber("VLowCone Y D", 0.05)); //0.03
         pidRobotY_lowCone.setTolerance(0.2);
 
         pidRobotX_lowCone.setP(SmartDashboard.getNumber("VLowCone X P", 0.05));
         pidRobotX_lowCone.setI(SmartDashboard.getNumber("VLowCone X I", 0.0)); 
-        pidRobotX_lowCone.setD(SmartDashboard.getNumber("VLowCone X D", 0.05)); //0.05 // 0
+        pidRobotX_lowCone.setD(SmartDashboard.getNumber("VLowCone X D", 0.05)); //0.05
         pidRobotX_lowCone.setTolerance(0.2);
 
         ChassisSpeeds chassisSpeeds;
-        double xSpeed;
-        double ySpeed;
 
-        SmartDashboard.putBoolean("VLowCone has target", limelightHigh.hasValidTarget());
+        SmartDashboard.putBoolean("VLowCone has target", limelightLow.hasValidTarget());
 
-        if(!limelightHigh.hasValidTarget()) {
-            xSpeed = 0;
-            ySpeed = 0;
-            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+        if(!limelightLow.hasValidTarget()) {
+            xSpeedRequest = 0;
+            ySpeedRequest = 0;
+            chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, 0);
             SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
             drivetrain.setModuleStates(moduleStates);
             lowCameraStatus = CAMERA_MODE.WAIT;
         }
         else {
-            double calculatedX = getListAveWithNew_lowRobotX(limelightHigh.getArea());
-            double calculatedY = getListAveWithNew_lowRobotY(limelightHigh.getXAngle());
-            SmartDashboard.putNumber("VLowCone robotX avg", calculatedX);
-            SmartDashboard.putNumber("VLowCone robotY avg", calculatedY);
+            double calculatedX = getListAveWithNew_lowRobotX(limelightLow.getArea_avg());// watching pv-area
+            double calculatedY = getListAveWithNew_lowRobotY(limelightLow.getXAngle_avg());// watching pv-yaw
+            SmartDashboard.putNumber("VLowCone robotX avg", calculatedX);// watching
+            SmartDashboard.putNumber("VLowCone robotY avg", calculatedY);// watching
 
-            xSpeed = pidRobotX_lowCone.calculate(calculatedX, goalAreaLowCamera);
-            ySpeed = -pidRobotY_lowCone.calculate(calculatedY, 0);
+            xSpeedRequest = pidRobotX_lowCone.calculate(calculatedX, goalAreaLowCamera);
+            ySpeedRequest = -pidRobotY_lowCone.calculate(calculatedY, 0);
             
-            // TODO !!!!!!!!
-            if(NerdyMath.inRange(xSpeed, -.1, .1) &&
-            NerdyMath.inRange(ySpeed, -.1, .1))
+            if(NerdyMath.inRange(xSpeedRequest, -.1, .1) &&
+            NerdyMath.inRange(ySpeedRequest, -.1, .1))
             {
-                xSpeed = 0;
-                ySpeed = 0;
-                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                // lowCameraStatus = CAMERA_MODE.ARRIVED; 
+                lowCameraStatus = CAMERA_MODE.ARRIVED; 
             }
             else{
-                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+                chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                // lowCameraStatus = CAMERA_MODE.ACTION;
+                lowCameraStatus = CAMERA_MODE.ACTION;
             }
         }
         
         SmartDashboard.putString("VLowCone status", lowCameraStatus.toString());
 
-        //SmartDashboard.putNumber("Vision Tolerance", tolerance);
-        SmartDashboard.putNumber("VLowCone X speed", xSpeed);
-        SmartDashboard.putNumber("VLowCone Y speed", ySpeed);
+        SmartDashboard.putNumber("VLowCone X speed", xSpeedRequest);// watching
+        SmartDashboard.putNumber("VLowCone Y speed", ySpeedRequest);// watching
     }
 
 
@@ -290,8 +279,6 @@ public class Vision extends SubsystemBase implements Reportable{
         if(limelightHigh == null)
             return;
         
-        // Allows for tuning in Dashboard; Get rid of later once everything is tuned
-        // TODO !!!!!!!!
         pidRobotY_highTape.setP(SmartDashboard.getNumber("VHighTape Y P", 0.5));
         pidRobotY_highTape.setI(SmartDashboard.getNumber("VHighTape Y I", 0.0));
         pidRobotY_highTape.setD(SmartDashboard.getNumber("VHighTape Y D", 0.5)); //0.03
@@ -325,7 +312,6 @@ public class Vision extends SubsystemBase implements Reportable{
             xSpeed = pidRobotX_highTape.calculate(calculatedX, goalAreaHighCamera);
             ySpeed = -pidRobotY_highTape.calculate(calculatedY, 0);
             
-            // TODO !!!!!!!!
             if(NerdyMath.inRange(xSpeed, -5, 5) &&
             NerdyMath.inRange(ySpeed, -5, 5))
             {

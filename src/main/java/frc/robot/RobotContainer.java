@@ -8,6 +8,7 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.commands.ApproachCombined;
+import frc.robot.commands.Dodge;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
@@ -104,11 +105,6 @@ public class RobotContainer {
   private RunCommand arcadeRunCommand;
   private RunCommand visionRunCommand;
   
-  // Two different drivetrain modes
-  // private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
-  // private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
-  // private RunCommand visionRunCommandArea = new RunCommand(() -> drive.arcadeDrive(drive.getAprilTagAreaLinear(), drive.getApriltagRotation()), drive);
-
   public Command swerveCommand;
 
   public SwerveJoystickCommand swerveJoystickCommand;
@@ -150,8 +146,6 @@ public class RobotContainer {
     } else {
       tankDrive = new TankDrivetrain();
 
-      // visionRunCommand = new RunCommand(
-      //     () -> tankDrive.arcadeDrive(tankDrive.getApriltagLinear(), tankDrive.getApriltagRotation()), tankDrive);
     }
 
 
@@ -277,9 +271,14 @@ public class RobotContainer {
 
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+      
+      // driverController.L2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), true));
+      // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
-      driverController.triangle().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
-                      .onFalse(new InstantCommand(() -> swerveDrive.stopModules()));
+      // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
+      // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
+      // driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
+      // driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
 
       // Operator Bindings
       // operatorController.R1().onTrue(vision.SwitchHigh());
@@ -290,8 +289,11 @@ public class RobotContainer {
       // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 4, obj))
       //                  .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-      //driverController.triangle().whileTrue(new ApproachCombined(swerveDrive, objDetectCamera, 4, obj))
-      //.onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // ====== Vision Bindings ====== 
+      driverController.square().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.circle().whileTrue(VisionCommands.seekTapeDropCone(swerveDrive, vision))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
   }
   
