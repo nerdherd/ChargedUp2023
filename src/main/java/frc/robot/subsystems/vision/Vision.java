@@ -2,8 +2,6 @@ package frc.robot.subsystems.vision;
 
 import java.util.function.BooleanSupplier;
 
-import org.photonvision.PhotonCamera;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -56,7 +54,15 @@ public class Vision extends SubsystemBase implements Reportable{
             limelightHigh.setLightState(Limelight.LightMode.OFF);
         } catch (Exception ex) {
             limelightHigh = null;
-            DriverStation.reportWarning("Error instantiating High Camera:  " + ex.getMessage(), true);
+            DriverStation.reportWarning("Error instantiating high camera:  " + ex.getMessage(), true);
+        }
+
+        try {
+            limelightLow = new Limelight("limelight-low");
+            limelightLow.setLightState(Limelight.LightMode.OFF);
+        } catch (Exception ex) {
+            limelightLow = null;
+            DriverStation.reportWarning("Error instantiating low camera:  " + ex.getMessage(), true);
         }
 
         highCameraStatus = CAMERA_MODE.IDLE;
