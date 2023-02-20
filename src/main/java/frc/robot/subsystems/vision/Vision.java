@@ -16,6 +16,13 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.util.NerdyMath;
 
 public class Vision extends SubsystemBase implements Reportable{
+
+    public enum VisionTask
+    {
+        CONE_ON_GROUND,
+        TAPE_ON_POLE,
+        ATAG_GRID
+    }
     
     public enum CAMERA_MODE
     {
@@ -70,6 +77,37 @@ public class Vision extends SubsystemBase implements Reportable{
 
         lowCameraStatus = CAMERA_MODE.IDLE;
         cameraLowStatusSupplier = () -> (lowCameraStatus == CAMERA_MODE.ARRIVED);
+
+        //low cone
+        SmartDashboard.putNumber("VLowCone X P", 5);
+        SmartDashboard.putNumber("VLowCone Y P", 4);
+        SmartDashboard.putNumber("VLowCone X I", 0);
+        SmartDashboard.putNumber("VLowCone Y I", 0);
+        SmartDashboard.putNumber("VLowCone X D", 0);
+        SmartDashboard.putNumber("VLowCone Y D", 0);
+
+        SmartDashboard.putNumber("VLowCone Target X", goalAreaLowCamera); // watching
+
+
+        //atag grid
+        SmartDashboard.putNumber("VATag Target X", goalAreaHighCamera);
+        SmartDashboard.putNumber("VATag Target Steer", goalHeadingHighCamera);
+
+        
+        //tape on pole
+        SmartDashboard.putNumber("VHighTape X P", 7);
+        SmartDashboard.putNumber("VHighTape Y P", 0.1);
+        SmartDashboard.putNumber("VHighTape X I", 0);
+        SmartDashboard.putNumber("VHighTape Y I", 0);
+        SmartDashboard.putNumber("VHighTape X D", 0);
+        SmartDashboard.putNumber("VHighTape Y D", 0);
+
+        SmartDashboard.putNumber("VHighTape Steer P", 0);
+        SmartDashboard.putNumber("VHighTape Steer I", 0);
+        SmartDashboard.putNumber("VHighTape Steer D", 0);
+
+        SmartDashboard.putNumber("VHighTape Target X", goalAreaHighCamera);
+        SmartDashboard.putNumber("VHighTape Target Steer", goalHeadingHighCamera);
     }
 
     @Override
@@ -170,9 +208,10 @@ public class Vision extends SubsystemBase implements Reportable{
     }
 
     double goalAreaLowCamera = 3;
-    double goalAreaHighCamera = 0.3;
-    public void initObjDetection(boolean isHigh, double targetAreaStop, double headingYaw) {
-        if(!isHigh) { // cone on ground
+    double goalAreaHighCamera = 1.0; // Change this depending on Object for Detection
+    double goalHeadingHighCamera = 0;
+    public void initObjDetection(VisionTask task, double targetAreaStop, double headingYaw) {
+        if(task == VisionTask.CONE_ON_GROUND) { // cone on ground
             goalAreaLowCamera = targetAreaStop;
             lowCameraStatus = CAMERA_MODE.IDLE;
             initDoneLowListRobotX = false;
@@ -180,30 +219,37 @@ public class Vision extends SubsystemBase implements Reportable{
             lowListRobotX_idx = 0;
             lowListRobotY_idx = 0;
             if(limelightLow != null)
-                limelightLow.setPipeline(1);
+                limelightLow.setPipeline(1);;
             
-            SmartDashboard.putNumber("VLowCone X P", 0.25);
-            SmartDashboard.putNumber("VLowCone Y P", 0.05);
-            SmartDashboard.putNumber("VLowCone X I", 0);
-            SmartDashboard.putNumber("VLowCone Y I", 0);
-            SmartDashboard.putNumber("VLowCone X D", 0);
-            SmartDashboard.putNumber("VLowCone Y D", 0);
+            
         }
-        else{ // tape
+        else if (task == VisionTask.ATAG_GRID){ // april tag; Right now its on APRIL TAG
             goalAreaHighCamera = targetAreaStop;
             highCameraStatus = CAMERA_MODE.IDLE;
+
+            if(limelightHigh != null ){
+                limelightHigh.reinitBuffer();
+                limelightHigh.setPipeline(4);
+            }
+            
+            goalHeadingHighCamera = headingYaw;
+        } 
+        else if(task == VisionTask.TAPE_ON_POLE) {
+            goalAreaHighCamera = targetAreaStop;
+            highCameraStatus = CAMERA_MODE.IDLE;
+            limelightHigh.turnLightOn();
             if(limelightHigh != null ){
                 limelightHigh.reinitBuffer();
                 limelightHigh.setPipeline(3);
             }
-
-            SmartDashboard.putNumber("VHighTape X P", 0.05);
-            SmartDashboard.putNumber("VHighTape Y P", 0.24);
-            SmartDashboard.putNumber("VHighTape X I", 0.005);
-            SmartDashboard.putNumber("VHighTape Y I", 0);
-            SmartDashboard.putNumber("VHighTape X D", 0);
-            SmartDashboard.putNumber("VHighTape Y D", 0);
+            
+            goalHeadingHighCamera = headingYaw;
         }
+        else{}
+
+        xSpeedRequest = 0;
+        ySpeedRequest = 0;
+        steerSpeedRequest = 0;
      }
 
     double xSpeedRequest = 0;
@@ -338,4 +384,102 @@ public class Vision extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("VHighTape Steer speed", steerSpeed);
     }
     
+    // for April Tag (only with Camera High)
+    PIDController pidRobotY_ATag = new PIDController(0, 0, 0);
+    PIDController pidRobotX_ATag = new PIDController(0, 0, 0);
+    PIDController pidRobotSteer_ATag = new PIDController(0, 0, 0);
+    public void seekATag(SwerveDrivetrain drivetrain) {
+        if(limelightHigh == null)
+            return;
+        
+        // Allows for tuning in Dashboard; Get rid of later once everything is tuned
+        // TODO !!!!!!!!
+        pidRobotY_ATag.setP(SmartDashboard.getNumber("VATag Y P", 0.5));
+        pidRobotY_ATag.setI(SmartDashboard.getNumber("VATag Y I", 0.0));
+        pidRobotY_ATag.setD(SmartDashboard.getNumber("VATag Y D", 0.5));
+        pidRobotY_ATag.setTolerance(0.5);
+
+        pidRobotX_ATag.setP(SmartDashboard.getNumber("VATag X P", 0.5));
+        pidRobotX_ATag.setI(SmartDashboard.getNumber("VATag X I", 0.0)); 
+        pidRobotX_ATag.setD(SmartDashboard.getNumber("VATag X D", 1.5)); 
+        pidRobotX_ATag.setTolerance(0.5);
+
+        pidRobotSteer_ATag.setP(SmartDashboard.getNumber("VATag Steer P", 0));
+        pidRobotSteer_ATag.setI(SmartDashboard.getNumber("VATag Steer I", 0)); 
+        pidRobotSteer_ATag.setD(SmartDashboard.getNumber("VATag Steer D", 0)); 
+
+        ChassisSpeeds chassisSpeeds;
+
+        SmartDashboard.putBoolean("VATag has target", limelightHigh.hasValidTarget());
+        
+
+        if(!limelightHigh.hasValidTarget()) {
+            //xSpeedRequest = 0;
+            //ySpeedRequest = 0;
+            //steerSpeedRequest = 0;
+            chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+            SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+            drivetrain.setModuleStates(moduleStates);
+            highCameraStatus = CAMERA_MODE.WAIT;
+        }
+        else {        
+            double calculatedX = limelightHigh.getArea_avg();
+            double calculatedY = limelightHigh.getXAngle_avg();
+            double calculatedSteer = drivetrain.getImu().getHeading();
+            SmartDashboard.putNumber("VATag robotX avg", calculatedX);
+            SmartDashboard.putNumber("VATag robotY avg", calculatedY);
+            SmartDashboard.putNumber("VATag robotSteer avg", calculatedSteer);
+
+            //xSpeedRequest = pidRobotX_ATag.calculate(calculatedX, goalAreaHighCamera);
+            // Calculate the error terms for the PID controllers
+            double errorX =  calculatedX - goalAreaHighCamera;
+            double errorY = calculatedY - 0;
+            double errorSteer = calculatedSteer - goalHeadingHighCamera;
+            
+            /* // if needed
+            // Apply additional logic to handle off-center and angled targets
+            if (Math.abs(errorY) > 5) {
+                // If the target is off-center, add an additional correction term to the x PID controller
+                errorX -= 0.1 * errorY;
+            }
+            if (Math.abs(errorSteer) > 10) {
+                // If the target is at an angle, add an additional correction term to the y PID controller
+                errorY -= 0.1 * errorSteer;
+            }*/
+
+
+            xSpeedRequest = pidRobotX_ATag.calculate(errorX);
+            ySpeedRequest = -pidRobotY_ATag.calculate(errorY);
+            steerSpeedRequest = pidRobotSteer_ATag.calculate(errorSteer);
+
+            if(!NerdyMath.inRange(errorSteer, -2, 2))
+            {
+                steerSpeedRequest += 0.2;
+            }
+
+            
+            // TODO !!!!!!!!
+            if(NerdyMath.inRange(xSpeedRequest, -0.05, 0.05) &&
+            NerdyMath.inRange(ySpeedRequest, -0.05, 0.05)&&
+            NerdyMath.inRange(steerSpeedRequest, -0.05, 0.05))
+            {
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                highCameraStatus = CAMERA_MODE.ARRIVED; 
+            }
+            else{
+                chassisSpeeds = new ChassisSpeeds(xSpeedRequest, ySpeedRequest, steerSpeedRequest);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                highCameraStatus = CAMERA_MODE.ACTION;
+            }
+        }
+
+        SmartDashboard.putString("VATag status", highCameraStatus.toString());
+
+        SmartDashboard.putNumber("VATag X speed", xSpeedRequest);
+        SmartDashboard.putNumber("VATag Y speed", ySpeedRequest);
+        SmartDashboard.putNumber("VATag Steer speed", steerSpeedRequest);
+    }
 }
