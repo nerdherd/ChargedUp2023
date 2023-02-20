@@ -90,16 +90,7 @@ public class RobotContainer {
 
 
   SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
-
-  // Two different drivetrain modes
-  private RunCommand arcadeRunCommand;
-  private RunCommand visionRunCommand;
   
-  // Two different drivetrain modes
-  // private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
-  // private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
-  // private RunCommand visionRunCommandArea = new RunCommand(() -> drive.arcadeDrive(drive.getAprilTagAreaLinear(), drive.getApriltagRotation()), drive);
-
   public Command swerveCommand;
 
   public SwerveJoystickCommand swerveJoystickCommand;
@@ -131,8 +122,6 @@ public class RobotContainer {
     } else {
       tankDrive = new TankDrivetrain();
 
-      // visionRunCommand = new RunCommand(
-      //     () -> tankDrive.arcadeDrive(tankDrive.getApriltagLinear(), tankDrive.getApriltagRotation()), tankDrive);
     }
 
 
