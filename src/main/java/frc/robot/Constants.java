@@ -168,12 +168,24 @@ public final class Constants {
     public static final double kWheelBase = Units.inchesToMeters(21);       // verify
     // Distance between front and back wheels
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-      new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+      new Translation2d(kWheelBase / 2, -kTrackWidth / 2), // TODO: This should be front right not front left
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
     
-    public static final double kRotationOffset = 2*kTrackWidth;
+    public static final double kDodgeDistance = Units.inchesToMeters(12);
+    
+    public static final Translation2d[] kRotationCenters = new Translation2d[] {
+      new Translation2d(kDodgeDistance, -kDodgeDistance),  // FL
+      new Translation2d(kDodgeDistance, kDodgeDistance),   // FR
+      new Translation2d(-kDodgeDistance, -kDodgeDistance), // BL
+      new Translation2d(-kDodgeDistance, kDodgeDistance)   // BR
+    };
+    
+    public static final int[] kLeftRotationCenters = new int[] {0, 1, 3, 2};
+    public static final int[] kRightRotationCenters = new int[] {1, 3, 2, 0};
+
+    public static final double kRotationOffset = 0.5 * kTrackWidth;
 
     public static final int kFRDriveID = 11;
     public static final int kFLDriveID = 21;
@@ -243,7 +255,6 @@ public final class Constants {
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
     };
-    public static final double kDodgeDistance = kTrackWidth * 2;
   }
 
   public static final class SwerveAutoConstants {

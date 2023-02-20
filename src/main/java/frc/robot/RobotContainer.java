@@ -41,6 +41,7 @@ import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
+import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.subsystems.Vision.PipelineType;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
@@ -177,7 +178,16 @@ public class RobotContainer {
         driverControllerButtons::getL3Button,
         // driverControllerButtons::getTriangleButton,
         // driverControllerButtons::getCrossButton
-        driverControllerButtons::getR3Button
+        driverControllerButtons::getR3Button,
+        () -> {
+          if (driverControllerButtons.getL2Button()) {
+            return DodgeDirection.LEFT;
+          } 
+          if (driverControllerButtons.getR2Button()) {
+            return DodgeDirection.RIGHT;
+          }
+          return DodgeDirection.NONE;
+        }
       ));
      /*} else {
       tankDrive.setDefaultCommand(

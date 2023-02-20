@@ -61,21 +61,26 @@ public class Dodge extends SwerveControllerCommand {
             
             angle = -Math.atan2(rotationCenter.getX(), rotationCenter.getY());
         }
+
+        angle = 0;
                 
         // Get angle of robot relative to joystick direction
         double endAngle = angle;
+
         
         boolean facingForward = facingForward(swerveDrive.getImu().getHeading());
         
+        facingForward = true;
+
         double yTranslation = distance;
 
         // Up-Left or Down-Right
         if (isLeft && facingForward || !isLeft && !facingForward) {
             endAngle += (Math.PI / 2);
+            yTranslation *= -1;
         } else {
         // Up-right or Down-Left
             endAngle -= (Math.PI / 2);
-            yTranslation *= -1;
         }
 
         // Either to the top left or bottom right
