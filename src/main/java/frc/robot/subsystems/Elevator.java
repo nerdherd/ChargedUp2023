@@ -46,19 +46,20 @@ public class Elevator extends SubsystemBase implements Reportable{
 
 
   public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
+    setBrakeMode();
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
           if (percentExtended.getAsDouble() >= 100) {
             elevator.set(ControlMode.PercentOutput, -ElevatorConstants.kArbitraryFF * Math.sin(angle));
           } else {
             elevator.set(ControlMode.PercentOutput, 0.40);
-            elevator.setNeutralMode(NeutralMode.Coast);
+            // elevator.setNeutralMode(NeutralMode.Coast);
           }//((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
           if (percentExtended.getAsDouble() <= 0) {
             elevator.set(ControlMode.PercentOutput, 0);
           } else {
             elevator.set(ControlMode.PercentOutput, -0.40);
-            elevator.setNeutralMode(NeutralMode.Coast);
+            // elevator.setNeutralMode(NeutralMode.Coast);
           }
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {

@@ -107,6 +107,9 @@ public class CANSwerveModule implements SwerveModule {
     private void initEncoders() {
         driveMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
         turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
+
+        driveMotor.configNeutralDeadband(ModuleConstants.kDriveMotorDeadband);
+        turnMotor.configNeutralDeadband(ModuleConstants.kTurnMotorDeadband);
     }
 
     /**
@@ -152,7 +155,7 @@ public class CANSwerveModule implements SwerveModule {
      * @return Angle in degrees
      */
     public double getTurningPositionDegrees() {
-        double turningPosition = canCoder.getPosition() % 360;
+        double turningPosition = -canCoder.getPosition() % 360;
         // SmartDashboard.putNumber("Turning radians #" + turnMotorID, Math.toRadians(turningPosition));
         // SmartDashboard.putNumber("Turning angle #" + turnMotorID, turningPosition);
         return turningPosition;
@@ -224,7 +227,7 @@ public class CANSwerveModule implements SwerveModule {
     }
 
     public void reportToSmartDashboard() {
-        currentAngle = Math.toDegrees(Math.toDegrees(getTurningPosition()));
+        currentAngle = Math.toDegrees(getTurningPosition());
 
         SmartDashboard.putNumber("Module velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
         SmartDashboard.putNumber("Drive percent #" + driveMotorID, currentPercent);

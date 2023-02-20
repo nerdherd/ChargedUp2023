@@ -111,7 +111,7 @@ public class RobotContainer {
 
     if (IsSwerveDrive) {
       try {
-        swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.MAG_ENCODER);
+        swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
       } catch (IllegalArgumentException e) {
         DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
       }
@@ -156,18 +156,18 @@ public class RobotContainer {
     elevator.setDefaultCommand(
       new RunCommand(
         () -> {
-          elevator.moveElevatorJoystick(operatorController.getRightY(), arm.armAngle.getAsDouble());
+          elevator.moveElevatorJoystick(operatorController.getRightY() * 0.125, arm.armAngle.getAsDouble());
           SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
         }, 
         elevator
       ));
 
     elevator.resetEncoder();
+    elevator.setBrakeMode();
 
     coneRunner.setDefaultCommand(
       Commands.run(() -> {
-        coneRunner.joystickSpeedControl(0.5*operatorController.getLeftY());
-        coneRunner.joystickAngleControl(0.5*operatorController.getRightY());
+        coneRunner.joystickAngleControl((operatorController.getR2Axis()+operatorController.getL2Axis())*0.2 / 2);
       }, coneRunner)
     );
 
@@ -211,23 +211,30 @@ public class RobotContainer {
     }
 
     
-    upButton.whileTrue(arm.moveArmStow()) 
-      .onFalse(Commands.runOnce(arm::setPowerZero));
-    leftButton.whileTrue(arm.moveArmScore()) 
-      .onFalse(Commands.runOnce(arm::setPowerZero));
-    downButton.whileTrue(arm.moveArmGround()) 
-      .onFalse(Commands.runOnce(arm::setPowerZero));
+    // upButton.whileTrue(arm.moveArmStow()) 
+    //   .onFalse(Commands.runOnce(arm::setPowerZero));
+    // leftButton.whileTrue(arm.moveArmScore()) 
+    //   .onFalse(Commands.runOnce(arm::setPowerZero));
+    // downButton.whileTrue(arm.moveArmGround()) 
+    //   .onFalse(Commands.runOnce(arm::setPowerZero));
     
-    operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm.armAngle.getAsDouble()))
-      .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.square().whileTrue(elevator.moveElevatorMid(arm.armAngle.getAsDouble()))
-      .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.cross().whileTrue(elevator.moveElevatorStow(arm.armAngle.getAsDouble()))
-      .onFalse(Commands.runOnce(elevator::setPowerZero));
+    // operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm.armAngle.getAsDouble()))
+    //   .onFalse(Commands.runOnce(elevator::setPowerZero));
+    // operatorController.square().whileTrue(elevator.moveElevatorMid(arm.armAngle.getAsDouble()))
+    //   .onFalse(Commands.runOnce(elevator::setPowerZero));
+    // operatorController.cross().whileTrue(elevator.moveElevatorStow(arm.armAngle.getAsDouble()))
+    //   .onFalse(Commands.runOnce(elevator::setPowerZero));
   
     operatorController.share().onTrue(Commands.runOnce(arm::resetEncoder));
     operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
     
+    operatorController.triangle()
+      .whileTrue(Commands.runOnce(() -> coneRunner.joystickSpeedControl(0.3)))
+      .onFalse(Commands.runOnce(() -> coneRunner.joystickSpeedControl(0)));
+    
+    operatorController.square()
+      .whileTrue(Commands.runOnce(() -> coneRunner.joystickSpeedControl(-0.3)))
+      .onFalse(Commands.runOnce(() -> coneRunner.joystickSpeedControl(0)));
     
     // operatorController.triangle().whileTrue(arm.armExtend());
     // operatorController.square().whileTrue(arm.armStow());
@@ -240,6 +247,9 @@ public class RobotContainer {
 
     // operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
     // operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
+
+    SmartDashboard.putData("Calibrate NavX", new InstantCommand(() -> imu.ahrs.calibrate()));
+    
 
     if (IsSwerveDrive) {
       // Driver Bindings
