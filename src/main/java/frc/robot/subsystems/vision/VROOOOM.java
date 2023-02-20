@@ -2,6 +2,7 @@ package frc.robot.subsystems.vision;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -143,6 +144,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     public SequentialCommandGroup VisionPickup() {
         // PLACEHOLDERS
         int armEnum;
+        PIDController PIDArea;
+        PIDController PIDTX;
+        PIDController PIDYaw;
 
         switch(currentHeightPos) {
             case HIGH:
@@ -163,31 +167,47 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         switch(currentGameObject) {
             case CONE:
                 currentLimelight.setPipeline(1);
+                PIDArea = new PIDController(0, 0, 0);
+                PIDTX = new PIDController(0, 0, 0);
+                PIDYaw = new PIDController(0, 0, 0);
                 break;
 
             case CUBE:
                 currentLimelight.setPipeline(2);
+                PIDArea = new PIDController(0, 0, 0);
+                PIDTX = new PIDController(0, 0, 0);
+                PIDYaw = new PIDController(0, 0, 0);
                 break;
         }
         
         return new SequentialCommandGroup(
-            
+            // GotoTarget()
+            // Arm.gotoSetPos()
         );
     }
 
     public CommandBase VisionScore() {
         // PLACEHOLDERS
         int armEnum;
+        PIDController PIDArea;
+        PIDController PIDTX;
+        PIDController PIDYaw;
 
         switch(currentGameObject) {
             case CONE:
                 currentLimelight = limelightHigh;
                 currentLimelight.setPipeline(3);
+                PIDArea = new PIDController(0, 0, 0);
+                PIDTX = new PIDController(0, 0, 0);
+                PIDYaw = new PIDController(0, 0, 0);
                 break;
 
             case CUBE:
                 currentLimelight = limelightLow;
                 currentLimelight.setPipeline(4);
+                PIDArea = new PIDController(0, 0, 0);
+                PIDTX = new PIDController(0, 0, 0);
+                PIDYaw = new PIDController(0, 0, 0);
                 break;
         }
 
@@ -204,8 +224,6 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 armEnum = 4;
                 break;
         }
-
-        
 
         return new SequentialCommandGroup(
                 
