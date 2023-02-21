@@ -264,7 +264,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     public void initShuffleboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
-        tab.add("Field Position", field);
+        tab.add("Field Position", field).withSize(6, 3);
         tab.addNumber("X Position", odometer.getPoseMeters()::getX);
         // Might be negative because our swerveDriveKinematics is flipped across the Y axis
         tab.addNumber("Y Position", odometer.getPoseMeters()::getY);
