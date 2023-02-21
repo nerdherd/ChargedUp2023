@@ -7,11 +7,14 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
 
-public class MotorClaw extends SubsystemBase {
+public class MotorClaw extends SubsystemBase implements Reportable {
 
   private TalonSRX leftMotor, rightMotor;
 
@@ -41,5 +44,16 @@ public class MotorClaw extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  public void reportToSmartDashboard() {
+    SmartDashboard.putNumber("Motor Claw Velocity", leftMotor.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Motor Claw Current", leftMotor.getStatorCurrent());
+  }
+
+  public void initShuffleboard() {
+    ShuffleboardTab tab = Shuffleboard.getTab("Motor Claw");
+    tab.addNumber("Velocity", leftMotor::getSelectedSensorVelocity);
+    tab.addNumber("Current", leftMotor::getStatorCurrent);
   }
 }

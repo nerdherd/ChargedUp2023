@@ -9,8 +9,11 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // TODO: Wrap crucial ahrs methods so that functionality is swappable between the NavX and Pigeon IMU
@@ -90,5 +93,21 @@ public class Imu extends SubsystemBase implements Reportable {
         SmartDashboard.putBoolean("AHRS Calibrating", ahrs.isCalibrating());
         SmartDashboard.putBoolean("AHRS Connected", ahrs.isConnected());
         SmartDashboard.putString("NavX Firmware version", ahrs.getFirmwareVersion());
+    }
+
+    public void initShuffleboard() {
+        ShuffleboardTab tab = Shuffleboard.getTab("Imu");
+
+        tab.add("Calibrate NavX", new InstantCommand(() -> ahrs.calibrate()));
+        tab.addNumber("Robot Heading", () -> getHeading());
+        tab.addNumber("Robot Yaw", () -> ahrs.getYaw());
+        tab.addNumber("Robot Pitch", () -> ahrs.getPitch());
+        tab.addNumber("Robot Roll", () -> ahrs.getRoll());
+        tab.addNumber("Robot Raw Yaw", () -> ahrs.getRawGyroZ());
+        tab.addNumber("Robot Raw Pitch", () -> ahrs.getRawGyroX());
+        tab.addNumber("Robot Raw Roll", () -> ahrs.getRawGyroY());
+        tab.addBoolean("AHRS Calibrating", () -> ahrs.isCalibrating());
+        tab.addBoolean("AHRS Connected", () -> ahrs.isConnected());
+        tab.addString("NavX Firmware version", () -> ahrs.getFirmwareVersion());
     }
 }

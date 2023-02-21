@@ -261,9 +261,6 @@ public class RobotContainer {
     // operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
     // operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
 
-    SmartDashboard.putData("Calibrate NavX", new InstantCommand(() -> imu.ahrs.calibrate()));
-
-
     if (IsSwerveDrive) {
       // Driver Bindings
       driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
@@ -298,15 +295,17 @@ public class RobotContainer {
   }
   
   public void initShuffleboard() {
-    if (!IsSwerveDrive) {
+    imu.initShuffleboard();
+    claw.initShuffleboard();
+    arm.initShuffleboard();
+    coneRunner.initShuffleboard();
+    if (IsSwerveDrive) {
+      swerveDrive.initShuffleboard();
+      swerveDrive.initModuleShuffleboard();
+    } else {
       tankDrive.initShuffleboard();
     }
-    // autoChooser = new SendableChooser<CommandBase>();
-    // autoChooser.setDefaultOption("Hard Carry Auto",
-    // TankAutos.HardCarryAuto(drive, claw, arm));
-    
-    // autoChooser.addOption("Diet Coke Auto",
-    // TankAutos.DietCokeAuto(drive, claw, arm));
+    airCompressor.initShuffleboard();
   }
 
   public void reportAllToSmartDashboard() {

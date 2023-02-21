@@ -7,9 +7,14 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.Constants.SwerveDriveConstants.CANCoderConstants;
+import frc.robot.Constants.SwerveDriveConstants.MagEncoderConstants;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Reportable;
 
@@ -23,6 +28,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     private final Imu gyro;
     private final SwerveDriveOdometry odometer;
+
+    private Field2d field;
 
     private int numEncoderResets = 0;
 
@@ -116,6 +123,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
             kDriveKinematics, 
             new Rotation2d(0), 
             getModulePositions()); 
+        
+        field = new Field2d();
+        field.setRobotPose(odometer.getPoseMeters());
     }
 
     /**
@@ -126,6 +136,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         reportToSmartDashboard();
         // SwerveModulePosition[] modules = getModulePositions();
         odometer.update(gyro.getRotation2d(), getModulePositions());
+        field.setRobotPose(odometer.getPoseMeters());
     }
     
     //****************************** RESETTERS ******************************/
@@ -240,6 +251,30 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         frontRight.setDesiredState(desiredStates[1]);
         backLeft.setDesiredState(desiredStates[2]);
         backRight.setDesiredState(desiredStates[3]);
+    }
+
+    /**
+     * Reset the odometry to the specified position.
+     * @param pose
+     */
+    public void setPoseMeters(Pose2d pose) {
+        odometer.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
+    }
+
+    public void initShuffleboard() {
+        ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
+
+        tab.add("Field Position", field);
+        tab.addNumber("X Position", odometer.getPoseMeters()::getX);
+        // Might be negative because our swerveDriveKinematics is flipped across the Y axis
+        tab.addNumber("Y Position", odometer.getPoseMeters()::getY);
+    }
+
+    public void initModuleShuffleboard() {
+        frontRight.initShuffleboard();
+        backRight.initShuffleboard();
+        frontLeft.initShuffleboard();
+        backLeft.initShuffleboard();
     }
 
     /**

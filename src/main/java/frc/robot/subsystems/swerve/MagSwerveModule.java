@@ -11,9 +11,12 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.ModuleConstants;
+import frc.robot.Constants.SwerveDriveConstants;
 
-import static frc.robot.Constants.*;
 
 /**
  * Swerve module that uses a Mag Encoder and SRX for the absolute angle
@@ -219,6 +222,19 @@ public class MagSwerveModule implements SwerveModule {
         // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
 
         turnMotor.set(ControlMode.PercentOutput, turnPower);
+    }
+
+    public void initShuffleboard() {
+        int moduleId = (driveMotorID - (driveMotorID % 10));
+        ShuffleboardTab tab = Shuffleboard.getTab("Module " + moduleId);
+
+        tab.addNumber("Module velocity", () -> driveMotor.getSelectedSensorVelocity());
+        tab.addNumber("Drive percent", () -> currentPercent);
+        tab.addNumber("Turn angle", () -> currentAngle);
+        tab.addNumber("Desired Angle", () -> desiredAngle);
+        tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
+        tab.addNumber("Drive Motor Current", driveMotor::getStatorCurrent);
+        tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
     }
 
     public void reportToSmartDashboard() {
