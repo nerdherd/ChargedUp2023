@@ -30,7 +30,9 @@ import frc.robot.Constants.PneumaticsConstants;
 import frc.robot.util.NerdyMath;
 
 public class Arm extends SubsystemBase implements Reportable {
+    @Deprecated
     private DoubleSolenoid arm;
+
     private TalonFX rotatingArm;
     private boolean armExtended = false;
     private int targetTicks = ArmConstants.kArmStow;
@@ -197,6 +199,7 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
+    @Deprecated
     public CommandBase armStow() {
         return runOnce(
             () -> {
@@ -206,6 +209,7 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
+    @Deprecated
     public CommandBase armExtend() {
         return runOnce(
             () -> {

@@ -32,6 +32,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 import static frc.robot.Constants.SwerveAutoConstants.*;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -97,9 +98,15 @@ public class SwerveAutos {
     }
 
     public enum StartPosition {
-        Left,
-        Right,
-        Middle
+        LEFT,
+        RIGHT,
+        MIDDLE
+    }
+
+    public enum ScorePosition {
+        HYBRID,
+        MID,
+        HIGH
     }
 
     /**
@@ -128,24 +135,24 @@ public class SwerveAutos {
         double pickupYDistance = 0;
 
         if (alliance == Alliance.Red) {
-            if (position == StartPosition.Right) position = StartPosition.Left;
-            if (position == StartPosition.Left) position = StartPosition.Right;
+            if (position == StartPosition.RIGHT) position = StartPosition.LEFT;
+            if (position == StartPosition.LEFT) position = StartPosition.RIGHT;
         }
 
         switch (position) {
-            case Right:
+            case RIGHT:
                 pickupAngle = -10;
                 chargeYTranslation = -1.7;
                 pickupXDistance = 4;
                 pickupYDistance = -0.25;
                 break;
-            case Left:
+            case LEFT:
                 pickupAngle = 10;
                 chargeYTranslation = 1.7;
                 pickupXDistance = 4;
                 pickupYDistance = 0.25;
                 break;
-            case Middle:
+            case MIDDLE:
                 pickupAngle = -20;
                 chargeYTranslation = 0;
                 pickupXDistance = 5; // TODO: Measure IRL
@@ -448,6 +455,30 @@ public class SwerveAutos {
             // Commands.runOnce(() -> swerveDrive.stopModules()));
     } 
 
+    public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition startPos, ScorePosition scorePos, double waitTime, boolean goAround) {
+        return Commands.sequence(
+            new ParallelRaceGroup(
+                new SequentialCommandGroup(
+                    new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                    new WaitCommand(0.5),
+                    Commands.waitUntil(arm.atTargetPosition)
+                ),
+                new WaitCommand(2)
+            ),
+            race(
+                sequence(
+                    runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                    waitSeconds(0.5),
+                    waitUntil(elevator.atTargetPosition)
+                ),
+                waitSeconds(2)
+            ),
+            waitSeconds(1),
+            claw.clawOpen(),
+            chargeAuto(swerveDrive, startPos, waitTime, goAround)
+        );
+    }
+
 
     /**
      * Start with the front left swerve module aligned with the charging station's edge
@@ -463,25 +494,25 @@ public class SwerveAutos {
         double yOvershoot = 0;
 
         switch (startPos) {
-            case Left:
+            case LEFT:
                 yTranslation = 1.75;
                 yOvershoot = 2;
                 break;
-            case Right:
+            case RIGHT:
                 yTranslation = -1.75;
                 yOvershoot = -2;
                 break;
-            case Middle:
+            case MIDDLE:
                 break;
         }
 
         Trajectory trajectory;
         
-        if (!goAround || startPos == StartPosition.Middle) {
+        if (!goAround || startPos == StartPosition.MIDDLE) {
             trajectory = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(0, 0, new Rotation2d(0)), 
                 List.of(
-                    new Translation2d(0, yOvershoot)), 
+                    new Translation2d(0.25, yOvershoot)), 
                 new Pose2d(1.5, yTranslation, Rotation2d.fromDegrees(0)), 
                 trajectoryConfig);
         } else {
