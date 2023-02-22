@@ -92,14 +92,6 @@ public class RobotContainer {
   private StartPosition startPos = StartPosition.Right;
   private Alliance alliance = Alliance.Invalid;
 
-  // Two different drivetrain modes
-  private RunCommand arcadeRunCommand;
-  private RunCommand visionRunCommand;
-  
-  public Command swerveCommand;
-
-  public SwerveJoystickCommand swerveJoystickCommand;
-  
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -112,25 +104,8 @@ public class RobotContainer {
         DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
       }
 
-      alliance = DriverStation.getAlliance();
-
-      swerveCommand = new RepeatCommand(
-          new SequentialCommandGroup(
-              new WaitCommand(5),
-              new InstantCommand(swerveDrive::resetEncoders)));
-
-      autoChooser.setDefaultOption("Pickup Cone Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
-      autoChooser.addOption("Hard Carry", () -> SwerveAutos.hardCarryAuto(swerveDrive));
-      autoChooser.addOption("Vending Machine", () -> SwerveAutos.vendingMachine(swerveDrive));
-      autoChooser.addOption("Test auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
-      Shuffleboard.getTab("Driver").add(autoChooser);
-      
-      positionChooser.setDefaultOption("Right", StartPosition.Right);
-      positionChooser.addOption("Left", StartPosition.Left);
-      positionChooser.addOption("Middle", StartPosition.Middle);
-      positionChooser.addOption("Right", StartPosition.Right);
-      Shuffleboard.getTab("Driver").add(positionChooser);
-
+      this.alliance = DriverStation.getAlliance();
+      initAutoChooser();
       
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
@@ -261,9 +236,6 @@ public class RobotContainer {
     // operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
     // operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
 
-    SmartDashboard.putData("Calibrate NavX", new InstantCommand(() -> imu.ahrs.calibrate()));
-
-
     if (IsSwerveDrive) {
       // Driver Bindings
       driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
@@ -296,17 +268,33 @@ public class RobotContainer {
       .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
   }
+
+  private void initAutoChooser() {
+    autoChooser.setDefaultOption("Pickup Cone Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
+    autoChooser.addOption("Hard Carry", () -> SwerveAutos.hardCarryAuto(swerveDrive));
+    autoChooser.addOption("Vending Machine", () -> SwerveAutos.vendingMachine(swerveDrive));
+    autoChooser.addOption("Test auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
+    Shuffleboard.getTab("Autos").add(autoChooser);
+    
+    positionChooser.setDefaultOption("Right", StartPosition.Right);
+    positionChooser.addOption("Left", StartPosition.Left);
+    positionChooser.addOption("Middle", StartPosition.Middle);
+    positionChooser.addOption("Right", StartPosition.Right);
+    Shuffleboard.getTab("Autos").add(positionChooser);
+  }
   
   public void initShuffleboard() {
-    if (!IsSwerveDrive) {
+    imu.initShuffleboard();
+    claw.initShuffleboard();
+    arm.initShuffleboard();
+    coneRunner.initShuffleboard();
+    if (IsSwerveDrive) {
+      swerveDrive.initShuffleboard();
+      swerveDrive.initModuleShuffleboard();
+    } else {
       tankDrive.initShuffleboard();
     }
-    // autoChooser = new SendableChooser<CommandBase>();
-    // autoChooser.setDefaultOption("Hard Carry Auto",
-    // TankAutos.HardCarryAuto(drive, claw, arm));
-    
-    // autoChooser.addOption("Diet Coke Auto",
-    // TankAutos.DietCokeAuto(drive, claw, arm));
+    airCompressor.initShuffleboard();
   }
 
   public void reportAllToSmartDashboard() {

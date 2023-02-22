@@ -6,6 +6,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 import java.util.Arrays;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Reportable;
 import frc.robot.util.NerdyMath;
@@ -427,6 +429,18 @@ public class Limelight implements Reportable{
      */
     public double getDistance(double h1, double h2, double a1, double a2) {
         return (h2 - h1) / Math.abs(Math.tan(Math.toRadians(a1) + Math.toRadians(a2)));
+    }
+
+    public void initShuffleboard() {
+        ShuffleboardTab tab = Shuffleboard.getTab("Limelight");
+
+        tab.addBoolean("HasTarget", this::hasValidTarget);
+        tab.addNumber("Horizontal Offset", this::getXAngle);
+        tab.addNumber("Vertical Offset", this::getYAngle);
+        tab.addNumber("Area", this::getArea);
+        tab.addNumber("Skew", this::getSkew);
+        tab.addString("XCorners", () -> Arrays.toString(getXCorners()));
+        tab.addString("YCorners", () -> Arrays.toString(getYCorners()));
     }
 
     /**
