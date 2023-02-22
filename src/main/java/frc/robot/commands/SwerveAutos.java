@@ -162,8 +162,8 @@ public class SwerveAutos {
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
         return Commands.parallel(
-            new RunCommand(() -> arm.moveArmMotionMagic(elevator.percentExtended.getAsDouble())),
-            new RunCommand(() -> elevator.moveMotionMagic(arm.armAngle.getAsDouble())),
+            new RunCommand(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            new RunCommand(() -> elevator.moveMotionMagic(arm.getArmAngle())),
             new SequentialCommandGroup(
                             // Commands.runOnce(swerveDrive::zeroHeading),
                     new ParallelRaceGroup(
