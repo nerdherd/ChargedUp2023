@@ -155,7 +155,7 @@ public class RobotContainer {
         arm
       ));
     
-    arm.resetEncoder();
+    // arm.resetEncoder();
 
     elevator.setDefaultCommand(
       new RunCommand(
@@ -166,14 +166,14 @@ public class RobotContainer {
         elevator
       ));
 
-    elevator.resetEncoder();
-    elevator.setBrakeMode();
+    // elevator.resetEncoder();
 
     coneRunner.setDefaultCommand(
       Commands.run(() -> {
         coneRunner.joystickAngleControl((operatorController.getR2Axis()+operatorController.getL2Axis())*0.2 / 2);
       }, coneRunner)
     );
+    
 
     coneRunner.resetEncoders();
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
@@ -224,12 +224,12 @@ public class RobotContainer {
     }
 
     
-    // upButton.whileTrue(arm.moveArmStow()) 
-    //   .onFalse(Commands.runOnce(arm::setPowerZero));
-    // leftButton.whileTrue(arm.moveArmScore()) 
-    //   .onFalse(Commands.runOnce(arm::setPowerZero));
-    // downButton.whileTrue(arm.moveArmGround()) 
-    //   .onFalse(Commands.runOnce(arm::setPowerZero));
+    upButton.whileTrue(arm.moveArmStow(elevator.percentExtended.getAsDouble())) 
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    leftButton.whileTrue(arm.moveArmScore(elevator.percentExtended.getAsDouble())) 
+      .onFalse(Commands.runOnce(arm::setPowerZero));
+    downButton.whileTrue(arm.moveArmGround(elevator.percentExtended.getAsDouble())) 
+      .onFalse(Commands.runOnce(arm::setPowerZero));
     
     // operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm.armAngle.getAsDouble()))
     //   .onFalse(Commands.runOnce(elevator::setPowerZero));
@@ -238,7 +238,7 @@ public class RobotContainer {
     // operatorController.cross().whileTrue(elevator.moveElevatorStow(arm.armAngle.getAsDouble()))
     //   .onFalse(Commands.runOnce(elevator::setPowerZero));
   
-    operatorController.share().onTrue(Commands.runOnce(arm::resetEncoder));
+    operatorController.share().onTrue(Commands.runOnce(arm::resetEncoderStow));
     operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
     
     operatorController.triangle()
@@ -310,6 +310,8 @@ public class RobotContainer {
   }
 
   public void reportAllToSmartDashboard() {
+    SmartDashboard.putNumber("Elevator FF", Math.sin(arm.armAngle.getAsDouble()) * ElevatorConstants.kArbitraryFF);
+    SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended.getAsDouble()) * Math.cos(arm.armAngle.getAsDouble()));
     // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
     imu.reportToSmartDashboard();
     claw.reportToSmartDashboard();
@@ -346,10 +348,8 @@ public class RobotContainer {
 
     }
     
-    arm.resetEncoder();
-    arm.setTargetTicks(ArmConstants.kArmStow);
-    elevator.resetEncoder();
-    elevator.setTargetTicks(ElevatorConstants.kElevatorStow);
+    // arm.resetEncoder();
+    // elevator.resetEncoder();
 
     // if (IsSwerveDrive) {
     //   swerveDrive.resetEncoders();

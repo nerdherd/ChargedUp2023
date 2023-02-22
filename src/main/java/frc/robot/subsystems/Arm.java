@@ -37,6 +37,7 @@ public class Arm extends SubsystemBase implements Reportable {
     private PIDController armPID;
     public BooleanSupplier atTargetPosition;
     public DoubleSupplier armAngle;
+    public DoubleSupplier currentPosition;
     private DigitalInput limitSwitch;
 
     public Arm() {
@@ -45,17 +46,12 @@ public class Arm extends SubsystemBase implements Reportable {
         
         // gear ratio 27:1
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
-
+        rotatingArm.setNeutralMode(NeutralMode.Brake);
         // CommandScheduler.getInstance().registerSubsystem(this);
         initShuffleboard();
 
         rotatingArm.setInverted(false);
-        rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
         
-
-        rotatingArm.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
-        rotatingArm.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
-
         SmartDashboard.putNumber("Arm kP", ArmConstants.kArmP);
         SmartDashboard.putNumber("Arm kI", ArmConstants.kArmI);
         SmartDashboard.putNumber("Arm kD", ArmConstants.kArmD);
@@ -64,37 +60,44 @@ public class Arm extends SubsystemBase implements Reportable {
         SmartDashboard.putNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity);
         SmartDashboard.putNumber("Arm Accel", ArmConstants.kArmMotionAcceleration);
 
-
-        atTargetPosition = () -> (NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500));
-        armAngle = () -> (Math.toRadians((ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle));
+        currentPosition = () -> -rotatingArm.getSelectedSensorPosition();
+        atTargetPosition = () -> (NerdyMath.inRange(currentPosition.getAsDouble(), targetTicks - 1500, targetTicks + 1500));
+        armAngle = () -> Math.toRadians(currentPosition.getAsDouble() / ArmConstants.kTicksPerAngle);
     }
 
     public void moveArmJoystick(double currentJoystickOutput, double percentExtended) {
-        // double armTicks = rotatingArm.getSelectedSensorPosition();
+        // double armTicks = currentPosition.getAsDouble();
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
-            if (rotatingArm.getSelectedSensorPosition() >= ArmConstants.kArmStow - 1500) {
-                rotatingArm.set(ControlMode.PercentOutput, -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble()));
-            } else {
-                rotatingArm.set(ControlMode.PercentOutput, 0.40);
-                // rotatingArm.setNeutralMode(NeutralMode.Coast);
-            }
+            
+            rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
-            if (rotatingArm.getSelectedSensorPosition() <= ArmConstants.kArmGround + 1500) {
-                rotatingArm.set(ControlMode.PercentOutput, -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble()));
+            if (limitSwitch.get()) {
+                rotatingArm.set(ControlMode.PercentOutput, 0);
+                
+            } else {
+                rotatingArm.set(ControlMode.PercentOutput, -0.60);
             }
-            rotatingArm.set(ControlMode.PercentOutput, -0.40);
             // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
-            rotatingArm.set(ControlMode.PercentOutput, -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble()));
+            rotatingArm.set(ControlMode.PercentOutput, 0);
             rotatingArm.setNeutralMode(NeutralMode.Brake);
         }
+        SmartDashboard.putNumber("Arm Joystick Input", currentJoystickOutput);
 
     }
 
-    
+    public void moveArmMotionMagicJoystick(double joystickInput, double perentExtended) {
+        targetTicks += joystickInput * ArmConstants.kArmCruiseVelocity / 5;
+        
+        if (targetTicks < ArmConstants.kArmStow) {
+            targetTicks = ArmConstants.kArmStow;
+        }
+
+        moveArmMotionMagic(targetTicks, perentExtended);
+    }
 
     public CommandBase moveArmJoystickCommand(Supplier<Double> joystickInput) {
         return Commands.run(
@@ -111,17 +114,16 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.configMotionCruiseVelocity(SmartDashboard.getNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity));
         rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
-        double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
-        double angleRadians = Math.toRadians(angle);
+        double angleRadians = Math.toRadians(armAngle.getAsDouble());
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(angleRadians);
-        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
+        rotatingArm.set(ControlMode.MotionMagic, -position, DemandType.ArbitraryFeedForward, ff);
         targetTicks = position;
 
         SmartDashboard.putNumber("FF", ff);
 
         SmartDashboard.putBoolean("motion magic :(", true);
 
-        // if (Math.abs(rotatingArm.getSelectedSensorPosition() - position) > 10) {
+        // if (Math.abs(currentPosition.getAsDouble() - position) > 10) {
         //     rotatingArm.setNeutralMode(NeutralMode.Brake);
         // } else {
         //     rotatingArm.setNeutralMode(NeutralMode.Coast);
@@ -138,16 +140,14 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.configMotionCruiseVelocity(SmartDashboard.getNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity));
         rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
-        double angle = (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle;
-        double angleRadians = Math.toRadians(angle);
-        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(angleRadians);
+        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble());
         rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
 
         SmartDashboard.putNumber("FF", ff);
 
         SmartDashboard.putBoolean("motion magic :(", true);
 
-        // if (Math.abs(rotatingArm.getSelectedSensorPosition() - position) > 10) {
+        // if (Math.abs(currentPosition.getAsDouble() - position) > 10) {
         //     rotatingArm.setNeutralMode(NeutralMode.Brake);
         // } else {
         //     rotatingArm.setNeutralMode(NeutralMode.Coast);
@@ -169,23 +169,23 @@ public class Arm extends SubsystemBase implements Reportable {
     @Override
     public void periodic() {}
 
-    public CommandBase moveArmScore() {
+    public CommandBase moveArmScore(double percentExtended) {
         return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmScore), this
+            () -> moveArmMotionMagic(ArmConstants.kArmScore, percentExtended), this
             
         );
     }
 
-    public CommandBase moveArmGround() {
+    public CommandBase moveArmGround(double percentExtended) {
         return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmGround), this
+            () -> moveArmMotionMagic(ArmConstants.kArmGround, percentExtended), this
             
         );
     }
 
-    public CommandBase moveArmStow() {
+    public CommandBase moveArmStow(double percentExtended) {
         return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmStow), this
+            () -> moveArmMotionMagic(ArmConstants.kArmStow, percentExtended), this
    
         );
 
@@ -216,23 +216,23 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
-    public void resetEncoder() {
-        if (limitSwitch.get()) {
-            rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
-        }
+    public void resetEncoderStow() {
+        rotatingArm.setSelectedSensorPosition(-ArmConstants.kArmStow);
     }
     
     private void initShuffleboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Arm");
         
         tab.addBoolean("Arm Extended", () -> armExtended);
-        tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
+        tab.addNumber("Current Arm Ticks", () -> currentPosition.getAsDouble());
         tab.addNumber("Target Arm Ticks", () -> targetTicks);
     }
 
     public void reportToSmartDashboard() {
+        SmartDashboard.putBoolean("Limit switch", limitSwitch.get());
+
         SmartDashboard.putNumber("Arm Motor Output", rotatingArm.getMotorOutputPercent());
-        SmartDashboard.putNumber("Arm Angle", (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
+        SmartDashboard.putNumber("Arm Angle", Math.toDegrees(armAngle.getAsDouble()));
 
         SmartDashboard.putString("Arm Control Mode", rotatingArm.getControlMode().toString());
         // SmartDashboard.putNumber("Closed Loop Target", rotatingArm.getClosedLoopTarget());
@@ -242,7 +242,7 @@ public class Arm extends SubsystemBase implements Reportable {
         SmartDashboard.putNumber("Closed loop error", rotatingArm.getClosedLoopError());
 
         SmartDashboard.putBoolean("Arm Extended", armExtended);
-        SmartDashboard.putNumber("Arm Ticks", rotatingArm.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Arm Ticks", currentPosition.getAsDouble());
         SmartDashboard.putNumber("Target Arm Ticks", targetTicks);
         if (this.getCurrentCommand() != null) {
             SmartDashboard.putBoolean("Arm subsystem", this.getCurrentCommand() == this.getDefaultCommand());
