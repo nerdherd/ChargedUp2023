@@ -70,13 +70,14 @@ public class Arm extends SubsystemBase implements Reportable {
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
             
-            rotatingArm.set(ControlMode.PercentOutput, 0.40);
+            rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
             if (limitSwitch.get()) {
                 rotatingArm.set(ControlMode.PercentOutput, 0);
+                
             } else {
-                rotatingArm.set(ControlMode.PercentOutput, -0.40);
+                rotatingArm.set(ControlMode.PercentOutput, -0.60);
             }
             // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
@@ -207,8 +208,8 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
-    public void resetEncoder() {
-        rotatingArm.setSelectedSensorPosition(0);
+    public void resetEncoderStow() {
+        rotatingArm.setSelectedSensorPosition(-ArmConstants.kArmStow);
     }
     
     private void initShuffleboard() {
@@ -220,6 +221,8 @@ public class Arm extends SubsystemBase implements Reportable {
     }
 
     public void reportToSmartDashboard() {
+        SmartDashboard.putBoolean("Limit switch", limitSwitch.get());
+
         SmartDashboard.putNumber("Arm Motor Output", rotatingArm.getMotorOutputPercent());
         SmartDashboard.putNumber("Arm Angle", Math.toDegrees(armAngle.getAsDouble()));
 
