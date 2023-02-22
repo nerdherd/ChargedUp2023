@@ -110,20 +110,13 @@ public class SwerveAutos {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
-    
-        // Create Actual Trajectory
-        Trajectory fromStartToScore = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(0, 0, new Rotation2d(0)), 
-            List.of(
-            new Translation2d(0 , 0.25),
-            new Translation2d(-.5 , 0.25)),
-            new Pose2d(-.5, 0, new Rotation2d(0)), 
-            trajectoryConfig);
         
         double pickupAngle = 0;
         double chargeYTranslation = 0;
         double pickupXDistance = 0;
         double pickupYDistance = 0;
+
+        Pose2d initialPose = new Pose2d();
 
         if (alliance == Alliance.Red) {
             if (position == StartPosition.RIGHT) position = StartPosition.LEFT;
@@ -136,18 +129,21 @@ public class SwerveAutos {
                 chargeYTranslation = -1.7;
                 pickupXDistance = 4;
                 pickupYDistance = -0.25;
+                initialPose = new Pose2d(1.7, 1, new Rotation2d());
                 break;
             case LEFT:
                 pickupAngle = 10;
                 chargeYTranslation = 1.7;
                 pickupXDistance = 4;
                 pickupYDistance = 0.25;
+                initialPose = new Pose2d(1.7, 4.4, new Rotation2d());
                 break;
             case MIDDLE:
                 pickupAngle = -20;
                 chargeYTranslation = 0;
                 pickupXDistance = 5; // TODO: Measure IRL
                 pickupYDistance = -0.5;
+                initialPose = new Pose2d(1.7, 2.2, new Rotation2d());
                 break;
         }
         
@@ -184,10 +180,6 @@ public class SwerveAutos {
         ProfiledPIDController thetaController = new ProfiledPIDController(
             kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
-    
-        SwerveControllerCommand startToScoreCommand = new SwerveControllerCommand(
-            fromStartToScore, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
-            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
         SwerveControllerCommand scoreToPickupCommand = new SwerveControllerCommand(
             scoreToPickup, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
@@ -201,6 +193,8 @@ public class SwerveAutos {
             scoreToCharge, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
+        final Pose2d initialPoseFinal = initialPose;
+        
         return parallel(
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended.getAsDouble())),
             run(() -> elevator.moveMotionMagic(arm.armAngle.getAsDouble())),
@@ -211,7 +205,7 @@ public class SwerveAutos {
                     waitSeconds(1)               
                 ),
                 runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                runOnce(() -> swerveDrive.resetOdometry(fromStartToScore.getInitialPose())),
+                runOnce(() -> swerveDrive.resetOdometry(initialPoseFinal)),
                 // autoCommand,
                 // new TurnToAngle(180, swerveDrive),
                 runOnce(() -> swerveDrive.stopModules()),
