@@ -88,7 +88,15 @@ public class Arm extends SubsystemBase implements Reportable {
 
     }
 
-    
+    public void moveArmMotionMagicJoystick(double joystickInput, double perentExtended) {
+        targetTicks += joystickInput * ArmConstants.kArmCruiseVelocity / 5;
+        
+        if (targetTicks < ArmConstants.kArmStow) {
+            targetTicks = ArmConstants.kArmStow;
+        }
+
+        moveArmMotionMagic(targetTicks, perentExtended);
+    }
 
     public CommandBase moveArmJoystickCommand(Supplier<Double> joystickInput) {
         return Commands.run(
