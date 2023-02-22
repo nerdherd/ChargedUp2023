@@ -87,16 +87,16 @@ public final class Constants {
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
-    public static final int kArmStow = 350448;//144278;
+    public static final int kArmStow = 357277;//144278;
     public static final int kArmScore = 217987;//596443; // 89744;
-    public static final int kArmGround = 79789;//767054;// 34352;
+    public static final int kArmGround = 97520;//767054;// 34352;
     public static final int kArmPickUp = 0;
-    public static final int kArmMotionAcceleration = 6000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 6000;//18000;//21777;
+    public static final int kArmMotionAcceleration = 12000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 12000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
-    public static final double kArmD = 0.0;
+public static final double kArmD = 0.0;
     public static final double kArmF = 0.047;
     public static final double kStowedFF = 0.069;
     public static final double kExtendedFF = 0.089;
@@ -118,9 +118,9 @@ public final class Constants {
     public static final int kElevatorStow = 0;
     public static final int kElevatorScoreMid = 54500;
     public static final int kElevatorScoreHigh = 74019;
-    public static final int kElevatorMotionAcceleration = 0;
-    public static final int kElevatorCruiseVelocity = 0;
-    public static final double kElevatorP = 0;
+    public static final int kElevatorMotionAcceleration = 6000;
+    public static final int kElevatorCruiseVelocity = 6000;
+    public static final double kElevatorP = 0.1;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
     public static final double kElevatorF = 0;

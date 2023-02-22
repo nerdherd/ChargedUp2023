@@ -169,6 +169,7 @@ public class RobotContainer {
         coneRunner.joystickAngleControl((operatorController.getR2Axis()+operatorController.getL2Axis())*0.2 / 2);
       }, coneRunner)
     );
+    
 
     coneRunner.resetEncoders();
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
@@ -224,7 +225,7 @@ public class RobotContainer {
     // operatorController.cross().whileTrue(elevator.moveElevatorStow(arm.armAngle.getAsDouble()))
     //   .onFalse(Commands.runOnce(elevator::setPowerZero));
   
-    operatorController.share().onTrue(Commands.runOnce(arm::resetEncoder));
+    operatorController.share().onTrue(Commands.runOnce(arm::resetEncoderStow));
     operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
     
     operatorController.triangle()
