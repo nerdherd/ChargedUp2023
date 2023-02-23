@@ -69,10 +69,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     private Claw claw;
     private SwerveDrivetrain drivetrain;
 
-    public VROOOOM(Arm arm, Elevator elevator, Claw claw) {
+    public VROOOOM(Arm arm, Elevator elevator, Claw claw, SwerveDrivetrain drivetrain) {
         this.arm = arm;
         this.elevator = elevator;
         this.claw = claw;
+        this.drivetrain = drivetrain;
 
         // defaults
         goalArea = 0;
