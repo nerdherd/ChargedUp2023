@@ -180,12 +180,24 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 currentLimelight = limelightHigh;
                 rotationIsNeeded = true;
                 goalYaw = 0; // Facing away from drivers, towards substation
+
+                if (currentGameObject == OBJECT_TYPE.CONE) {
+                    goalArea = 0; // Goal area for cone substation pickup
+                } else {
+                    goalArea = 0; // Goal area for cube substation pickup
+                }
                 break;
 
             case LOW:
                 armEnum = 1; // Ground pickup
                 currentLimelight = limelightLow;
                 rotationIsNeeded = false;
+
+                if (currentGameObject == OBJECT_TYPE.CONE) {
+                    goalArea = 0; // Goal area for cone ground pickup
+                } else {
+                    goalArea = 0; // Goal area for cube ground pickup
+                }
                 break;
 
             default:
@@ -199,7 +211,6 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 PIDArea = new PIDController(0, 0, 0);
                 PIDTX = new PIDController(0, 0, 0);
                 PIDYaw = new PIDController(0, 0, 0);
-                goalArea = 0;
                 break;
 
             case CUBE:
@@ -207,7 +218,6 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 PIDArea = new PIDController(0, 0, 0);
                 PIDTX = new PIDController(0, 0, 0);
                 PIDYaw = new PIDController(0, 0, 0);
-                goalArea = 0;
                 break;
         }
         
