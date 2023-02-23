@@ -25,6 +25,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     private Limelight limelightLow;
     private Limelight currentLimelight;
 
+    // Pipelines that should be set on each limelight: cone = 1, cube = 2, tape = 3, tag = 4
+
     public enum OBJECT_TYPE
     {
         CONE,
@@ -41,9 +43,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
     public enum SCORE_POS
     {
-        LOW,
+        LOW, // Can be ground in pickup mode
         MID,
-        HIGH
+        HIGH // Can be substation in pickup mode
     }
 
     private OBJECT_TYPE currentGameObject;
