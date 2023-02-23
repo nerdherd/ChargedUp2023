@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -17,6 +18,7 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Reportable;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.util.NerdyMath;
 
 public class VROOOOM extends SubsystemBase implements Reportable{
@@ -412,6 +414,24 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Vision X speed", xSpeed);
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
+
+    // Mutators
+
+    public CommandBase updateCurrentGameObject(OBJECT_TYPE oType) {
+        return runOnce(
+            () -> {
+                currentGameObject = oType;
+            });
+    }
+
+    public CommandBase updateCurrentHeight(SCORE_POS sPos) {
+        return runOnce(
+            () -> {
+                currentHeightPos = sPos;
+            });
+    }
+
+    // Smartdashboard
 
     @Override
     public void reportToSmartDashboard() {
