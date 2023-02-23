@@ -340,7 +340,12 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     startPos = positionChooser.getSelected();
     scorePos = scoreChooser.getSelected();
-    return autoChooser.getSelected().get();
+    Command currentAuto = autoChooser.getSelected().get();
+    String autoName = currentAuto.getName();
+    if (currentAuto != null) {
+      Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);
+    }
+    return currentAuto;
     // if (IsSwerveDrive)
     //   return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
     // else

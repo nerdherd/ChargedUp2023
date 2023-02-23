@@ -11,7 +11,6 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.ArmConstants;
@@ -26,68 +25,9 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import static frc.robot.Constants.SwerveAutoConstants.*;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
-import java.util.HashMap;
 import java.util.List;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
-
 public class SwerveAutos {
-    public static CommandBase pathplannerAuto(SwerveDrivetrain swerveDrive, Arm arm, Claw claw) {
-        PathPlannerTrajectory testPath = PathPlanner.loadPath(
-            "Test Path", 
-            new PathConstraints(
-                kMaxSpeedMetersPerSecond, 
-                kMaxAccelerationMetersPerSecondSquared));
-        
-        HashMap<String, Command> events = new HashMap<>() {{
-            //put();
-        }};
-
-        SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
-            swerveDrive::getPose, 
-            swerveDrive::resetOdometry, 
-            new PIDConstants(kPXController, kIXController, kDXController), 
-            new PIDConstants(kPThetaController, kIThetaController, kDThetaController), 
-            SwerveDriveConstants.kDriveKinematics::toSwerveModuleStates, 
-            events, 
-            swerveDrive);
-        
-        return autoBuilder.followPathWithEvents(testPath);
-    }
-
-    public static CommandBase translateBy(SwerveDrivetrain swerveDrive, double xTranslation, double yTranslation, double angle) {
-        // Create trajectory settings
-        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
-    
-        // Create Actual Trajectory
-        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(0, 0, new Rotation2d(0)), 
-            List.of(),
-            new Pose2d(xTranslation, yTranslation, new Rotation2d(angle)), 
-            trajectoryConfig);
-        
-        //Create PID Controllers
-        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
-        PIDController yController = new PIDController(kPYController,kIYController, kDYController);
-        ProfiledPIDController thetaController = new ProfiledPIDController(
-            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        SwerveControllerCommand autoCommand = new SwerveControllerCommand(
-            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
-            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
-        
-        return sequence(
-            autoCommand,
-            runOnce(swerveDrive::stopModules, swerveDrive)
-        );
-    }
-
     public enum StartPosition {
         LEFT,
         RIGHT,
@@ -116,8 +56,6 @@ public class SwerveAutos {
         double pickupXDistance = 0;
         double pickupYDistance = 0;
 
-        Pose2d initialPose = new Pose2d();
-
         if (alliance == Alliance.Red) {
             if (position == StartPosition.RIGHT) position = StartPosition.LEFT;
             if (position == StartPosition.LEFT) position = StartPosition.RIGHT;
@@ -129,21 +67,18 @@ public class SwerveAutos {
                 chargeYTranslation = -1.7;
                 pickupXDistance = 4;
                 pickupYDistance = -0.25;
-                initialPose = new Pose2d(1.7, 1, new Rotation2d());
                 break;
             case LEFT:
                 pickupAngle = 10;
                 chargeYTranslation = 1.7;
                 pickupXDistance = 4;
                 pickupYDistance = 0.25;
-                initialPose = new Pose2d(1.7, 4.4, new Rotation2d());
                 break;
             case MIDDLE:
                 pickupAngle = -20;
                 chargeYTranslation = 0;
                 pickupXDistance = 5; // TODO: Measure IRL
                 pickupYDistance = -0.5;
-                initialPose = new Pose2d(1.7, 2.2, new Rotation2d());
                 break;
         }
         
@@ -193,8 +128,6 @@ public class SwerveAutos {
             scoreToCharge, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
-        final Pose2d initialPoseFinal = initialPose;
-        
         return parallel(
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended.getAsDouble())),
             run(() -> elevator.moveMotionMagic(arm.armAngle.getAsDouble())),
@@ -205,7 +138,7 @@ public class SwerveAutos {
                     waitSeconds(1)               
                 ),
                 runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                runOnce(() -> swerveDrive.resetOdometry(initialPoseFinal)),
+                runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
                 // autoCommand,
                 // new TurnToAngle(180, swerveDrive),
                 runOnce(() -> swerveDrive.stopModules()),
