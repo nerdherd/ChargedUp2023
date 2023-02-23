@@ -87,24 +87,24 @@ public final class Constants {
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
-    public static final int kArmStow = 432840;//144278;
-    public static final int kArmScore = 596443; // 89744;
-    public static final int kArmGround = 767054;// 34352;
+    public static final int kArmStow = 357277;//144278;
+    public static final int kArmScore = 217987;//596443; // 89744;
+    public static final int kArmGround = 97520;//767054;// 34352;
     public static final int kArmPickUp = 0;
-    public static final int kArmMotionAcceleration = 800000; //160000;
-    public static final int kArmCruiseVelocity = 18000;//21777;
+    public static final int kArmMotionAcceleration = 12000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 12000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
-    public static final double kArmP = 0.5;
+    public static final double kArmP = 0.1;
     public static final double kArmI = 0;
-    public static final double kArmD = 0.01;
-    public static final double kArmF = 0.048;
-    public static final double kStowedFF = 0.07;
-    public static final double kExtendedFF = 0;
+public static final double kArmD = 0.0;
+    public static final double kArmF = 0.047;
+    public static final double kStowedFF = 0.069;
+    public static final double kExtendedFF = 0.089;
     public static final double kDiffFF = kExtendedFF - kStowedFF;
     public static final int kPistonForwardID = 5;
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kTicksPerAngle = 6441;
+    public static final double kTicksPerAngle = 5215;
     public static final int kLimitSwitchID = 0;
 
 
@@ -116,15 +116,15 @@ public final class Constants {
   public static class ElevatorConstants{
     public static final int kElevatorID = 18;
     public static final int kElevatorStow = 0;
-    public static final int kElevatorScoreMid = 0;
-    public static final int kElevatorScoreHigh = 0;
-    public static final int kElevatorMotionAcceleration = 0;
-    public static final int kElevatorCruiseVelocity = 0;
-    public static final double kElevatorP = 0;
+    public static final int kElevatorScoreMid = 54500;
+    public static final int kElevatorScoreHigh = 74019;
+    public static final int kElevatorMotionAcceleration = 6000;
+    public static final int kElevatorCruiseVelocity = 6000;
+    public static final double kElevatorP = 0.1;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
     public static final double kElevatorF = 0;
-    public static final double kArbitraryFF = 0;
+    public static final double kArbitraryFF = 0.085;
     public static final double kElevatorDeadband = 0.05;
     public static final double kJoystickMultiplier = 1;
     public static final double kTicksPerAngle = 0;
@@ -177,12 +177,24 @@ public final class Constants {
     public static final double kWheelBase = Units.inchesToMeters(21);       // verify
     // Distance between front and back wheels
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-      new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+      new Translation2d(kWheelBase / 2, -kTrackWidth / 2), // TODO: This should be front right not front left
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
     
-    public static final double kRotationOffset = 2*kTrackWidth;
+    public static final double kDodgeDistance = Units.inchesToMeters(12);
+    
+    public static final Translation2d[] kRotationCenters = new Translation2d[] {
+      new Translation2d(kDodgeDistance, -kDodgeDistance),  // FL
+      new Translation2d(kDodgeDistance, kDodgeDistance),   // FR
+      new Translation2d(-kDodgeDistance, -kDodgeDistance), // BL
+      new Translation2d(-kDodgeDistance, kDodgeDistance)   // BR
+    };
+    
+    public static final int[] kLeftRotationCenters = new int[] {0, 1, 3, 2};
+    public static final int[] kRightRotationCenters = new int[] {1, 3, 2, 0};
+
+    public static final double kRotationOffset = 0.5 * kTrackWidth;
 
     public static final int kFRDriveID = 11;
     public static final int kFLDriveID = 21;
@@ -275,7 +287,6 @@ public final class Constants {
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
     };
-    public static final double kDodgeDistance = kTrackWidth * 2;
   }
 
   public static final class SwerveAutoConstants {

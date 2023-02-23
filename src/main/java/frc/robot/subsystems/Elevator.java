@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.spi.CurrencyNameProvider;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -13,6 +14,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -26,16 +29,19 @@ public class Elevator extends SubsystemBase implements Reportable{
   private int targetTicks;
   public BooleanSupplier atTargetPosition;
   public DoubleSupplier percentExtended;
+  public DoubleSupplier currentPosition;
   // private DigitalInput limitSwitch;
 
   /** Creates a new Elevator. */
   public Elevator() {
     elevator = new TalonFX(ElevatorConstants.kElevatorID);
-    elevator.setInverted(false);
-    atTargetPosition = () -> (NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500));
+    elevator.setNeutralMode(NeutralMode.Brake);
+    elevator.setInverted(true);
+    currentPosition = () -> -elevator.getSelectedSensorPosition();
+    atTargetPosition = () -> (NerdyMath.inRange(currentPosition.getAsDouble(), targetTicks - 1500, targetTicks + 1500));
     // limitSwitch = new DigitalInput(ElevatorConstants.kLimitSwitchID);
 
-    percentExtended = () -> (elevator.getSelectedSensorPosition() / (ElevatorConstants.kElevatorScoreHigh + 1500));
+    percentExtended = () -> (currentPosition.getAsDouble() / (ElevatorConstants.kElevatorScoreHigh + 1500));
     SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
     SmartDashboard.putNumber("Elevator kI", ElevatorConstants.kElevatorI);
     SmartDashboard.putNumber("Elevator kD", ElevatorConstants.kElevatorD);
@@ -48,28 +54,17 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
     setBrakeMode();
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
-          if (percentExtended.getAsDouble() >= 100) {
-            elevator.set(ControlMode.PercentOutput, -ElevatorConstants.kArbitraryFF * Math.sin(angle));
-          } else {
             elevator.set(ControlMode.PercentOutput, 0.40);
             // elevator.setNeutralMode(NeutralMode.Coast);
-          }//((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
+          //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
-          if (percentExtended.getAsDouble() <= 0) {
-            elevator.set(ControlMode.PercentOutput, 0);
-          } else {
-            elevator.set(ControlMode.PercentOutput, -0.40);
+          elevator.set(ControlMode.PercentOutput, -0.40);
             // elevator.setNeutralMode(NeutralMode.Coast);
-          }
+      
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
           // if (limitSwitch.get()) {
-          if (percentExtended.getAsDouble() <= 0){
-            elevator.set(ControlMode.PercentOutput, 0);
-          } else {
-            elevator.set(ControlMode.PercentOutput, -ElevatorConstants.kArbitraryFF * Math.sin(angle));
-
-          }
+          elevator.set(ControlMode.PercentOutput, 0);
           
         }
 
@@ -146,9 +141,21 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void reportToSmartDashboard() {
     SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
     SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
-    SmartDashboard.putNumber("Elevator Current Ticks", elevator.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Elevator Current Ticks", currentPosition.getAsDouble());
     SmartDashboard.putNumber("Elevator Target Ticks", targetTicks);
     SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
+    SmartDashboard.putNumber("Elevator Percent Extended", percentExtended.getAsDouble());
+  }
+
+  public void initShuffleboard() {
+    ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
+
+    tab.addNumber("Elevator Motor Output", () -> elevator.getMotorOutputPercent());
+    tab.addNumber("Elevator Current", () -> elevator.getStatorCurrent());
+    tab.addNumber("Elevator Current Ticks", () -> elevator.getSelectedSensorPosition());
+    tab.addNumber("Elevator Target Ticks", () -> targetTicks);
+    tab.addNumber("Elevator Current Velocity", () -> elevator.getSelectedSensorVelocity());
+    tab.addNumber("Elevator Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
   }
 }

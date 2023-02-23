@@ -111,6 +111,10 @@ public class Vision extends SubsystemBase implements Reportable{
 
     }
 
+    //TODO: Add shuffleboard for vision
+    public void initShuffleboard() {
+
+    }
 
     public void reportToSmartDashboard() {
 
