@@ -266,17 +266,17 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         ChassisSpeeds chassisSpeeds;
 
-        SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
+        SmartDashboard.putBoolean("Vision has target", currentLimelight.hasValidTarget());
 
-        if(!limelightLow.hasValidTarget()) {
+        if(!currentLimelight.hasValidTarget()) {
             chassisSpeeds = new ChassisSpeeds(0, 0, 0);
             SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
             drivetrain.setModuleStates(moduleStates);
             currentCameraMode = CAMERA_MODE.WAIT;
         }
         else {
-            double calculatedX = getAvgArea(limelightLow.getArea_avg());
-            double calculatedY = getAvgTX(limelightLow.getXAngle_avg());
+            double calculatedX = getAvgArea(currentLimelight.getArea_avg());
+            double calculatedY = getAvgTX(currentLimelight.getXAngle_avg());
             SmartDashboard.putNumber("Vision average X", calculatedX);
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
@@ -316,17 +316,17 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         ChassisSpeeds chassisSpeeds;
 
-        SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
+        SmartDashboard.putBoolean("Vision has target", currentLimelight.hasValidTarget());
 
-        if(!limelightLow.hasValidTarget()) {
+        if(!currentLimelight.hasValidTarget()) {
             chassisSpeeds = new ChassisSpeeds(0, 0, 0);
             SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
             drivetrain.setModuleStates(moduleStates);
             currentCameraMode = CAMERA_MODE.WAIT;
         }
         else {
-            double calculatedX = getAvgArea(limelightLow.getArea_avg());
-            double calculatedY = getAvgTX(limelightLow.getXAngle_avg());
+            double calculatedX = getAvgArea(currentLimelight.getArea_avg());
+            double calculatedY = getAvgTX(currentLimelight.getXAngle_avg());
             SmartDashboard.putNumber("Vision average X", calculatedX);
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
