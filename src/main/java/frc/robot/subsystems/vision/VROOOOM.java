@@ -243,12 +243,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         InstantCommand init = new InstantCommand(() -> initVisionCommands());
 
         return new SequentialCommandGroup(
+            new InstantCommand(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
             init,
             // Move arm and elevator to arm enum position
             // Open claw/Start claw intake rollers
-            currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(30) // Timeout after 30 seconds
+            currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(30), // Timeout after 30 seconds
             // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
             // Stow arm/elev
+            new InstantCommand(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
         );
     }
 
@@ -305,14 +307,16 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         InstantCommand init = new InstantCommand(() -> initVisionCommands());
 
         return new SequentialCommandGroup(
+            new InstantCommand(() -> SmartDashboard.putBoolean("Vision Score Running", true)),
             init,
             // Stow arm
-            currentVisionRunCommand
+            currentVisionRunCommand,
             // Arm to arm enum position
             // Open claw/eject piece with rollers
             // Wait 1 second
             // Stow arm
             // Close claw/stop rollers
+            new InstantCommand(() -> SmartDashboard.putBoolean("Vision Score Running", false))
         );
     }
 
