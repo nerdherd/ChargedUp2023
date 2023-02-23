@@ -245,11 +245,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     }
 
     public SequentialCommandGroup VisionScore() {
-        // PLACEHOLDERS
+        // PLACEHOLDER
         int armEnum;
-        PIDController PIDArea;
-        PIDController PIDTX;
-        PIDController PIDYaw;
 
         rotationIsNeeded = true;
         goalYaw = 180; // All scoring is facing towards our drivers
@@ -286,8 +283,25 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 break;
         }
 
+        // Had to declare both RunCommands in advance because syntax errors would appear if they weren't
+        RunCommand driveRotateToTargetRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
+        RunCommand driveToTargetRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
+        RunCommand currentVisionRunCommand;
+
+        if (rotationIsNeeded) {
+            currentVisionRunCommand = driveRotateToTargetRunCommand;
+        } else {
+            currentVisionRunCommand = driveToTargetRunCommand;
+        }
+
         return new SequentialCommandGroup(
-                
+            // Stow arm
+            currentVisionRunCommand
+            // Arm to arm enum position
+            // Open claw/eject piece with rollers
+            // Wait 1 second
+            // Stow arm
+            // Close claw/stop rollers
         );
     }
 
