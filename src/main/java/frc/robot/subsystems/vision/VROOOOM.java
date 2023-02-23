@@ -7,7 +7,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
@@ -53,6 +54,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     private double goalYaw;
     private boolean rotationIsNeeded;
     public BooleanSupplier cameraStatusSupplier;
+
+    // Current PID Controllers
+    private PIDController PIDArea = new PIDController(0, 0, 0);
+    private PIDController PIDTX = new PIDController(0, 0, 0);
+    private PIDController PIDYaw = new PIDController(0, 0, 0);
     
     private Arm arm;
     private Elevator elevator;
@@ -166,11 +172,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     }
 
     public SequentialCommandGroup VisionPickup() {
-        // PLACEHOLDERS
+        // PLACEHOLDER
         int armEnum;
-        PIDController PIDArea;
-        PIDController PIDTX;
-        PIDController PIDYaw;
 
         rotationIsNeeded = false; // Reset rotation variable
 
@@ -220,14 +223,28 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 PIDYaw = new PIDController(0, 0, 0);
                 break;
         }
-        
+
+        // Had to declare both RunCommands in advance because syntax errors would appear if they weren't
+        RunCommand driveRotateToTargetRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
+        RunCommand driveToTargetRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
+        RunCommand currentVisionRunCommand;
+
+        if (rotationIsNeeded) {
+            currentVisionRunCommand = driveRotateToTargetRunCommand;
+        } else {
+            currentVisionRunCommand = driveToTargetRunCommand;
+        }
+
         return new SequentialCommandGroup(
-            // GotoTarget()
-            // Arm.gotoSetPos()
+            // Move arm and elevator to arm enum position
+            // Open claw/Start claw intake rollers
+            currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(30) // Timeout after 30 seconds
+            // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+            // Stow arm/elev
         );
     }
 
-    public CommandBase VisionScore() {
+    public SequentialCommandGroup VisionScore() {
         // PLACEHOLDERS
         int armEnum;
         PIDController PIDArea;
