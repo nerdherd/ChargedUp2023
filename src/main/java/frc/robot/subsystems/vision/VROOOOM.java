@@ -51,6 +51,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     private CAMERA_MODE currentCameraMode;
     private double goalArea;
     private double goalTX;
+    private double goalYaw;
     public BooleanSupplier cameraStatusSupplier;
     
     private Arm arm;
@@ -64,6 +65,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         this.claw = claw;
 
         // defaults
+        goalArea = 0;
+        goalTX = 0;
+        goalYaw = 0;
         currentGameObject = OBJECT_TYPE.CONE;
         currentHeightPos = SCORE_POS.HIGH;
         currentCameraMode = CAMERA_MODE.IDLE;
@@ -251,7 +255,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         );
     }
 
-    public void skrttttToTarget(PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
+    public void driveRotateToTarget(PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
         // Initialize all variables to 0
         double xSpeed = 0;
         double ySpeed = 0;
@@ -271,15 +275,65 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             currentCameraMode = CAMERA_MODE.WAIT;
         }
         else {
-            double calculatedX = getAvgArea(limelightLow.getArea_avg());// watching pv-area
-            double calculatedY = getAvgTX(limelightLow.getXAngle_avg());// watching pv-yaw
-            SmartDashboard.putNumber("Vision average X", calculatedX);// watching
-            SmartDashboard.putNumber("Vision average Y", calculatedY);// watching
+            double calculatedX = getAvgArea(limelightLow.getArea_avg());
+            double calculatedY = getAvgTX(limelightLow.getXAngle_avg());
+            SmartDashboard.putNumber("Vision average X", calculatedX);
+            SmartDashboard.putNumber("Vision average Y", calculatedY);
 
             xSpeed = pidArea.calculate(calculatedX, goalArea);
-            ySpeed = -pidTX.calculate(calculatedY, 0);
+            ySpeed = -pidTX.calculate(calculatedY, goalTX);
+            rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
             
-            if(NerdyMath.inRange(xSpeed, -.1, .1) &&
+            if (NerdyMath.inRange(xSpeed, -.1, .1) &&
+            NerdyMath.inRange(ySpeed, -.1, .1) &&
+            NerdyMath.inRange(rotationSpeed, -.1, .1))
+            {
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ARRIVED; 
+            }
+            else{
+                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ACTION;
+            }
+        }
+        
+        SmartDashboard.putString("Vision status", currentCameraMode.toString());
+        SmartDashboard.putNumber("Vision X speed", xSpeed);
+        SmartDashboard.putNumber("Vision Y speed", ySpeed);
+    }
+
+    public void skrttttToTarget(PIDController pidArea, PIDController pidTX) {
+        // Initialize all variables to 0
+        double xSpeed = 0;
+        double ySpeed = 0;
+
+        if (currentLimelight == null)
+            return;
+
+        ChassisSpeeds chassisSpeeds;
+
+        SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
+
+        if(!limelightLow.hasValidTarget()) {
+            chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+            SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+            drivetrain.setModuleStates(moduleStates);
+            currentCameraMode = CAMERA_MODE.WAIT;
+        }
+        else {
+            double calculatedX = getAvgArea(limelightLow.getArea_avg());
+            double calculatedY = getAvgTX(limelightLow.getXAngle_avg());
+            SmartDashboard.putNumber("Vision average X", calculatedX);
+            SmartDashboard.putNumber("Vision average Y", calculatedY);
+
+            xSpeed = pidArea.calculate(calculatedX, goalArea);
+            ySpeed = -pidTX.calculate(calculatedY, goalTX);
+            
+            if (NerdyMath.inRange(xSpeed, -.1, .1) &&
             NerdyMath.inRange(ySpeed, -.1, .1))
             {
                 chassisSpeeds = new ChassisSpeeds(0, 0, 0);
@@ -296,8 +350,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         }
         
         SmartDashboard.putString("Vision status", currentCameraMode.toString());
-        SmartDashboard.putNumber("Vision X speed", xSpeed);// watching
-        SmartDashboard.putNumber("Vision Y speed", ySpeed);// watching
+        SmartDashboard.putNumber("Vision X speed", xSpeed);
+        SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
 
 
@@ -309,12 +363,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
     @Override
     public void reportToSmartDashboard() {
-        
     }
 
     @Override
     public void initShuffleboard() {
-        // TODO Auto-generated method stub
-        
     }
 }
