@@ -190,7 +190,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 goalYaw = 0; // Facing away from drivers, towards substation
 
                 if (currentGameObject == OBJECT_TYPE.CONE) {
-                    goalArea = 0; // Goal area for cone substation pickup
+                    goalArea = 21; // Goal area for cone substation pickup, area is an estimate because a different camera position was used, updated 2/23/2023
                 } else {
                     goalArea = 0; // Goal area for cube substation pickup
                 }
@@ -202,7 +202,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 rotationIsNeeded = false;
 
                 if (currentGameObject == OBJECT_TYPE.CONE) {
-                    goalArea = 0; // Goal area for cone ground pickup
+                    goalArea = 21; // Goal area for cone ground pickup, area is an estimate because a different camera position was used, updated 2/23/2023
                 } else {
                     goalArea = 0; // Goal area for cube ground pickup
                 }
@@ -216,15 +216,15 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         switch(currentGameObject) {
             case CONE:
                 currentLimelight.setPipeline(1);
-                PIDArea = new PIDController(0, 0, 0);
-                PIDTX = new PIDController(0, 0, 0);
+                PIDArea = new PIDController(0.05, 0.005, 0); // Correct PID as of 2/23/2023
+                PIDTX = new PIDController(0.24, 0, 0);
                 PIDYaw = new PIDController(0, 0, 0);
                 break;
 
             case CUBE:
                 currentLimelight.setPipeline(2);
-                PIDArea = new PIDController(0, 0, 0);
-                PIDTX = new PIDController(0, 0, 0);
+                PIDArea = new PIDController(0.05, 0.005, 0); // PID coppied from cone (above) as of 2/23/2023
+                PIDTX = new PIDController(0.24, 0, 0);
                 PIDYaw = new PIDController(0, 0, 0);
                 break;
         }
@@ -264,18 +264,20 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         switch(currentGameObject) {
             case CONE:
                 currentLimelight = limelightHigh;
-                currentLimelight.setPipeline(3);
-                PIDArea = new PIDController(0, 0, 0);
-                PIDTX = new PIDController(0, 0, 0);
-                PIDYaw = new PIDController(0, 0, 0);
+                currentLimelight.setPipeline(3); // Tape pipeline
+                PIDArea = new PIDController(7, 0, 0); // NOT SURE IF CORRECT, Updated 2/23/2023
+                PIDTX = new PIDController(0.1, 0, 0);
+                PIDYaw = new PIDController(0.1, 0, 0);
+                goalArea = 0.15; // Unsure if correct, updated 2/23/2023
                 break;
 
             case CUBE:
                 currentLimelight = limelightLow;
-                currentLimelight.setPipeline(4);
-                PIDArea = new PIDController(0, 0, 0);
-                PIDTX = new PIDController(0, 0, 0);
-                PIDYaw = new PIDController(0, 0, 0);
+                currentLimelight.setPipeline(4); // April tag pipeline
+                PIDArea = new PIDController(1, 0, 0); // Correct PID as of 2/23/2023
+                PIDTX = new PIDController(0.08, 0, .01);
+                PIDYaw = new PIDController(0.1, 0, 0);
+                goalArea = 2; // April tag target area, unsure if correct, updated 2/23/2023
                 break;
         }
 
