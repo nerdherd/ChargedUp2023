@@ -237,7 +237,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             currentVisionRunCommand = driveToTargetRunCommand;
         }
 
+        InstantCommand init = new InstantCommand(() -> initVisionCommands());
+
         return new SequentialCommandGroup(
+            init,
             // Move arm and elevator to arm enum position
             // Open claw/Start claw intake rollers
             currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(30) // Timeout after 30 seconds
@@ -296,7 +299,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             currentVisionRunCommand = driveToTargetRunCommand;
         }
 
+        InstantCommand init = new InstantCommand(() -> initVisionCommands());
+
         return new SequentialCommandGroup(
+            init,
             // Stow arm
             currentVisionRunCommand
             // Arm to arm enum position
