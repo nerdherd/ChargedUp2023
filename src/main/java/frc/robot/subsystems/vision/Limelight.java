@@ -21,6 +21,7 @@ public class Limelight implements Reportable{
     private NetworkTableEntry tx;
     private NetworkTableEntry ty;
     private NetworkTableEntry ta;
+    private String name = "";
 
     private double tXList[] = new double[10];
     private double tAList[] = new double[10];
@@ -130,11 +131,16 @@ public class Limelight implements Reportable{
         reinitBuffer(); // need to reset everytime change pipeline
 
         table = NetworkTableInstance.getDefault().getTable(keyN);
+        this.name = keyN;
 
         tx = table.getEntry("tx");
         ty = table.getEntry("ty");
         ta = table.getEntry("ta");
         setLightState(LIGHT_OFF);
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void reinitBuffer()

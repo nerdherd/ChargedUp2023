@@ -354,15 +354,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
 
-
-
-
-
-
-
-
     @Override
     public void reportToSmartDashboard() {
+        SmartDashboard.putString("Vision Current Object", currentGameObject.toString());
+        SmartDashboard.putString("Vision Current Limelight", currentLimelight.getName());
+        SmartDashboard.putString("Vision Current Height", currentHeightPos.toString());
     }
 
     @Override
