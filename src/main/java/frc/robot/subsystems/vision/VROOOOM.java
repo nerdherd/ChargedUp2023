@@ -3,12 +3,21 @@ package frc.robot.subsystems.vision;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.commands.SwerveDriveBy;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Reportable;
+import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.util.NerdyMath;
 
 public class VROOOOM extends SubsystemBase implements Reportable{
 
@@ -40,10 +49,20 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     private OBJECT_TYPE currentGameObject;
     private SCORE_POS currentHeightPos;
     private CAMERA_MODE currentCameraMode;
+    private double goalArea;
+    private double goalTX;
     public BooleanSupplier cameraStatusSupplier;
     
+    private Arm arm;
+    private Elevator elevator;
+    private Claw claw;
+    private SwerveDrivetrain drivetrain;
 
-    public VROOOOM() {
+    public VROOOOM(Arm arm, Elevator elevator, Claw claw) {
+        this.arm = arm;
+        this.elevator = elevator;
+        this.claw = claw;
+
         // defaults
         currentGameObject = OBJECT_TYPE.CONE;
         currentHeightPos = SCORE_POS.HIGH;
@@ -170,6 +189,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 PIDArea = new PIDController(0, 0, 0);
                 PIDTX = new PIDController(0, 0, 0);
                 PIDYaw = new PIDController(0, 0, 0);
+                goalArea = 0;
                 break;
 
             case CUBE:
@@ -177,6 +197,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 PIDArea = new PIDController(0, 0, 0);
                 PIDTX = new PIDController(0, 0, 0);
                 PIDYaw = new PIDController(0, 0, 0);
+                goalArea = 0;
                 break;
         }
         
@@ -230,7 +251,54 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         );
     }
 
+    public void skrttttToTarget(PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
+        // Initialize all variables to 0
+        double xSpeed = 0;
+        double ySpeed = 0;
+        double rotationSpeed = 0;
 
+        if (currentLimelight == null)
+            return;
+
+        ChassisSpeeds chassisSpeeds;
+
+        SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
+
+        if(!limelightLow.hasValidTarget()) {
+            chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+            SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+            drivetrain.setModuleStates(moduleStates);
+            currentCameraMode = CAMERA_MODE.WAIT;
+        }
+        else {
+            double calculatedX = getAvgArea(limelightLow.getArea_avg());// watching pv-area
+            double calculatedY = getAvgTX(limelightLow.getXAngle_avg());// watching pv-yaw
+            SmartDashboard.putNumber("Vision average X", calculatedX);// watching
+            SmartDashboard.putNumber("Vision average Y", calculatedY);// watching
+
+            xSpeed = pidArea.calculate(calculatedX, goalArea);
+            ySpeed = -pidTX.calculate(calculatedY, 0);
+            
+            if(NerdyMath.inRange(xSpeed, -.1, .1) &&
+            NerdyMath.inRange(ySpeed, -.1, .1))
+            {
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ARRIVED; 
+            }
+            else{
+                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ACTION;
+            }
+        }
+        
+        SmartDashboard.putString("Vision status", currentCameraMode.toString());
+        SmartDashboard.putNumber("Vision X speed", xSpeed);// watching
+        SmartDashboard.putNumber("Vision Y speed", ySpeed);// watching
+    }
 
 
 
@@ -242,6 +310,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     @Override
     public void reportToSmartDashboard() {
         
+    }
+
+    @Override
+    public void initShuffleboard() {
+        // TODO Auto-generated method stub
         
     }
 }
