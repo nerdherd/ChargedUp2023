@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
-import frc.robot.commands.SwerveDriveBy;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -52,6 +51,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     private double goalArea;
     private double goalTX;
     private double goalYaw;
+    private boolean rotationIsNeeded;
     public BooleanSupplier cameraStatusSupplier;
     
     private Arm arm;
@@ -68,6 +68,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         goalArea = 0;
         goalTX = 0;
         goalYaw = 0;
+        rotationIsNeeded = false;
         currentGameObject = OBJECT_TYPE.CONE;
         currentHeightPos = SCORE_POS.HIGH;
         currentCameraMode = CAMERA_MODE.IDLE;
@@ -171,15 +172,20 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         PIDController PIDTX;
         PIDController PIDYaw;
 
+        rotationIsNeeded = false; // Reset rotation variable
+
         switch(currentHeightPos) {
             case HIGH:
                 armEnum = 0; // Pickup substation
                 currentLimelight = limelightHigh;
+                rotationIsNeeded = true;
+                goalYaw = 0; // Facing away from drivers, towards substation
                 break;
 
             case LOW:
                 armEnum = 1; // Ground pickup
                 currentLimelight = limelightLow;
+                rotationIsNeeded = false;
                 break;
 
             default:
@@ -217,6 +223,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         PIDController PIDArea;
         PIDController PIDTX;
         PIDController PIDYaw;
+
+        rotationIsNeeded = true;
+        goalYaw = 180; // All scoring is facing towards our drivers
 
         switch(currentGameObject) {
             case CONE:

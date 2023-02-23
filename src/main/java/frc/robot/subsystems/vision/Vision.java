@@ -427,24 +427,4 @@ public class Vision extends SubsystemBase implements Reportable{
             listRobotX_idx = 0;
             listRobotY_idx = 0;
     }
-
-    public SequentialCommandGroup VisionPickup() {
-        if(currentGameObject == OBJECT_TYPE.CONE) {
-            return new SequentialCommandGroup(
-                
-            );
-        }
-        else {
-
-        }
-    }
-
-    public CommandBase VisionScore() {
-        if(currentGameObject == OBJECT_TYPE.CONE) {
-
-        }
-        else {
-
-        }
-    }
 }
