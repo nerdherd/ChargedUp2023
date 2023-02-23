@@ -315,6 +315,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
 
+    // Drive to target without rotation
     public void skrttttToTarget(PIDController pidArea, PIDController pidTX) {
         // Initialize all variables to 0
         double xSpeed = 0;
