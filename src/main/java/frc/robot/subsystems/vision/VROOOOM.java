@@ -21,6 +21,11 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.util.NerdyMath;
 
+// Subsystem integration notes from Ayaka
+// arm.movearmmotionmagic(ticks, elevator.percentextended)
+// elevator.movemotionmagic(ticks, arm.getarmangle)
+// claw negative is intake at 30%
+
 public class VROOOOM extends SubsystemBase implements Reportable{
 
     private Limelight limelightHigh;
