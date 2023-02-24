@@ -170,7 +170,11 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
-    
+    public CommandBase moveArm(int ticks, Supplier<Double> percentExtendedSupplier) {
+        return Commands.run(
+            () -> moveArmMotionMagic(ticks, percentExtendedSupplier.get()), this
+        );
+    }
 
     public CommandBase moveArmScore(double percentExtended) {
         return Commands.run(
@@ -179,11 +183,19 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
+    public CommandBase moveArmScore(Supplier<Double> percentExtendedSupplier) {
+        return moveArm(ArmConstants.kArmScore, percentExtendedSupplier);
+    }
+
     public CommandBase moveArmGround(double percentExtended) {
         return Commands.run(
             () -> moveArmMotionMagic(ArmConstants.kArmGroundPickup, percentExtended), this
             
         );
+    }
+
+    public CommandBase moveArmGround(Supplier<Double> percentExtendedSupplier) {
+        return moveArm(ArmConstants.kArmGroundPickup, percentExtendedSupplier);
     }
 
     public CommandBase moveArmStow(double percentExtended) {
@@ -194,11 +206,23 @@ public class Arm extends SubsystemBase implements Reportable {
 
     }
 
-    public CommandBase moveArmPickUp() {
+    public CommandBase moveArmStow(Supplier<Double> percentExtendedSupplier) {
+        return moveArm(ArmConstants.kArmStow, percentExtendedSupplier);
+    }
+
+    /**
+     *  Same as {@link #moveArmGround}?
+     * 
+    **/
+    public CommandBase moveArmPickUp(double percentExtended) {
         return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmGroundPickup), this
+            () -> moveArmMotionMagic(ArmConstants.kArmGroundPickup, percentExtended), this
             
         );
+    }
+
+    public CommandBase moveArmPickup(Supplier<Double> percentExtendedSupplier) {
+        return moveArm(ArmConstants.kArmGroundPickup, percentExtendedSupplier);
     }
 
     public double getArmAngle() {

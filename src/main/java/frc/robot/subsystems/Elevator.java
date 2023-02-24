@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import java.util.spi.CurrencyNameProvider;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -102,22 +103,40 @@ public class Elevator extends SubsystemBase implements Reportable{
       );
   }
 
+  public CommandBase moveElevator(int ticks, Supplier<Double> angleSupplier) {
+    return Commands.run(
+      () -> moveMotionMagic(ticks, angleSupplier.get()), this
+    );
+  }
+
   public CommandBase moveElevatorMid(double angle) {
     return Commands.run(
       () -> moveMotionMagic(ElevatorConstants.kElevatorScoreMid, angle), this
     );
   }
   
+  public CommandBase moveElevatorMid(Supplier<Double> angleSupplier) {
+    return moveElevator(ElevatorConstants.kElevatorScoreMid, angleSupplier);
+  }
+
   public CommandBase moveElevatorHigh(double angle) {
     return Commands.run(
       () -> moveMotionMagic(ElevatorConstants.kElevatorScoreHigh, angle), this
     );
+  }
+
+  public CommandBase moveElevatorHigh(Supplier<Double> angleSupplier) {
+    return moveElevator(ElevatorConstants.kElevatorScoreHigh, angleSupplier);
   }
   
   public CommandBase moveElevatorStow(double angle) {
     return Commands.run(
       () -> moveMotionMagic(ElevatorConstants.kElevatorStow, angle), this
     );
+  }
+
+  public CommandBase moveElevatorStow(Supplier<Double> angleSupplier) {
+    return moveElevator(ElevatorConstants.kElevatorStow, angleSupplier);
   }
 
   public double percentExtended() {

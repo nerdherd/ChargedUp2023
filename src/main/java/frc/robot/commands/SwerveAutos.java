@@ -20,6 +20,7 @@ import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 import static frc.robot.Constants.SwerveAutoConstants.*;
@@ -46,7 +47,7 @@ public class SwerveAutos {
      * @param swerveDrive
      * @return
      */
-    public static CommandBase onePieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition position, Alliance alliance) {
+    public static CommandBase onePieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
@@ -132,69 +133,66 @@ public class SwerveAutos {
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
             sequence(
-                        // runOnce(swerveDrive::zeroHeading),
-                race(
-                    //new TurnToAngle(0, swerveDrive),
-                    waitSeconds(1)               
-                ),
                 runOnce(() -> SmartDashboard.putString("Stage", "Start")),
                 runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
                 // autoCommand,
                 // new TurnToAngle(180, swerveDrive),
                 runOnce(() -> swerveDrive.stopModules()),
-                race(
-                    sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
-                        waitSeconds(0.5),
-                        waitUntil(arm.atTargetPosition)
-                    ),
-                    waitSeconds(2)
-                ),
-                // waitSeconds(1),
 
-                runOnce(() -> SmartDashboard.putString("Stage", "Score")),
-                // arm.armExtend(),
-                race(
-                    sequence(
-                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
-                        waitSeconds(0.5),
-                        waitUntil(elevator.atTargetPosition)
+                // TODO: Abstract this sequence into superstructure.score()
+                sequence(
+                    runOnce(() -> SmartDashboard.putString("Stage", "Score")),
+                    race(
+                        sequence(
+                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                            waitSeconds(0.5),
+                            waitUntil(arm.atTargetPosition)
+                        ),
+                        waitSeconds(2)
                     ),
-                    waitSeconds(2)
+                    race(
+                        sequence(
+                            runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                            waitSeconds(0.5),
+                            waitUntil(elevator.atTargetPosition)
+                        ),
+                        waitSeconds(2)
+                    )
                 ),
-                waitSeconds(1),
 
-                claw.clawOpen(),
                 waitSeconds(1),
-                // claw.clawClose(),
-                // arm.armStow(),
-                race(
-                    sequence(
-                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
-                        waitSeconds(0.5),
-                        waitUntil(elevator.atTargetPosition)
-                    ),
-                    waitSeconds(2)
-                ),
+                // Intake piece
+                claw.setPower(0.3),
                 waitSeconds(1),
+                claw.setPower(0),
 
-                race(
-                    sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                        waitSeconds(0.5),
-                        waitUntil(arm.atTargetPosition)
+                // TODO: Change to parallel() instead
+                sequence(
+                    runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
+                    race(
+                        sequence(
+                            runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
+                            waitSeconds(0.5),
+                            waitUntil(elevator.atTargetPosition)
+                        ),
+                        waitSeconds(2)
                     ),
-                    waitSeconds(2)
+                    // waitSeconds(1),
+                    race(
+                        sequence(
+                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                            waitSeconds(0.5),
+                            waitUntil(arm.atTargetPosition)
+                        ),
+                        waitSeconds(2)
+                    )
                 ),
-                // waitSeconds(1),
-                runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
+
                 scoreToPickupCommand,
                 runOnce(() -> swerveDrive.stopModules()),
-                // arm.armExtend(),
-                // claw.clawOpen(),
-                // waitSeconds(0.5),
+
+                runOnce(() -> SmartDashboard.putString("Stage", "Ground")),
                 race(
-                    // runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGround)),
                     sequence(
                         runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
                         waitSeconds(0.5),
@@ -202,76 +200,72 @@ public class SwerveAutos {
                     ),
                     waitSeconds(2)
                 ),
-                // claw.clawClose(),
-                // waitSeconds(2),
-
-                runOnce(() -> SmartDashboard.putString("Stage", "Ground")),
-                claw.clawClose(),
-                waitSeconds(1),
-                race(
-                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-
-                    waitUntil(arm.atTargetPosition),
-                    waitSeconds(2)
-                ),
-                // waitSeconds(1),
 
                 runOnce(() -> SmartDashboard.putString("Stage", "Stow 2")),
-                pickupToScoreCommand,
-                // runOnce(() -> swerveDrive.stopModules()),
-                // waitSeconds(1),
-                // autoCommand4,
-                // runOnce(() -> swerveDrive.stopModules()),
-                // waitSeconds(1),
-                // autoCommand5,
-                runOnce(() -> swerveDrive.stopModules()),
-                race(
-                    waitSeconds(0.5)
-                    // new TurnToAngle(180, swerveDrive)                
-                ),
-                
-                race(
-                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
-
-                    waitUntil(arm.atTargetPosition),
-                    waitSeconds(2)
-                ),
-                
-                runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
-                // arm.armExtend(),
-                race(
-                    sequence(
-                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
-                        waitSeconds(0.5),
-                        waitUntil(elevator.atTargetPosition)
-                    ),
-                    waitSeconds(2)
-                ),
+                claw.setPower(-0.3),
                 waitSeconds(1),
-
-                claw.clawOpen(),
-                waitSeconds(1),
-                
-                // arm.armStow(),
-                race(
-                    sequence(
-                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
-                        waitSeconds(0.5),
-                        waitUntil(elevator.atTargetPosition)
-                    ),
-                    waitSeconds(2)
-                ),
-                waitSeconds(1),
-
+                claw.setPower(0),
                 race(
                     runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
 
                     waitUntil(arm.atTargetPosition),
                     waitSeconds(2)
                 ),
+
+                pickupToScoreCommand,
+
+                sequence(
+                    runOnce(() -> swerveDrive.stopModules()),
+                    // race(
+                    //     waitSeconds(0.5)
+                    //     // new TurnToAngle(180, swerveDrive)                
+                    // ),
+
+                    runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
+                    
+                    race(
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+    
+                        waitUntil(arm.atTargetPosition),
+                        waitSeconds(2)
+                    ),
+                    
+                    // arm.armExtend(),
+                    race(
+                        sequence(
+                            runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                            waitSeconds(0.5),
+                            waitUntil(elevator.atTargetPosition)
+                        ),
+                        waitSeconds(2)
+                    ),
+
+                    waitSeconds(1),
+                    claw.setPower(0.3)
+                ),
                 waitSeconds(1),
 
-                runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
+                sequence(
+                    runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
+                    race(
+                        sequence(
+                            runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
+                            waitSeconds(0.5),
+                            waitUntil(elevator.atTargetPosition)
+                        ),
+                        waitSeconds(2)
+                    ),
+                    waitSeconds(1),
+    
+                    race(
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+    
+                        waitUntil(arm.atTargetPosition),
+                        waitSeconds(2)
+                    ),
+                    waitSeconds(1)
+                ),
+
                 scoreToChargeCommand,
                 // new TheGreatBalancingAct(swerveDrive),
                 new TimedBalancingAct(swerveDrive, 0.5, SwerveAutoConstants.kPBalancingInitial, SwerveAutoConstants.kPBalancing),

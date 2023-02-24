@@ -265,8 +265,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // Move arm and elevator to arm enum position
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    arm.moveArm(armPositionTicksKyle, elevator.percentExtended()).until(elevator.atTargetPosition),
-                    elevator.moveElevator(elevatorPositionTicksKyle, arm.getArmAngle()).until(arm.atTargetPosition)
+                    arm.moveArm(armPositionTicksKyle, elevator::percentExtended).until(elevator.atTargetPosition),
+                    elevator.moveElevator(elevatorPositionTicksKyle, arm::getArmAngle).until(arm.atTargetPosition)
                 ),
                 new WaitCommand(5)
             ),
@@ -283,8 +283,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // Stow arm/elev
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    arm.moveArm(ArmConstants.kArmStow, elevator.percentExtended()),
-                    elevator.moveElevator(ElevatorConstants.kElevatorStow, arm.getArmAngle())
+                    arm.moveArm(ArmConstants.kArmStow, elevator::percentExtended),
+                    elevator.moveElevator(ElevatorConstants.kElevatorStow, arm::getArmAngle)
                 ),
                 new WaitCommand(5)
             ),
@@ -362,8 +362,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // Stow arm
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    arm.moveArm(ArmConstants.kArmStow, elevator.percentExtended()),
-                    elevator.moveElevator(ElevatorConstants.kElevatorStow, arm.getArmAngle())
+                    arm.moveArm(ArmConstants.kArmStow, elevator::percentExtended),
+                    elevator.moveElevator(ElevatorConstants.kElevatorStow, arm::getArmAngle)
                 ),
                 new WaitCommand(5)
             ),
@@ -373,8 +373,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // Arm to arm enum position
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    arm.moveArm(armPositionTicksKyle, elevator.percentExtended()),
-                    elevator.moveElevator(elevatorPositionTicksKyle, arm.getArmAngle())
+                    arm.moveArm(armPositionTicksKyle, elevator::percentExtended),
+                    elevator.moveElevator(elevatorPositionTicksKyle, arm::getArmAngle)
                 ),
                 new WaitCommand(5)
             ),
@@ -390,8 +390,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // Stow arm
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    arm.moveArm(ArmConstants.kArmStow, elevator.percentExtended()),
-            elevator.moveElevator(ElevatorConstants.kElevatorStow, arm.getArmAngle())
+                    arm.moveArm(ArmConstants.kArmStow, elevator::percentExtended),
+            elevator.moveElevator(ElevatorConstants.kElevatorStow, arm::getArmAngle)
                 ),
                 new WaitCommand(5)
             ),
