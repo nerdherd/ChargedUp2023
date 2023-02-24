@@ -32,10 +32,13 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.commands.OldSwerveAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionCommands;
+import frc.robot.commands.SwerveAutos.ScorePosition;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
@@ -88,8 +91,10 @@ public class RobotContainer {
 
   private SendableChooser<Supplier<CommandBase>> autoChooser = new SendableChooser<Supplier<CommandBase>>();
   private SendableChooser<StartPosition> positionChooser = new SendableChooser<StartPosition>();
+  private SendableChooser<ScorePosition> scoreChooser = new SendableChooser<ScorePosition>();
 
-  private StartPosition startPos = StartPosition.Right;
+  private ScorePosition scorePos = ScorePosition.MID;
+  private StartPosition startPos = StartPosition.RIGHT;
   private Alliance alliance = Alliance.Invalid;
 
   /**
@@ -105,7 +110,7 @@ public class RobotContainer {
       }
 
       this.alliance = DriverStation.getAlliance();
-      initAutoChooser();
+      initAutoChoosers();
       
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
@@ -269,18 +274,33 @@ public class RobotContainer {
     }
   }
 
-  private void initAutoChooser() {
-    autoChooser.setDefaultOption("Pickup Cone Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
-    autoChooser.addOption("Hard Carry", () -> SwerveAutos.hardCarryAuto(swerveDrive));
-    autoChooser.addOption("Vending Machine", () -> SwerveAutos.vendingMachine(swerveDrive));
-    autoChooser.addOption("Test auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
-    Shuffleboard.getTab("Autos").add(autoChooser);
+  private void initAutoChoosers() {
+    ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
+
+    autoChooser.setDefaultOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
+    autoChooser.addOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
+    autoChooser.addOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, claw, startPos, scorePos, 0, false));
+    autoChooser.addOption("Preload Go Around and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, claw, startPos, scorePos, 0, true));
+    autoChooser.addOption("Direct Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, false));
+    autoChooser.addOption("Go Around and Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, true));
+    autoChooser.addOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
+    autoChooser.addOption("Old One Piece", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw));
+    // autoChooser.addOption("Hard Carry", () -> OldSwerveAutos.hardCarryAuto(swerveDrive));
+    // autoChooser.addOption("Vending Machine", () -> OldSwerveAutos.vendingMachine(swerveDrive));
+    autosTab.add("Selected Auto", autoChooser);
     
-    positionChooser.setDefaultOption("Right", StartPosition.Right);
-    positionChooser.addOption("Left", StartPosition.Left);
-    positionChooser.addOption("Middle", StartPosition.Middle);
-    positionChooser.addOption("Right", StartPosition.Right);
-    Shuffleboard.getTab("Autos").add(positionChooser);
+    positionChooser.setDefaultOption("Right", StartPosition.RIGHT);
+    positionChooser.addOption("Left", StartPosition.LEFT);
+    positionChooser.addOption("Middle", StartPosition.MIDDLE);
+    positionChooser.addOption("Right", StartPosition.RIGHT);
+    autosTab.add("Start Position", positionChooser);
+
+    // TODO: Implement changing score position in the autos
+    scoreChooser.setDefaultOption("Hybrid", ScorePosition.HYBRID);
+    scoreChooser.addOption("Hybrid", ScorePosition.HYBRID);
+    scoreChooser.addOption("Mid", ScorePosition.MID);
+    scoreChooser.addOption("High", ScorePosition.HIGH);
+    autosTab.add("Score Position", scoreChooser);
   }
   
   public void initShuffleboard() {
@@ -321,7 +341,13 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     startPos = positionChooser.getSelected();
-    return autoChooser.getSelected().get();
+    scorePos = scoreChooser.getSelected();
+    Command currentAuto = autoChooser.getSelected().get();
+    String autoName = currentAuto.getName();
+    if (currentAuto != null) {
+      Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);
+    }
+    return currentAuto;
     // if (IsSwerveDrive)
     //   return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
     // else
