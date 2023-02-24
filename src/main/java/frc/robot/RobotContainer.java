@@ -283,6 +283,8 @@ public class RobotContainer {
     autoChooser.addOption("Preload Go Around and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, claw, startPos, scorePos, 0, true));
     autoChooser.addOption("Direct Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, false));
     autoChooser.addOption("Go Around and Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, true));
+    autoChooser.addOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
+    autoChooser.addOption("Old One Piece", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw));
     // autoChooser.addOption("Hard Carry", () -> OldSwerveAutos.hardCarryAuto(swerveDrive));
     // autoChooser.addOption("Vending Machine", () -> OldSwerveAutos.vendingMachine(swerveDrive));
     autosTab.add("Selected Auto", autoChooser);
