@@ -14,6 +14,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -144,5 +146,16 @@ public class Elevator extends SubsystemBase implements Reportable{
     SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
     SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
+  }
+
+  public void initShuffleboard() {
+    ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
+
+    tab.addNumber("Elevator Motor Output", () -> elevator.getMotorOutputPercent());
+    tab.addNumber("Elevator Current", () -> elevator.getStatorCurrent());
+    tab.addNumber("Elevator Current Ticks", () -> elevator.getSelectedSensorPosition());
+    tab.addNumber("Elevator Target Ticks", () -> targetTicks);
+    tab.addNumber("Elevator Current Velocity", () -> elevator.getSelectedSensorVelocity());
+    tab.addNumber("Elevator Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
   }
 }

@@ -46,7 +46,6 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
         rotatingArm.setNeutralMode(NeutralMode.Brake);
         // CommandScheduler.getInstance().registerSubsystem(this);
-        initShuffleboard();
 
         rotatingArm.setInverted(false);
         
@@ -218,8 +217,16 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
     }
     
-    private void initShuffleboard() {
+    public void initShuffleboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Arm");
+
+        tab.addNumber("Arm Motor Output", rotatingArm::getMotorOutputPercent);
+        tab.addNumber("Arm Angle", () -> (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
+        tab.addString("Arm Control Mode", rotatingArm.getControlMode()::toString);
+        tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
+        tab.addNumber("arm velocity", rotatingArm::getSelectedSensorVelocity);
+        // tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
+        tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
         
         tab.addBoolean("Arm Extended", () -> armExtended);
         tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());

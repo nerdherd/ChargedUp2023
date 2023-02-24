@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -26,7 +27,14 @@ public class SwerveJoystickCommand extends CommandBase {
     private final Supplier<Boolean> fieldOrientedFunction;
     private final Supplier<Boolean> towSupplier, dodgeSupplier;
     private Filter xFilter, yFilter, turningFilter;
-    private Translation2d rotationCenter;
+    private Translation2d robotOrientedJoystickDirection;
+    private Supplier<DodgeDirection> dodgeDirectionSupplier;
+
+    public enum DodgeDirection {
+        LEFT,
+        RIGHT,
+        NONE
+    }
 
     /**
      * Construct a new SwerveJoystickCommand
@@ -41,13 +49,14 @@ public class SwerveJoystickCommand extends CommandBase {
      */
     public SwerveJoystickCommand(SwerveDrivetrain swerveDrive,
             Supplier<Double> xSpdFunction, Supplier<Double> ySpdFunction, Supplier<Double> turningSpdFunction,
-            Supplier<Boolean> fieldOrientedFunction, Supplier<Boolean> towSupplier, Supplier<Boolean> dodgeSupplier) {
+            Supplier<Boolean> fieldOrientedFunction, Supplier<Boolean> towSupplier, Supplier<Boolean> dodgeSupplier, Supplier<DodgeDirection> dodgeDirectionSupplier) {
         this.swerveDrive = swerveDrive;
         this.xSpdFunction = xSpdFunction;
         this.ySpdFunction = ySpdFunction;
         this.turningSpdFunction = turningSpdFunction;
         this.fieldOrientedFunction = fieldOrientedFunction;
         this.towSupplier = towSupplier;
+        this.dodgeDirectionSupplier = dodgeDirectionSupplier;
 
         // Old filters
         
@@ -158,8 +167,8 @@ public class SwerveJoystickCommand extends CommandBase {
         SwerveModuleState[] moduleStates;
 
         if (dodgeSupplier.get()) {
-            if (rotationCenter == null) {
-                rotationCenter = new Translation2d(kRotationOffset, 
+            if (robotOrientedJoystickDirection == null) {
+                robotOrientedJoystickDirection = new Translation2d(kRotationOffset, 
                     // Rotation 2d is measured counterclockwise from the right vector
                     // Y speed = left/right = x component
                     // X speed = forward/back = y component
@@ -169,18 +178,31 @@ public class SwerveJoystickCommand extends CommandBase {
                             swerveDrive.getImu().getHeading()))
                         );
                 // Might need to swap x and y on rotation center depending on how it gets interpreted
-                rotationCenter = new Translation2d(rotationCenter.getY(), rotationCenter.getX());
-                SmartDashboard.putNumber("Dodge X", rotationCenter.getX());
-                SmartDashboard.putNumber("Dodge Y", rotationCenter.getY());
+                // robotOrientedJoystickDirection = new Translation2d(robotOrientedJoystickDirection.getY(), robotOrientedJoystickDirection.getX());
+                SmartDashboard.putNumber("Dodge X", robotOrientedJoystickDirection.getX());
+                SmartDashboard.putNumber("Dodge Y", robotOrientedJoystickDirection.getY());
             }
 
-            if (rotationCenter.getX() > 0) {
+            if (robotOrientedJoystickDirection.getX() > 0) {
                 filteredTurningSpeed *= -1;
+            }
+
+            // Forward = quadrant 0, Right = quadrant 1, Down = quadrant 2, Left = quadrant 3
+            double angle = MathUtil.inputModulus(robotOrientedJoystickDirection.getAngle().getDegrees(), -45, 315) + 45;
+            int quadrant = (int) (angle / 90) % 4;
+
+            Translation2d rotationCenter;
+
+            DodgeDirection dodgeDirection = dodgeDirectionSupplier.get();
+            if (dodgeDirection == DodgeDirection.LEFT) {
+                rotationCenter = kRotationCenters[kLeftRotationCenters[quadrant]];
+            } else {
+                rotationCenter = kRotationCenters[kRightRotationCenters[quadrant]];
             }
 
             moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds, rotationCenter);
         } else {
-            rotationCenter = null;
+            robotOrientedJoystickDirection = null;
             moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         }
 

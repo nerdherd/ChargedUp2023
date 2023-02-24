@@ -10,7 +10,9 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -31,9 +33,40 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 import static frc.robot.Constants.SwerveAutoConstants.*;
 
+import java.util.HashMap;
 import java.util.List;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
+
 public class SwerveAutos {
+    public static CommandBase pathplannerAuto(SwerveDrivetrain swerveDrive, Arm arm, Claw claw) {
+        PathPlannerTrajectory testPath = PathPlanner.loadPath(
+            "Test Path", 
+            new PathConstraints(
+                kMaxSpeedMetersPerSecond, 
+                kMaxAccelerationMetersPerSecondSquared));
+        
+        HashMap<String, Command> events = new HashMap<>() {{
+            //put();
+        }};
+
+        SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+            swerveDrive::getPose, 
+            swerveDrive::resetOdometry, 
+            new PIDConstants(kPXController, kIXController, kDXController), 
+            new PIDConstants(kPThetaController, kIThetaController, kDThetaController), 
+            SwerveDriveConstants.kDriveKinematics::toSwerveModuleStates, 
+            events, 
+            swerveDrive);
+        
+        return autoBuilder.followPathWithEvents(testPath);
+    }
+
     public static CommandBase translateBy(SwerveDrivetrain swerveDrive, double xTranslation, double yTranslation, double angle) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
@@ -75,9 +108,7 @@ public class SwerveAutos {
      * @param swerveDrive
      * @return
      */
-    public static CommandBase twoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition position) {
-        DriverStation.getAlliance();
-
+    public static CommandBase twoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition position, Alliance alliance) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
@@ -95,6 +126,12 @@ public class SwerveAutos {
         double chargeYTranslation = 0;
         double pickupXDistance = 0;
         double pickupYDistance = 0;
+
+        if (alliance == Alliance.Red) {
+            if (position == StartPosition.Right) position = StartPosition.Left;
+            if (position == StartPosition.Left) position = StartPosition.Right;
+        }
+
         switch (position) {
             case Right:
                 pickupAngle = -10;
@@ -116,6 +153,11 @@ public class SwerveAutos {
                 break;
         }
         
+        if (alliance == Alliance.Red) {
+            chargeYTranslation *= -1;
+            pickupYDistance *= -1;
+            pickupAngle *= -1;
+        }
         
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
             new Pose2d(-.5, 0, new Rotation2d(0)), 

@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConeRunnerConstants;
@@ -82,6 +84,14 @@ public class ConeRunner extends SubsystemBase implements Reportable {
     public void reportToSmartDashboard() {
         SmartDashboard.putNumber("Cone Runner Target Ticks", targetTicks);   
         SmartDashboard.putNumber("Cone Runner Angle Ticks", positionMotor.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Cone Runner Intake Velocity", speedMotor.getSelectedSensorVelocity());
     }
 
+    public void initShuffleboard() {
+        ShuffleboardTab tab = Shuffleboard.getTab("Cone Runner");
+
+        tab.addNumber("Target Ticks", () -> targetTicks);   
+        tab.addNumber("Angle Ticks", positionMotor::getSelectedSensorPosition);
+        tab.addNumber("Intake Velocity", speedMotor::getSelectedSensorVelocity);
+    }
 }

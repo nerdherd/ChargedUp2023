@@ -7,13 +7,10 @@ package frc.robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.commands.ApproachCombined;
-import frc.robot.commands.DriveToTarget;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
-import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
@@ -28,26 +25,26 @@ import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.util.WPIUtilJNI;
+
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
-import frc.robot.commands.TankAutos;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionCommands;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
-import frc.robot.subsystems.vision.Limelight;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.Limelight.LightMode;
 import frc.robot.subsystems.vision.Vision.PipelineType;
+import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
-import pabeles.concurrency.ConcurrencyOps.NewInstance;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -89,21 +86,12 @@ public class RobotContainer {
   private final POVButton leftButton = new POVButton(badPS4, 270);
 
 
-  SendableChooser<CommandBase> autoChooser = new SendableChooser<CommandBase>();
+  private SendableChooser<Supplier<CommandBase>> autoChooser = new SendableChooser<Supplier<CommandBase>>();
+  private SendableChooser<StartPosition> positionChooser = new SendableChooser<StartPosition>();
 
-  // Two different drivetrain modes
-  private RunCommand arcadeRunCommand;
-  private RunCommand visionRunCommand;
-  
-  // Two different drivetrain modes
-  // private RunCommand arcadeRunCommand = new RunCommand(() -> drive.tankDrive(driverController.getLeftY(), driverController.getRightY()), drive);
-  // private RunCommand visionRunCommand = new RunCommand(() -> drive.arcadeDrive(drive.getApriltagLinear(), drive.getApriltagRotation()), drive);
-  // private RunCommand visionRunCommandArea = new RunCommand(() -> drive.arcadeDrive(drive.getAprilTagAreaLinear(), drive.getApriltagRotation()), drive);
+  private StartPosition startPos = StartPosition.Right;
+  private Alliance alliance = Alliance.Invalid;
 
-  public Command swerveCommand;
-
-  public SwerveJoystickCommand swerveJoystickCommand;
-  
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -116,23 +104,14 @@ public class RobotContainer {
         DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
       }
 
-      swerveCommand = new RepeatCommand(
-          new SequentialCommandGroup(
-              new WaitCommand(5),
-              new InstantCommand(swerveDrive::resetEncoders)));
-
-      autoChooser.setDefaultOption("Pickup Cone Auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, StartPosition.Right));
-      autoChooser.addOption("Hard Carry", SwerveAutos.hardCarryAuto(swerveDrive));
-      autoChooser.addOption("Vending Machine", SwerveAutos.vendingMachine(swerveDrive));
-      autoChooser.addOption("Test auto", SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, StartPosition.Right));
-      SmartDashboard.putData(autoChooser);
+      this.alliance = DriverStation.getAlliance();
+      initAutoChooser();
+      
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
     } else {
       tankDrive = new TankDrivetrain();
 
-      // visionRunCommand = new RunCommand(
-      //     () -> tankDrive.arcadeDrive(tankDrive.getApriltagLinear(), tankDrive.getApriltagRotation()), tankDrive);
     }
 
 
@@ -186,7 +165,16 @@ public class RobotContainer {
           badPS4::getSquareButton,
           badPS4::getL3Button,
           // driverControllerButtons::getTriangleButton,
-          badPS4::getR3Button
+          badPS4::getR3Button,
+          () -> {
+            if (badPS4.getL2Button()) {
+              return DodgeDirection.LEFT;
+            } 
+            if (badPS4.getR2Button()) {
+              return DodgeDirection.RIGHT;
+            }
+            return DodgeDirection.NONE;
+          }
         ));
     } else {
       tankDrive.setDefaultCommand(
@@ -248,9 +236,6 @@ public class RobotContainer {
     // operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
     // operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
 
-    SmartDashboard.putData("Calibrate NavX", new InstantCommand(() -> imu.ahrs.calibrate()));
-    
-
     if (IsSwerveDrive) {
       // Driver Bindings
       driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
@@ -258,9 +243,14 @@ public class RobotContainer {
 
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+      
+      // driverController.L2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), true));
+      // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
-      driverController.triangle().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
-                      .onFalse(new InstantCommand(() -> swerveDrive.stopModules()));
+      // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
+      // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
+      // driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
+      // driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
 
       // Operator Bindings
       // operatorController.R1().onTrue(vision.SwitchHigh());
@@ -271,21 +261,40 @@ public class RobotContainer {
       // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 4, obj))
       //                  .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-      //driverController.triangle().whileTrue(new ApproachCombined(swerveDrive, objDetectCamera, 4, obj))
-      //.onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // ====== Vision Bindings ====== 
+      driverController.square().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.circle().whileTrue(VisionCommands.seekTapeDropCone(swerveDrive, vision))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     }
+  }
+
+  private void initAutoChooser() {
+    autoChooser.setDefaultOption("Pickup Cone Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
+    autoChooser.addOption("Hard Carry", () -> SwerveAutos.hardCarryAuto(swerveDrive));
+    autoChooser.addOption("Vending Machine", () -> SwerveAutos.vendingMachine(swerveDrive));
+    autoChooser.addOption("Test auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, claw, startPos, alliance));
+    Shuffleboard.getTab("Autos").add(autoChooser);
+    
+    positionChooser.setDefaultOption("Right", StartPosition.Right);
+    positionChooser.addOption("Left", StartPosition.Left);
+    positionChooser.addOption("Middle", StartPosition.Middle);
+    positionChooser.addOption("Right", StartPosition.Right);
+    Shuffleboard.getTab("Autos").add(positionChooser);
   }
   
   public void initShuffleboard() {
-    if (!IsSwerveDrive) {
+    imu.initShuffleboard();
+    claw.initShuffleboard();
+    arm.initShuffleboard();
+    coneRunner.initShuffleboard();
+    if (IsSwerveDrive) {
+      swerveDrive.initShuffleboard();
+      swerveDrive.initModuleShuffleboard();
+    } else {
       tankDrive.initShuffleboard();
     }
-    // autoChooser = new SendableChooser<CommandBase>();
-    // autoChooser.setDefaultOption("Hard Carry Auto",
-    // TankAutos.HardCarryAuto(drive, claw, arm));
-    
-    // autoChooser.addOption("Diet Coke Auto",
-    // TankAutos.DietCokeAuto(drive, claw, arm));
+    airCompressor.initShuffleboard();
   }
 
   public void reportAllToSmartDashboard() {
@@ -312,7 +321,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    startPos = positionChooser.getSelected();
+    return autoChooser.getSelected().get();
     // if (IsSwerveDrive)
     //   return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
     // else

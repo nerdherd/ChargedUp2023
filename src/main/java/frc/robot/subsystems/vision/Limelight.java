@@ -6,6 +6,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 import java.util.Arrays;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Reportable;
 import frc.robot.util.NerdyMath;
@@ -122,12 +124,6 @@ public class Limelight implements Reportable{
     private boolean m_LimelightHasValidTarget = false;
     private double m_LimelightDriveCommand = 0.0;
     private double m_LimelightSteerCommand = 0.0;
-
-    //double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
-    //double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
-
-    // calculate distance
-    //double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
 
     public Limelight(String keyN)
     {
@@ -435,6 +431,18 @@ public class Limelight implements Reportable{
         return (h2 - h1) / Math.abs(Math.tan(Math.toRadians(a1) + Math.toRadians(a2)));
     }
 
+    public void initShuffleboard() {
+        ShuffleboardTab tab = Shuffleboard.getTab("Limelight");
+
+        tab.addBoolean("HasTarget", this::hasValidTarget);
+        tab.addNumber("Horizontal Offset", this::getXAngle);
+        tab.addNumber("Vertical Offset", this::getYAngle);
+        tab.addNumber("Area", this::getArea);
+        tab.addNumber("Skew", this::getSkew);
+        tab.addString("XCorners", () -> Arrays.toString(getXCorners()));
+        tab.addString("YCorners", () -> Arrays.toString(getYCorners()));
+    }
+
     /**
      * Output diagnostics
      */
@@ -490,30 +498,4 @@ public class Limelight implements Reportable{
         m_LimelightDriveCommand = drive_cmd;
   }
 
-  /* public void teleopPeriodic() {
-
-        Update_Limelight_Tracking();
-
-        double steer = m_Controller.getX(Hand.kRight);
-        double drive = -m_Controller.getY(Hand.kLeft);
-        boolean auto = m_Controller.getAButton();
-
-        steer *= 0.70;
-        drive *= 0.70;
-
-        if (auto)
-        {
-          if (m_LimelightHasValidTarget)
-          {
-                m_Drive.arcadeDrive(m_LimelightDriveCommand,m_LimelightSteerCommand);
-          }
-          else
-          {
-                m_Drive.arcadeDrive(0.0,0.0);
-          }
-        }
-        else
-        {
-          m_Drive.arcadeDrive(drive,steer);
-        } */
-}
+  }
