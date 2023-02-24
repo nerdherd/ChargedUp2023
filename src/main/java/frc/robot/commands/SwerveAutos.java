@@ -196,7 +196,7 @@ public class SwerveAutos {
                 race(
                     // runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGround)),
                     sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGround)),
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
                         waitSeconds(0.5),
                         waitUntil(arm.atTargetPosition)
                     ),

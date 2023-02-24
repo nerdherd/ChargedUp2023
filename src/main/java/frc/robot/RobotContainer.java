@@ -37,13 +37,13 @@ import frc.robot.commands.OldSwerveAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TurnToAngle;
-import frc.robot.commands.VisionCommands;
 import frc.robot.commands.SwerveAutos.ScorePosition;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.Vision.PipelineType;
+import frc.robot.subsystems.vision.VROOOOM;
+import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
+import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
@@ -67,14 +67,12 @@ public class RobotContainer {
   public static MotorClaw motorClaw = new MotorClaw();
 
   public static Imu imu = new Imu();
-  public static Vision vision = new Vision();
   public static ConeRunner coneRunner = new ConeRunner();
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
-
-  private PipelineType obj = PipelineType.ATAG;
+  public VROOOOM vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
 
   private final CommandBadPS4 driverController = new CommandBadPS4(
       ControllerConstants.kDriverControllerPort);
@@ -252,25 +250,18 @@ public class RobotContainer {
       // driverController.L2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), true));
       // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
-      // driverController.triangle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CONE, vision.getLimelight()));  
-      // driverController.square().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.CUBE, vision.getLimelight()));      
-      // driverController.circle().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.TAPE, vision.getLimelight()));      
-      // driverController.cross().onTrue(new ApproachCombined(swerveDrive, 0, 2, PipelineType.ATAG, vision.getLimelight())); 
-
-      // Operator Bindings
-      // operatorController.R1().onTrue(vision.SwitchHigh());
-      // operatorController.L1().onTrue(vision.SwitchLow());
-
-
-
-      // driverController.triangle().whileTrue(new DriveToTarget(swerveDrive, objDetectCamera, 4, obj))
-      //                  .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-
       // ====== Vision Bindings ====== 
-      driverController.square().whileTrue(VisionCommands.penPineappleApplePen(swerveDrive, vision))
-      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-      driverController.circle().whileTrue(VisionCommands.seekTapeDropCone(swerveDrive, vision))
-      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.L1().whileTrue(vision.VisionPickup())
+        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.R1().whileTrue(vision.VisionScore())
+        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+
+      upButton.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
+      leftButton.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
+      downButton.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
+
+      operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
+      operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
     }
   }
 
