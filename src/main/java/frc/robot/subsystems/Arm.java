@@ -168,6 +168,14 @@ public class Arm extends SubsystemBase implements Reportable {
     @Override
     public void periodic() {}
 
+    public CommandBase moveArm(int ticks, double percentExtended) {
+        return Commands.run(
+            () -> moveArmMotionMagic(ticks, percentExtended), this
+        );
+    }
+
+    
+
     public CommandBase moveArmScore(double percentExtended) {
         return Commands.run(
             () -> moveArmMotionMagic(ArmConstants.kArmScore, percentExtended), this
@@ -177,7 +185,7 @@ public class Arm extends SubsystemBase implements Reportable {
 
     public CommandBase moveArmGround(double percentExtended) {
         return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmGround, percentExtended), this
+            () -> moveArmMotionMagic(ArmConstants.kArmGroundPickup, percentExtended), this
             
         );
     }
@@ -192,7 +200,7 @@ public class Arm extends SubsystemBase implements Reportable {
 
     public CommandBase moveArmPickUp() {
         return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmPickUp), this
+            () -> moveArmMotionMagic(ArmConstants.kArmGroundPickup), this
             
         );
     }

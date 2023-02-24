@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,8 +19,8 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.MotorClaw;
 import frc.robot.subsystems.Reportable;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -74,10 +76,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     
     private Arm arm;
     private Elevator elevator;
-    private Claw claw;
+    private MotorClaw claw;
     private SwerveDrivetrain drivetrain;
 
-    public VROOOOM(Arm arm, Elevator elevator, Claw claw, SwerveDrivetrain drivetrain) {
+    public VROOOOM(Arm arm, Elevator elevator, MotorClaw claw, SwerveDrivetrain drivetrain) {
         this.arm = arm;
         this.elevator = elevator;
         this.claw = claw;
@@ -186,13 +188,15 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
     public SequentialCommandGroup VisionPickup() {
         // PLACEHOLDER
-        int armEnum;
+        int armPositionTicks = ArmConstants.kArmStow;
+        int elevatorPositionTicks = ElevatorConstants.kElevatorStow;
 
         rotationIsNeeded = false; // Reset rotation variable
 
         switch(currentHeightPos) {
             case HIGH:
-                armEnum = 0; // Pickup substation
+                armPositionTicks = ArmConstants.kArmSubstation; // Pickup substation
+                elevatorPositionTicks = ElevatorConstants.kElevatorSubstation;
                 currentLimelight = limelightHigh;
                 rotationIsNeeded = true;
                 goalYaw = 0; // Facing away from drivers, towards substation
@@ -205,7 +209,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 break;
 
             case LOW:
-                armEnum = 1; // Ground pickup
+                armPositionTicks = ArmConstants.kArmGroundPickup; // Ground pickup
+                elevatorPositionTicks = ElevatorConstants.kElevatorStow;
                 currentLimelight = limelightLow;
                 rotationIsNeeded = false;
 
@@ -237,6 +242,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 break;
         }
 
+        final int armPositionTicksKyle = armPositionTicks;
+        final int elevatorPositionTicksKyle = elevatorPositionTicks;
+
         // Had to declare both RunCommands in advance because syntax errors would appear if they weren't
         RunCommand driveRotateToTargetRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
         RunCommand driveToTargetRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
@@ -249,16 +257,40 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         }
 
         InstantCommand init = new InstantCommand(() -> initVisionCommands());
-
+        
         return new SequentialCommandGroup(
             new InstantCommand(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
             init,
+
             // Move arm and elevator to arm enum position
-            // Open claw/Start claw intake rollers
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    arm.moveArm(armPositionTicksKyle, elevator.percentExtended.getAsDouble()).until(elevator.atTargetPosition),
+                    elevator.moveElevator(elevatorPositionTicksKyle, arm.armAngle.getAsDouble()).until(arm.atTargetPosition)
+                ),
+                new WaitCommand(5)
+            ),
+            
             currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(30), // Timeout after 30 seconds
+
+            // Open claw/Start claw intake rollers
+            claw.setPower(-0.3),
+            new WaitCommand(2),
+
             // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+            claw.setPower(0),
+
             // Stow arm/elev
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    arm.moveArm(ArmConstants.kArmStow, elevator.percentExtended.getAsDouble()),
+                    elevator.moveElevator(ElevatorConstants.kElevatorStow, arm.armAngle.getAsDouble())
+                ),
+                new WaitCommand(5)
+            ),
+            
             new InstantCommand(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
+
         );
     }
 
@@ -303,7 +335,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 break;
 
             case LOW: // Score ground
-                armPositionTicks = ArmConstants.kArmPickUp;
+                armPositionTicks = ArmConstants.kArmGroundPickup;
                 elevatorPositionTicks = ElevatorConstants.kElevatorStow;
                 break;
         }
@@ -328,20 +360,42 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             new InstantCommand(() -> SmartDashboard.putBoolean("Vision Score Running", true)),
             init,
             // Stow arm
-            new InstantCommand(() -> arm.moveArmMotionMagic(ArmConstants.kArmStow, elevator.percentExtended.getAsDouble())),
-            new InstantCommand(() -> elevator.moveMotionMagic(ElevatorConstants.kElevatorStow, arm.armAngle.getAsDouble())),
-            currentVisionRunCommand,
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    arm.moveArm(ArmConstants.kArmStow, elevator.percentExtended.getAsDouble()),
+                    elevator.moveElevator(ElevatorConstants.kElevatorStow, arm.armAngle.getAsDouble())
+                ),
+                new WaitCommand(5)
+            ),
+            
+            currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(30),
+
             // Arm to arm enum position
-            new InstantCommand(() -> arm.moveArmMotionMagic(armPositionTicksKyle, elevator.percentExtended.getAsDouble())),
-            new InstantCommand(() -> elevator.moveMotionMagic(elevatorPositionTicksKyle, arm.armAngle.getAsDouble())),
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    arm.moveArm(armPositionTicksKyle, elevator.percentExtended.getAsDouble()),
+                    elevator.moveElevator(elevatorPositionTicksKyle, arm.armAngle.getAsDouble())
+                ),
+                new WaitCommand(5)
+            ),
+            
             // Open claw/eject piece with rollers
-            new InstantCommand(() -> claw.clawOpen()),
+            claw.setPower(0.3),
             // Wait 1 second
             new WaitCommand(1),
-            // Stow arm
-            new InstantCommand(() -> arm.moveArmMotionMagic(ArmConstants.kArmStow, elevator.percentExtended.getAsDouble())),
-            new InstantCommand(() -> elevator.moveMotionMagic(ElevatorConstants.kElevatorStow, arm.armAngle.getAsDouble())),
+
             // Close claw/stop rollers
+            claw.setPower(0),
+
+            // Stow arm
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    arm.moveArm(ArmConstants.kArmStow, elevator.percentExtended.getAsDouble()),
+            elevator.moveElevator(ElevatorConstants.kElevatorStow, arm.armAngle.getAsDouble())
+                ),
+                new WaitCommand(5)
+            ),
+            
             new InstantCommand(() -> SmartDashboard.putBoolean("Vision Score Running", false))
         );
     }

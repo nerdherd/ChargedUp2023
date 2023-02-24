@@ -69,7 +69,7 @@ public class RobotContainer {
   public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
-  public VROOOOM vision = new VROOOOM(arm, elevator, claw, swerveDrive);
+  public VROOOOM vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
 
   private final CommandBadPS4 driverController = new CommandBadPS4(
       ControllerConstants.kDriverControllerPort);

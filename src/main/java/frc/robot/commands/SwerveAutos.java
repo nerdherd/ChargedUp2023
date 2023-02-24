@@ -271,7 +271,7 @@ public class SwerveAutos {
                     new ParallelRaceGroup(
                         // new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGround)),
                         new SequentialCommandGroup(
-                            new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGround)),
+                            new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
                             new WaitCommand(0.5),
                             Commands.waitUntil(arm.atTargetPosition)
                         ),
