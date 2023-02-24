@@ -78,7 +78,7 @@ public class DriveStraight extends CommandBase {
       else { // move straight
         // drivePower = forwardControllerImu.calculate(currentMeters, distanceMeter);
         SmartDashboard.putNumber("Drive Power", drivePower);
-        double rotateToAngleRate = turnControllerImu.calculate(drive.getImu().getHeading(), heading); // calc error correction
+        double rotateToAngleRate = turnControllerImu.calculate(drive.getGyro().getHeading(), heading); // calc error correction
         //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
         //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
         double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);
@@ -109,7 +109,7 @@ public class DriveStraight extends CommandBase {
       } 
       else { // move straight
         // drivePower = forwardControllerImu.calculate(currentMeters, distanceMeter);
-        double rotateToAngleRate = turnControllerImu.calculate(drive.getImu().getHeading(), heading); // calc error correction
+        double rotateToAngleRate = turnControllerImu.calculate(drive.getGyro().getHeading(), heading); // calc error correction
         //tankDriveLeftSpeed = (drivePower + rotateToAngleRate);
         //tankDriveRightSpeed = (drivePower - rotateToAngleRate);
         double tankDriveLeftSpeed = NerdyMath.clamp((drivePower + rotateToAngleRate), -maxForwardDriveSpeed, maxForwardDriveSpeed);

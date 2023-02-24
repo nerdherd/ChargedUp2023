@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.subsystems.imu.Gyro;
  
 public class TankDrivetrain extends SubsystemBase implements Reportable{
     private TalonFX rightMaster;
@@ -37,11 +38,11 @@ public class TankDrivetrain extends SubsystemBase implements Reportable{
     // private PIDController turnController = new PIDController(DriveConstants.kAngularP, 0, DriveConstants.kAngularD);
     // private PIDController forwardController = new PIDController(DriveConstants.kLinearP, 0, DriveConstants.kLinearD);
     // private AHRS ahrs;//; = new AHRS();
-    private Imu imu;
+    private Gyro gyro;
     private DoubleSolenoid shifter;
 
-    public TankDrivetrain(Imu imu) {
-        this.imu = imu;
+    public TankDrivetrain(Gyro gyro) {
+        this.gyro = gyro;
 
         shifter = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
             DriveConstants.kPistonForwardID, DriveConstants.kPistonReverseID);
@@ -87,7 +88,7 @@ public class TankDrivetrain extends SubsystemBase implements Reportable{
     }
 
     public TankDrivetrain() {
-        this(RobotContainer.imu);
+        this(RobotContainer.gyro);
     }
  
     public void drive(double leftInput, double rightInput) {
@@ -123,8 +124,8 @@ public class TankDrivetrain extends SubsystemBase implements Reportable{
         setPower(leftOutput, rightOutput);
     }
 
-    public Imu getImu() {
-        return this.imu;
+    public Gyro getGyro() {
+        return this.gyro;
     }
 
     boolean shiftedHigh;

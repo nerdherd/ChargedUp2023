@@ -56,7 +56,7 @@ public class Dodge extends SwerveControllerCommand {
                 new Rotation2d(ySpeed, xSpeed)
                     .rotateBy(Rotation2d.fromDegrees(
                         // imu is measured clockwise from forward vector
-                        swerveDrive.getImu().getHeading()))
+                        swerveDrive.getGyro().getHeading()))
                     );
             
             angle = -Math.atan2(rotationCenter.getX(), rotationCenter.getY());
@@ -68,7 +68,7 @@ public class Dodge extends SwerveControllerCommand {
         double endAngle = angle;
 
         
-        boolean facingForward = facingForward(swerveDrive.getImu().getHeading());
+        boolean facingForward = facingForward(swerveDrive.getGyro().getHeading());
         
         facingForward = true;
 

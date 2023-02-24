@@ -13,7 +13,7 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.TankDrivetrain;
-import frc.robot.subsystems.Imu;
+import frc.robot.subsystems.imu.NavX;
 import frc.robot.subsystems.MotorClaw;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,6 +39,7 @@ import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.SwerveAutos.ScorePosition;
 import frc.robot.commands.SwerveAutos.StartPosition;
+import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
 import frc.robot.subsystems.vision.VROOOOM;
@@ -47,7 +48,6 @@ import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -66,7 +66,7 @@ public class RobotContainer {
   
   public static MotorClaw motorClaw = new MotorClaw();
 
-  public static Imu imu = new Imu();
+  public static Gyro gyro = new NavX();
   public static ConeRunner coneRunner = new ConeRunner();
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;
@@ -99,10 +99,9 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-
     if (IsSwerveDrive) {
       try {
-        swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
+        swerveDrive = new SwerveDrivetrain(gyro, SwerveModuleType.CANCODER);
       } catch (IllegalArgumentException e) {
         DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
       }
@@ -241,7 +240,7 @@ public class RobotContainer {
 
     if (IsSwerveDrive) {
       // Driver Bindings
-      driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
+      driverController.share().onTrue(new InstantCommand(gyro::zeroHeading));
       driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
 
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
@@ -295,7 +294,7 @@ public class RobotContainer {
   }
   
   public void initShuffleboard() {
-    imu.initShuffleboard();
+    gyro.initShuffleboard();
     claw.initShuffleboard();
     arm.initShuffleboard();
     coneRunner.initShuffleboard();
@@ -312,7 +311,7 @@ public class RobotContainer {
     SmartDashboard.putNumber("Elevator FF", Math.sin(arm.getArmAngle()) * ElevatorConstants.kArbitraryFF);
     SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
     // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
-    imu.reportToSmartDashboard();
+    gyro.reportToSmartDashboard();
     claw.reportToSmartDashboard();
     arm.reportToSmartDashboard();
     elevator.reportToSmartDashboard();
@@ -350,7 +349,7 @@ public class RobotContainer {
     if (!IsSwerveDrive) { // TODO: Move resets to robot init? 
       tankDrive.resetEncoders();
       // drive.setEncoder(drive.meterToTicks(0.381));
-      imu.zeroHeading();
+      gyro.zeroHeading();
 
     }
     

@@ -427,7 +427,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
             xSpeed = pidArea.calculate(calculatedX, goalArea);
             ySpeed = -pidTX.calculate(calculatedY, goalTX);
-            rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
+            rotationSpeed = pidYaw.calculate(drivetrain.getGyro().getHeading(), goalYaw);
             
             if (NerdyMath.inRange(xSpeed, -.1, .1) &&
             NerdyMath.inRange(ySpeed, -.1, .1) &&

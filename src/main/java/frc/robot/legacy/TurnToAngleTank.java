@@ -41,7 +41,7 @@ public class TurnToAngleTank extends CommandBase{
     @Override
     public void execute() {
         // Calculate turning speed with PID
-        double turningSpeed = pidController.calculate(drivetrain.getImu().getHeading(), targetAngle);
+        double turningSpeed = pidController.calculate(drivetrain.getGyro().getHeading(), targetAngle);
         
         //swerveDrive.setModuleStates(moduleStates);
         drivetrain.drive(turningSpeed, turningSpeed * -1);
