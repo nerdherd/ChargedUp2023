@@ -99,6 +99,7 @@ public class Imu extends SubsystemBase implements Reportable {
         ShuffleboardTab tab = Shuffleboard.getTab("Imu");
 
         tab.add("Calibrate NavX", new InstantCommand(() -> ahrs.calibrate()));
+        tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
         tab.addNumber("Robot Heading", () -> getHeading());
         tab.addNumber("Robot Yaw", () -> ahrs.getYaw());
         tab.addNumber("Robot Pitch", () -> ahrs.getPitch());
