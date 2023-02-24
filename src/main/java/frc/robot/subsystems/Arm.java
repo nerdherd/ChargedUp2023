@@ -30,14 +30,14 @@ import frc.robot.Constants.PneumaticsConstants;
 import frc.robot.util.NerdyMath;
 
 public class Arm extends SubsystemBase implements Reportable {
+    @Deprecated
     private DoubleSolenoid arm;
+
     private TalonFX rotatingArm;
     private boolean armExtended = false;
     private int targetTicks = ArmConstants.kArmStow;
     private PIDController armPID;
     public BooleanSupplier atTargetPosition;
-    public DoubleSupplier armAngle;
-    public DoubleSupplier currentPosition;
     private DigitalInput limitSwitch;
 
     public Arm() {
@@ -51,6 +51,7 @@ public class Arm extends SubsystemBase implements Reportable {
 
         rotatingArm.setInverted(false);
         
+        atTargetPosition = () -> NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500);
         SmartDashboard.putNumber("Arm kP", ArmConstants.kArmP);
         SmartDashboard.putNumber("Arm kI", ArmConstants.kArmI);
         SmartDashboard.putNumber("Arm kD", ArmConstants.kArmD);
@@ -58,11 +59,7 @@ public class Arm extends SubsystemBase implements Reportable {
 
         SmartDashboard.putNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity);
         SmartDashboard.putNumber("Arm Accel", ArmConstants.kArmMotionAcceleration);
-
-        currentPosition = () -> -rotatingArm.getSelectedSensorPosition();
-        atTargetPosition = () -> (NerdyMath.inRange(currentPosition.getAsDouble(), targetTicks - 1500, targetTicks + 1500));
-        armAngle = () -> Math.toRadians(currentPosition.getAsDouble() / ArmConstants.kTicksPerAngle);
-    }
+}
 
     public void moveArmJoystick(double currentJoystickOutput, double percentExtended) {
         // double armTicks = currentPosition.getAsDouble();
@@ -113,9 +110,8 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.configMotionCruiseVelocity(SmartDashboard.getNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity));
         rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
-        double angleRadians = Math.toRadians(armAngle.getAsDouble());
-        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(angleRadians);
-        rotatingArm.set(ControlMode.MotionMagic, -position, DemandType.ArbitraryFeedForward, ff);
+        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
+        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
         targetTicks = position;
 
         SmartDashboard.putNumber("FF", ff);
@@ -139,7 +135,7 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.configMotionCruiseVelocity(SmartDashboard.getNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity));
         rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
-        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(armAngle.getAsDouble());
+        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
         rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
 
         SmartDashboard.putNumber("FF", ff);
@@ -205,6 +201,11 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
+    public double getArmAngle() {
+        return Math.toRadians(Math.abs(rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
+    }
+
+    @Deprecated
     public CommandBase armStow() {
         return runOnce(
             () -> {
@@ -214,6 +215,7 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
+    @Deprecated
     public CommandBase armExtend() {
         return runOnce(
             () -> {
@@ -224,7 +226,7 @@ public class Arm extends SubsystemBase implements Reportable {
     }
 
     public void resetEncoderStow() {
-        rotatingArm.setSelectedSensorPosition(-ArmConstants.kArmStow);
+        rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
     }
     
     public void initShuffleboard() {
@@ -239,7 +241,7 @@ public class Arm extends SubsystemBase implements Reportable {
         tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
         
         tab.addBoolean("Arm Extended", () -> armExtended);
-        tab.addNumber("Current Arm Ticks", () -> currentPosition.getAsDouble());
+        tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
         tab.addNumber("Target Arm Ticks", () -> targetTicks);
     }
 
@@ -247,7 +249,7 @@ public class Arm extends SubsystemBase implements Reportable {
         SmartDashboard.putBoolean("Limit switch", limitSwitch.get());
 
         SmartDashboard.putNumber("Arm Motor Output", rotatingArm.getMotorOutputPercent());
-        SmartDashboard.putNumber("Arm Angle", Math.toDegrees(armAngle.getAsDouble()));
+        SmartDashboard.putNumber("Arm Angle", Math.toDegrees(getArmAngle()));
 
         SmartDashboard.putString("Arm Control Mode", rotatingArm.getControlMode().toString());
         // SmartDashboard.putNumber("Closed Loop Target", rotatingArm.getClosedLoopTarget());
@@ -257,7 +259,7 @@ public class Arm extends SubsystemBase implements Reportable {
         SmartDashboard.putNumber("Closed loop error", rotatingArm.getClosedLoopError());
 
         SmartDashboard.putBoolean("Arm Extended", armExtended);
-        SmartDashboard.putNumber("Arm Ticks", currentPosition.getAsDouble());
+        SmartDashboard.putNumber("Arm Ticks", rotatingArm.getSelectedSensorPosition());
         SmartDashboard.putNumber("Target Arm Ticks", targetTicks);
         if (this.getCurrentCommand() != null) {
             SmartDashboard.putBoolean("Arm subsystem", this.getCurrentCommand() == this.getDefaultCommand());

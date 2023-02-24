@@ -29,8 +29,6 @@ public class Elevator extends SubsystemBase implements Reportable{
   private TalonFX elevator;
   private int targetTicks;
   public BooleanSupplier atTargetPosition;
-  public DoubleSupplier percentExtended;
-  public DoubleSupplier currentPosition;
   // private DigitalInput limitSwitch;
 
   /** Creates a new Elevator. */
@@ -38,11 +36,9 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator = new TalonFX(ElevatorConstants.kElevatorID);
     elevator.setNeutralMode(NeutralMode.Brake);
     elevator.setInverted(true);
-    currentPosition = () -> -elevator.getSelectedSensorPosition();
-    atTargetPosition = () -> (NerdyMath.inRange(currentPosition.getAsDouble(), targetTicks - 1500, targetTicks + 1500));
     // limitSwitch = new DigitalInput(ElevatorConstants.kLimitSwitchID);
 
-    percentExtended = () -> (currentPosition.getAsDouble() / (ElevatorConstants.kElevatorScoreHigh + 1500));
+    atTargetPosition = () -> NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500);
     SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
     SmartDashboard.putNumber("Elevator kI", ElevatorConstants.kElevatorI);
     SmartDashboard.putNumber("Elevator kD", ElevatorConstants.kElevatorD);
@@ -94,7 +90,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
     elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
 
-    double ff = ElevatorConstants.kArbitraryFF * Math.sin(angle);
+    double ff = -ElevatorConstants.kArbitraryFF * Math.sin(angle);
     elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
 
     SmartDashboard.putNumber("FF", ff);
@@ -124,6 +120,10 @@ public class Elevator extends SubsystemBase implements Reportable{
     );
   }
 
+  public double percentExtended() {
+    return Math.abs(elevator.getSelectedSensorPosition() / (ElevatorConstants.kElevatorScoreHigh));
+  }
+
   public void setTargetTicks(int targetTicks) {
     this.targetTicks = targetTicks;
   }
@@ -148,11 +148,11 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void reportToSmartDashboard() {
     SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
     SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
-    SmartDashboard.putNumber("Elevator Current Ticks", currentPosition.getAsDouble());
+    SmartDashboard.putNumber("Elevator Current Ticks", elevator.getSelectedSensorPosition());
     SmartDashboard.putNumber("Elevator Target Ticks", targetTicks);
     SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
-    SmartDashboard.putNumber("Elevator Percent Extended", percentExtended.getAsDouble());
+    SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
   }
 
   public void initShuffleboard() {
