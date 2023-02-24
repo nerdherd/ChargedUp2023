@@ -12,6 +12,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -260,8 +263,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     }
 
     public SequentialCommandGroup VisionScore() {
-        // PLACEHOLDER
-        int armEnum;
+        // Defaults
+        int armPositionTicks = ArmConstants.kArmStow;
+        int elevatorPositionTicks = ElevatorConstants.kElevatorStow;
 
         rotationIsNeeded = true;
         goalYaw = 180; // All scoring is facing towards our drivers
@@ -288,17 +292,24 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         switch(currentHeightPos) {
             case HIGH:
-                armEnum = 2; // Score high
+                armPositionTicks = ArmConstants.kArmScore; // Score high
+                elevatorPositionTicks = ElevatorConstants.kElevatorScoreHigh;
                 break;
 
             case MID:
-                armEnum = 3; // Score mid
+                
+                armPositionTicks = ArmConstants.kArmScore; // Score mid
+                elevatorPositionTicks = ElevatorConstants.kElevatorScoreMid;
                 break;
 
             case LOW: // Score ground
-                armEnum = 4;
+                armPositionTicks = ArmConstants.kArmPickUp;
+                elevatorPositionTicks = ElevatorConstants.kElevatorStow;
                 break;
         }
+
+        final int armPositionTicksKyle = armPositionTicks;
+        final int elevatorPositionTicksKyle = elevatorPositionTicks;
 
         // Had to declare both RunCommands in advance because syntax errors would appear if they weren't
         RunCommand driveRotateToTargetRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
@@ -317,11 +328,19 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             new InstantCommand(() -> SmartDashboard.putBoolean("Vision Score Running", true)),
             init,
             // Stow arm
+            new InstantCommand(() -> arm.moveArmMotionMagic(ArmConstants.kArmStow, elevator.percentExtended.getAsDouble())),
+            new InstantCommand(() -> elevator.moveMotionMagic(ElevatorConstants.kElevatorStow, arm.armAngle.getAsDouble())),
             currentVisionRunCommand,
             // Arm to arm enum position
+            new InstantCommand(() -> arm.moveArmMotionMagic(armPositionTicksKyle, elevator.percentExtended.getAsDouble())),
+            new InstantCommand(() -> elevator.moveMotionMagic(elevatorPositionTicksKyle, arm.armAngle.getAsDouble())),
             // Open claw/eject piece with rollers
+            new InstantCommand(() -> claw.clawOpen()),
             // Wait 1 second
+            new WaitCommand(1),
             // Stow arm
+            new InstantCommand(() -> arm.moveArmMotionMagic(ArmConstants.kArmStow, elevator.percentExtended.getAsDouble())),
+            new InstantCommand(() -> elevator.moveMotionMagic(ElevatorConstants.kElevatorStow, arm.armAngle.getAsDouble())),
             // Close claw/stop rollers
             new InstantCommand(() -> SmartDashboard.putBoolean("Vision Score Running", false))
         );
