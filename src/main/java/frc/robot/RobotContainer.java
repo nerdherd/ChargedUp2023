@@ -9,7 +9,6 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.TankDrivetrain;
@@ -21,10 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 import java.util.function.Supplier;
@@ -33,7 +29,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.commands.OldSwerveAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TurnToAngle;
@@ -62,7 +57,7 @@ public class RobotContainer {
 
   public static Arm arm = new Arm();
   public static Elevator elevator = new Elevator();
-  public static Claw claw = new Claw();
+  // public static Claw claw = new Claw();
   
   public static MotorClaw motorClaw = new MotorClaw();
 
@@ -123,7 +118,6 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
-    arm.armExtend();
     arm.setDefaultCommand(
       new RunCommand(
         () -> {
@@ -270,14 +264,12 @@ public class RobotContainer {
 
     autoChooser.setDefaultOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, alliance));
     autoChooser.addOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, alliance));
-    autoChooser.addOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, claw, startPos, scorePos, 0, false));
-    autoChooser.addOption("Preload Go Around and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, claw, startPos, scorePos, 0, true));
+    autoChooser.addOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
+    autoChooser.addOption("Preload Go Around and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true));
     autoChooser.addOption("Direct Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, false));
     autoChooser.addOption("Go Around and Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, true));
     autoChooser.addOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
-    autoChooser.addOption("Old One Piece", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw));
-    // autoChooser.addOption("Hard Carry", () -> OldSwerveAutos.hardCarryAuto(swerveDrive));
-    // autoChooser.addOption("Vending Machine", () -> OldSwerveAutos.vendingMachine(swerveDrive));
+    autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
     autosTab.add("Selected Auto", autoChooser);
     
     positionChooser.setDefaultOption("Right", StartPosition.RIGHT);
@@ -296,7 +288,7 @@ public class RobotContainer {
   
   public void initShuffleboard() {
     imu.initShuffleboard();
-    claw.initShuffleboard();
+    // claw.initShuffleboard();
     arm.initShuffleboard();
     elevator.initShuffleboard();
     coneRunner.initShuffleboard();
@@ -316,7 +308,7 @@ public class RobotContainer {
     SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
     // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
     imu.reportToSmartDashboard();
-    claw.reportToSmartDashboard();
+    // claw.reportToSmartDashboard();
     arm.reportToSmartDashboard();
     elevator.reportToSmartDashboard();
     coneRunner.reportToSmartDashboard();
