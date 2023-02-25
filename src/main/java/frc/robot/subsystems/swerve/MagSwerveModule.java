@@ -235,6 +235,8 @@ public class MagSwerveModule implements SwerveModule {
         tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
         tab.addNumber("Drive Motor Current", driveMotor::getStatorCurrent);
         tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
+        tab.addNumber("Drive Motor Voltage", driveMotor::getMotorOutputVoltage);
+        tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
     }
 
     public void reportToSmartDashboard() {
@@ -245,7 +247,10 @@ public class MagSwerveModule implements SwerveModule {
         SmartDashboard.putNumber("Turn angle #" + turnMotorID, currentAngle);
         SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, desiredAngle);
         SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, desiredAngle - currentAngle);
-        SmartDashboard.putNumber("Current Motor #" + turnMotorID, driveMotor.getStatorCurrent());
+        SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Current", driveMotor.getStatorCurrent());
+        SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Current", turnMotor.getStatorCurrent());
+        SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Voltage", driveMotor.getMotorOutputVoltage());
+        SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Voltage", turnMotor.getMotorOutputVoltage());
     }
 
     /**

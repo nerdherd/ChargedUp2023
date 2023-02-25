@@ -283,9 +283,10 @@ public class Arm extends SubsystemBase implements Reportable {
         // tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
         tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
         
-        tab.addBoolean("Extended", () -> armExtended);
         tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
         tab.addNumber("Target Arm Ticks", () -> targetTicks);
+        tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
+        tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
     }
 
     public void reportToSmartDashboard() {
@@ -301,12 +302,14 @@ public class Arm extends SubsystemBase implements Reportable {
         SmartDashboard.putNumber("arm target velocity", rotatingArm.getActiveTrajectoryVelocity());
         SmartDashboard.putNumber("Closed loop error", rotatingArm.getClosedLoopError());
 
-        SmartDashboard.putBoolean("Arm Extended", armExtended);
         SmartDashboard.putNumber("Arm Ticks", rotatingArm.getSelectedSensorPosition());
         SmartDashboard.putNumber("Target Arm Ticks", targetTicks);
         if (this.getCurrentCommand() != null) {
             SmartDashboard.putBoolean("Arm subsystem", this.getCurrentCommand() == this.getDefaultCommand());
         }
+
+        SmartDashboard.putNumber("Arm Current", rotatingArm.getStatorCurrent());
+        SmartDashboard.putNumber("Arm Voltage", rotatingArm.getMotorOutputVoltage());
 
         SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
 

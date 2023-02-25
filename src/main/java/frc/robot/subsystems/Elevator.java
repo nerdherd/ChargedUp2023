@@ -178,17 +178,21 @@ public class Elevator extends SubsystemBase implements Reportable{
     SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
     SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
+    SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
+    SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
   }
 
   public void initShuffleboard() {
     ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
 
-    tab.addNumber("Elevator Motor Output", () -> elevator.getMotorOutputPercent());
-    tab.addNumber("Elevator Current", () -> elevator.getStatorCurrent());
-    tab.addNumber("Elevator Current Ticks", () -> elevator.getSelectedSensorPosition());
-    tab.addNumber("Elevator Target Ticks", () -> targetTicks);
-    tab.addNumber("Elevator Current Velocity", () -> elevator.getSelectedSensorVelocity());
-    tab.addNumber("Elevator Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
-    tab.addNumber("Elevator Percent Extended", () -> percentExtended());
+    tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
+    tab.addNumber("Current", () -> elevator.getStatorCurrent());
+    tab.addNumber("Current Ticks", () -> elevator.getSelectedSensorPosition());
+    tab.addNumber("Target Ticks", () -> targetTicks);
+    tab.addNumber("Current Velocity", () -> elevator.getSelectedSensorVelocity());
+    tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
+    tab.addNumber("Percent Extended", () -> percentExtended());
+    tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
+    tab.addNumber("Current", elevator::getStatorCurrent);
   }
 }
