@@ -199,8 +199,8 @@ public class RobotContainer {
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
     leftButton.whileTrue(arm.moveArmScore(elevator.percentExtended())) 
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    downButton.whileTrue(arm.moveArmGround(elevator.percentExtended())) 
-      .onFalse(Commands.runOnce(arm::setArmPowerZero));
+    // downButton.whileTrue(arm.moveArmGround(elevator.percentExtended())) 
+    //   .onFalse(Commands.runOnce(arm::setArmPowerZero));
     
     operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm.getArmAngle()))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
