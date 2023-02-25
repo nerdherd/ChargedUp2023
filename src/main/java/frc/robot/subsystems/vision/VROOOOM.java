@@ -424,7 +424,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         
     }
 
-    public void driveRotateToTarget(PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
+    private void driveRotateToTarget(PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
         // Initialize all variables to 0
         double xSpeed = 0;
         double ySpeed = 0;
@@ -476,7 +476,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     }
 
     // Drive to target without rotation
-    public void skrttttToTarget(PIDController pidArea, PIDController pidTX) {
+    private void skrttttToTarget(PIDController pidArea, PIDController pidTX) {
         // Initialize all variables to 0
         double xSpeed = 0;
         double ySpeed = 0;
@@ -545,10 +545,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     @Override
     public void reportToSmartDashboard() {
         SmartDashboard.putString("Vision Current Object", currentGameObject.toString());
-        SmartDashboard.putString("Vision Current Limelight", currentLimelight.getName());
         SmartDashboard.putString("Vision Current Height", currentHeightPos.toString());
-        SmartDashboard.putNumber("Vision Current Pipeline", currentLimelight.getPipeIndex());
-
+        if(currentLimelight != null) {
+            SmartDashboard.putString("Vision Current Limelight", currentLimelight.getName());
+            SmartDashboard.putNumber("Vision Current Pipeline", currentLimelight.getPipeIndex());
+        }
+        else {
+            SmartDashboard.putString("Vision Current Limelight", "L + ratio");
+        }
     }
 
     @Override
@@ -557,7 +561,12 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         tab.addString("Vision Current Object", () -> currentGameObject.toString());
         tab.addString("Vision Current Height", () -> currentHeightPos.toString());
-        tab.addString("Vision Current Limelight", () -> currentLimelight.getName());
-        tab.addNumber("Vision Pipeline", () -> currentLimelight.getPipeIndex());
+        if(currentLimelight != null) {
+            tab.addString("Vision Current Limelight", () -> currentLimelight.getName());
+            tab.addNumber("Vision Pipeline", () -> currentLimelight.getPipeIndex());
+        }
+        else {
+            tab.addString("Vision Current Limelight", () -> "L + ratio");
+        }
     }
 }
