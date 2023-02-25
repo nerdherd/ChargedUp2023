@@ -26,6 +26,8 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.util.NerdyMath;
 
+import static edu.wpi.first.wpilibj2.command.Commands.*;
+
 // Subsystem integration notes from Ayaka
 // arm.movearmmotionmagic(ticks, elevator.percentextended)
 // elevator.movemotionmagic(ticks, arm.getarmangle)
@@ -186,7 +188,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         areaIndex = 0;
     }
 
-    public SequentialCommandGroup VisionPickup() {
+    public CommandBase VisionPickup() {
         // PLACEHOLDER
         int armPositionTicks = ArmConstants.kArmStow;
         int elevatorPositionTicks = ElevatorConstants.kElevatorStow;
@@ -256,45 +258,53 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             currentVisionRunCommand = driveToTargetRunCommand;
         }
 
-        InstantCommand init = new InstantCommand(() -> initVisionCommands());
         
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
-            init,
+        return parallel(
+            sequence(
+                runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
+                runOnce(() -> initVisionCommands()),
 
-            // Move arm and elevator to arm enum position
-            new ParallelRaceGroup(
-                new ParallelCommandGroup(
-                    arm.moveArm(armPositionTicksKyle, elevator::percentExtended).until(elevator.atTargetPosition),
-                    elevator.moveElevator(elevatorPositionTicksKyle, arm::getArmAngle).until(arm.atTargetPosition)
+                // Move arm and elevator to arm enum position
+                deadline(
+                    parallel(
+                        runOnce(() -> arm.setTargetTicks(armPositionTicksKyle)),
+                        runOnce(() -> elevator.setTargetTicks(elevatorPositionTicksKyle))
+                    ),
+                    waitSeconds(5)
                 ),
-                new WaitCommand(5)
-            ),
-            
-            currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(30), // Timeout after 30 seconds
+                
+                currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(5), // Timeout after 30 seconds
 
-            // Open claw/Start claw intake rollers
-            claw.setPower(-0.3),
-            new WaitCommand(2),
+                // Open claw/Start claw intake rollers
+                claw.setPower(-0.3),
+                new WaitCommand(2),
 
-            // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-            claw.setPower(0),
+                // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+                claw.setPower(0),
 
-            // Stow arm/elev
-            new ParallelRaceGroup(
-                new ParallelCommandGroup(
-                    arm.moveArm(ArmConstants.kArmStow, elevator::percentExtended),
-                    elevator.moveElevator(ElevatorConstants.kElevatorStow, arm::getArmAngle)
+                // Stow arm/elev
+                deadline(
+                    parallel(
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    ),
+                    waitSeconds(5)
                 ),
-                new WaitCommand(5)
+                
+                runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
             ),
-            
-            new InstantCommand(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
+
+            run(
+                () -> elevator.moveMotionMagic(arm.getArmAngle())
+            ),
+            run(
+                () -> arm.moveArmMotionMagic(elevator.percentExtended())
+            )
 
         );
     }
 
-    public SequentialCommandGroup VisionScore() {
+    public CommandBase VisionScore() {
         // Defaults
         int armPositionTicks = ArmConstants.kArmStow;
         int elevatorPositionTicks = ElevatorConstants.kElevatorStow;
@@ -354,49 +364,57 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             currentVisionRunCommand = driveToTargetRunCommand;
         }
 
-        InstantCommand init = new InstantCommand(() -> initVisionCommands());
-
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> SmartDashboard.putBoolean("Vision Score Running", true)),
-            init,
-            // Stow arm
-            new ParallelRaceGroup(
-                new ParallelCommandGroup(
-                    arm.moveArm(ArmConstants.kArmStow, elevator::percentExtended),
-                    elevator.moveElevator(ElevatorConstants.kElevatorStow, arm::getArmAngle)
+        return parallel(
+            sequence(
+                runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", true)),
+                runOnce(() -> initVisionCommands()),
+                // Stow arm
+                deadline(
+                    parallel(
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    ),
+                    waitSeconds(5)
                 ),
-                new WaitCommand(5)
-            ),
-            
-            currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(30),
+                
+                currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(5),
 
-            // Arm to arm enum position
-            new ParallelRaceGroup(
-                new ParallelCommandGroup(
-                    arm.moveArm(armPositionTicksKyle, elevator::percentExtended),
-                    elevator.moveElevator(elevatorPositionTicksKyle, arm::getArmAngle)
+                // Arm to arm enum position
+                deadline(
+                    parallel(
+                        runOnce(() -> arm.setTargetTicks(armPositionTicksKyle)),
+                        runOnce(() -> elevator.setTargetTicks(elevatorPositionTicksKyle))
+                    ),
+                    waitSeconds(5)
                 ),
-                new WaitCommand(5)
-            ),
-            
-            // Open claw/eject piece with rollers
-            claw.setPower(0.3),
-            // Wait 1 second
-            new WaitCommand(1),
+                
+                // Open claw/eject piece with rollers
+                claw.setPower(0.3),
+                // Wait 1 second
+                waitSeconds(1),
 
-            // Close claw/stop rollers
-            claw.setPower(0),
+                // Close claw/stop rollers
+                claw.setPower(0),
 
-            // Stow arm
-            new ParallelRaceGroup(
-                new ParallelCommandGroup(
-                    arm.moveArm(ArmConstants.kArmStow, elevator::percentExtended),
-            elevator.moveElevator(ElevatorConstants.kElevatorStow, arm::getArmAngle)
+                // Stow arm
+                deadline(
+                    parallel(
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    ),
+                    waitSeconds(5)
                 ),
-                new WaitCommand(5)
+                
+                runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
             ),
+
+            run(
+                () -> elevator.moveMotionMagic(arm.getArmAngle())
+            ),
+            run(
+                () -> arm.moveArmMotionMagic(elevator.percentExtended())
+            )
             
-            new InstantCommand(() -> SmartDashboard.putBoolean("Vision Score Running", false))
         );
     }
 
@@ -523,6 +541,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putString("Vision Current Object", currentGameObject.toString());
         SmartDashboard.putString("Vision Current Limelight", currentLimelight.getName());
         SmartDashboard.putString("Vision Current Height", currentHeightPos.toString());
+        SmartDashboard.putNumber("Vision Current Pipeline", currentLimelight.getPipeIndex());
+
     }
 
     @Override
