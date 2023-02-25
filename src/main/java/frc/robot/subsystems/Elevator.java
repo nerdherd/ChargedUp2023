@@ -5,20 +5,15 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-import java.util.spi.CurrencyNameProvider;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -177,11 +172,12 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void initShuffleboard() {
     ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
 
-    tab.addNumber("Elevator Motor Output", () -> elevator.getMotorOutputPercent());
-    tab.addNumber("Elevator Current", () -> elevator.getStatorCurrent());
-    tab.addNumber("Elevator Current Ticks", () -> elevator.getSelectedSensorPosition());
-    tab.addNumber("Elevator Target Ticks", () -> targetTicks);
-    tab.addNumber("Elevator Current Velocity", () -> elevator.getSelectedSensorVelocity());
-    tab.addNumber("Elevator Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
+    tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
+    tab.addNumber("Current", () -> elevator.getStatorCurrent());
+    tab.addNumber("Current Ticks", () -> elevator.getSelectedSensorPosition());
+    tab.addNumber("Target Ticks", () -> targetTicks);
+    tab.addNumber("Current Velocity", () -> elevator.getSelectedSensorVelocity());
+    tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
+    tab.addNumber("Percent Extended", this::percentExtended);
   }
 }

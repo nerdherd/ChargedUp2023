@@ -2,7 +2,6 @@ package frc.robot.filters;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The original driver filter used to filter swerve drive teleop input.

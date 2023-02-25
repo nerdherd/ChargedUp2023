@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 
@@ -256,15 +255,15 @@ public class Arm extends SubsystemBase implements Reportable {
     public void initShuffleboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Arm");
 
-        tab.addNumber("Arm Motor Output", rotatingArm::getMotorOutputPercent);
-        tab.addNumber("Arm Angle", () -> (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
-        tab.addString("Arm Control Mode", rotatingArm.getControlMode()::toString);
-        tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
-        tab.addNumber("arm velocity", rotatingArm::getSelectedSensorVelocity);
+        tab.addNumber("Motor Output", rotatingArm::getMotorOutputPercent);
+        tab.addNumber("Angle", () -> (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
+        tab.addString("Control Mode", rotatingArm.getControlMode()::toString);
+        tab.addNumber("target velocity", rotatingArm::getActiveTrajectoryVelocity);
+        tab.addNumber("velocity", rotatingArm::getSelectedSensorVelocity);
         // tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
         tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
         
-        tab.addBoolean("Arm Extended", () -> armExtended);
+        tab.addBoolean("Extended", () -> armExtended);
         tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
         tab.addNumber("Target Arm Ticks", () -> targetTicks);
     }

@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
 
+import static edu.wpi.first.wpilibj2.command.Commands.*;
+
 public class MotorClaw extends SubsystemBase implements Reportable {
 
   private TalonSRX leftMotor, rightMotor;
@@ -39,6 +41,22 @@ public class MotorClaw extends SubsystemBase implements Reportable {
 
   public CommandBase setPowerZero() {
     return setPower(0);
+  }
+
+  public CommandBase outtake() {
+    return sequence(
+      setPower(ClawConstants.kOuttakePower),
+      waitSeconds(1),
+      setPowerZero()
+    );
+  }
+
+  public CommandBase intake() {
+    return sequence(
+      setPower(ClawConstants.kIntakePower),
+      waitSeconds(1),
+      setPowerZero()
+    );
   }
 
   @Override
