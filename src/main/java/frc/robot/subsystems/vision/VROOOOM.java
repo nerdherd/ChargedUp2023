@@ -6,6 +6,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -542,5 +544,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
     @Override
     public void initShuffleboard() {
+        ShuffleboardTab tab = Shuffleboard.getTab(this.getName());
+
+        tab.addString("Vision Current Object", () -> currentGameObject.toString());
+        tab.addString("Vision Current Height", () -> currentHeightPos.toString());
+        tab.addString("Vision Current Limelight", () -> currentLimelight.getName());
+        tab.addNumber("Vision Pipeline", () -> currentLimelight.getPipeIndex());
     }
 }
