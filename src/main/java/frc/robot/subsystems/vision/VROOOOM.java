@@ -263,11 +263,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     
                     // Move arm and elevator to arm enum position
                     deadline(
+                        waitSeconds(5),
                         parallel(
                             runOnce(() -> arm.setTargetTicks(armPositionTicksKyle)),
                             runOnce(() -> elevator.setTargetTicks(elevatorPositionTicksKyle))
-                        ),
-                        waitSeconds(5)
+                        )
                     ),
                     
                     currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(5), // Timeout after 30 seconds
@@ -281,11 +281,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     
                     // Stow arm/elev
                     deadline(
+                        waitSeconds(5),
                         parallel(
                             runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                             runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        ),
-                        waitSeconds(5)
+                        )
                     ),
                     
                     runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
@@ -371,22 +371,22 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     runOnce(() -> initVisionCommands()),
                     // Stow arm
                     deadline(
+                        waitSeconds(5),
                         parallel(
                             runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                             runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        ),
-                        waitSeconds(5)
+                        )
                     ),
                     
                     currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(5),
     
                     // Arm to arm enum position
                     deadline(
+                        waitSeconds(5),
                         parallel(
                             runOnce(() -> arm.setTargetTicks(armPositionTicksKyle)),
                             runOnce(() -> elevator.setTargetTicks(elevatorPositionTicksKyle))
-                        ),
-                        waitSeconds(5)
+                        )
                     ),
                     
                     // Open claw/eject piece with rollers
@@ -399,11 +399,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     
                     // Stow arm
                     deadline(
+                        waitSeconds(5),
                         parallel(
                             runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                             runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        ),
-                        waitSeconds(5)
+                        )
                     ),
                     
                     runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
