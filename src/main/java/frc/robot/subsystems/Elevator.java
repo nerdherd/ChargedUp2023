@@ -177,11 +177,12 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void initShuffleboard() {
     ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
 
-    tab.addNumber("Elevator Motor Output", () -> elevator.getMotorOutputPercent());
-    tab.addNumber("Elevator Current", () -> elevator.getStatorCurrent());
-    tab.addNumber("Elevator Current Ticks", () -> elevator.getSelectedSensorPosition());
-    tab.addNumber("Elevator Target Ticks", () -> targetTicks);
-    tab.addNumber("Elevator Current Velocity", () -> elevator.getSelectedSensorVelocity());
-    tab.addNumber("Elevator Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
+    tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
+    tab.addNumber("Current", () -> elevator.getStatorCurrent());
+    tab.addNumber("Current Ticks", () -> elevator.getSelectedSensorPosition());
+    tab.addNumber("Target Ticks", () -> targetTicks);
+    tab.addNumber("Current Velocity", () -> elevator.getSelectedSensorVelocity());
+    tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
+    tab.addNumber("Percent Extended", this::percentExtended);
   }
 }

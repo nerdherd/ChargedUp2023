@@ -62,7 +62,7 @@ public class RobotContainer {
 
   public static Arm arm = new Arm();
   public static Elevator elevator = new Elevator();
-  public static Claw claw = new Claw();
+  // public static Claw claw = new Claw();
   
   public static MotorClaw motorClaw = new MotorClaw();
 
@@ -123,7 +123,6 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
-    arm.armExtend();
     arm.setDefaultCommand(
       new RunCommand(
         () -> {
@@ -294,8 +293,9 @@ public class RobotContainer {
   
   public void initShuffleboard() {
     imu.initShuffleboard();
-    claw.initShuffleboard();
+    // claw.initShuffleboard();
     arm.initShuffleboard();
+    elevator.initShuffleboard();
     coneRunner.initShuffleboard();
     if (IsSwerveDrive) {
       swerveDrive.initShuffleboard();
@@ -311,7 +311,7 @@ public class RobotContainer {
     SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
     // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
     imu.reportToSmartDashboard();
-    claw.reportToSmartDashboard();
+    // claw.reportToSmartDashboard();
     arm.reportToSmartDashboard();
     elevator.reportToSmartDashboard();
     coneRunner.reportToSmartDashboard();
