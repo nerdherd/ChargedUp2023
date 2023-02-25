@@ -81,14 +81,14 @@ public final class Constants {
     public static final int kPistonReverseID = 3;
     public static final int kPCMPort = 3;
 
-    public static final int kLeftMotorID = 51;
-    public static final int kRightMotorID = 50;
+    public static final int kLeftMotorID = 62;
+    public static final int kRightMotorID = 61;
   }
 
   public static class ArmConstants{
-    public static final int kRotatingArmID = 17;
-    public static final int kArmStow = -357277;//144278;
-    public static final int kArmScore = -217987;//596443; // 89744;
+   public static final int kRotatingArmID = 17;
+    public static final int kArmStow = -622481;//144278;
+    public static final int kArmScore = -444298;//596443; // 89744;
     public static final int kArmGroundPickup = 1987;//767054;// 34352;
     public static final int kArmSubstation = 0; // TODO: MEASURE THIS PWEASE
     public static final int kArmMotionAcceleration = 12000;//800000; //160000;
@@ -104,7 +104,7 @@ public static final double kArmD = 0.0;
     public static final int kPistonForwardID = 5;
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kTicksPerAngle = 5215;
+    public static final double kTicksPerAngle = 7950;
     public static final int kLimitSwitchID = 0;
 
 

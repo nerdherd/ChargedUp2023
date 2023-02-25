@@ -56,7 +56,12 @@ public class Elevator extends SubsystemBase implements Reportable{
             // elevator.setNeutralMode(NeutralMode.Coast);
           //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
-          elevator.set(ControlMode.PercentOutput, -0.40);
+          if (elevator.getSelectedSensorPosition() <= -80000) {
+            elevator.set(ControlMode.PercentOutput, 0);
+          } else {
+            elevator.set(ControlMode.PercentOutput, -0.40);
+
+          }
             // elevator.setNeutralMode(NeutralMode.Coast);
       
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
@@ -183,5 +188,6 @@ public class Elevator extends SubsystemBase implements Reportable{
     tab.addNumber("Elevator Target Ticks", () -> targetTicks);
     tab.addNumber("Elevator Current Velocity", () -> elevator.getSelectedSensorVelocity());
     tab.addNumber("Elevator Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
+    tab.addNumber("Elevator Percent Extended", () -> percentExtended());
   }
 }

@@ -72,7 +72,7 @@ public class RobotContainer {
   public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
-  public VROOOOM vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+  // public VROOOOM vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
 
   private final CommandBadPS4 driverController = new CommandBadPS4(
       ControllerConstants.kDriverControllerPort);
@@ -203,11 +203,11 @@ public class RobotContainer {
 
     
     upButton.whileTrue(arm.moveArmStow(elevator.percentExtended())) 
-      .onFalse(Commands.runOnce(arm::setPowerZero));
+      .onFalse(Commands.runOnce(arm::setArmPowerZero));
     leftButton.whileTrue(arm.moveArmScore(elevator.percentExtended())) 
-      .onFalse(Commands.runOnce(arm::setPowerZero));
+      .onFalse(Commands.runOnce(arm::setArmPowerZero));
     downButton.whileTrue(arm.moveArmGround(elevator.percentExtended())) 
-      .onFalse(Commands.runOnce(arm::setPowerZero));
+      .onFalse(Commands.runOnce(arm::setArmPowerZero));
     
     operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm.getArmAngle()))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
@@ -229,10 +229,10 @@ public class RobotContainer {
     
     // operatorController.triangle().whileTrue(arm.armExtend());
     // operatorController.square().whileTrue(arm.armStow());
-    // operatorController.L1().whileTrue(motorClaw.setPower(0.4))
-    //     .onFalse(motorClaw.setPowerZero());
-    // operatorController.R1().whileTrue(motorClaw.setPower(-0.4))
-    //     .onFalse(motorClaw.setPowerZero());
+    operatorController.L1().whileTrue(motorClaw.setPower(0.3))
+        .onFalse(motorClaw.setPowerZero());
+    operatorController.R1().whileTrue(motorClaw.setPower(-0.3))
+        .onFalse(motorClaw.setPowerZero());
     // operatorController.circle().onTrue(claw.clawOpen());
     // operatorController.cross().onTrue(claw.clawClose());
 
@@ -251,17 +251,17 @@ public class RobotContainer {
       // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
       // ====== Vision Bindings ====== 
-      driverController.L1().whileTrue(vision.VisionPickup())
-        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-      driverController.R1().whileTrue(vision.VisionScore())
-        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // driverController.L1().whileTrue(vision.VisionPickup())
+      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // driverController.R1().whileTrue(vision.VisionScore())
+      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-      upButton.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
-      leftButton.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
-      downButton.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
+      // upButton.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
+      // leftButton.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
+      // downButton.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
 
-      operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
-      operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
+      // operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
+      // operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
     }
   }
 
@@ -298,6 +298,7 @@ public class RobotContainer {
     imu.initShuffleboard();
     claw.initShuffleboard();
     arm.initShuffleboard();
+    elevator.initShuffleboard();
     coneRunner.initShuffleboard();
     if (IsSwerveDrive) {
       swerveDrive.initShuffleboard();
@@ -306,6 +307,8 @@ public class RobotContainer {
       tankDrive.initShuffleboard();
     }
     airCompressor.initShuffleboard();
+
+
   }
 
   public void reportAllToSmartDashboard() {

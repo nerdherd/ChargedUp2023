@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.PneumaticsConstants;
 import frc.robot.util.NerdyMath;
 
@@ -34,8 +35,10 @@ public class Arm extends SubsystemBase implements Reportable {
     private DoubleSolenoid arm;
 
     private TalonFX rotatingArm;
+    private TalonFX elevator;
     private boolean armExtended = false;
     private int targetTicks = ArmConstants.kArmStow;
+    private int elevatorTargetTicks = ElevatorConstants.kElevatorStow;
     private PIDController armPID;
     public BooleanSupplier atTargetPosition;
     private DigitalInput limitSwitch;
@@ -95,6 +98,8 @@ public class Arm extends SubsystemBase implements Reportable {
         moveArmMotionMagic(targetTicks, perentExtended);
     }
 
+    
+
     public CommandBase moveArmJoystickCommand(Supplier<Double> joystickInput) {
         return Commands.run(
             () -> moveArmJoystickCommand(joystickInput), this);
@@ -114,9 +119,9 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
         targetTicks = position;
 
-        SmartDashboard.putNumber("FF", ff);
+        SmartDashboard.putNumber("Arm FF", ff);
 
-        SmartDashboard.putBoolean("motion magic :(", true);
+        SmartDashboard.putBoolean("arm motion magic :(", true);
 
         // if (Math.abs(currentPosition.getAsDouble() - position) > 10) {
         //     rotatingArm.setNeutralMode(NeutralMode.Brake);
@@ -138,9 +143,9 @@ public class Arm extends SubsystemBase implements Reportable {
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
         rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
 
-        SmartDashboard.putNumber("FF", ff);
+        SmartDashboard.putNumber("Arm FF", ff);
 
-        SmartDashboard.putBoolean("motion magic :(", true);
+        SmartDashboard.putBoolean("arm motion magic :(", true);
 
         // if (Math.abs(currentPosition.getAsDouble() - position) > 10) {
         //     rotatingArm.setNeutralMode(NeutralMode.Brake);
@@ -153,11 +158,11 @@ public class Arm extends SubsystemBase implements Reportable {
         this.targetTicks = targetTicks;
     }
 
-    public void setPowerZero() {
+    public void setArmPowerZero() {
         rotatingArm.set(ControlMode.PercentOutput, 0.0);
     }
 
-    public void setBrakeMode() {
+    public void setArmBrakeMode() {
         rotatingArm.setNeutralMode(NeutralMode.Brake);
     }
 
@@ -252,6 +257,15 @@ public class Arm extends SubsystemBase implements Reportable {
     public void resetEncoderStow() {
         rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
     }
+
+    
+    public void armResetEncoder(int ticks) {
+        rotatingArm.setSelectedSensorPosition(ticks);
+    }
+
+    public void elevatorResetEncoder() {
+        elevator.setSelectedSensorPosition(ElevatorConstants.kElevatorStow);
+    }
     
     public void initShuffleboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Arm");
@@ -288,7 +302,18 @@ public class Arm extends SubsystemBase implements Reportable {
         if (this.getCurrentCommand() != null) {
             SmartDashboard.putBoolean("Arm subsystem", this.getCurrentCommand() == this.getDefaultCommand());
         }
+
+        SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
+
+        SmartDashboard.putString("Elevator Control Mode", elevator.getControlMode().toString());
+        SmartDashboard.putNumber("elevator target velocity", elevator.getActiveTrajectoryVelocity());
+        SmartDashboard.putNumber("elevator velocity", elevator.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Closed loop error", elevator.getClosedLoopError());
+
+        SmartDashboard.putNumber("Elevator Ticks", elevator.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Target Elevator Ticks", elevatorTargetTicks);
     }
+
 }
 
   
