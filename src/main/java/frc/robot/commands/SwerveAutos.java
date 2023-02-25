@@ -297,6 +297,30 @@ public class SwerveAutos {
         );
     }
 
+    public static CommandBase preloadBackup(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition startPos, ScorePosition scorePos, double waitTime, boolean goAround) {
+        return sequence(
+            race(
+                sequence(
+                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                    waitSeconds(0.5),
+                    waitUntil(arm.atTargetPosition)
+                ),
+                waitSeconds(2)
+            ),
+            race(
+                sequence(
+                    runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                    waitSeconds(0.5),
+                    waitUntil(elevator.atTargetPosition)
+                ),
+                waitSeconds(2)
+            ),
+            waitSeconds(1),
+            claw.clawOpen(),
+            backupChargeAuto(swerveDrive)
+        );
+    }
+
     public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, double waitTime, boolean goAround) {
         return chargeAuto(swerveDrive, startPos, DriverStation.getAlliance(), waitTime, goAround);
     }

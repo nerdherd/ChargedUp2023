@@ -170,12 +170,12 @@ public class RobotContainer {
           // driverControllerButtons::getTriangleButton,
           badPS4::getR3Button,
           () -> {
-            if (badPS4.getL2Button()) {
-              return DodgeDirection.LEFT;
-            } 
-            if (badPS4.getR2Button()) {
-              return DodgeDirection.RIGHT;
-            }
+            // if (badPS4.getL2Button()) {
+            //   return DodgeDirection.LEFT;
+            // } 
+            // if (badPS4.getR2Button()) {
+            //   return DodgeDirection.RIGHT;
+            // }
             return DodgeDirection.NONE;
           }
         ));
