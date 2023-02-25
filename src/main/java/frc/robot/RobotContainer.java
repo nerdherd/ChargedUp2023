@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TurnToAngle;
-import frc.robot.commands.SwerveAutos.ScorePosition;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
@@ -67,7 +66,7 @@ public class RobotContainer {
   public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
-  // public VROOOOM vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+  public VROOOOM vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
 
   private final CommandBadPS4 driverController = new CommandBadPS4(
       ControllerConstants.kDriverControllerPort);
@@ -84,9 +83,9 @@ public class RobotContainer {
 
   private SendableChooser<Supplier<CommandBase>> autoChooser = new SendableChooser<Supplier<CommandBase>>();
   private SendableChooser<StartPosition> positionChooser = new SendableChooser<StartPosition>();
-  private SendableChooser<ScorePosition> scoreChooser = new SendableChooser<ScorePosition>();
+  private SendableChooser<SCORE_POS> scoreChooser = new SendableChooser<SCORE_POS>();
 
-  private ScorePosition scorePos = ScorePosition.MID;
+  private SCORE_POS scorePos = SCORE_POS.MID;
   private StartPosition startPos = StartPosition.RIGHT;
   private Alliance alliance = Alliance.Invalid;
 
@@ -250,26 +249,31 @@ public class RobotContainer {
       // driverController.R1().whileTrue(vision.VisionScore())
       //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-      // upButton.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
-      // leftButton.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
-      // downButton.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
+      upButton.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
+      leftButton.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
+      downButton.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
 
-      // operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
-      // operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
+      operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
+      operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
     }
   }
 
   private void initAutoChoosers() {
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
+    SmartDashboard.putBoolean("Dummy Auto", false);
 
-    autoChooser.setDefaultOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, alliance));
-    autoChooser.addOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, alliance));
+    // autoChooser.setDefaultOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, alliance));
+    // autoChooser.addOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, alliance));
+    autoChooser.setDefaultOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
     autoChooser.addOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
     autoChooser.addOption("Preload Go Around and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true));
+    autoChooser.addOption("Vision Preload Charge", () -> SwerveAutos.visionPreloadChargeAuto(vision, swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
+    autoChooser.addOption("Vision Preload Old Charge", () -> SwerveAutos.backupVisionPreloadChargeAuto(vision, swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
     autoChooser.addOption("Direct Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, false));
     autoChooser.addOption("Go Around and Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, true));
     autoChooser.addOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
-    autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
+    autoChooser.addOption("Test Auto",  () -> Commands.runOnce(() -> SmartDashboard.putBoolean("Dummy Auto", true)));
+    // autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
     autosTab.add("Selected Auto", autoChooser);
     
     positionChooser.setDefaultOption("Right", StartPosition.RIGHT);
@@ -277,13 +281,17 @@ public class RobotContainer {
     positionChooser.addOption("Middle", StartPosition.MIDDLE);
     positionChooser.addOption("Right", StartPosition.RIGHT);
     autosTab.add("Start Position", positionChooser);
+    autosTab.addString("Selected Start Position", () -> startPos.toString());
 
     // TODO: Implement changing score position in the autos
-    scoreChooser.setDefaultOption("Hybrid", ScorePosition.HYBRID);
-    scoreChooser.addOption("Hybrid", ScorePosition.HYBRID);
-    scoreChooser.addOption("Mid", ScorePosition.MID);
-    scoreChooser.addOption("High", ScorePosition.HIGH);
+    scoreChooser.setDefaultOption("Hybrid", SCORE_POS.LOW);
+    scoreChooser.addOption("Hybrid", SCORE_POS.LOW);
+    scoreChooser.addOption("Mid", SCORE_POS.MID);
+    scoreChooser.addOption("High", SCORE_POS.HIGH);
     autosTab.add("Score Position", scoreChooser);
+    autosTab.addString("Selected Score Position", () -> scorePos.toString());
+
+    autosTab.addString("Current Alliance", () -> alliance.toString());
   }
   
   public void initShuffleboard() {
