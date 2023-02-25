@@ -88,17 +88,18 @@ public final class Constants {
   }
 
   public static class ArmConstants{
-   public static final int kRotatingArmID = 17;
+    public static final int kRotatingArmID = 17;
+    public static final int kArmLowerLimit = -260000;
     public static final int kArmStow = -622481;//144278;
     public static final int kArmScore = -444298;//596443; // 89744;
-    public static final int kArmGroundPickup = 1987;//767054;// 34352;
+    public static final int kArmGroundPickup = -278000;//767054;// 34352;
     public static final int kArmSubstation = 0; // TODO: MEASURE THIS PWEASE
     public static final int kArmMotionAcceleration = 12000;//800000; //160000;
     public static final int kArmCruiseVelocity = 15000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
-public static final double kArmD = 0.0;
+    public static final double kArmD = 0.0;
     public static final double kArmF = 0.047;
     public static final double kStowedFF = 0.069;
     public static final double kExtendedFF = 0.089;

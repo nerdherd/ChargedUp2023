@@ -111,9 +111,10 @@ public class RobotContainer {
 
     }
 
-
+    elevator.resetEncoderStow();
     // Configure the trigger bindings
     configureBindings();
+    
   }
 
   public void initDefaultCommands() {
@@ -131,13 +132,13 @@ public class RobotContainer {
     elevator.setDefaultCommand(
       new RunCommand(
         () -> {
-          elevator.moveElevatorJoystick(operatorController.getRightY() * 0.125, arm.getArmAngle());
+          elevator.moveElevatorJoystick(operatorController.getRightY() * -0.125, arm.getArmAngle());
           SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
         }, 
         elevator
       ));
 
-    // elevator.resetEncoder();
+    
 
     // coneRunner.setDefaultCommand(
     //   Commands.run(() -> {
@@ -199,8 +200,8 @@ public class RobotContainer {
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
     leftButton.whileTrue(arm.moveArmScore(elevator.percentExtended())) 
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    // downButton.whileTrue(arm.moveArmGround(elevator.percentExtended())) 
-    //   .onFalse(Commands.runOnce(arm::setArmPowerZero));
+    downButton.whileTrue(arm.moveArmGround(elevator.percentExtended())) 
+      .onFalse(Commands.runOnce(arm::setArmPowerZero));
     
     operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm.getArmAngle()))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
@@ -225,7 +226,7 @@ public class RobotContainer {
     operatorController.L1().whileTrue(motorClaw.setPower(0.3))
         .onFalse(motorClaw.setPowerZero());
     operatorController.R1().whileTrue(motorClaw.setPower(-0.3))
-        .onFalse(motorClaw.setPowerZero());
+        .onFalse(motorClaw.setPower(-0.1));
     // operatorController.circle().onTrue(claw.clawOpen());
     // operatorController.cross().onTrue(claw.clawClose());
 

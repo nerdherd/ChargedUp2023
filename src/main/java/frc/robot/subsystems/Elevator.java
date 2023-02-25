@@ -47,22 +47,22 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
     setBrakeMode();
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
-            elevator.set(ControlMode.PercentOutput, 0.40);
-
-            if (elevator.getSelectedSensorPosition() >= 0) { // TODO: Measure elevator lower limit
-              elevator.set(ControlMode.PercentOutput, 0);
+            if (elevator.getSelectedSensorPosition() <= -200000) {
+            elevator.set(ControlMode.PercentOutput, 0);
             } else {
-              elevator.set(ControlMode.PercentOutput, -0.40);
+              elevator.set(ControlMode.PercentOutput, -0.75);
             }
+            
 
             // elevator.setNeutralMode(NeutralMode.Coast);
           //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
-          if (elevator.getSelectedSensorPosition() <= -80000) {
+          if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 10000) { // TODO: Measure elevator lower limit
             elevator.set(ControlMode.PercentOutput, 0);
           } else {
-            elevator.set(ControlMode.PercentOutput, -0.40);
+            elevator.set(ControlMode.PercentOutput, 0.75);
           }
+          
             // elevator.setNeutralMode(NeutralMode.Coast);
       
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
@@ -163,6 +163,10 @@ public class Elevator extends SubsystemBase implements Reportable{
 
   public void resetEncoder() {
     elevator.setSelectedSensorPosition(0);
+  }
+
+  public void resetEncoderStow() {
+    elevator.setSelectedSensorPosition(ElevatorConstants.kElevatorStow);
   }
 
   @Override

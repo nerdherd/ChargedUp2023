@@ -68,18 +68,18 @@ public class Arm extends SubsystemBase implements Reportable {
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
             
-            if (rotatingArm.getSelectedSensorPosition() >= 0) { // TODO: Measure arm lower limit
+            if (rotatingArm.getSelectedSensorPosition() >= ArmConstants.kArmLowerLimit) {
                 rotatingArm.set(ControlMode.PercentOutput, 0);
               } else {
-                rotatingArm.set(ControlMode.PercentOutput, -0.40);
+                rotatingArm.set(ControlMode.PercentOutput, 0.60);
             }
 
-            rotatingArm.set(ControlMode.PercentOutput, 0.60);
+            // rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
-        } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) {
+        } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) { // Up
             if (limitSwitch.get()) {
                 rotatingArm.set(ControlMode.PercentOutput, 0);
-                
+                resetEncoderStow();
             } else {
                 rotatingArm.set(ControlMode.PercentOutput, -0.60);
             }
@@ -226,13 +226,13 @@ public class Arm extends SubsystemBase implements Reportable {
     **/
     public CommandBase moveArmPickUp(double percentExtended) {
         return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmGroundPickup, percentExtended), this
+            () -> moveArmMotionMagic(ArmConstants.kArmSubstation, percentExtended), this
             
         );
     }
 
     public CommandBase moveArmPickup(Supplier<Double> percentExtendedSupplier) {
-        return moveArm(ArmConstants.kArmGroundPickup, percentExtendedSupplier);
+        return moveArm(ArmConstants.kArmSubstation, percentExtendedSupplier);
     }
 
     public double getArmAngle() {
