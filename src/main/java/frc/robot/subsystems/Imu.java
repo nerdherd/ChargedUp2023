@@ -53,7 +53,7 @@ public class Imu extends SubsystemBase implements Reportable {
      * @return Angle of the robot (degrees)
      */
     public double getHeading() {
-        double heading = Math.IEEEremainder(ahrs.getAngle(), 360);
+        double heading = Math.IEEEremainder(ahrs.getRoll(), 360);
         SmartDashboard.putNumber("Heading degrees", heading);
         return heading;
     }
