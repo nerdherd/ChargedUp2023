@@ -9,6 +9,7 @@ import java.util.Arrays;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Reportable;
 import frc.robot.util.NerdyMath;
 
@@ -438,7 +439,7 @@ public class Limelight implements Reportable{
     }
 
     public void initShuffleboard() {
-        ShuffleboardTab tab = Shuffleboard.getTab("Limelight");
+        ShuffleboardTab tab = Shuffleboard.getTab(this.getName());
 
         tab.addBoolean("HasTarget", this::hasValidTarget);
         tab.addNumber("Horizontal Offset", this::getXAngle);
@@ -447,6 +448,8 @@ public class Limelight implements Reportable{
         tab.addNumber("Skew", this::getSkew);
         tab.addString("XCorners", () -> Arrays.toString(getXCorners()));
         tab.addString("YCorners", () -> Arrays.toString(getYCorners()));
+        tab.add("LED ON", Commands.runOnce(() -> this.turnLightOn()));
+        tab.add("LED OFF", Commands.runOnce(() -> this.turnLightOff()));
     }
 
     /**
