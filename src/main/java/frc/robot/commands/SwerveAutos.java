@@ -18,7 +18,6 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
