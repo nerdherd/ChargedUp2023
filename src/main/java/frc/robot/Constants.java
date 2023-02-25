@@ -349,6 +349,12 @@ public static final double kArmD = 0.0;
     public static final double kConeRunnerF = 0;
     public static final double kConeRunnerArbitraryFF = 0;
 
+    // TODO: Measure IRL
+    public static final double kConeIntakePower = 0.3;
+    public static final double kCubeIntakePower = -0.3;
+    public static final double kConeOuttakePower = -0.3;
+    public static final double kCubeOuttakePower = 0.3;
+
     public static final double kInitialAngleDegrees = 90;
     public static final double kDegreesPerTicks = 360 / 4096;
 

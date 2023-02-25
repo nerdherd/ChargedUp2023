@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.claw;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -9,10 +9,13 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConeRunnerConstants;
+import frc.robot.subsystems.Reportable;
 
-public class ConeRunner extends SubsystemBase implements Reportable {
+public class ConeRunner extends SubsystemBase implements Reportable, Claw {
     private TalonSRX positionMotor;
     private TalonSRX speedMotor;
     private double targetTicks;
@@ -81,6 +84,46 @@ public class ConeRunner extends SubsystemBase implements Reportable {
         speedMotor.set(ControlMode.PercentOutput, 0);
     }
 
+    public CommandBase setPower(double power) {
+        return runOnce(() -> speedMotor.set(ControlMode.PercentOutput, power));
+    }
+
+    public CommandBase setPowerZero() {
+        return setPower(0);
+    }
+
+    public CommandBase outtakeCone() {
+        return Commands.sequence(
+            setPower(ConeRunnerConstants.kConeOuttakePower),
+            Commands.waitSeconds(1),
+            setPowerZero()
+        );
+    }
+    
+    public CommandBase intakeCone() {
+        return Commands.sequence(
+            setPower(ConeRunnerConstants.kConeIntakePower),
+            Commands.waitSeconds(1),
+            setPowerZero()
+        );
+    }
+
+    public CommandBase outtakeCube() {
+        return Commands.sequence(
+            setPower(ConeRunnerConstants.kCubeOuttakePower),
+            Commands.waitSeconds(1),
+            setPowerZero()
+        );
+    }
+    
+    public CommandBase intakeCube() {
+        return Commands.sequence(
+            setPower(ConeRunnerConstants.kCubeIntakePower),
+            Commands.waitSeconds(1),
+            setPowerZero()
+        );
+    }
+    
     public void reportToSmartDashboard() {
         SmartDashboard.putNumber("Cone Runner Target Ticks", targetTicks);   
         SmartDashboard.putNumber("Cone Runner Angle Ticks", positionMotor.getSelectedSensorPosition());

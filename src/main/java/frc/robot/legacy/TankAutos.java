@@ -3,12 +3,12 @@ package frc.robot.legacy;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.TankDrivetrain;
+import frc.robot.subsystems.claw.PistonClaw;
 
 public class TankAutos {
     
-    public static CommandBase HardCarryAuto(TankDrivetrain drivetrain, Claw claw, Arm arm) {
+    public static CommandBase HardCarryAuto(TankDrivetrain drivetrain, PistonClaw claw, Arm arm) {
         return Commands.sequence(
             arm.armExtend(),
             claw.clawOpen(),
@@ -35,7 +35,7 @@ public class TankAutos {
             );
     }
 
-    public static CommandBase DietCokeAuto(TankDrivetrain drivetrain, Claw claw, Arm arm) {
+    public static CommandBase DietCokeAuto(TankDrivetrain drivetrain, PistonClaw claw, Arm arm) {
         
         return Commands.sequence(
             arm.armExtend(),
@@ -67,7 +67,7 @@ public class TankAutos {
         
     }
 
-    public static CommandBase OverpricedVendingMachineAuto(TankDrivetrain drivetrain, Claw claw, Arm arm) {
+    public static CommandBase OverpricedVendingMachineAuto(TankDrivetrain drivetrain, PistonClaw claw, Arm arm) {
         return Commands.sequence(
             arm.armExtend(),
             claw.clawOpen(),
@@ -86,7 +86,7 @@ public class TankAutos {
     }
 
 
-    public static CommandBase chooseAuto(TankDrivetrain drivetrain, Claw claw, Arm arm, String location, boolean getGamePiece, boolean balanceRamp, boolean outCommunity) {
+    public static CommandBase chooseAuto(TankDrivetrain drivetrain, PistonClaw claw, Arm arm, String location, boolean getGamePiece, boolean balanceRamp, boolean outCommunity) {
         if (location.equals("left")) {
             if (getGamePiece) {
                 if (balanceRamp) {

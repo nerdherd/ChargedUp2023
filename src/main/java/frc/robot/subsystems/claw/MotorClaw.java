@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.claw;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -13,10 +13,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
+import frc.robot.subsystems.Reportable;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
-public class MotorClaw extends SubsystemBase implements Reportable {
+public class MotorClaw extends SubsystemBase implements Reportable, Claw {
 
   private TalonSRX leftMotor, rightMotor;
 
@@ -43,7 +44,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     return setPower(0);
   }
 
-  public CommandBase outtake() {
+  private CommandBase outtake() {
     return sequence(
       setPower(ClawConstants.kOuttakePower),
       waitSeconds(1),
@@ -51,13 +52,19 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     );
   }
 
-  public CommandBase intake() {
+  private CommandBase intake() {
     return sequence(
       setPower(ClawConstants.kIntakePower),
       waitSeconds(1),
       setPowerZero()
     );
   }
+
+  public CommandBase intakeCube() {return intake();}
+  public CommandBase intakeCone() {return intake();}
+  public CommandBase outtakeCube() {return outtake();}
+  public CommandBase outtakeCone() {return outtake();}
+
 
   @Override
   public void periodic() {

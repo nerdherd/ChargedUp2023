@@ -19,7 +19,7 @@ import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.MotorClaw;
+import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 import static frc.robot.Constants.SwerveAutoConstants.*;
@@ -46,7 +46,7 @@ public class SwerveAutos {
      * @param swerveDrive
      * @return
      */
-    public static CommandBase onePieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance) {
+    public static CommandBase onePieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition position, Alliance alliance) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
@@ -153,7 +153,7 @@ public class SwerveAutos {
                     )
                 ),
 
-                claw.outtake(),
+                claw.outtakeCone(),
                 
                 runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
                 deadline(
@@ -183,7 +183,7 @@ public class SwerveAutos {
                     )
                 ),
 
-                claw.intake(),
+                claw.intakeCone(),
 
                 runOnce(() -> SmartDashboard.putString("Stage", "Stow 2")),
                 deadline(
@@ -209,7 +209,7 @@ public class SwerveAutos {
                         waitUntil(elevator.atTargetPosition)
                     )
                 ),
-                claw.outtake(),
+                claw.outtakeCone(),
 
                 runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
                 deadline(
@@ -233,7 +233,7 @@ public class SwerveAutos {
             );
     } 
 
-    public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, ScorePosition scorePos, double waitTime, boolean goAround) {
+    public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition startPos, ScorePosition scorePos, double waitTime, boolean goAround) {
         return parallel(
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
@@ -252,7 +252,7 @@ public class SwerveAutos {
                         waitUntil(elevator.atTargetPosition)
                     )
                 ),
-                claw.outtake(),
+                claw.outtakeCone(),
                 runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
                 deadline(
                     waitSeconds(2),
@@ -272,7 +272,7 @@ public class SwerveAutos {
         );
     }
 
-    public static CommandBase preloadBackup(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, ScorePosition scorePos, double waitTime, boolean goAround) {
+    public static CommandBase preloadBackup(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition startPos, ScorePosition scorePos, double waitTime, boolean goAround) {
         return parallel(
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
@@ -291,7 +291,7 @@ public class SwerveAutos {
                         waitUntil(elevator.atTargetPosition)
                     )
                 ),
-                claw.outtake(),
+                claw.outtakeCone(),
                 runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
                 deadline(
                     waitSeconds(2),
@@ -438,7 +438,7 @@ public class SwerveAutos {
      * @param swerveDrive
      * @return
      */
-    public static CommandBase backupTwoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
+    public static CommandBase backupTwoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw) {
         
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
@@ -519,7 +519,7 @@ public class SwerveAutos {
                     waitUntil(elevator.atTargetPosition)
                 )
             ),
-            claw.outtake(),
+            claw.outtakeCone(),
 
             runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
             deadline(
@@ -547,7 +547,7 @@ public class SwerveAutos {
                 )
             ),
 
-            claw.intake(),
+            claw.intakeCone(),
 
             runOnce(() -> SmartDashboard.putString("Stage", "Stow 2")),
             deadline(
@@ -573,7 +573,7 @@ public class SwerveAutos {
                 )
             ),
 
-            claw.outtake(),
+            claw.outtakeCone(),
 
             runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
             deadline(
