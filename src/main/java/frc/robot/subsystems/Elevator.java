@@ -48,6 +48,13 @@ public class Elevator extends SubsystemBase implements Reportable{
     setBrakeMode();
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
             elevator.set(ControlMode.PercentOutput, 0.40);
+
+            if (elevator.getSelectedSensorPosition() >= 0) { // TODO: Measure elevator lower limit
+              elevator.set(ControlMode.PercentOutput, 0);
+            } else {
+              elevator.set(ControlMode.PercentOutput, -0.40);
+            }
+
             // elevator.setNeutralMode(NeutralMode.Coast);
           //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
@@ -55,7 +62,6 @@ public class Elevator extends SubsystemBase implements Reportable{
             elevator.set(ControlMode.PercentOutput, 0);
           } else {
             elevator.set(ControlMode.PercentOutput, -0.40);
-
           }
             // elevator.setNeutralMode(NeutralMode.Coast);
       
