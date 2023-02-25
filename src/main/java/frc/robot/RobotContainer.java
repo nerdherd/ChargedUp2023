@@ -61,7 +61,7 @@ public class RobotContainer {
   public static MotorClaw motorClaw = new MotorClaw();
 
   public static Imu imu = new Imu();
-  public static ConeRunner coneRunner = new ConeRunner();
+  // public static ConeRunner coneRunner = new ConeRunner();
   public static final boolean IsSwerveDrive = true;
   public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
@@ -139,14 +139,14 @@ public class RobotContainer {
 
     // elevator.resetEncoder();
 
-    coneRunner.setDefaultCommand(
-      Commands.run(() -> {
-        coneRunner.joystickAngleControl((operatorController.getR2Axis()+operatorController.getL2Axis())*0.2 / 2);
-      }, coneRunner)
-    );
+    // coneRunner.setDefaultCommand(
+    //   Commands.run(() -> {
+    //     coneRunner.joystickAngleControl((operatorController.getR2Axis()+operatorController.getL2Axis())*0.2 / 2);
+    //   }, coneRunner)
+    // );
 
 
-    coneRunner.resetEncoders();
+    // coneRunner.resetEncoders();
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
     if (IsSwerveDrive) {
@@ -253,8 +253,8 @@ public class RobotContainer {
       leftButton.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
       downButton.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
 
-      operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
-      operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
+      // operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
+      // operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
     }
   }
 
@@ -299,7 +299,7 @@ public class RobotContainer {
     // claw.initShuffleboard();
     arm.initShuffleboard();
     elevator.initShuffleboard();
-    coneRunner.initShuffleboard();
+    // coneRunner.initShuffleboard();
     if (IsSwerveDrive) {
       swerveDrive.initShuffleboard();
       swerveDrive.initModuleShuffleboard();
@@ -319,7 +319,7 @@ public class RobotContainer {
     // claw.reportToSmartDashboard();
     arm.reportToSmartDashboard();
     elevator.reportToSmartDashboard();
-    coneRunner.reportToSmartDashboard();
+    // coneRunner.reportToSmartDashboard();
     if (IsSwerveDrive) {
       swerveDrive.reportToSmartDashboard();
       swerveDrive.reportModulesToSmartDashboard();

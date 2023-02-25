@@ -252,10 +252,10 @@ public static final double kArmD = 0.0;
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 254.795;       
-      public static final double kFLCANCoderOffsetDegrees = 314.736;         
-      public static final double kBLCANCoderOffsetDegrees = 126.211;          
-      public static final double kBRCANCoderOffsetDegrees = 359.121; // 1.406
+      public static final double kFRCANCoderOffsetDegrees = 72.07 + 180;       
+      public static final double kFLCANCoderOffsetDegrees = 298.564;         
+      public static final double kBLCANCoderOffsetDegrees = 298.740 - 180;          
+      public static final double kBRCANCoderOffsetDegrees = 196.084 - 180; // 1.406
     }
 
 

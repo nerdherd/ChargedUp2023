@@ -193,6 +193,5 @@ public class Elevator extends SubsystemBase implements Reportable{
     tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
     tab.addNumber("Percent Extended", () -> percentExtended());
     tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
-    tab.addNumber("Current", elevator::getStatorCurrent);
   }
 }
