@@ -50,7 +50,7 @@ public class Elevator extends SubsystemBase implements Reportable{
             if (elevator.getSelectedSensorPosition() <= -200000) {
             elevator.set(ControlMode.PercentOutput, 0);
             } else {
-              elevator.set(ControlMode.PercentOutput, -0.75);
+              elevator.set(ControlMode.PercentOutput, -0.8);
             }
             
 
@@ -60,7 +60,7 @@ public class Elevator extends SubsystemBase implements Reportable{
           if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 10000) { // TODO: Measure elevator lower limit
             elevator.set(ControlMode.PercentOutput, 0);
           } else {
-            elevator.set(ControlMode.PercentOutput, 0.75);
+            elevator.set(ControlMode.PercentOutput, 0.8);
           }
           
             // elevator.setNeutralMode(NeutralMode.Coast);

@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
@@ -223,10 +224,10 @@ public class RobotContainer {
     
     // operatorController.triangle().whileTrue(arm.armExtend());
     // operatorController.square().whileTrue(arm.armStow());
-    operatorController.L1().whileTrue(motorClaw.setPower(0.3))
+    operatorController.L1().whileTrue(motorClaw.setPower(1 ))
         .onFalse(motorClaw.setPowerZero());
     operatorController.R1().whileTrue(motorClaw.setPower(-0.3))
-        .onFalse(motorClaw.setPower(-0.1));
+        .onFalse(motorClaw.setPower(-0.15));
     // operatorController.circle().onTrue(claw.clawOpen());
     // operatorController.cross().onTrue(claw.clawClose());
 
@@ -241,6 +242,8 @@ public class RobotContainer {
       driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
       driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
       
+      driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
+
       // driverController.L2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), true));
       // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
@@ -265,7 +268,8 @@ public class RobotContainer {
 
     // autoChooser.setDefaultOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, alliance));
     // autoChooser.addOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, alliance));
-    autoChooser.setDefaultOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
+    autoChooser.setDefaultOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
+    // autoChooser.setDefaultOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
     autoChooser.addOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
     autoChooser.addOption("Preload Go Around and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true));
     autoChooser.addOption("Vision Preload Charge", () -> SwerveAutos.visionPreloadChargeAuto(vision, swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
@@ -336,9 +340,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    startPos = positionChooser.getSelected();
-    scorePos = scoreChooser.getSelected();
-    Command currentAuto = autoChooser.getSelected().get();
+    // startPos = positionChooser.getSelected();
+    // scorePos = scoreChooser.getSelected();
+    // Command currentAuto = autoChooser.getSelected().get();
+    Command currentAuto = SwerveAutos.backupChargeAuto(swerveDrive);
     String autoName = currentAuto.getName();
     if (currentAuto != null) {
       Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);

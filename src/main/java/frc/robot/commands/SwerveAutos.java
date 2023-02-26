@@ -450,10 +450,10 @@ public class SwerveAutos {
         
         return sequence(
             runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
-            autoCommand,
-            new TimedBalancingAct(swerveDrive, 0.5, 
-                SwerveAutoConstants.kPBalancingInitial, 
-                SwerveAutoConstants.kPBalancing)
+            autoCommand
+            // new TimedBalancingAct(swerveDrive, 0.5, 
+            //     SwerveAutoConstants.kPBalancingInitial, 
+            //     SwerveAutoConstants.kPBalancing)
             // new TheGreatBalancingAct(swerveDrive),
             // new TowSwerve(swerveDrive)
         );
