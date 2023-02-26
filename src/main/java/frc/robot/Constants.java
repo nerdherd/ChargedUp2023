@@ -84,7 +84,8 @@ public final class Constants {
     public static final int kLeftMotorID = 62;
     public static final int kRightMotorID = 61;
     public static final double kIntakePower = -0.3;
-    public static final double kOuttakePower = 0.3;
+    public static final double kOuttakePower = 1;
+    public static final double kIntakeNeutralPower = -0.15;
   }
 
   public static class ArmConstants{

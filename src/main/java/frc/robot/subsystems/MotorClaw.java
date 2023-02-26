@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -27,13 +28,17 @@ public class MotorClaw extends SubsystemBase implements Reportable {
 
     leftMotor.setInverted(false);
     rightMotor.setInverted(true);
+
+    setNeutralMode(NeutralMode.Brake);
   }
+  
 
   public CommandBase setPower(double power) {
     return runOnce(
       () -> {
         leftMotor.set(ControlMode.PercentOutput, power);
         rightMotor.set(ControlMode.PercentOutput, power);
+        setNeutralMode(NeutralMode.Brake);
       }
       
     );
@@ -47,7 +52,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     return sequence(
       setPower(ClawConstants.kOuttakePower),
       waitSeconds(1),
-      setPowerZero()
+      setPower(ClawConstants.kIntakeNeutralPower)
     );
   }
 
@@ -57,6 +62,11 @@ public class MotorClaw extends SubsystemBase implements Reportable {
       waitSeconds(1),
       setPowerZero()
     );
+  }
+
+  public void setNeutralMode(NeutralMode mode) {
+    leftMotor.setNeutralMode(mode);
+    rightMotor.setNeutralMode(mode);
   }
 
   @Override
