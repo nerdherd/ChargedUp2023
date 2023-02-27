@@ -12,13 +12,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.claw.PistonClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 import static frc.robot.Constants.SwerveAutoConstants.*;
 
 public class PathPlannerAutos {
-    public static CommandBase pathplannerAuto(String pathName, SwerveDrivetrain swerveDrive, Arm arm, Claw claw) {
+    public static CommandBase pathplannerAuto(String pathName, SwerveDrivetrain swerveDrive, Arm arm, PistonClaw claw) {
         PathPlannerTrajectory testPath = PathPlanner.loadPath(
             pathName, 
             new PathConstraints(

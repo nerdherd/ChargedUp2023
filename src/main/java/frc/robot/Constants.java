@@ -83,9 +83,12 @@ public final class Constants {
 
     public static final int kLeftMotorID = 62;
     public static final int kRightMotorID = 61;
-    public static final double kIntakePower = -0.3;
-    public static final double kOuttakePower = 1;
-    public static final double kIntakeNeutralPower = -0.15;
+    public static final double kConeIntakePower = -0.3;
+    public static final double kCubeIntakePower = -0.3;
+    public static final double kConeOuttakePower = 1;
+    public static final double kCubeOuttakePower = 1;
+    public static final double kConeHoldPower = -0.15;
+    public static final double kCubeHoldPower = -0.15;
   }
 
   public static class ArmConstants{
@@ -350,6 +353,14 @@ public final class Constants {
     public static final double kConeRunnerD = 0;
     public static final double kConeRunnerF = 0;
     public static final double kConeRunnerArbitraryFF = 0;
+
+    // TODO: Measure IRL
+    public static final double kConeIntakePower = 0.3;
+    public static final double kCubeIntakePower = -0.3;
+    public static final double kConeOuttakePower = -0.3;
+    public static final double kCubeOuttakePower = 0.3;
+    public static final double kConeHoldPower = 0.15;
+    public static final double kCubeHoldPower = -0.15;
 
     public static final double kInitialAngleDegrees = 90;
     public static final double kDegreesPerTicks = 360 / 4096;

@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.claw;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -14,10 +14,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
+import frc.robot.subsystems.Reportable;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
-public class MotorClaw extends SubsystemBase implements Reportable {
+public class MotorClaw extends SubsystemBase implements Reportable, Claw {
 
   private TalonSRX leftMotor, rightMotor;
 
@@ -48,19 +49,35 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     return setPower(0);
   }
 
-  public CommandBase outtake() {
+  public CommandBase outtakeCube() {
     return sequence(
-      setPower(ClawConstants.kOuttakePower),
+      setPower(ClawConstants.kCubeOuttakePower),
       waitSeconds(1),
-      setPower(ClawConstants.kIntakeNeutralPower)
+      setPowerZero()
     );
   }
 
-  public CommandBase intake() {
+  public CommandBase outtakeCone() {
     return sequence(
-      setPower(ClawConstants.kIntakePower),
+      setPower(ClawConstants.kConeOuttakePower),
       waitSeconds(1),
       setPowerZero()
+    );
+  }
+
+  public CommandBase intakeCube() {
+    return sequence(
+      setPower(ClawConstants.kCubeIntakePower),
+      waitSeconds(1),
+      setPower(ClawConstants.kCubeHoldPower)
+    );
+  }
+
+  public CommandBase intakeCone() {
+    return sequence(
+      setPower(ClawConstants.kConeIntakePower),
+      waitSeconds(1),
+      setPower(ClawConstants.kConeHoldPower)
     );
   }
 
