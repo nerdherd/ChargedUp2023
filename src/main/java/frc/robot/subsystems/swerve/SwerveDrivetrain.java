@@ -158,8 +158,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         numEncoderResets += 1;
         SmartDashboard.putNumber("Encoder resets", numEncoderResets);
         // SmartDashboard.putNumber("Encoder resets", SmartDashboard.getNumber("Encoder resets", 0)+1);
-        frontLeft.resetEncoder();
         frontRight.resetEncoder();
+        frontLeft.resetEncoder();
         backLeft.resetEncoder();
         backRight.resetEncoder();
     }
@@ -168,8 +168,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      * Stops all modules. See {@link MagSwerveModule#stop()} for more info.
      */
     public void stopModules() {
-        frontLeft.stop();
         frontRight.stop();
+        frontLeft.stop();
         backLeft.stop();
         backRight.stop();
     }
@@ -194,8 +194,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
-            frontLeft.getPosition(),
             frontRight.getPosition(), 
+            frontLeft.getPosition(),
             backLeft.getPosition(),
             backRight.getPosition()
         };
@@ -235,8 +235,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      * @param breaking  Whether or not the modules should be in break
      */
     public void setBreak(boolean breaking) {
-        frontLeft.setBreak(breaking);
         frontRight.setBreak(breaking);
+        frontLeft.setBreak(breaking);
         backLeft.setBreak(breaking);
         backRight.setBreak(breaking);
     }
@@ -247,8 +247,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, kPhysicalMaxSpeedMetersPerSecond);
-        frontLeft.setDesiredState(desiredStates[0]);
-        frontRight.setDesiredState(desiredStates[1]);
+        frontRight.setDesiredState(desiredStates[0]);
+        frontLeft.setDesiredState(desiredStates[1]);
         backLeft.setDesiredState(desiredStates[2]);
         backRight.setDesiredState(desiredStates[3]);
     }
@@ -272,9 +272,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     public void initModuleShuffleboard() {
         frontRight.initShuffleboard();
-        backRight.initShuffleboard();
         frontLeft.initShuffleboard();
         backLeft.initShuffleboard();
+        backRight.initShuffleboard();
     }
 
     /**
@@ -287,8 +287,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     public void reportModulesToSmartDashboard() {
         frontRight.reportToSmartDashboard();
-        backRight.reportToSmartDashboard();
         frontLeft.reportToSmartDashboard();
         backLeft.reportToSmartDashboard();
+        backRight.reportToSmartDashboard();
     }
 }

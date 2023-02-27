@@ -452,7 +452,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
             xSpeed = pidArea.calculate(calculatedX, goalArea);
-            ySpeed = -pidTX.calculate(calculatedY, goalTX);
+            ySpeed = pidTX.calculate(calculatedY, goalTX);
             rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
             
             if (NerdyMath.inRange(xSpeed, -.1, .1) &&
@@ -503,7 +503,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
             xSpeed = pidArea.calculate(calculatedX, goalArea);
-            ySpeed = -pidTX.calculate(calculatedY, goalTX);
+            ySpeed = pidTX.calculate(calculatedY, goalTX);
             
             if (NerdyMath.inRange(xSpeed, -.1, .1) &&
             NerdyMath.inRange(ySpeed, -.1, .1))

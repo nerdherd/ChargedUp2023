@@ -60,19 +60,19 @@ public class SwerveAutos {
 
         switch (position) {
             case RIGHT:
-                pickupAngle = -10;
+                pickupAngle = 10;
                 chargeYTranslation = -1.7;
                 pickupXDistance = 4;
                 pickupYDistance = -0.25;
                 break;
             case LEFT:
-                pickupAngle = 10;
+                pickupAngle = -10;
                 chargeYTranslation = 1.7;
                 pickupXDistance = 4;
                 pickupYDistance = 0.25;
                 break;
             case MIDDLE:
-                pickupAngle = -20;
+                pickupAngle = 20;
                 chargeYTranslation = 0;
                 pickupXDistance = 5; // TODO: Measure IRL
                 pickupYDistance = -0.5;
@@ -484,11 +484,11 @@ public class SwerveAutos {
             new Pose2d(-.5, 0, new Rotation2d(0)), 
             List.of(
             new Translation2d(4, 0)), 
-            new Pose2d(4, -0.25, Rotation2d.fromDegrees(-10)), 
+            new Pose2d(4, -0.25, Rotation2d.fromDegrees(10)), 
             trajectoryConfig);
         
         Trajectory trajectory3 = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(4, -0.25, new Rotation2d(-10)), 
+            new Pose2d(4, -0.25, new Rotation2d(10)), 
             List.of(
             new Translation2d(4, 0)), 
             new Pose2d(-0.5, 0, Rotation2d.fromDegrees(180)), 

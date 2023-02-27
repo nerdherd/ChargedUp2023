@@ -184,8 +184,8 @@ public final class Constants {
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
       new Translation2d(kWheelBase / 2, -kTrackWidth / 2), // TODO: This should be front right not front left
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-      new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
-      new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
+      new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+      new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
     
     public static final double kDodgeDistance = Units.inchesToMeters(12);
     

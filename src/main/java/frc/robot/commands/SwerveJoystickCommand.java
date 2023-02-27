@@ -138,7 +138,7 @@ public class SwerveJoystickCommand extends CommandBase {
 
         double filteredTurningSpeed = turningFilter.calculate(turningSpeed);
         double filteredXSpeed = xFilter.calculate(xSpeed);
-        double filteredYSpeed = yFilter.calculate(ySpeed);
+        double filteredYSpeed = -1 * yFilter.calculate(ySpeed);
         
         
         ChassisSpeeds chassisSpeeds;
@@ -171,7 +171,7 @@ public class SwerveJoystickCommand extends CommandBase {
                     new Rotation2d(ySpeed, xSpeed)
                         .rotateBy(Rotation2d.fromDegrees(
                             // imu is measured clockwise from forward vector
-                            swerveDrive.getImu().getHeading()))
+                            -swerveDrive.getImu().getHeading()))
                         );
                 // Might need to swap x and y on rotation center depending on how it gets interpreted
                 // robotOrientedJoystickDirection = new Translation2d(robotOrientedJoystickDirection.getY(), robotOrientedJoystickDirection.getX());

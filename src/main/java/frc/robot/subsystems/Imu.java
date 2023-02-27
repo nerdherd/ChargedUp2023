@@ -53,7 +53,7 @@ public class Imu extends SubsystemBase implements Reportable {
      * @return Angle of the robot (degrees)
      */
     public double getHeading() {
-        double heading = Math.IEEEremainder(ahrs.getYaw(), 360);
+        double heading = Math.IEEEremainder(-ahrs.getYaw(), 360);
         SmartDashboard.putNumber("Heading degrees", heading);
         return heading;
     }
@@ -70,7 +70,7 @@ public class Imu extends SubsystemBase implements Reportable {
         return new Rotation3d(
             ahrs.getRoll() * Math.PI / 180, 
             ahrs.getPitch()* Math.PI / 180, 
-            ahrs.getYaw() * Math.PI / 180) ;
+            -ahrs.getYaw() * Math.PI / 180) ;
     }
 
     public Rotation3d getRotation3dRaw() {
@@ -78,7 +78,7 @@ public class Imu extends SubsystemBase implements Reportable {
         return new Rotation3d(
             Math.toRadians(ahrs.getRawGyroX()),
             Math.toRadians(ahrs.getRawGyroY()),
-            Math.toRadians(ahrs.getRawGyroZ())
+            -Math.toRadians(ahrs.getRawGyroZ())
         );
     }
 

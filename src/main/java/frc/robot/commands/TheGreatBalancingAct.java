@@ -78,7 +78,7 @@ public class TheGreatBalancingAct extends CommandBase {
         double xSpeed = -7.5 * pitchPidController.calculate(
             currentRotation.getX(), 0
         );
-        double ySpeed = -7.5 * rollPidController.calculate(
+        double ySpeed = 7.5 * rollPidController.calculate(
             currentRotation.getY(), 0
         );
 
