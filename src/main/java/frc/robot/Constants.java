@@ -81,24 +81,29 @@ public final class Constants {
     public static final int kPistonReverseID = 3;
     public static final int kPCMPort = 3;
 
-    public static final int kLeftMotorID = 51;
-    public static final int kRightMotorID = 50;
-    public static final double kIntakePower = -0.3;
-    public static final double kOuttakePower = 0.3;
+    public static final int kLeftMotorID = 62;
+    public static final int kRightMotorID = 61;
+    public static final double kConeIntakePower = -0.3;
+    public static final double kCubeIntakePower = -0.3;
+    public static final double kConeOuttakePower = 1;
+    public static final double kCubeOuttakePower = 1;
+    public static final double kConeHoldPower = -0.15;
+    public static final double kCubeHoldPower = -0.15;
   }
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
-    public static final int kArmStow = -357277;//144278;
-    public static final int kArmScore = -217987;//596443; // 89744;
-    public static final int kArmGroundPickup = 1987;//767054;// 34352;
+    public static final int kArmLowerLimit = -260000;
+    public static final int kArmStow = -622481;//144278;
+    public static final int kArmScore = -444298;//596443; // 89744;
+    public static final int kArmGroundPickup = -278000;//767054;// 34352;
     public static final int kArmSubstation = 0; // TODO: MEASURE THIS PWEASE
     public static final int kArmMotionAcceleration = 12000;//800000; //160000;
     public static final int kArmCruiseVelocity = 15000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
-public static final double kArmD = 0.0;
+    public static final double kArmD = 0.0;
     public static final double kArmF = 0.047;
     public static final double kStowedFF = 0.069;
     public static final double kExtendedFF = 0.089;
@@ -106,7 +111,7 @@ public static final double kArmD = 0.0;
     public static final int kPistonForwardID = 5;
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kTicksPerAngle = 5215;
+    public static final double kTicksPerAngle = 7950;
     public static final int kLimitSwitchID = 0;
 
 
@@ -252,10 +257,10 @@ public static final double kArmD = 0.0;
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 254.795;       
-      public static final double kFLCANCoderOffsetDegrees = 314.736;         
-      public static final double kBLCANCoderOffsetDegrees = 126.211;          
-      public static final double kBRCANCoderOffsetDegrees = 359.121; // 1.406
+      public static final double kFRCANCoderOffsetDegrees = 72.07 + 180;       
+      public static final double kFLCANCoderOffsetDegrees = 298.564;         
+      public static final double kBLCANCoderOffsetDegrees = 298.740 - 180;          
+      public static final double kBRCANCoderOffsetDegrees = 196.084 - 180; // 1.406
     }
 
 
@@ -354,6 +359,8 @@ public static final double kArmD = 0.0;
     public static final double kCubeIntakePower = -0.3;
     public static final double kConeOuttakePower = -0.3;
     public static final double kCubeOuttakePower = 0.3;
+    public static final double kConeHoldPower = 0.15;
+    public static final double kCubeHoldPower = -0.15;
 
     public static final double kInitialAngleDegrees = 90;
     public static final double kDegreesPerTicks = 360 / 4096;

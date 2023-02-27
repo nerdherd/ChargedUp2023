@@ -104,7 +104,7 @@ public class ConeRunner extends SubsystemBase implements Reportable, Claw {
         return Commands.sequence(
             setPower(ConeRunnerConstants.kConeIntakePower),
             Commands.waitSeconds(1),
-            setPowerZero()
+            setPower(ConeRunnerConstants.kConeHoldPower)
         );
     }
 
@@ -120,7 +120,7 @@ public class ConeRunner extends SubsystemBase implements Reportable, Claw {
         return Commands.sequence(
             setPower(ConeRunnerConstants.kCubeIntakePower),
             Commands.waitSeconds(1),
-            setPowerZero()
+            setPower(ConeRunnerConstants.kCubeHoldPower)
         );
     }
     

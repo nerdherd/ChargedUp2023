@@ -47,11 +47,22 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
     setBrakeMode();
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
-            elevator.set(ControlMode.PercentOutput, 0.40);
+            if (elevator.getSelectedSensorPosition() <= -200000) {
+            elevator.set(ControlMode.PercentOutput, 0);
+            } else {
+              elevator.set(ControlMode.PercentOutput, -0.8);
+            }
+            
+
             // elevator.setNeutralMode(NeutralMode.Coast);
           //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
-          elevator.set(ControlMode.PercentOutput, -0.40);
+          if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 10000) { // TODO: Measure elevator lower limit
+            elevator.set(ControlMode.PercentOutput, 0);
+          } else {
+            elevator.set(ControlMode.PercentOutput, 0.8);
+          }
+          
             // elevator.setNeutralMode(NeutralMode.Coast);
       
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
@@ -154,6 +165,10 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.setSelectedSensorPosition(0);
   }
 
+  public void resetEncoderStow() {
+    elevator.setSelectedSensorPosition(ElevatorConstants.kElevatorStow);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -167,6 +182,8 @@ public class Elevator extends SubsystemBase implements Reportable{
     SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
     SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
+    SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
+    SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
   }
 
   public void initShuffleboard() {
@@ -178,6 +195,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     tab.addNumber("Target Ticks", () -> targetTicks);
     tab.addNumber("Current Velocity", () -> elevator.getSelectedSensorVelocity());
     tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
-    tab.addNumber("Percent Extended", this::percentExtended);
+    tab.addNumber("Percent Extended", () -> percentExtended());
+    tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
   }
 }

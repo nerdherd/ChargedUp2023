@@ -5,6 +5,7 @@
 package frc.robot.subsystems.claw;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -27,14 +28,18 @@ public class MotorClaw extends SubsystemBase implements Reportable, Claw {
     rightMotor = new TalonSRX(ClawConstants.kRightMotorID);
 
     leftMotor.setInverted(false);
-    rightMotor.setInverted(false);
+    rightMotor.setInverted(true);
+
+    setNeutralMode(NeutralMode.Brake);
   }
+  
 
   public CommandBase setPower(double power) {
     return runOnce(
       () -> {
         leftMotor.set(ControlMode.PercentOutput, power);
         rightMotor.set(ControlMode.PercentOutput, power);
+        setNeutralMode(NeutralMode.Brake);
       }
       
     );
@@ -44,27 +49,42 @@ public class MotorClaw extends SubsystemBase implements Reportable, Claw {
     return setPower(0);
   }
 
-  private CommandBase outtake() {
+  public CommandBase outtakeCube() {
     return sequence(
-      setPower(ClawConstants.kOuttakePower),
+      setPower(ClawConstants.kCubeOuttakePower),
       waitSeconds(1),
       setPowerZero()
     );
   }
 
-  private CommandBase intake() {
+  public CommandBase outtakeCone() {
     return sequence(
-      setPower(ClawConstants.kIntakePower),
+      setPower(ClawConstants.kConeOuttakePower),
       waitSeconds(1),
       setPowerZero()
     );
   }
 
-  public CommandBase intakeCube() {return intake();}
-  public CommandBase intakeCone() {return intake();}
-  public CommandBase outtakeCube() {return outtake();}
-  public CommandBase outtakeCone() {return outtake();}
+  public CommandBase intakeCube() {
+    return sequence(
+      setPower(ClawConstants.kCubeIntakePower),
+      waitSeconds(1),
+      setPower(ClawConstants.kCubeHoldPower)
+    );
+  }
 
+  public CommandBase intakeCone() {
+    return sequence(
+      setPower(ClawConstants.kConeIntakePower),
+      waitSeconds(1),
+      setPower(ClawConstants.kConeHoldPower)
+    );
+  }
+
+  public void setNeutralMode(NeutralMode mode) {
+    leftMotor.setNeutralMode(mode);
+    rightMotor.setNeutralMode(mode);
+  }
 
   @Override
   public void periodic() {

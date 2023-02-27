@@ -20,7 +20,11 @@ import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.claw.Claw;
+import frc.robot.subsystems.claw.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.subsystems.vision.VROOOOM;
+import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
+import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
 
 import static frc.robot.Constants.SwerveAutoConstants.*;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -32,12 +36,6 @@ public class SwerveAutos {
         LEFT,
         RIGHT,
         MIDDLE
-    }
-
-    public enum ScorePosition {
-        HYBRID,
-        MID,
-        HIGH
     }
 
     /**
@@ -233,7 +231,7 @@ public class SwerveAutos {
             );
     } 
 
-    public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition startPos, ScorePosition scorePos, double waitTime, boolean goAround) {
+    public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround) {
         return parallel(
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
@@ -272,7 +270,22 @@ public class SwerveAutos {
         );
     }
 
-    public static CommandBase preloadBackup(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, Claw claw, StartPosition startPos, ScorePosition scorePos, double waitTime, boolean goAround) {
+    public static CommandBase visionPreloadChargeAuto(VROOOOM vision, SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround) {
+        return parallel(
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+            sequence(
+                parallel(
+                    runOnce(() -> vision.updateCurrentGameObject(OBJECT_TYPE.CONE)),
+                    runOnce(() -> vision.updateCurrentHeight(SCORE_POS.MID))
+                ),
+                vision.VisionScore(),
+                chargeAuto(swerveDrive, startPos, waitTime, goAround)
+            )
+        );
+    }
+
+    public static CommandBase preloadBackup(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround) {
         return parallel(
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
@@ -306,6 +319,21 @@ public class SwerveAutos {
                         waitUntil(elevator.atTargetPosition)
                     )
                 ),
+                backupChargeAuto(swerveDrive)
+            )
+        );
+    }
+
+    public static CommandBase backupVisionPreloadChargeAuto(VROOOOM vision, SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround) {
+        return parallel(
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+            sequence(
+                parallel(
+                    runOnce(() -> vision.updateCurrentGameObject(OBJECT_TYPE.CONE)),
+                    runOnce(() -> vision.updateCurrentHeight(SCORE_POS.MID))
+                ),
+                vision.VisionScore(),
                 backupChargeAuto(swerveDrive)
             )
         );
@@ -423,10 +451,10 @@ public class SwerveAutos {
         
         return sequence(
             runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
-            autoCommand,
-            new TimedBalancingAct(swerveDrive, 0.5, 
-                SwerveAutoConstants.kPBalancingInitial, 
-                SwerveAutoConstants.kPBalancing)
+            autoCommand
+            // new TimedBalancingAct(swerveDrive, 0.5, 
+            //     SwerveAutoConstants.kPBalancingInitial, 
+            //     SwerveAutoConstants.kPBalancing)
             // new TheGreatBalancingAct(swerveDrive),
             // new TowSwerve(swerveDrive)
         );

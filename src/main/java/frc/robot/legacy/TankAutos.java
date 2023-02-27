@@ -10,9 +10,9 @@ public class TankAutos {
     
     public static CommandBase HardCarryAuto(TankDrivetrain drivetrain, PistonClaw claw, Arm arm) {
         return Commands.sequence(
-            arm.armExtend(),
+            
             claw.clawOpen(),
-            arm.armStow(),
+            
             new DriveStraight(drivetrain, 0.5, -0.762, 0, false),
             new TurnToAngleTank(drivetrain, -90),
             new DriveStraight(drivetrain, 0.5, 0.4064, 0, false),
@@ -24,9 +24,9 @@ public class TankAutos {
             new DriveStraight(drivetrain, 0.5, 0.4064, 0, false),
             new TurnToAngleTank(drivetrain, 90),
             new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
-            arm.armExtend(),
+            
             claw.clawOpen(),
-            arm.armStow(),
+            
             new DriveStraight(drivetrain, -0.5, -0.762, 0, false),
             new TurnToAngleTank(drivetrain, -90),
             new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
@@ -38,9 +38,9 @@ public class TankAutos {
     public static CommandBase DietCokeAuto(TankDrivetrain drivetrain, PistonClaw claw, Arm arm) {
         
         return Commands.sequence(
-            arm.armExtend(),
+            
             claw.clawOpen(),
-            arm.armStow(),
+            
             new TurnToAngleTank(drivetrain, 180),
             new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
             new TurnToAngleTank(drivetrain, -90),
@@ -54,9 +54,9 @@ public class TankAutos {
             new DriveStraight(drivetrain, 0.5, 0.4064, 0, false),
             new TurnToAngleTank(drivetrain, -90),
             new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
-            arm.armExtend(),
+            
             claw.clawOpen(),
-            arm.armStow(),            
+                        
             new TurnToAngleTank(drivetrain, 180),
             new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
             new TurnToAngleTank(drivetrain, -90),
@@ -69,17 +69,17 @@ public class TankAutos {
 
     public static CommandBase OverpricedVendingMachineAuto(TankDrivetrain drivetrain, PistonClaw claw, Arm arm) {
         return Commands.sequence(
-            arm.armExtend(),
+            
             claw.clawOpen(),
-            arm.armStow(),
+            
             new TurnToAngleTank(drivetrain, 180),
             new DriveStraight(drivetrain, 0.5, 6.347, 0, false),
             claw.clawClose(),
             new TurnToAngleTank(drivetrain, 180),
             new DriveStraight(drivetrain, 0.5, 6.347, 0, false),
-            arm.armExtend(),
+            
             claw.clawOpen(),
-            arm.armStow(),
+            
             new TurnToAngleTank(drivetrain, 180),
             new DriveStraight(drivetrain, 0.5, 1.238, 0, false)
         );
@@ -100,9 +100,9 @@ public class TankAutos {
             } else {
                 if (balanceRamp) {
                     return Commands.sequence(
-                        arm.armExtend(),
+                        
                         claw.clawOpen(),
-                        arm.armStow(),
+                        
                         new DriveStraight(drivetrain, -0.5, -0.762, 0, false),
                         new TurnToAngleTank(drivetrain, -90),
                         new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
@@ -112,9 +112,9 @@ public class TankAutos {
                     );
                 } else {
                     return Commands.sequence(
-                        arm.armExtend(),
+                        
                         claw.clawOpen(),
-                        arm.armStow(),
+                        
                         new DriveStraight(drivetrain, -0.5, -0.762, 0, false),
                         new TurnToAngleTank(drivetrain, -90),
                         new DriveStraight(drivetrain, 0.5, 0.6, 0, false),
@@ -136,9 +136,9 @@ public class TankAutos {
             } else {
                 if (balanceRamp) {
                     return Commands.sequence(
-                        arm.armExtend(),
+                        
                         claw.clawOpen(),
-                        arm.armStow(),            
+                                    
                         new TurnToAngleTank(drivetrain, 180),
                         new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
                         new TurnToAngleTank(drivetrain, -90),
@@ -149,9 +149,9 @@ public class TankAutos {
                     );
                 } else {
                     return Commands.sequence(
-                        arm.armExtend(),
+                        
                         claw.clawOpen(),
-                        arm.armStow(),            
+                                    
                         new TurnToAngleTank(drivetrain, 180),
                         new DriveStraight(drivetrain, 0.5, 0.762, 0, false),
                         new TurnToAngleTank(drivetrain, -90),
@@ -174,18 +174,18 @@ public class TankAutos {
             } else {
                 if (balanceRamp) {
                     return Commands.sequence(
-                        arm.armExtend(),
+                        
                         claw.clawOpen(),
-                        arm.armStow(),
+                        
                         new TurnToAngleTank(drivetrain, 180),
                         new DriveStraight(drivetrain, 0.5, 1.238, 0, false),
                         new TheGreatBalancingTank(drivetrain)            
                     );
                 } else {
                     return Commands.sequence(
-                        arm.armExtend(),
+                        
                         claw.clawOpen(),
-                        arm.armStow(),
+                        
                         new TurnToAngleTank(drivetrain, 180),
                         new DriveStraight(drivetrain, 0.5, 1.238, 0, false)            
                     );

@@ -76,10 +76,10 @@ public class TheGreatBalancingAct extends CommandBase {
 
         // Calculate turning speed with PID
         double xSpeed = -7.5 * pitchPidController.calculate(
-            currentRotation.getY(), 0
+            currentRotation.getX(), 0
         );
         double ySpeed = -7.5 * rollPidController.calculate(
-            currentRotation.getX(), 0
+            currentRotation.getY(), 0
         );
 
         SmartDashboard.putNumber("xSpeed", xSpeed);
