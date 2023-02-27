@@ -47,16 +47,22 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
     setBrakeMode();
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
-            elevator.set(ControlMode.PercentOutput, 0.40);
+            if (elevator.getSelectedSensorPosition() <= -200000) {
+            elevator.set(ControlMode.PercentOutput, 0);
+            } else {
+              elevator.set(ControlMode.PercentOutput, -0.8);
+            }
+            
+
             // elevator.setNeutralMode(NeutralMode.Coast);
           //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
-          if (elevator.getSelectedSensorPosition() <= -80000) {
+          if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 10000) { // TODO: Measure elevator lower limit
             elevator.set(ControlMode.PercentOutput, 0);
           } else {
-            elevator.set(ControlMode.PercentOutput, -0.40);
-
+            elevator.set(ControlMode.PercentOutput, 0.8);
           }
+          
             // elevator.setNeutralMode(NeutralMode.Coast);
       
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
@@ -159,6 +165,10 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.setSelectedSensorPosition(0);
   }
 
+  public void resetEncoderStow() {
+    elevator.setSelectedSensorPosition(ElevatorConstants.kElevatorStow);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -172,17 +182,20 @@ public class Elevator extends SubsystemBase implements Reportable{
     SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
     SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
+    SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
+    SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
   }
 
   public void initShuffleboard() {
     ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
 
-    tab.addNumber("Elevator Motor Output", () -> elevator.getMotorOutputPercent());
-    tab.addNumber("Elevator Current", () -> elevator.getStatorCurrent());
-    tab.addNumber("Elevator Current Ticks", () -> elevator.getSelectedSensorPosition());
-    tab.addNumber("Elevator Target Ticks", () -> targetTicks);
-    tab.addNumber("Elevator Current Velocity", () -> elevator.getSelectedSensorVelocity());
-    tab.addNumber("Elevator Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
-    tab.addNumber("Elevator Percent Extended", () -> percentExtended());
+    tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
+    tab.addNumber("Current", () -> elevator.getStatorCurrent());
+    tab.addNumber("Current Ticks", () -> elevator.getSelectedSensorPosition());
+    tab.addNumber("Target Ticks", () -> targetTicks);
+    tab.addNumber("Current Velocity", () -> elevator.getSelectedSensorVelocity());
+    tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
+    tab.addNumber("Percent Extended", () -> percentExtended());
+    tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
   }
 }

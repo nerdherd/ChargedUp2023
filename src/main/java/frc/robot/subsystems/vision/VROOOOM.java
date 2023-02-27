@@ -366,16 +366,22 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             }
     
             return parallel(
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
                 sequence(
-                    runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", true)),
-                    runOnce(() -> initVisionCommands()),
+                    parallel(
+                        runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
+                        runOnce(() -> initVisionCommands())
+                    ),
                     // Stow arm
                     deadline(
                         waitSeconds(5),
                         parallel(
                             runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                             runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        )
+                        ),
+                        waitUntil(arm.atTargetPosition),
+                        waitUntil(elevator.atTargetPosition)
                     ),
                     
                     currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(5),
@@ -386,7 +392,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         parallel(
                             runOnce(() -> arm.setTargetTicks(armPositionTicksKyle)),
                             runOnce(() -> elevator.setTargetTicks(elevatorPositionTicksKyle))
-                        )
+                        ),
+                        waitUntil(arm.atTargetPosition),
+                        waitUntil(elevator.atTargetPosition)
                     ),
                     
                     // Open claw/eject piece with rollers
@@ -403,19 +411,13 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         parallel(
                             runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                             runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        )
+                        ),
+                        waitUntil(arm.atTargetPosition),
+                        waitUntil(elevator.atTargetPosition)
                     ),
                     
                     runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
-                ),
-    
-                run(
-                    () -> elevator.moveMotionMagic(arm.getArmAngle())
-                ),
-                run(
-                    () -> arm.moveArmMotionMagic(elevator.percentExtended())
                 )
-                
             );
         }
         else {
