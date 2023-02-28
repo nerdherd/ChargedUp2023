@@ -25,11 +25,6 @@ import frc.robot.util.NerdyMath;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 
-// Subsystem integration notes from Ayaka
-// arm.movearmmotionmagic(ticks, elevator.percentextended)
-// elevator.movemotionmagic(ticks, arm.getarmangle)
-// claw negative is intake at 30%
-
 public class VROOOOM extends SubsystemBase implements Reportable{
 
     private Limelight limelightHigh;
@@ -270,12 +265,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             
             return Commands.parallel(
                 // Constantly run elevator and arm motion magic
-                Commands.run(
-                    () -> elevator.moveElevator(arm::getArmAngle)
-                ),
-                Commands.run(
-                    () -> arm.moveArm(elevator::percentExtended)
-                ),
+                elevator.moveElevator(arm::getArmAngle),
+                arm.moveArm(elevator::percentExtended),
 
                 Commands.sequence(
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
@@ -380,12 +371,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     
             return Commands.parallel(
                 // Constantly run elevator and arm motion magic
-                Commands.run(
-                    () -> elevator.moveElevator(arm::getArmAngle)
-                ),
-                Commands.run(
-                    () -> arm.moveArm(elevator::percentExtended)
-                ),
+                elevator.moveElevator(arm::getArmAngle),
+                arm.moveArm(elevator::percentExtended),
                 
                 Commands.sequence(
                     Commands.parallel(
