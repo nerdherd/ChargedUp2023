@@ -228,7 +228,7 @@ public class RobotContainer {
     
     // operatorController.triangle().whileTrue(arm.armExtend());
     // operatorController.square().whileTrue(arm.armStow());
-    operatorController.L1().whileTrue(motorClaw.setPower(1, -0.1))
+    operatorController.L1().whileTrue(motorClaw.setPower(1, 1))
         .onFalse(motorClaw.setPowerZero());
     operatorController.R1().whileTrue(motorClaw.setPower(-0.3))
         .onFalse(motorClaw.setPower(-0.15));
