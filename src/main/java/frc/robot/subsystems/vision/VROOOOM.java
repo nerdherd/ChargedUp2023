@@ -273,9 +273,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     Commands.runOnce(() -> initVisionCommands()),
     
                     // Move arm and elevator to arm enum position
-                    Commands.deadline(
+                    Commands.race(
                         Commands.waitSeconds(5),
-                        Commands.parallel(
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
                             Commands.runOnce(() -> arm.setTargetTicks(armPositionTicksFinal)),
                             Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicksFinal))
                         )
@@ -291,9 +293,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     claw.setPower(-0.15),
     
                     // Stow arm/elev
-                    Commands.deadline(
+                    Commands.race(
                         Commands.waitSeconds(5),
-                        Commands.parallel(
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
                             Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                             Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
                         )
@@ -365,15 +369,12 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             final int armPositionTicksFinal = armPositionTicks;
             final int elevatorPositionTicksFinal = elevatorPositionTicks;
     
-            // Had to declare both RunCommands in advance because syntax errors would appear if they weren't
-            RunCommand driveRotateToTargetRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
-            RunCommand driveToTargetRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
             RunCommand currentVisionRunCommand;
     
             if (rotationIsNeeded) {
-                currentVisionRunCommand = driveRotateToTargetRunCommand;
+                currentVisionRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
             } else {
-                currentVisionRunCommand = driveToTargetRunCommand;
+                currentVisionRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
             }
     
             return Commands.parallel(
@@ -384,28 +385,29 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
                         Commands.runOnce(() -> initVisionCommands())
                     ),
+                    
                     // Stow arm
-                    Commands.deadline(
+                    Commands.race(
                         Commands.waitSeconds(5),
-                        Commands.parallel(
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
                             Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                             Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        ),
-                        Commands.waitUntil(arm.atTargetPosition),
-                        Commands.waitUntil(elevator.atTargetPosition)
+                        )
                     ),
                     
                     currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(5),
     
                     // Arm to arm enum position
-                    Commands.deadline(
+                    Commands.race(
                         Commands.waitSeconds(5),
-                        Commands.parallel(
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
                             Commands.runOnce(() -> arm.setTargetTicks(armPositionTicksFinal)),
                             Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicksFinal))
-                        ),
-                        Commands.waitUntil(arm.atTargetPosition),
-                        Commands.waitUntil(elevator.atTargetPosition)
+                        )
                     ),
                     
                     // Open claw/eject piece with rollers
@@ -417,14 +419,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     claw.setPower(0),
     
                     // Stow arm
-                    Commands.deadline(
+                    Commands.race(
                         Commands.waitSeconds(5),
-                        Commands.parallel(
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
                             Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                             Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        ),
-                        Commands.waitUntil(arm.atTargetPosition),
-                        Commands.waitUntil(elevator.atTargetPosition)
+                        )
                     ),
                     
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))

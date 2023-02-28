@@ -265,7 +265,6 @@ public class RobotContainer {
       driverController.R2().whileTrue(vision.VisionScore())
         .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-
       operatorController.L2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
       operatorController.R2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
 
@@ -319,6 +318,7 @@ public class RobotContainer {
     arm.initShuffleboard();
     elevator.initShuffleboard();
     // coneRunner.initShuffleboard();
+    vision.initShuffleboard();
     if (IsSwerveDrive) {
       swerveDrive.initShuffleboard();
       swerveDrive.initModuleShuffleboard();
@@ -338,6 +338,7 @@ public class RobotContainer {
     // claw.reportToSmartDashboard();
     arm.reportToSmartDashboard();
     elevator.reportToSmartDashboard();
+    vision.reportToSmartDashboard();
     // coneRunner.reportToSmartDashboard();
     if (IsSwerveDrive) {
       swerveDrive.reportToSmartDashboard();
