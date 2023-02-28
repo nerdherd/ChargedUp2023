@@ -71,6 +71,7 @@ public class RobotContainer {
 
   private final CommandBadPS4 driverController = new CommandBadPS4(
       ControllerConstants.kDriverControllerPort);
+  private final BadPS4 badPS5 = driverController.getHID();
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandBadPS4 operatorController = new CommandBadPS4(
       ControllerConstants.kOperatorControllerPort);
@@ -81,6 +82,10 @@ public class RobotContainer {
   private final POVButton downButton = new POVButton(badPS4, 180);
   private final POVButton leftButton = new POVButton(badPS4, 270);
 
+  private final POVButton upButtonDriver = new POVButton(badPS5, 0);
+  private final POVButton rightButtonDriver = new POVButton(badPS5, 90);
+  private final POVButton downButtonDriver = new POVButton(badPS5, 180);
+  private final POVButton leftButtonDriver = new POVButton(badPS5, 270);
 
   private SendableChooser<Supplier<CommandBase>> autoChooser = new SendableChooser<Supplier<CommandBase>>();
   private SendableChooser<StartPosition> positionChooser = new SendableChooser<StartPosition>();
@@ -252,17 +257,19 @@ public class RobotContainer {
       // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
       // ====== Vision Bindings ====== 
-      // driverController.L1().whileTrue(vision.VisionPickup())
-      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-      // driverController.R1().whileTrue(vision.VisionScore())
-      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.L2().whileTrue(vision.VisionPickup())
+        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.R2().whileTrue(vision.VisionScore())
+        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-      upButton.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
-      leftButton.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
-      downButton.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
 
-      // operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
-      // operatorController.triangle().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
+      operatorController.L2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
+      operatorController.R2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
+
+      upButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
+      rightButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
+      downButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
+
     }
   }
 

@@ -206,7 +206,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         goalArea = 0; // Goal area for cube substation pickup
                     }
                     break;
-    
+                    
+                case MID:
+                    return runOnce(() -> SmartDashboard.putString("Vision Message", "you cant pickup mid"));
                 case LOW:
                     armPositionTicks = ArmConstants.kArmGroundPickup; // Ground pickup
                     elevatorPositionTicks = ElevatorConstants.kElevatorStow;
