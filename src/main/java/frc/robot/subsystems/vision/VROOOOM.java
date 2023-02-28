@@ -114,6 +114,19 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         currentCameraMode = CAMERA_MODE.IDLE;
         cameraStatusSupplier = () -> (currentCameraMode == CAMERA_MODE.ARRIVED);
 
+        SmartDashboard.putNumber("Tx P", 0);       
+        SmartDashboard.putNumber("Tx I", 0);
+        SmartDashboard.putNumber("Tx D", 0);
+
+        SmartDashboard.putNumber("Ta P", 0);       
+        SmartDashboard.putNumber("Ta I", 0);
+        SmartDashboard.putNumber("Ta D", 0);
+
+        SmartDashboard.putNumber("Yaw P", 0);       
+        SmartDashboard.putNumber("Yaw I", 0);
+        SmartDashboard.putNumber("Yaw D", 0);
+
+
     }
 
     private double Xarray[] = new double[10];
@@ -230,16 +243,16 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             switch(currentGameObject) {
                 case CONE:
                     currentLimelight.setPipeline(1);
-                    PIDArea = new PIDController(0.05, 0.005, 0); // Correct PID as of 2/23/2023
-                    PIDTX = new PIDController(0.24, 0, 0);
-                    PIDYaw = new PIDController(0, 0, 0);
+                    PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0)); // NOT SURE IF CORRECT, Updated 2/23/2023
+                    PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                    PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
                     break;
     
                 case CUBE:
                     currentLimelight.setPipeline(2);
-                    PIDArea = new PIDController(0.05, 0.005, 0); // PID coppied from cone (above) as of 2/23/2023
-                    PIDTX = new PIDController(0.24, 0, 0);
-                    PIDYaw = new PIDController(0, 0, 0);
+                    PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0)); // NOT SURE IF CORRECT, Updated 2/23/2023
+                    PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                    PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
                     break;
             }
     
@@ -279,7 +292,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     new WaitCommand(2),
     
                     // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-                    claw.setPower(0),
+                    claw.setPower(-0.15),
     
                     // Stow arm/elev
                     deadline(
@@ -319,18 +332,18 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 case CONE:
                     currentLimelight = limelightHigh;
                     currentLimelight.setPipeline(3); // Tape pipeline
-                    PIDArea = new PIDController(7, 0, 0); // NOT SURE IF CORRECT, Updated 2/23/2023
-                    PIDTX = new PIDController(0.1, 0, 0);
-                    PIDYaw = new PIDController(0.1, 0, 0);
+                    PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0)); // NOT SURE IF CORRECT, Updated 2/23/2023
+                    PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                    PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
                     goalArea = 0.15; // Unsure if correct, updated 2/23/2023
                     break;
     
                 case CUBE:
                     currentLimelight = limelightLow;
                     currentLimelight.setPipeline(4); // April tag pipeline
-                    PIDArea = new PIDController(1, 0, 0); // Correct PID as of 2/23/2023
-                    PIDTX = new PIDController(0.08, 0, .01);
-                    PIDYaw = new PIDController(0.1, 0, 0);
+                    PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0)); // NOT SURE IF CORRECT, Updated 2/23/2023
+                    PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                    PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
                     goalArea = 2; // April tag target area, unsure if correct, updated 2/23/2023
                     break;
             }
@@ -400,7 +413,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     ),
                     
                     // Open claw/eject piece with rollers
-                    claw.setPower(0.3),
+                    claw.setPower(1),
                     // Wait 1 second
                     waitSeconds(1),
     
