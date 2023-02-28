@@ -232,15 +232,15 @@ public final class Constants {
       public static final boolean kBLAbsoluteReversed = false;       
       public static final boolean kBRAbsoluteReversed = false; 
 
-      // public static final double kFRAbsoluteOffsetTicks = 4411;       
-      // public static final double kFLAbsoluteOffsetTicks = 3782;         
+      // public static final double kFRDefaultOffsetTicks = 4411;       
+      // public static final double kFLDefaultOffsetTicks = 3782;         
       // public static final double kBLAbsouteOffsetTicks = 3042;          
-      // public static final double kBRAbsoluteOffsetTicks = 2364;
+      // public static final double kBRDefaultOffsetTicks = 2364;
   
-      public static final double kFRAbsoluteOffsetTicks = 2794 + 1024;       
-      public static final double kFLAbsoluteOffsetTicks = 2354 + 1024 + 52;         
-      public static final double kBLAbsoluteOffsetTicks = 2048 + 1024 + 46;          
-      public static final double kBRAbsoluteOffsetTicks = 237 + 1024 + 25;
+      public static final double kFRDefaultOffsetTicks = 2794 + 1024;       
+      public static final double kFLDefaultOffsetTicks = 2354 + 1024 + 52;         
+      public static final double kBLDefaultOffsetTicks = 2048 + 1024 + 46;          
+      public static final double kBRDefaultOffsetTicks = 237 + 1024 + 25;
     }
 
     public static final class CANCoderConstants {
@@ -254,10 +254,10 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 72.07 + 180;       
-      public static final double kFLCANCoderOffsetDegrees = 298.564;         
-      public static final double kBLCANCoderOffsetDegrees = 298.740 - 180;          
-      public static final double kBRCANCoderOffsetDegrees = 196.084 - 180; // 1.406
+      public static final double kFRDefaultOffsetDegrees = 72.07 + 180;       
+      public static final double kFLDefaultOffsetDegrees = 298.564;         
+      public static final double kBLDefaultOffsetDegrees = 298.740 - 180;          
+      public static final double kBRDefaultOffsetDegrees = 196.084 - 180; // 1.406
     }
 
 

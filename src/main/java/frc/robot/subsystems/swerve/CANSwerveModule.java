@@ -10,9 +10,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import static frc.robot.Constants.*;
 
@@ -27,14 +29,17 @@ public class CANSwerveModule implements SwerveModule {
     private final int driveMotorID;
     private final int turnMotorID;
     private final int CANCoderID;
+    private final int moduleID;
 
     private final PIDController turningController;
     private final boolean invertTurningEncoder;
-    private final double CANCoderOffsetDegrees;
+    private final double originalCANCoderOffsetDegrees;
+    private double CANCoderOffsetDegrees;
 
     private double currentAngle = 0;
     private double desiredAngle = 0;
     private double currentPercent = 0;
+
 
     /**
      * Construct a new CANCoder Swerve Module.
@@ -58,6 +63,7 @@ public class CANSwerveModule implements SwerveModule {
         this.driveMotorID = driveMotorId;
         this.turnMotorID = turningMotorId;
         this.CANCoderID = CANCoderId;
+        this.moduleID = driveMotorID / 10;
 
         this.turningController = new PIDController(
             SmartDashboard.getNumber("kPTurning", ModuleConstants.kPTurning),
@@ -70,9 +76,13 @@ public class CANSwerveModule implements SwerveModule {
         this.turnMotor.setInverted(invertTurningMotor);
         this.canCoder = new CANCoder(CANCoderId);
         this.invertTurningEncoder = CANCoderReversed;
-        this.CANCoderOffsetDegrees = CANCoderOffsetDegrees;
+
+        this.originalCANCoderOffsetDegrees = CANCoderOffsetDegrees;
+        Preferences.initDouble("CANCoderOffset" + moduleID, originalCANCoderOffsetDegrees);
+        this.CANCoderOffsetDegrees = Preferences.getDouble("CANCoderOffset" + moduleID, originalCANCoderOffsetDegrees);
 
         initEncoders();
+
     }
 
     /**
@@ -119,8 +129,29 @@ public class CANSwerveModule implements SwerveModule {
      */
     public void resetEncoder() {
         double startAngle = (canCoder.getAbsolutePosition() - this.CANCoderOffsetDegrees) % 360;
-        SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
         canCoder.setPosition(startAngle);
+    }
+
+    /**
+     * Set the current angle of the CANCoder to 0.
+     */
+    public double calibrateEncoder() {
+        this.CANCoderOffsetDegrees = (canCoder.getAbsolutePosition()) % 360;
+        canCoder.setPosition(0);
+        Preferences.setDouble("CANCoderOffset" + moduleID, this.CANCoderOffsetDegrees);
+
+        return this.CANCoderOffsetDegrees;
+    }
+
+    /**
+     * Reset the encoder to the original offset.
+     */
+    public double resetEncoderToDefault() {
+        this.CANCoderOffsetDegrees = originalCANCoderOffsetDegrees;
+        Preferences.setDouble("CANCoderOffset" + moduleID, this.CANCoderOffsetDegrees);
+        resetEncoder();
+
+        return this.CANCoderOffsetDegrees;
     }
 
     /**
@@ -229,8 +260,7 @@ public class CANSwerveModule implements SwerveModule {
     }
 
     public void initShuffleboard() {
-        int moduleId = (driveMotorID - (driveMotorID % 10));
-        ShuffleboardTab tab = Shuffleboard.getTab("Module " + moduleId);
+        ShuffleboardTab tab = Shuffleboard.getTab("Module #" + moduleID);
 
         tab.addNumber("Module velocity", () -> driveMotor.getSelectedSensorVelocity());
         tab.addNumber("Drive percent", () -> currentPercent);
@@ -241,6 +271,11 @@ public class CANSwerveModule implements SwerveModule {
         tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
         tab.addNumber("Drive Motor Voltage", driveMotor::getMotorOutputVoltage);
         tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
+        tab.addNumber("Angle Offset", () -> CANCoderOffsetDegrees);
+        tab.addNumber("Original Angle Offset", () -> originalCANCoderOffsetDegrees);
+        tab.add("Calibrate Angle", new InstantCommand(this::calibrateEncoder));
+        tab.add("Reset Angle", new InstantCommand(this::resetEncoder));
+        tab.add("Reset Angle to Default", new InstantCommand(this::resetEncoderToDefault));
     }
 
     public void reportToSmartDashboard() {
@@ -255,6 +290,11 @@ public class CANSwerveModule implements SwerveModule {
         SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Current", turnMotor.getStatorCurrent());
         SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Voltage", driveMotor.getMotorOutputVoltage());
         SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Voltage", turnMotor.getMotorOutputVoltage());
+        SmartDashboard.putNumber("Angle Offset #" + moduleID, CANCoderOffsetDegrees);
+        SmartDashboard.putNumber("Original Angle Offest #" + moduleID, originalCANCoderOffsetDegrees);
+        SmartDashboard.putData("Calibrate Angle", new InstantCommand(this::calibrateEncoder));
+        SmartDashboard.putData("Reset Angle", new InstantCommand(this::resetEncoder));
+        SmartDashboard.putData("Reset Angle to Default", new InstantCommand(this::resetEncoderToDefault));
     }
 
     /**
