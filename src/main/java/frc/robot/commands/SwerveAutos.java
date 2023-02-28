@@ -358,11 +358,11 @@ public class SwerveAutos {
         switch (startPos) {
             case LEFT:
                 yTranslation = 1.75;
-                yOvershoot = 2;
+                yOvershoot = 1.75;
                 break;
             case RIGHT:
                 yTranslation = -1.75;
-                yOvershoot = -2;
+                yOvershoot = -1.75;
                 break;
             case MIDDLE:
                 break;
@@ -377,14 +377,14 @@ public class SwerveAutos {
         
         if (!goAround || startPos == StartPosition.MIDDLE) {
             trajectory = TrajectoryGenerator.generateTrajectory(
-                new Pose2d(0, 0, new Rotation2d(0)), 
+                new Pose2d(0, 0, new Rotation2d(180)), 
                 List.of(
                     new Translation2d(0.25, yOvershoot)), 
-                new Pose2d(1.5, yTranslation, Rotation2d.fromDegrees(0)), 
+                new Pose2d(1.5, yTranslation, Rotation2d.fromDegrees(180)), 
                 trajectoryConfig);
         } else {
             trajectory = TrajectoryGenerator.generateTrajectory(
-                new Pose2d(0, 0, new Rotation2d(0)), 
+                new Pose2d(0, 0, new Rotation2d(180)), 
                 List.of(
                     new Translation2d(3, 0),
                     new Translation2d(3, yTranslation)), 
@@ -432,8 +432,8 @@ public class SwerveAutos {
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(-0.5, 0),
-                new Translation2d(-0.5, -2)), 
+                new Translation2d(-0.75, 0),
+                new Translation2d(-0.75, -1.5)), 
             new Pose2d(1, -1.75, Rotation2d.fromDegrees(0)), 
             trajectoryConfig);
 
@@ -450,10 +450,13 @@ public class SwerveAutos {
         
         return sequence(
             runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
-            autoCommand
-            // new TimedBalancingAct(swerveDrive, 0.5, 
-            //     SwerveAutoConstants.kPBalancingInitial, 
-            //     SwerveAutoConstants.kPBalancing)
+            deadline(
+                waitSeconds(3),
+                autoCommand
+            ),
+            new TimedBalancingAct(swerveDrive, 0.25, 
+                SwerveAutoConstants.kPBalancingInitial, 
+                SwerveAutoConstants.kPBalancing)
             // new TheGreatBalancingAct(swerveDrive),
             // new TowSwerve(swerveDrive)
         );

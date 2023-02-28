@@ -350,7 +350,7 @@ public class RobotContainer {
     Command currentAuto = SwerveAutos.backupChargeAuto(swerveDrive);
     String autoName = currentAuto.getName();
     if (currentAuto != null) {
-      Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);
+      // Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);
     }
     return currentAuto;
     // if (IsSwerveDrive)
