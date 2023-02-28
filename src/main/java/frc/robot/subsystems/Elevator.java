@@ -23,7 +23,7 @@ import frc.robot.util.NerdyMath;
 public class Elevator extends SubsystemBase implements Reportable{
 
   private TalonFX elevator;
-  private int targetTicks;
+  private int targetTicks = ElevatorConstants.kElevatorStow;
   public BooleanSupplier atTargetPosition;
   // private DigitalInput limitSwitch;
 
