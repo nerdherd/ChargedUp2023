@@ -132,7 +132,9 @@ public final class Constants {
     public static final double kArbitraryFF = 0.0085;
     public static final double kElevatorDeadband = 0.05;
     public static final double kJoystickMultiplier = 1;
-    public static final double kTicksPerAngle = 0;
+    public static final double kTicksPerInch = 0;
+    public static final double kArmLength = 0;
+    public static final double kClawLength = 0;
     public static final int kLimitSwitchID = 0;
   }
 

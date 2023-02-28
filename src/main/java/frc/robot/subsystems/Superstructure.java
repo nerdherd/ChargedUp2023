@@ -14,12 +14,4 @@ public class Superstructure {
         this.claw = new MotorClaw();
     }
 
-    public void moveToScore() {
-        Commands.parallel(
-            arm.moveArmScore(elevator.percentExtended()),
-            elevator.moveElevatorHigh(arm.getArmAngle()),
-            claw.setPower(-0.3)
-        );
-    }
-
 }

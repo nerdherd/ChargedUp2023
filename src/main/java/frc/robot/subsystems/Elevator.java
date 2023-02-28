@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -25,6 +26,7 @@ public class Elevator extends SubsystemBase implements Reportable{
   private TalonFX elevator;
   private int targetTicks;
   public BooleanSupplier atTargetPosition;
+  public DoubleSupplier armAngle;
   // private DigitalInput limitSwitch;
 
   /** Creates a new Elevator. */
@@ -43,8 +45,15 @@ public class Elevator extends SubsystemBase implements Reportable{
     SmartDashboard.putNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity);
   }
 
+  public void setArmAngle(DoubleSupplier armAngle) {
+    this.armAngle = armAngle;
+  }
 
-  public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
+  public double getArmAngle() {
+    return armAngle.getAsDouble();
+  }
+
+  public void moveElevatorJoystick(double currentJoystickOutput) {
     setBrakeMode();
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
             if (elevator.getSelectedSensorPosition() <= -200000) {
@@ -68,26 +77,36 @@ public class Elevator extends SubsystemBase implements Reportable{
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
           // if (limitSwitch.get()) {
-          elevator.set(ControlMode.PercentOutput, 0);
+          if (getCurrentTicks() * Math.sin(getArmAngle()) >= 77) {
+            targetTicks = (int) ((77 / Math.sin(getArmAngle()) - ElevatorConstants.kArmLength - ElevatorConstants.kClawLength) * ElevatorConstants.kTicksPerInch);
+            moveMotionMagic();
+          } else {
+            elevator.set(ControlMode.PercentOutput, 0);
+            
+          }
           
         }
 
     }
 
     
-  public void moveMotionMagic(double angle) {
+  public void moveMotionMagic() {
     elevator.config_kP(0, SmartDashboard.getNumber("Elevator kP", ElevatorConstants.kElevatorP));
     elevator.config_kI(0, SmartDashboard.getNumber("Elevator kI", ElevatorConstants.kElevatorI));
     elevator.config_kD(0, SmartDashboard.getNumber("Elevator kD", ElevatorConstants.kElevatorD));
     elevator.config_kF(0, SmartDashboard.getNumber("Elevator kF", ElevatorConstants.kElevatorF));
     elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
     elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
-    double ff = ElevatorConstants.kArbitraryFF * Math.sin(angle);
-    elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+    double ff = ElevatorConstants.kArbitraryFF * Math.sin(getArmAngle());
+    if (getCurrentTicks() * Math.sin(getArmAngle()) >= 77) {
+      targetTicks = (int) ((77 / Math.sin(getArmAngle()) - ElevatorConstants.kArmLength - ElevatorConstants.kClawLength) * ElevatorConstants.kTicksPerInch);  
+    } 
+    elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);      
+    
   }
   
 
-  public void moveMotionMagic(int targetTicks, double angle) {
+  public CommandBase moveMotionMagic(int targetTicks) {
     this.targetTicks = targetTicks;
 
     elevator.config_kP(0, SmartDashboard.getNumber("Elevator kP", ElevatorConstants.kElevatorP));
@@ -97,56 +116,23 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
     elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
 
-    double ff = -ElevatorConstants.kArbitraryFF * Math.sin(angle);
-    elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+    double ff = -ElevatorConstants.kArbitraryFF * Math.sin(getArmAngle());
 
     SmartDashboard.putNumber("FF", ff);
+
+    if (getCurrentTicks() * Math.sin(getArmAngle()) >= 77) {
+      this.targetTicks = (int) ((77 / Math.sin(getArmAngle()) - ElevatorConstants.kArmLength - ElevatorConstants.kClawLength) * ElevatorConstants.kTicksPerInch);
+    } 
+    return Commands.run(() -> elevator.set(ControlMode.MotionMagic, this.targetTicks, DemandType.ArbitraryFeedForward, ff));
+    
   }
 
-  public CommandBase moveElevator(int ticks, double angle) {
-    return Commands.run(
-      () -> moveMotionMagic(ticks, angle), this
-      );
-  }
-
-  public CommandBase moveElevator(int ticks, Supplier<Double> angleSupplier) {
-    return Commands.run(
-      () -> moveMotionMagic(ticks, angleSupplier.get()), this
-    );
-  }
-
-  public CommandBase moveElevatorMid(double angle) {
-    return Commands.run(
-      () -> moveMotionMagic(ElevatorConstants.kElevatorScoreMid, angle), this
-    );
-  }
-  
-  public CommandBase moveElevatorMid(Supplier<Double> angleSupplier) {
-    return moveElevator(ElevatorConstants.kElevatorScoreMid, angleSupplier);
-  }
-
-  public CommandBase moveElevatorHigh(double angle) {
-    return Commands.run(
-      () -> moveMotionMagic(ElevatorConstants.kElevatorScoreHigh, angle), this
-    );
-  }
-
-  public CommandBase moveElevatorHigh(Supplier<Double> angleSupplier) {
-    return moveElevator(ElevatorConstants.kElevatorScoreHigh, angleSupplier);
-  }
-  
-  public CommandBase moveElevatorStow(double angle) {
-    return Commands.run(
-      () -> moveMotionMagic(ElevatorConstants.kElevatorStow, angle), this
-    );
-  }
-
-  public CommandBase moveElevatorStow(Supplier<Double> angleSupplier) {
-    return moveElevator(ElevatorConstants.kElevatorStow, angleSupplier);
-  }
-
-  public double percentExtended() {
+  public double getPercentExtended() {
     return Math.abs(elevator.getSelectedSensorPosition() / (ElevatorConstants.kElevatorScoreHigh));
+  }
+
+  public double getCurrentTicks() {
+    return elevator.getSelectedSensorPosition();
   }
 
   public void setTargetTicks(int targetTicks) {
@@ -161,11 +147,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.setNeutralMode(NeutralMode.Brake);
   }
 
-  public void resetEncoder() {
-    elevator.setSelectedSensorPosition(0);
-  }
-
-  public void resetEncoderStow() {
+  public void elevatorResetEncoderStow() {
     elevator.setSelectedSensorPosition(ElevatorConstants.kElevatorStow);
   }
 
@@ -181,7 +163,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     SmartDashboard.putNumber("Elevator Target Ticks", targetTicks);
     SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
-    SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
+    SmartDashboard.putNumber("Elevator Percent Extended", getPercentExtended());
     SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
     SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
   }
@@ -195,7 +177,9 @@ public class Elevator extends SubsystemBase implements Reportable{
     tab.addNumber("Target Ticks", () -> targetTicks);
     tab.addNumber("Current Velocity", () -> elevator.getSelectedSensorVelocity());
     tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
-    tab.addNumber("Percent Extended", () -> percentExtended());
+    tab.addNumber("Percent Extended", () -> getPercentExtended());
     tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
+    tab.addNumber("Elevator FF", () -> Math.sin(getArmAngle()) * ElevatorConstants.kArbitraryFF);
+
   }
 }

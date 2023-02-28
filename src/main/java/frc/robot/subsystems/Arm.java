@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 
@@ -27,6 +29,8 @@ public class Arm extends SubsystemBase implements Reportable {
     private TalonFX rotatingArm;
     private int targetTicks = ArmConstants.kArmStow;
     public BooleanSupplier atTargetPosition;
+    public DoubleSupplier percentExtended;
+    public IntSupplier elevatorTicks;
     private DigitalInput limitSwitch;
 
     public Arm() {
@@ -49,7 +53,23 @@ public class Arm extends SubsystemBase implements Reportable {
         SmartDashboard.putNumber("Arm Accel", ArmConstants.kArmMotionAcceleration);
 }
 
-    public void moveArmJoystick(double currentJoystickOutput, double percentExtended) {
+    public void setPercentExtended(DoubleSupplier percentExtended) {
+        this.percentExtended = percentExtended;
+    }
+
+    public double getPercentExtended() {
+        return percentExtended.getAsDouble();
+    }
+
+    public void setElevatorTicks(IntSupplier elevatorTicks) {
+        this.elevatorTicks = elevatorTicks;
+    }
+
+    public int getElevatorTicks() {
+        return elevatorTicks.getAsInt();
+    }
+
+    public void moveArmJoystick(double currentJoystickOutput) {
         // double armTicks = currentPosition.getAsDouble();
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
@@ -65,28 +85,38 @@ public class Arm extends SubsystemBase implements Reportable {
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) { // Up
             if (limitSwitch.get()) {
                 rotatingArm.set(ControlMode.PercentOutput, 0);
-                resetEncoderStow();
+                armResetEncoderStow();
             } else {
                 rotatingArm.set(ControlMode.PercentOutput, -0.8);
             }
             // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
-            rotatingArm.set(ControlMode.PercentOutput, 0);
-            rotatingArm.setNeutralMode(NeutralMode.Brake);
+            
+            if (getElevatorTicks() * Math.sin(getArmAngle()) >= 77) {
+                double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * getPercentExtended()) * Math.cos(getArmAngle());
+                targetTicks = (int) (Math.toDegrees(1 / Math.sin(77 / getElevatorTicks())) * ArmConstants.kTicksPerAngle);
+                moveArmMotionMagic();
+            } else {
+                rotatingArm.set(ControlMode.PercentOutput, 0);
+                rotatingArm.setNeutralMode(NeutralMode.Brake);
+                
+            }
+
         }
         SmartDashboard.putNumber("Arm Joystick Input", currentJoystickOutput);
 
+
     }
 
-    public void moveArmMotionMagicJoystick(double joystickInput, double perentExtended) {
+    public void moveArmMotionMagicJoystick(double joystickInput) {
         targetTicks += joystickInput * ArmConstants.kArmCruiseVelocity / 5;
         
         if (targetTicks < ArmConstants.kArmStow) {
             targetTicks = ArmConstants.kArmStow;
         }
 
-        moveArmMotionMagic(targetTicks, perentExtended);
+        moveArmMotionMagic(targetTicks);
     }
 
     
@@ -96,7 +126,7 @@ public class Arm extends SubsystemBase implements Reportable {
             () -> moveArmJoystickCommand(joystickInput), this);
     }
 
-    public void moveArmMotionMagic(int position, double percentExtended) {
+    public CommandBase moveArmMotionMagic(int position) {
         
         rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", ArmConstants.kArmP));
         rotatingArm.config_kI(0, SmartDashboard.getNumber("Arm kI", ArmConstants.kArmI));
@@ -106,8 +136,7 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.configMotionCruiseVelocity(SmartDashboard.getNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity));
         rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
-        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
-        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
+        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * getPercentExtended()) * Math.cos(getArmAngle());
         targetTicks = position;
 
         SmartDashboard.putNumber("Arm FF", ff);
@@ -119,9 +148,16 @@ public class Arm extends SubsystemBase implements Reportable {
         // } else {
         //     rotatingArm.setNeutralMode(NeutralMode.Coast);
         // }
+
+        if (getElevatorTicks() * Math.sin(getArmAngle()) >= 77) {
+            targetTicks = (int) (Math.toDegrees(1 / Math.sin(77 / getElevatorTicks())) * ArmConstants.kTicksPerAngle);
+        }
+        return Commands.run(() -> rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff));
+        
+
     }
 
-    public void moveArmMotionMagic(double percentExtended) {
+    public void moveArmMotionMagic() {
         
         rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", ArmConstants.kArmP));
         rotatingArm.config_kI(0, SmartDashboard.getNumber("Arm kI", ArmConstants.kArmI));
@@ -131,8 +167,7 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.configMotionCruiseVelocity(SmartDashboard.getNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity));
         rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
-        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
-        rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * getPercentExtended()) * Math.cos(getArmAngle());
 
         SmartDashboard.putNumber("Arm FF", ff);
 
@@ -143,6 +178,13 @@ public class Arm extends SubsystemBase implements Reportable {
         // } else {
         //     rotatingArm.setNeutralMode(NeutralMode.Coast);
         // }
+
+        
+        if (getElevatorTicks() * Math.sin(getArmAngle()) >= 77) {
+            targetTicks = (int) (Math.toDegrees(1 / Math.sin(77 / getElevatorTicks())) * ArmConstants.kTicksPerAngle);
+        }
+        rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+        
     }
 
     public void setTargetTicks(int targetTicks) {
@@ -160,68 +202,13 @@ public class Arm extends SubsystemBase implements Reportable {
     @Override
     public void periodic() {}
 
-    public CommandBase moveArm(int ticks, double percentExtended) {
-        return Commands.run(
-            () -> moveArmMotionMagic(ticks, percentExtended), this
-        );
-    }
 
-    public CommandBase moveArm(int ticks, Supplier<Double> percentExtendedSupplier) {
-        return Commands.run(
-            () -> moveArmMotionMagic(ticks, percentExtendedSupplier.get()), this
-        );
-    }
-
-    public CommandBase moveArmScore(double percentExtended) {
-        return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmScore, percentExtended), this
-            
-        );
-    }
-
-    public CommandBase moveArmScore(Supplier<Double> percentExtendedSupplier) {
-        return moveArm(ArmConstants.kArmScore, percentExtendedSupplier);
-    }
-
-    public CommandBase moveArmGround(double percentExtended) {
-        return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmGroundPickup, percentExtended), this
-            
-        );
-    }
-
-    public CommandBase moveArmGround(Supplier<Double> percentExtendedSupplier) {
-        return moveArm(ArmConstants.kArmGroundPickup, percentExtendedSupplier);
-    }
-
-    public CommandBase moveArmStow(double percentExtended) {
-        return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmStow, percentExtended), this
-   
-        );
-
-    }
-
-    public CommandBase moveArmStow(Supplier<Double> percentExtendedSupplier) {
-        return moveArm(ArmConstants.kArmStow, percentExtendedSupplier);
-    }
-
-    public CommandBase moveArmPickUp(double percentExtended) {
-        return Commands.run(
-            () -> moveArmMotionMagic(ArmConstants.kArmSubstation, percentExtended), this
-            
-        );
-    }
-
-    public CommandBase moveArmPickup(Supplier<Double> percentExtendedSupplier) {
-        return moveArm(ArmConstants.kArmSubstation, percentExtendedSupplier);
-    }
-
+  
     public double getArmAngle() {
         return Math.toRadians(Math.abs(rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
     }
 
-    public void resetEncoderStow() {
+    public void armResetEncoderStow() {
         rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
     }
 
@@ -245,6 +232,8 @@ public class Arm extends SubsystemBase implements Reportable {
         tab.addNumber("Target Arm Ticks", () -> targetTicks);
         tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
         tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
+        tab.addNumber("Arm FF", () -> -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * getPercentExtended()) * Math.cos(getArmAngle()));
+
     }
 
     public void reportToSmartDashboard() {

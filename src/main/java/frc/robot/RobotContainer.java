@@ -112,6 +112,8 @@ public class RobotContainer {
 
     }
 
+    arm.setPercentExtended(elevator::getPercentExtended);
+    elevator.setArmAngle(arm::getArmAngle);
     // elevator.resetEncoderStow();
     // Configure the trigger bindings
     configureBindings();
@@ -122,7 +124,7 @@ public class RobotContainer {
     arm.setDefaultCommand(
       new RunCommand(
         () -> {
-          arm.moveArmJoystick(operatorController.getLeftY(), elevator.percentExtended());
+          arm.moveArmJoystick(operatorController.getLeftY());
           SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
         }, 
         arm
@@ -133,10 +135,11 @@ public class RobotContainer {
     elevator.setDefaultCommand(
       new RunCommand(
         () -> {
-          elevator.moveElevatorJoystick(operatorController.getRightY() * -0.125, arm.getArmAngle());
+          elevator.moveElevatorJoystick(operatorController.getRightY() * -0.125);
           SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
         }, 
         elevator
+
       ));
 
     
@@ -197,26 +200,26 @@ public class RobotContainer {
     }
 
     
-    upButton.whileTrue(arm.moveArmStow(elevator::percentExtended)) 
+    upButton.whileTrue(arm.moveArmMotionMagic(ArmConstants.kArmStow)) 
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    leftButton.whileTrue(arm.moveArmScore(elevator::percentExtended)) 
+    leftButton.whileTrue(arm.moveArmMotionMagic(ArmConstants.kArmScore)) 
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    rightButton.whileTrue(arm.moveArm(ArmConstants.kArmSubstation, elevator::percentExtended))
+    rightButton.whileTrue(arm.moveArmMotionMagic(ArmConstants.kArmSubstation))
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    downButton.whileTrue(arm.moveArmGround(elevator::percentExtended)) 
+    downButton.whileTrue(arm.moveArmMotionMagic(ArmConstants.kArmGroundPickup)) 
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
     
-    operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm::getArmAngle))
+    operatorController.triangle().whileTrue(elevator.moveMotionMagic(ElevatorConstants.kElevatorScoreHigh))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.square().whileTrue(elevator.moveElevatorMid(arm::getArmAngle))
+    operatorController.square().whileTrue(elevator.moveMotionMagic(ElevatorConstants.kElevatorScoreMid))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.circle().whileTrue(elevator.moveElevator(ElevatorConstants.kElevatorSubstation, arm::getArmAngle))
+    operatorController.circle().whileTrue(elevator.moveMotionMagic(ElevatorConstants.kElevatorSubstation))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.cross().whileTrue(elevator.moveElevatorStow(arm::getArmAngle))
+    operatorController.cross().whileTrue(elevator.moveMotionMagic(ElevatorConstants.kElevatorStow))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
   
-    operatorController.share().onTrue(Commands.runOnce(arm::resetEncoderStow));
-    operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
+    operatorController.share().onTrue(Commands.runOnce(arm::armResetEncoderStow));
+    operatorController.options().onTrue(Commands.runOnce(elevator::elevatorResetEncoderStow));
     
     // operatorController.triangle()
     //   .whileTrue(Commands.runOnce(() -> coneRunner.joystickSpeedControl(0.3)))
@@ -321,8 +324,6 @@ public class RobotContainer {
   }
 
   public void reportAllToSmartDashboard() {
-    SmartDashboard.putNumber("Elevator FF", Math.sin(arm.getArmAngle()) * ElevatorConstants.kArbitraryFF);
-    SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
     // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
     imu.reportToSmartDashboard();
     // claw.reportToSmartDashboard();
