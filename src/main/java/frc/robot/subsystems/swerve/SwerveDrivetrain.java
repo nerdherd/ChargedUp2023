@@ -51,7 +51,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kFLTurningReversed,
                     MagEncoderConstants.kFLAbsoluteID,
                     MagEncoderConstants.kFLDefaultOffsetTicks,
-                    MagEncoderConstants.kFLAbsoluteReversed);
+                    MagEncoderConstants.kFLAbsoluteReversed,
+                    kFLGearRatio,
+                    kFLMaxSpeed);
                 frontRight = new MagSwerveModule(
                     kFRDriveID,
                     kFRTurningID,
@@ -59,7 +61,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kFRTurningReversed,
                     MagEncoderConstants.kFRAbsoluteID,
                     MagEncoderConstants.kFRDefaultOffsetTicks,
-                    MagEncoderConstants.kFRAbsoluteReversed);
+                    MagEncoderConstants.kFRAbsoluteReversed,
+                    kFRGearRatio,
+                    kFRMaxSpeed);
                 backLeft = new MagSwerveModule(
                     kBLDriveID,
                     kBLTurningID,
@@ -67,7 +71,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kBLTurningReversed,
                     MagEncoderConstants.kBLAbsoluteID,
                     MagEncoderConstants.kBLDefaultOffsetTicks,
-                    MagEncoderConstants.kBLAbsoluteReversed);
+                    MagEncoderConstants.kBLAbsoluteReversed,
+                    kBLGearRatio,
+                    kBLMaxSpeed);
                 backRight = new MagSwerveModule(
                     kBRDriveID,
                     kBRTurningID,
@@ -75,7 +81,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kBRTurningReversed,
                     MagEncoderConstants.kBRAbsoluteID,
                     MagEncoderConstants.kBRDefaultOffsetTicks,
-                    MagEncoderConstants.kBRAbsoluteReversed);
+                    MagEncoderConstants.kBRAbsoluteReversed,
+                    kBRGearRatio,
+                    kBRMaxSpeed);
                 break;
             case CANCODER:
                 frontLeft = new CANSwerveModule(
@@ -85,7 +93,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kFLTurningReversed,
                     CANCoderConstants.kFLCANCoderID,
                     CANCoderConstants.kFLDefaultOffsetDegrees,
-                    CANCoderConstants.kFLCANCoderReversed);
+                    CANCoderConstants.kFLCANCoderReversed,
+                    kFLGearRatio,
+                    kFLMaxSpeed);
                 frontRight = new CANSwerveModule(
                     kFRDriveID,
                     kFRTurningID,
@@ -93,7 +103,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kFRTurningReversed,
                     CANCoderConstants.kFRCANCoderID,
                     CANCoderConstants.kFRDefaultOffsetDegrees,
-                    CANCoderConstants.kFRCANCoderReversed);
+                    CANCoderConstants.kFRCANCoderReversed,
+                    kFRGearRatio,
+                    kFRMaxSpeed);
                 backLeft = new CANSwerveModule(
                     kBLDriveID,
                     kBLTurningID,
@@ -101,7 +113,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kBLTurningReversed,
                     CANCoderConstants.kBLCANCoderID,
                     CANCoderConstants.kBLDefaultOffsetDegrees,
-                    CANCoderConstants.kBLCANCoderReversed);
+                    CANCoderConstants.kBLCANCoderReversed,
+                    kBLGearRatio,
+                    kBLMaxSpeed);
                 backRight = new CANSwerveModule(
                     kBRDriveID,
                     kBRTurningID,
@@ -109,7 +123,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kBRTurningReversed,
                     CANCoderConstants.kBRCANCoderID,
                     CANCoderConstants.kBRDefaultOffsetDegrees,
-                    CANCoderConstants.kBRCANCoderReversed);
+                    CANCoderConstants.kBRCANCoderReversed,
+                    kBRGearRatio,
+                    kBRMaxSpeed);
                 break;
             default:
                 throw new IllegalArgumentException("Swerve Module Type not provided");
@@ -266,7 +282,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      * @param desiredStates desired states of the four modules (FL, FR, BL, BR)
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, kPhysicalMaxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, kMaxSpeedMetersPerSecond);
         frontLeft.setDesiredState(desiredStates[0]);
         frontRight.setDesiredState(desiredStates[1]);
         backLeft.setDesiredState(desiredStates[2]);

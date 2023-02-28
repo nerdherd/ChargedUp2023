@@ -36,6 +36,9 @@ public class CANSwerveModule implements SwerveModule {
     private final double originalCANCoderOffsetDegrees;
     private double CANCoderOffsetDegrees;
 
+    private final double maxSpeedMetersPerSecond;
+    private final double driveMotorGearRatio;
+
     private double currentAngle = 0;
     private double desiredAngle = 0;
     private double currentPercent = 0;
@@ -53,7 +56,7 @@ public class CANSwerveModule implements SwerveModule {
      * @param CANCoderReversed
      */
     public CANSwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
-    int CANCoderId, double CANCoderOffsetDegrees, boolean CANCoderReversed) {
+    int CANCoderId, double CANCoderOffsetDegrees, boolean CANCoderReversed, double driveMotorGearRatio, double maxSpeedMetersPerSecond) {
         this.driveMotor = new TalonFX(driveMotorId);
         this.turnMotor = new TalonFX(turningMotorId);
 
@@ -83,6 +86,8 @@ public class CANSwerveModule implements SwerveModule {
 
         initEncoders();
 
+        this.driveMotorGearRatio = driveMotorGearRatio;
+        this.maxSpeedMetersPerSecond = maxSpeedMetersPerSecond;
     }
 
     /**
@@ -163,7 +168,6 @@ public class CANSwerveModule implements SwerveModule {
     }
 
     //****************************** GETTERS ******************************/
-
     /**
      * Get the distance travelled by the motor in meters
      * @return Distance travelled by motor (in meters)
@@ -171,7 +175,7 @@ public class CANSwerveModule implements SwerveModule {
     public double getDrivePosition() {
         return driveMotor.getSelectedSensorPosition(0) 
             * ModuleConstants.kDriveTicksToMeters
-            * ModuleConstants.kDriveMotorGearRatio;
+            * this.driveMotorGearRatio;
     }
 
     /**
@@ -251,7 +255,7 @@ public class CANSwerveModule implements SwerveModule {
         
         // TODO: switch to velocity control
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
-        currentPercent = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        currentPercent = state.speedMetersPerSecond / this.maxSpeedMetersPerSecond;
         driveMotor.set(ControlMode.PercentOutput, currentPercent);
         double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
         // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);

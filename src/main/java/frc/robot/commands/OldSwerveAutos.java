@@ -31,7 +31,7 @@ public class OldSwerveAutos {
     public static CommandBase hardCarryAuto(SwerveDrivetrain swerveDrive) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+            kMaxAutoSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
     
         // Create Actual Trajectory
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
@@ -97,7 +97,7 @@ public class OldSwerveAutos {
     public static CommandBase vendingMachine(SwerveDrivetrain swerveDrive) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+            kMaxAutoSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
     
         // Create Actual Trajectory
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(

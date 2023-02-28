@@ -30,7 +30,7 @@ public class PathPlannerAutos {
         PathPlannerTrajectory testPath = PathPlanner.loadPath(
             pathName, 
             new PathConstraints(
-                kMaxSpeedMetersPerSecond, 
+                kMaxAutoSpeedMetersPerSecond,
                 kMaxAccelerationMetersPerSecondSquared));
         
         HashMap<String, Command> events = new HashMap<>() {{
@@ -123,7 +123,7 @@ public class PathPlannerAutos {
         PathPlannerTrajectory testPath = PathPlanner.loadPath(
             pathName, 
             new PathConstraints(
-                kMaxSpeedMetersPerSecond, 
+                kMaxAutoSpeedMetersPerSecond, 
                 kMaxAccelerationMetersPerSecondSquared));
         
         HashMap<String, Command> events = new HashMap<>() {{

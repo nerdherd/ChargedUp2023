@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants.ModuleConstants;
-import frc.robot.Constants.SwerveDriveConstants;
 
 
 /**
@@ -37,6 +36,8 @@ public class MagSwerveModule implements SwerveModule {
     private final boolean invertTurningEncoder;
     private final double originalAbsoluteEncoderOffset;
     private double absoluteEncoderOffset;
+    private final double driveMotorGearRatio;
+    private final double maxSpeedMetersPerSecond;
 
     private double currentAngle = 0;
     private double desiredAngle = 0;
@@ -54,7 +55,7 @@ public class MagSwerveModule implements SwerveModule {
      * @param absoluteEncoderReversed   Whether or not the absolute encoder is inverted
      */
     public MagSwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
-    int absoluteEncoderId, double absoluteEncoderOffset, boolean absoluteEncoderReversed) {
+    int absoluteEncoderId, double absoluteEncoderOffset, boolean absoluteEncoderReversed, double driveMotorGearRatio, double maxSpeedMetersPerSecond) {
         this.driveMotor = new TalonFX(driveMotorId);
         this.turnMotor = new TalonFX(turningMotorId);
 
@@ -81,6 +82,9 @@ public class MagSwerveModule implements SwerveModule {
         this.originalAbsoluteEncoderOffset = absoluteEncoderOffset;
         Preferences.initDouble("MagEncoderOffset" + moduleID, absoluteEncoderOffset);
         this.absoluteEncoderOffset = Preferences.getDouble("MagEncoderOffset" + moduleID, absoluteEncoderOffset);
+
+        this.driveMotorGearRatio = driveMotorGearRatio;
+        this.maxSpeedMetersPerSecond = maxSpeedMetersPerSecond;
 
         initEncoders();
     }
@@ -164,7 +168,7 @@ public class MagSwerveModule implements SwerveModule {
     }
 
     //****************************** GETTERS ******************************/
-
+    
     /**
      * Get the distance travelled by the motor in meters
      * @return Distance travelled by motor (in meters)
@@ -172,7 +176,7 @@ public class MagSwerveModule implements SwerveModule {
     public double getDrivePosition() {
         return driveMotor.getSelectedSensorPosition(0) 
             * ModuleConstants.kDriveTicksToMeters
-            * ModuleConstants.kDriveMotorGearRatio;
+            * this.driveMotorGearRatio;
     }
 
     /**
@@ -246,7 +250,7 @@ public class MagSwerveModule implements SwerveModule {
         
         // TODO: switch to velocity control
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
-        currentPercent = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        currentPercent = state.speedMetersPerSecond / maxSpeedMetersPerSecond;
         driveMotor.set(ControlMode.PercentOutput, currentPercent);
         double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
         // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);

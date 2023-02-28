@@ -46,7 +46,7 @@ public class SwerveAutos {
     public static CommandBase onePieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+            kMaxAutoSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
         
         double pickupAngle = 0;
         double chargeYTranslation = 0;
@@ -350,7 +350,7 @@ public class SwerveAutos {
      */
     public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+            kMaxAutoSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
         
         double yTranslation = 0;
         double yOvershoot = 0;
@@ -427,7 +427,7 @@ public class SwerveAutos {
      */
     public static CommandBase backupChargeAuto(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+            kMaxAutoSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
         
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
@@ -472,7 +472,7 @@ public class SwerveAutos {
         
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+            kMaxAutoSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
     
         // Create Actual Trajectory
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
