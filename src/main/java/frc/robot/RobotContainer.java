@@ -112,7 +112,7 @@ public class RobotContainer {
 
     }
 
-    elevator.resetEncoderStow();
+    // elevator.resetEncoderStow();
     // Configure the trigger bindings
     configureBindings();
     
@@ -197,18 +197,22 @@ public class RobotContainer {
     }
 
     
-    upButton.whileTrue(arm.moveArmStow(elevator.percentExtended())) 
+    upButton.whileTrue(arm.moveArmStow(elevator::percentExtended)) 
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    leftButton.whileTrue(arm.moveArmScore(elevator.percentExtended())) 
+    leftButton.whileTrue(arm.moveArmScore(elevator::percentExtended)) 
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    downButton.whileTrue(arm.moveArmGround(elevator.percentExtended())) 
+    rightButton.whileTrue(arm.moveArm(ArmConstants.kArmSubstation, elevator::percentExtended))
+      .onFalse(Commands.runOnce(arm::setArmPowerZero));
+    downButton.whileTrue(arm.moveArmGround(elevator::percentExtended)) 
       .onFalse(Commands.runOnce(arm::setArmPowerZero));
     
-    operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm.getArmAngle()))
+    operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm::getArmAngle))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.square().whileTrue(elevator.moveElevatorMid(arm.getArmAngle()))
+    operatorController.square().whileTrue(elevator.moveElevatorMid(arm::getArmAngle))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.cross().whileTrue(elevator.moveElevatorStow(arm.getArmAngle()))
+    operatorController.circle().whileTrue(elevator.moveElevator(ElevatorConstants.kElevatorSubstation, arm::getArmAngle))
+      .onFalse(Commands.runOnce(elevator::setPowerZero));
+    operatorController.cross().whileTrue(elevator.moveElevatorStow(arm::getArmAngle))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
   
     operatorController.share().onTrue(Commands.runOnce(arm::resetEncoderStow));
@@ -224,7 +228,7 @@ public class RobotContainer {
     
     // operatorController.triangle().whileTrue(arm.armExtend());
     // operatorController.square().whileTrue(arm.armStow());
-    operatorController.L1().whileTrue(motorClaw.setPower(1 ))
+    operatorController.L1().whileTrue(motorClaw.setPower(1, -0.1))
         .onFalse(motorClaw.setPowerZero());
     operatorController.R1().whileTrue(motorClaw.setPower(-0.3))
         .onFalse(motorClaw.setPower(-0.15));

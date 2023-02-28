@@ -19,15 +19,15 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class MotorClaw extends SubsystemBase implements Reportable {
 
-  private TalonSRX leftMotor, rightMotor;
+  private TalonSRX topMotor, bottomMotor;
 
   /** Creates a new MotorClaw. */
   public MotorClaw() {
-    leftMotor = new TalonSRX(ClawConstants.kLeftMotorID);
-    rightMotor = new TalonSRX(ClawConstants.kRightMotorID);
+    topMotor = new TalonSRX(ClawConstants.kTopMotorID);
+    bottomMotor = new TalonSRX(ClawConstants.kBottomMotorID);
 
-    leftMotor.setInverted(false);
-    rightMotor.setInverted(true);
+    topMotor.setInverted(false);
+    bottomMotor.setInverted(true);
 
     setNeutralMode(NeutralMode.Brake);
   }
@@ -36,8 +36,19 @@ public class MotorClaw extends SubsystemBase implements Reportable {
   public CommandBase setPower(double power) {
     return runOnce(
       () -> {
-        leftMotor.set(ControlMode.PercentOutput, power);
-        rightMotor.set(ControlMode.PercentOutput, power);
+        topMotor.set(ControlMode.PercentOutput, power);
+        bottomMotor.set(ControlMode.PercentOutput, power);
+        setNeutralMode(NeutralMode.Brake);
+      }
+      
+    );
+  }
+
+  public CommandBase setPower(double topPower, double bottomPower) {
+    return runOnce(
+      () -> {
+        topMotor.set(ControlMode.PercentOutput, topPower);
+        bottomMotor.set(ControlMode.PercentOutput, bottomPower);
         setNeutralMode(NeutralMode.Brake);
       }
       
@@ -65,8 +76,8 @@ public class MotorClaw extends SubsystemBase implements Reportable {
   }
 
   public void setNeutralMode(NeutralMode mode) {
-    leftMotor.setNeutralMode(mode);
-    rightMotor.setNeutralMode(mode);
+    topMotor.setNeutralMode(mode);
+    bottomMotor.setNeutralMode(mode);
   }
 
   @Override
@@ -75,13 +86,13 @@ public class MotorClaw extends SubsystemBase implements Reportable {
   }
 
   public void reportToSmartDashboard() {
-    SmartDashboard.putNumber("Motor Claw Velocity", leftMotor.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("Motor Claw Current", leftMotor.getStatorCurrent());
+    SmartDashboard.putNumber("Motor Claw Velocity", topMotor.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Motor Claw Current", topMotor.getStatorCurrent());
   }
 
   public void initShuffleboard() {
     ShuffleboardTab tab = Shuffleboard.getTab("Motor Claw");
-    tab.addNumber("Velocity", leftMotor::getSelectedSensorVelocity);
-    tab.addNumber("Current", leftMotor::getStatorCurrent);
+    tab.addNumber("Velocity", topMotor::getSelectedSensorVelocity);
+    tab.addNumber("Current", topMotor::getStatorCurrent);
   }
 }
