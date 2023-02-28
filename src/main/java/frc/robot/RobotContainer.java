@@ -67,7 +67,7 @@ public class RobotContainer {
   public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
-  public VROOOOM vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+  public VROOOOM vision;
 
   private final CommandBadPS4 driverController = new CommandBadPS4(
       ControllerConstants.kDriverControllerPort);
@@ -106,6 +106,9 @@ public class RobotContainer {
       } catch (IllegalArgumentException e) {
         DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
       }
+
+      // Initialize vision after swerve has been initialized
+      vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
 
       this.alliance = DriverStation.getAlliance();
       initAutoChoosers();
