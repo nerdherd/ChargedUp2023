@@ -81,8 +81,8 @@ public final class Constants {
     public static final int kPistonReverseID = 3;
     public static final int kPCMPort = 3;
 
-    public static final int kLeftMotorID = 62;
-    public static final int kRightMotorID = 61;
+    public static final int kTopMotorID = 62;
+    public static final int kBottomMotorID = 61;
     public static final double kIntakePower = -0.3;
     public static final double kOuttakePower = 1;
     public static final double kIntakeNeutralPower = -0.15;
@@ -93,10 +93,10 @@ public final class Constants {
     public static final int kArmLowerLimit = -260000;
     public static final int kArmStow = -622481;//144278;
     public static final int kArmScore = -444298;//596443; // 89744;
-    public static final int kArmGroundPickup = -278000;//767054;// 34352;
-    public static final int kArmSubstation = 0; // TODO: MEASURE THIS PWEASE
-    public static final int kArmMotionAcceleration = 12000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 15000;//18000;//21777;
+    public static final int kArmGroundPickup = -258000;//767054;// 34352;
+    public static final int kArmSubstation = -477000; // TODO: MEASURE THIS PWEASE
+    public static final int kArmMotionAcceleration = 20000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 20000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
@@ -120,16 +120,16 @@ public final class Constants {
   public static class ElevatorConstants{
     public static final int kElevatorID = 18;
     public static final int kElevatorStow = 0;
-    public static final int kElevatorScoreMid = -54500;
-    public static final int kElevatorScoreHigh = -76605;
-    public static final int kElevatorSubstation = -76605; // Height for substation i think
-    public static final int kElevatorMotionAcceleration = 1000;
-    public static final int kElevatorCruiseVelocity = 6000;
-    public static final double kElevatorP = 0.5;
+    public static final int kElevatorScoreMid = -143634;
+    public static final int kElevatorScoreHigh = -205000;
+    public static final int kElevatorSubstation = -125000; // Height for substation i think
+    public static final int kElevatorMotionAcceleration = 20000;
+    public static final int kElevatorCruiseVelocity = 20000;
+    public static final double kElevatorP = 0.1;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
     public static final double kElevatorF = 0.062;
-    public static final double kArbitraryFF = 0.085;
+    public static final double kArbitraryFF = 0.0085;
     public static final double kElevatorDeadband = 0.05;
     public static final double kJoystickMultiplier = 1;
     public static final double kTicksPerAngle = 0;

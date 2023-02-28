@@ -57,7 +57,7 @@ public class Elevator extends SubsystemBase implements Reportable{
             // elevator.setNeutralMode(NeutralMode.Coast);
           //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
-          if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 10000) { // TODO: Measure elevator lower limit
+          if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 30000) { // TODO: Measure elevator lower limit
             elevator.set(ControlMode.PercentOutput, 0);
           } else {
             elevator.set(ControlMode.PercentOutput, 0.8);
