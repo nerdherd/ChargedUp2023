@@ -272,7 +272,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
                     Commands.runOnce(() -> initVisionCommands()),
     
-                    // Move arm and elevator to arm enum position
+                    // Arm and elevator to selected position
                     Commands.race(
                         Commands.waitSeconds(5),
                         Commands.parallel( // End command once both arm and elevator have reached their target position
@@ -393,7 +393,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     
                     currentVisionRunCommand.until(cameraStatusSupplier).withTimeout(5),
     
-                    // Arm to arm enum position
+                    // Arm and elevator to selected position
                     Commands.race(
                         Commands.waitSeconds(5),
                         Commands.parallel( // End command once both arm and elevator have reached their target position
