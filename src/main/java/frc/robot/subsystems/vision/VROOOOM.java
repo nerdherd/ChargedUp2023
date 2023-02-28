@@ -258,9 +258,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             RunCommand currentVisionRunCommand;
     
             if (rotationIsNeeded) {
-                currentVisionRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
+                currentVisionRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw));
             } else {
-                currentVisionRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
+                currentVisionRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX));
             }
             
             return Commands.parallel(
@@ -364,9 +364,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             RunCommand currentVisionRunCommand;
     
             if (rotationIsNeeded) {
-                currentVisionRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
+                currentVisionRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw));
             } else {
-                currentVisionRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
+                currentVisionRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX));
             }
     
             return Commands.parallel(
