@@ -433,7 +433,7 @@ public class SwerveAutos {
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
                 new Translation2d(-0.75, 0),
-                new Translation2d(-0.75, -1.5)), 
+                new Translation2d(-0.75, -1.25)), 
             new Pose2d(1, -1.75, Rotation2d.fromDegrees(0)), 
             trajectoryConfig);
 
