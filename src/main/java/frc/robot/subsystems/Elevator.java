@@ -115,6 +115,12 @@ public class Elevator extends SubsystemBase implements Reportable{
     );
   }
 
+  public CommandBase moveElevator(Supplier<Double> angleSupplier) {
+    return Commands.run(
+      () -> moveMotionMagic(angleSupplier.get()), this
+    );
+  }
+
   public CommandBase moveElevatorMid(double angle) {
     return Commands.run(
       () -> moveMotionMagic(ElevatorConstants.kElevatorScoreMid, angle), this

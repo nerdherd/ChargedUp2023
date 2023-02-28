@@ -172,6 +172,12 @@ public class Arm extends SubsystemBase implements Reportable {
         );
     }
 
+    public CommandBase moveArm(Supplier<Double> percentExtendedSupplier) {
+        return Commands.run(
+            () -> moveArmMotionMagic(percentExtendedSupplier.get()), this
+        );
+    }
+
     public CommandBase moveArmScore(double percentExtended) {
         return Commands.run(
             () -> moveArmMotionMagic(ArmConstants.kArmScore, percentExtended), this

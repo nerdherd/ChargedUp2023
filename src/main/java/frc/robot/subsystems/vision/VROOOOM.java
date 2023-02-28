@@ -222,6 +222,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     
                 case MID:
                     return Commands.runOnce(() -> SmartDashboard.putString("Vision Message", "you cant pickup mid"));
+
                 case LOW:
                     armPositionTicks = ArmConstants.kArmGroundPickup; // Ground pickup
                     elevatorPositionTicks = ElevatorConstants.kElevatorStow;
@@ -268,6 +269,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             }
             
             return Commands.parallel(
+                // Constantly run elevator and arm motion magic
+                Commands.run(
+                    () -> elevator.moveElevator(arm::getArmAngle)
+                ),
+                Commands.run(
+                    () -> arm.moveArm(elevator::percentExtended)
+                ),
+
                 Commands.sequence(
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
                     Commands.runOnce(() -> initVisionCommands()),
@@ -304,15 +313,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     ),
                     
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
-                ),
-    
-                Commands.run(
-                    () -> elevator.moveMotionMagic(arm.getArmAngle())
-                ),
-                Commands.run(
-                    () -> arm.moveArmMotionMagic(elevator.percentExtended())
                 )
-    
             );
         }
         else {
@@ -378,8 +379,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             }
     
             return Commands.parallel(
-                Commands.run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
-                Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                // Constantly run elevator and arm motion magic
+                Commands.run(
+                    () -> elevator.moveElevator(arm::getArmAngle)
+                ),
+                Commands.run(
+                    () -> arm.moveArm(elevator::percentExtended)
+                ),
+                
                 Commands.sequence(
                     Commands.parallel(
                         Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
