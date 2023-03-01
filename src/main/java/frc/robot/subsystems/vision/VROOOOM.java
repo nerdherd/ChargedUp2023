@@ -433,7 +433,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         
     }
 
-    private void driveRotateToTarget(PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
+    public void driveRotateToTarget(PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
         // Initialize all variables to 0
         double xSpeed = 0;
         double ySpeed = 0;
@@ -485,7 +485,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     }
 
     // Drive to target without rotation
-    private void skrttttToTarget(PIDController pidArea, PIDController pidTX) {
+    public void skrttttToTarget(PIDController pidArea, PIDController pidTX) {
         // Initialize all variables to 0
         double xSpeed = 0;
         double ySpeed = 0;
@@ -547,6 +547,38 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             () -> {
                 currentHeightPos = sPos;
             });
+    }
+
+    public void setLimelightHigh(){
+        if (limelightHigh == null){
+            SmartDashboard.putString("Limelight Not Found", "Limelight High Not Found");
+            return;
+        }      
+        currentLimelight = limelightHigh;
+    }
+    public void setLimelightLow(){
+        if (limelightLow == null){
+            SmartDashboard.putString("Limelight Not Found", "Limelight Low Not Found");
+            return;
+        }      
+        currentLimelight = limelightLow;
+    }
+    public void setLimelightPipeline(int pipeline){
+        if(currentLimelight == null){
+            SmartDashboard.putString("Limelight Not Found", "Current Limelight Is Null");
+            return;
+        }
+        currentLimelight.setPipeline(pipeline);
+    }
+
+    public void setGoalArea(double goalArea){
+        this.goalArea = goalArea;
+    }
+    public void setGoalTX(double goalTX){
+        this.goalTX = goalTX;
+    }
+    public void setGoalYaw(double goalYaw){
+        this.goalYaw = goalYaw;
     }
 
     // Smartdashboard
