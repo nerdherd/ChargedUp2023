@@ -34,7 +34,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.setInverted(true);
     // limitSwitch = new DigitalInput(ElevatorConstants.kLimitSwitchID);
 
-    atTargetPosition = () -> NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500);
+    atTargetPosition = () -> NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 4000, targetTicks + 4000);
     SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
     SmartDashboard.putNumber("Elevator kI", ElevatorConstants.kElevatorI);
     SmartDashboard.putNumber("Elevator kD", ElevatorConstants.kElevatorD);
