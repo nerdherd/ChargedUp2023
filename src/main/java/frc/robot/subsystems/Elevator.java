@@ -47,7 +47,7 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
     setBrakeMode();
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
-            if (elevator.getSelectedSensorPosition() <= -200000) {
+            if (elevator.getSelectedSensorPosition() <= -239000) {
             elevator.set(ControlMode.PercentOutput, 0);
             } else {
               elevator.set(ControlMode.PercentOutput, -0.8);

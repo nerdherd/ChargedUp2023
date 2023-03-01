@@ -121,7 +121,7 @@ public final class Constants {
     public static final int kElevatorID = 18;
     public static final int kElevatorStow = 0;
     public static final int kElevatorScoreMid = -143634;
-    public static final int kElevatorScoreHigh = -205000;
+    public static final int kElevatorScoreHigh = -240000;
     public static final int kElevatorSubstation = -125000; // Height for substation i think
     public static final int kElevatorMotionAcceleration = 20000;
     public static final int kElevatorCruiseVelocity = 20000;
