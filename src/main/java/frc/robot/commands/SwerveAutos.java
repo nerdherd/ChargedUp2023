@@ -274,11 +274,11 @@ public class SwerveAutos {
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
             sequence(
-                parallel(
-                    runOnce(() -> vision.updateCurrentGameObject(OBJECT_TYPE.CONE)),
-                    runOnce(() -> vision.updateCurrentHeight(SCORE_POS.MID))
-                ),
-                vision.VisionScore(),
+                // parallel(
+                //     //runOnce(() -> vision.updateCurrentGameObject(OBJECT_TYPE.CONE)),
+                //     runOnce(() -> vision.updateCurrentHeight(SCORE_POS.MID))
+                // ),
+                vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID),
                 chargeAuto(swerveDrive, startPos, waitTime, goAround)
             )
         );
@@ -328,11 +328,11 @@ public class SwerveAutos {
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
             sequence(
-                parallel(
-                    runOnce(() -> vision.updateCurrentGameObject(OBJECT_TYPE.CONE)),
-                    runOnce(() -> vision.updateCurrentHeight(SCORE_POS.MID))
-                ),
-                vision.VisionScore(),
+                // parallel(
+                //     //runOnce(() -> vision.updateCurrentGameObject(OBJECT_TYPE.CONE)),
+                //     runOnce(() -> vision.updateCurrentHeight(SCORE_POS.MID))
+                // ),
+                vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID),
                 backupChargeAuto(swerveDrive)
             )
         );

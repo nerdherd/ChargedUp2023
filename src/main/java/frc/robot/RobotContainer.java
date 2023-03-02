@@ -11,7 +11,6 @@ import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.TankDrivetrain;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.MotorClaw;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -63,8 +62,8 @@ public class RobotContainer {
 
   public static Imu imu = new Imu();
   // public static ConeRunner coneRunner = new ConeRunner();
-  public static final boolean IsSwerveDrive = true;
-  public static TankDrivetrain tankDrive;
+  //public static final boolean IsSwerveDrive = true;
+  //public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
   public AirCompressor airCompressor = new AirCompressor();
   public VROOOOM vision;
@@ -100,9 +99,10 @@ public class RobotContainer {
    */
   public RobotContainer() {
 
-    if (IsSwerveDrive) {
+    //if (IsSwerveDrive) {
       try {
         swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
+        vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
       } catch (IllegalArgumentException e) {
         DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
       }
@@ -115,10 +115,10 @@ public class RobotContainer {
       
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
-    } else {
-      tankDrive = new TankDrivetrain();
+    // } else {
+    //   tankDrive = new TankDrivetrain();
 
-    }
+    // }
 
     // elevator.resetEncoderStow();
     // Configure the trigger bindings
@@ -159,7 +159,7 @@ public class RobotContainer {
     // coneRunner.resetEncoders();
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
-    if (IsSwerveDrive) {
+    //if (IsSwerveDrive) {
       swerveDrive.setDefaultCommand(
         new SwerveJoystickCommand(
           swerveDrive,
@@ -182,14 +182,14 @@ public class RobotContainer {
             return DodgeDirection.NONE;
           }
         ));
-    } else {
-      tankDrive.setDefaultCommand(
-        new RunCommand(
-          () -> tankDrive.drive(
-            -driverController.getLeftY(), 
-            -driverController.getRightY()
-          ), tankDrive));
-    }
+    // } else {
+    //   tankDrive.setDefaultCommand(
+    //     new RunCommand(
+    //       () -> tankDrive.drive(
+    //         -driverController.getLeftY(), 
+    //         -driverController.getRightY()
+    //       ), tankDrive));
+    // }
 
 
   }
@@ -199,10 +199,10 @@ public class RobotContainer {
     // still being held
     // These button bindings are chosen for testing, and may be changed based on
     // driver preference
-    if (!IsSwerveDrive) {
-      driverController.L1().whileTrue(tankDrive.shiftHigh()); // TODO: use it for swerve too? inch-drive
-      driverController.R1().whileTrue(tankDrive.shiftLow());
-    }
+    // if (!IsSwerveDrive) {
+    //   driverController.L1().whileTrue(tankDrive.shiftHigh()); // TODO: use it for swerve too? inch-drive
+    //   driverController.R1().whileTrue(tankDrive.shiftLow());
+    // }
 
     
     upButton.whileTrue(arm.moveArmStow(elevator::percentExtended)) 
@@ -236,7 +236,7 @@ public class RobotContainer {
     
     // operatorController.triangle().whileTrue(arm.armExtend());
     // operatorController.square().whileTrue(arm.armStow());
-    operatorController.L1().whileTrue(motorClaw.setPower(1, -0.1))
+    operatorController.L1().whileTrue(motorClaw.setPower(1, 1))
         .onFalse(motorClaw.setPowerZero());
     operatorController.R1().whileTrue(motorClaw.setPower(-0.3))
         .onFalse(motorClaw.setPower(-0.15));
@@ -246,7 +246,7 @@ public class RobotContainer {
     // operatorController.R1().whileTrue(claw.clawOpen()).onFalse(claw.clawClose());
     // operatorController.L1().whileTrue(arm.armExtend()).onFalse(arm.armStow());
 
-    if (IsSwerveDrive) {
+    //if (IsSwerveDrive) {
       // Driver Bindings
       driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
       driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
@@ -260,19 +260,31 @@ public class RobotContainer {
       // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
       // ====== Vision Bindings ====== 
-      driverController.L2().whileTrue(vision.VisionPickup())
+      driverController.L2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CONE))
         .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-      driverController.R2().whileTrue(vision.VisionScore())
+      driverController.R2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CUBE))
         .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-      operatorController.L2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
-      operatorController.R2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
 
-      upButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
-      rightButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
-      downButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
+      //operatorController.L2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
+      //operatorController.R2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
 
-    }
+      //upButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
+      //rightButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
+      //downButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
+
+      upButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.HIGH))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      leftButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID))
+        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+
+      
+      rightButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH))
+        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      downButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.MID))
+      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+
+    //}
   }
 
   private void initAutoChoosers() {
@@ -318,16 +330,15 @@ public class RobotContainer {
     arm.initShuffleboard();
     elevator.initShuffleboard();
     // coneRunner.initShuffleboard();
-    vision.initShuffleboard();
-    if (IsSwerveDrive) {
+    //if (IsSwerveDrive) {
       swerveDrive.initShuffleboard();
       swerveDrive.initModuleShuffleboard();
-    } else {
-      tankDrive.initShuffleboard();
-    }
+    // } else {
+    //   tankDrive.initShuffleboard();
+    // }
     airCompressor.initShuffleboard();
 
-
+    vision.initShuffleboard();
   }
 
   public void reportAllToSmartDashboard() {
@@ -340,12 +351,12 @@ public class RobotContainer {
     elevator.reportToSmartDashboard();
     vision.reportToSmartDashboard();
     // coneRunner.reportToSmartDashboard();
-    if (IsSwerveDrive) {
+    // if (IsSwerveDrive) {
       swerveDrive.reportToSmartDashboard();
       swerveDrive.reportModulesToSmartDashboard();
-    } else {
-      tankDrive.reportToSmartDashboard();
-    }
+    // } else {
+    //   tankDrive.reportToSmartDashboard();
+    // }
     airCompressor.reportToSmartDashboard();
   }
   
@@ -371,12 +382,12 @@ public class RobotContainer {
   }
 
   public void autonomousInit() {
-    if (!IsSwerveDrive) { // TODO: Move resets to robot init? 
-      tankDrive.resetEncoders();
-      // drive.setEncoder(drive.meterToTicks(0.381));
-      imu.zeroHeading();
+    // if (!IsSwerveDrive) { // TODO: Move resets to robot init? 
+    //   tankDrive.resetEncoders();
+    //   // drive.setEncoder(drive.meterToTicks(0.381));
+       imu.zeroHeading();
 
-    }
+    // }
     
     // arm.resetEncoder();
     // elevator.resetEncoder();
