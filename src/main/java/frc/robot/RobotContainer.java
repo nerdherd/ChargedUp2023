@@ -65,7 +65,7 @@ public class RobotContainer {
   //public static final boolean IsSwerveDrive = true;
   //public static TankDrivetrain tankDrive;
   public static SwerveDrivetrain swerveDrive;
-  public AirCompressor airCompressor = new AirCompressor();
+  // public AirCompressor airCompressor = new AirCompressor();
   public VROOOOM vision;
 
   private final CommandBadPS4 driverController = new CommandBadPS4(
@@ -331,12 +331,12 @@ public class RobotContainer {
     elevator.initShuffleboard();
     // coneRunner.initShuffleboard();
     //if (IsSwerveDrive) {
-      swerveDrive.initShuffleboard();
-      swerveDrive.initModuleShuffleboard();
+      // swerveDrive.initShuffleboard();
+      // swerveDrive.initModuleShuffleboard();
     // } else {
     //   tankDrive.initShuffleboard();
     // }
-    airCompressor.initShuffleboard();
+    // airCompressor.initShuffleboard();
 
     vision.initShuffleboard();
   }
@@ -352,12 +352,12 @@ public class RobotContainer {
     vision.reportToSmartDashboard();
     // coneRunner.reportToSmartDashboard();
     // if (IsSwerveDrive) {
-      swerveDrive.reportToSmartDashboard();
-      swerveDrive.reportModulesToSmartDashboard();
+      // swerveDrive.reportToSmartDashboard();
+      // swerveDrive.reportModulesToSmartDashboard();
     // } else {
     //   tankDrive.reportToSmartDashboard();
     // }
-    airCompressor.reportToSmartDashboard();
+    // airCompressor.reportToSmartDashboard();
   }
   
   /**

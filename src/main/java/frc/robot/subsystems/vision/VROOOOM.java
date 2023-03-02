@@ -691,6 +691,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         if(currentHeightPos != null)
         tab.addString("Vision Current Height", () -> currentHeightPos.toString());
         if(currentLimelight != null) {
+            tab.addBoolean("has target", currentLimelight::hasValidTarget);
             tab.addString("Vision Current Limelight", () -> currentLimelight.getName());
             tab.addNumber("Vision Pipeline", () -> currentLimelight.getPipeIndex());
         }
