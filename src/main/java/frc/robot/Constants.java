@@ -96,7 +96,7 @@ public final class Constants {
     public static final int kArmGroundPickup = -242170;//767054;// 34352;
     public static final int kArmSubstation = -480486; // TODO: MEASURE THIS PWEASE
     public static final int kArmMotionAcceleration = 80000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 22000;//18000;//21777;
+    public static final int kArmCruiseVelocity = 30000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
@@ -123,8 +123,8 @@ public final class Constants {
     public static final int kElevatorScoreMid = -143634;
     public static final int kElevatorScoreHigh = -240000;
     public static final int kElevatorSubstation = -116680; // Height for substation i think
-    public static final int kElevatorMotionAcceleration = 20000;
-    public static final int kElevatorCruiseVelocity = 20000;
+    public static final int kElevatorMotionAcceleration = 60000;
+    public static final int kElevatorCruiseVelocity = 30000;
     public static final double kElevatorP = 0.1;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;

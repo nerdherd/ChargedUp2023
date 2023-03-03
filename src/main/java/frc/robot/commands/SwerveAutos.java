@@ -244,6 +244,7 @@ public class SwerveAutos {
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
             sequence(
+                claw.intake(),
                 runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                 deadline(
                     waitSeconds(2),
