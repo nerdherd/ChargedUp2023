@@ -287,10 +287,24 @@ public class SwerveAutos {
             chargeAuto(swerveDrive, position, alliance, 0, false));
     }
 
+    public static CommandBase pickupForwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, SCORE_POS scorePos, Alliance alliance) {
+        return sequence(
+            pickupAuto(swerveDrive, arm, elevator, claw, position, alliance, scorePos),
+            driveForwardAuto(swerveDrive)
+        );
+    }
+
     public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround, Alliance alliance) {
         return sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround)
+        );
+    }
+
+    public static CommandBase preloadForwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
+        return sequence(
+            preloadAuto(arm, elevator, claw, scorePos),
+            driveForwardAuto(swerveDrive)
         );
     }
 
@@ -306,6 +320,14 @@ public class SwerveAutos {
             preloadAuto(arm, elevator, claw, scorePos),
             pickupAuto(swerveDrive, arm, elevator, claw, startPos, alliance, scorePos),
             chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround)
+        );
+    }
+
+    public static CommandBase twoPieceForwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
+        return sequence(
+            preloadAuto(arm, elevator, claw, scorePos),
+            pickupAuto(swerveDrive, arm, elevator, claw, startPos, alliance, scorePos),
+            driveForwardAuto(swerveDrive)
         );
     }
 
@@ -341,22 +363,7 @@ public class SwerveAutos {
             )
         );
     }
-
-    public static CommandBase backupVisionPreloadChargeAuto(VROOOOM vision, SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround) {
-        return parallel(
-            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
-            sequence(
-                // parallel(
-                //     //runOnce(() -> vision.updateCurrentGameObject(OBJECT_TYPE.CONE)),
-                //     runOnce(() -> vision.updateCurrentHeight(SCORE_POS.MID))
-                // ),
-                vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID),
-                backupChargeAuto(swerveDrive)
-            )
-        );
-    }
-
+    
     /**
      * Start with the swerve drive facing the driver at either the rightmost cone grid, the leftmost cone grid, or directly in front of the charging station (middle)
      * @param swerveDrive 
