@@ -307,9 +307,9 @@ public class SwerveAutos {
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(0.25, 0),
-                new Translation2d(0.25, -2)), 
-            new Pose2d(2, -2, Rotation2d.fromDegrees(0)), 
+                new Translation2d(-0.25, 0), // Negate both axes because the drivetrain starts 180 degrees but theh gyro resets to zero
+                new Translation2d(-0.25, 2)), // 2 m for cone (tape), 1.75 m for cube (april tag)
+            new Pose2d(-2, 2, Rotation2d.fromDegrees(0)), 
             trajectoryConfig);
 
         //Create PID Controllers
@@ -341,6 +341,7 @@ public class SwerveAutos {
         return parallel(
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+            runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             sequence(
                 runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                 deadline(

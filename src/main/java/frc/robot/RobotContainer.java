@@ -295,15 +295,15 @@ public class RobotContainer {
     // autoChooser.addOption("One Piece and Charge", () -> SwerveAutos.onePieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, alliance));
     autoChooser.setDefaultOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
     // autoChooser.setDefaultOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
-    autoChooser.addOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
-    autoChooser.addOption("Preload Go Around and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true));
-    autoChooser.addOption("Vision Preload Charge", () -> SwerveAutos.visionPreloadChargeAuto(vision, swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
-    autoChooser.addOption("Vision Preload Old Charge", () -> SwerveAutos.backupVisionPreloadChargeAuto(vision, swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
-    autoChooser.addOption("Direct Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, false));
-    autoChooser.addOption("Go Around and Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, true));
-    autoChooser.addOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
-    autoChooser.addOption("Preload Charge", () -> SwerveAutos.preloadBackup(swerveDrive, arm, elevator, motorClaw, scorePos, 0));
-    autoChooser.addOption("Preload Charge Mid", () -> SwerveAutos.preloadBackup(swerveDrive, arm, elevator, motorClaw, SCORE_POS.MID, 0));
+    // autoChooser.addOption("Preload and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
+    // autoChooser.addOption("Preload Go Around and Charge", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true));
+    // autoChooser.addOption("Vision Preload Charge", () -> SwerveAutos.visionPreloadChargeAuto(vision, swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
+    // autoChooser.addOption("Vision Preload Old Charge", () -> SwerveAutos.backupVisionPreloadChargeAuto(vision, swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false));
+    // autoChooser.addOption("Direct Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, false));
+    // autoChooser.addOption("Go Around and Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, true));
+    // autoChooser.addOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
+    // autoChooser.addOption("Preload Charge", () -> SwerveAutos.preloadBackup(swerveDrive, arm, elevator, motorClaw, scorePos, 0));
+    autoChooser.addOption("Preload Charge Mid", () -> SwerveAutos.preloadBackup(swerveDrive, arm, elevator, motorClaw, SCORE_POS.HIGH, 0)); // Test if high scoring or mid scoring is more accurate
     autoChooser.addOption("Test Auto",  () -> Commands.runOnce(() -> SmartDashboard.putBoolean("Dummy Auto", true)));
     // autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
     autosTab.add("Selected Auto", autoChooser);
@@ -370,11 +370,11 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // startPos = positionChooser.getSelected();
     // scorePos = scoreChooser.getSelected();
-    // Command currentAuto = autoChooser.getSelected().get();
-    Command currentAuto = SwerveAutos.backupChargeAuto(swerveDrive);
+    Command currentAuto = autoChooser.getSelected().get();
+    // Command currentAuto = SwerveAutos.backupChargeAuto(swerveDrive);
     String autoName = currentAuto.getName();
     if (currentAuto != null) {
-      // Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);
+      Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);
     }
     return currentAuto;
     // if (IsSwerveDrive)
