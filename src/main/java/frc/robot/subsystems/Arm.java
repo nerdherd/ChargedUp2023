@@ -54,11 +54,11 @@ public class Arm extends SubsystemBase implements Reportable {
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
             
-            if (rotatingArm.getSelectedSensorPosition() >= ArmConstants.kArmLowerLimit) {
-                rotatingArm.set(ControlMode.PercentOutput, 0);
-              } else {
+            // if (rotatingArm.getSelectedSensorPosition() >= ArmConstants.kArmLowerLimit) {
+            //     rotatingArm.set(ControlMode.PercentOutput, 0);
+            //   } else {
                 rotatingArm.set(ControlMode.PercentOutput, 0.8);
-            }
+            // }
 
             // rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));

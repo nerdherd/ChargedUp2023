@@ -26,7 +26,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     topMotor = new TalonSRX(ClawConstants.kTopMotorID);
     // bottomMotor = new TalonSRX(ClawConstants.kBottomMotorID);
 
-    topMotor.setInverted(false);
+    topMotor.setInverted(true);
     // bottomMotor.setInverted(true);
 
     setNeutralMode(NeutralMode.Brake);

@@ -217,15 +217,15 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             if (currentGameObject == OBJECT_TYPE.CONE) {
                 goalArea = 21; // Goal area for cone ground pickup, area is an estimate because a different camera position was used, updated 2/23/2023
                 currentLimelight.setPipeline(1);
-                PIDArea = new PIDController(0.05, 0.005, 0); // Correct PID as of 2/23/2023
-                PIDTX = new PIDController(0.24, 0, 0);
-                PIDYaw = new PIDController(0, 0, 0);
+                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
             } else {
                 goalArea = 0; // Goal area for cube ground pickup
                 currentLimelight.setPipeline(2);
-                PIDArea = new PIDController(0.05, 0.005, 0); // PID coppied from cone (above) as of 2/23/2023
-                PIDTX = new PIDController(0.24, 0, 0);
-                PIDYaw = new PIDController(0, 0, 0);
+                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
             }
     
             //final int armPositionTicksFinal  = armPositionTicks;
@@ -314,15 +314,15 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             if (currentGameObject == OBJECT_TYPE.CONE) {
                 goalArea = 21; // Goal area for cone substation pickup, area is an estimate because a different camera position was used, updated 2/23/2023
                 currentLimelight.setPipeline(1);
-                PIDArea = new PIDController(0.05, 0.005, 0); // Correct PID as of 2/23/2023
-                PIDTX = new PIDController(0.24, 0, 0);
-                PIDYaw = new PIDController(0, 0, 0);
+                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
             } else {
                 goalArea = 0; // Goal area for cube substation pickup
                 currentLimelight.setPipeline(2);
-                PIDArea = new PIDController(0.05, 0.005, 0); // PID coppied from cone (above) as of 2/23/2023
-                PIDTX = new PIDController(0.24, 0, 0);
-                PIDYaw = new PIDController(0, 0, 0);
+                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
             }
 
             //final int armPositionTicksFinal  = armPositionTicks;
@@ -409,9 +409,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 currentLimelight = limelightLow; // Use low for testing
                 currentLimelight.setPipeline(3); // Tape pipeline
                 currentLimelight.setLightState(LightMode.ON);
-                PIDArea = new PIDController(7, 0, 0); // NOT SURE IF CORRECT, Updated 2/23/2023
-                PIDTX = new PIDController(0.1, 0, 0);
-                PIDYaw = new PIDController(0.1, 0, 0);
+                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
                 goalArea = 0.15; // Unsure if correct, updated 2/23/2023
 
                 switch(currentHeightPos) {
@@ -436,9 +436,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             case CUBE:
                 currentLimelight = limelightLow;
                 currentLimelight.setPipeline(4); // April tag pipeline
-                PIDArea = new PIDController(1, 0, 0); // Correct PID as of 2/23/2023
-                PIDTX = new PIDController(0.08, 0, .01);
-                PIDYaw = new PIDController(0.1, 0, 0);
+                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
                 goalArea = 2; // April tag target area, unsure if correct, updated 2/23/2023
 
                 switch(currentHeightPos) {
@@ -472,7 +472,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
     public CommandBase VisionScore(OBJECT_TYPE objType, SCORE_POS pos) {
         //if(currentLimelight != null) {
-            SmartDashboard.putBoolean("Vision has target", currentLimelight.hasValidTarget());
+            // if (currentLimelight)
+            // SmartDashboard.putBoolean("Vision has target", currentLimelight.hasValidTarget());
             
     
             // Had to declare both RunCommands in advance because syntax errors would appear if they weren't

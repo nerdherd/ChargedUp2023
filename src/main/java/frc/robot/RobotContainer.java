@@ -238,8 +238,8 @@ public class RobotContainer {
     // operatorController.square().whileTrue(arm.armStow());
     operatorController.L1().whileTrue(motorClaw.setPower(1, 1))
         .onFalse(motorClaw.setPowerZero());
-    operatorController.R1().whileTrue(motorClaw.setPower(-0.3))
-        .onFalse(motorClaw.setPower(-0.15));
+    operatorController.R1().whileTrue(motorClaw.setPower(-0.30))
+        .onFalse(motorClaw.setPower(-0.2));
     // operatorController.circle().onTrue(claw.clawOpen());
     // operatorController.cross().onTrue(claw.clawClose());
 
