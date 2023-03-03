@@ -382,8 +382,7 @@ public class SwerveAutos {
     }
 
     /**
-     * Start with the front left swerve module aligned with the charging station's edge
-     * in the x axis and around 8 inches to the right in the y axis
+     * Start with the swerve drive facing the driver at either the rightmost cone grid, the leftmost cone grid, or directly in front of the charging station (middle)
      * @param swerveDrive 
      * @return Command to reset odometry run auto to go onto charging station then run balancing auto
      */
@@ -420,15 +419,15 @@ public class SwerveAutos {
                 List.of(
                     new Translation2d(0.25, 0),
                     new Translation2d(0.25, yOvershoot)), 
-                new Pose2d(1.5, yTranslation, Rotation2d.fromDegrees(180)), 
+                new Pose2d(2, yTranslation, Rotation2d.fromDegrees(180)), 
                 trajectoryConfig);
         } else {
             trajectory = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(0, 0, new Rotation2d(180)), 
                 List.of(
-                    new Translation2d(3, 0),
-                    new Translation2d(3, yTranslation)), 
-                new Pose2d(1.5, yTranslation, Rotation2d.fromDegrees(180)), 
+                    new Translation2d(4, 0),
+                    new Translation2d(4, yTranslation)), 
+                new Pose2d(2, yTranslation, Rotation2d.fromDegrees(180)), 
                 trajectoryConfig);
         }
 
