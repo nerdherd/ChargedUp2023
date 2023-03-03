@@ -231,6 +231,21 @@ public class SwerveAutos {
     } 
 
     public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround) {
+        int elevatorPos = ElevatorConstants.kElevatorScoreMid;
+        switch (scorePos) {
+            case LOW:
+                elevatorPos = ElevatorConstants.kElevatorStow;
+                break;
+            case MID:
+                elevatorPos = ElevatorConstants.kElevatorScoreMid;
+                break;
+            case HIGH:
+                elevatorPos = ElevatorConstants.kElevatorScoreHigh;
+                break;
+        }
+
+        final int elevatorPosFinal = elevatorPos;
+        
         return parallel(
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
@@ -244,7 +259,7 @@ public class SwerveAutos {
                         waitUntil(arm.atTargetPosition)
                     ),
                     sequence(
-                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                        runOnce(() -> elevator.setTargetTicks(elevatorPosFinal)),
                         waitSeconds(0.5),
                         waitUntil(elevator.atTargetPosition)
                     )
@@ -357,7 +372,7 @@ public class SwerveAutos {
                     )
                 ),
                 waitSeconds(waitTime),
-                backupChargeAuto(swerveDrive)
+                autoCommand
             )
         );
     }
