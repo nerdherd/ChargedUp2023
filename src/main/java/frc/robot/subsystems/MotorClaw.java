@@ -19,15 +19,15 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class MotorClaw extends SubsystemBase implements Reportable {
 
-  private TalonSRX topMotor, bottomMotor;
+  private TalonSRX topMotor;//, bottomMotor;
 
   /** Creates a new MotorClaw. */
   public MotorClaw() {
     topMotor = new TalonSRX(ClawConstants.kTopMotorID);
-    bottomMotor = new TalonSRX(ClawConstants.kBottomMotorID);
+    // bottomMotor = new TalonSRX(ClawConstants.kBottomMotorID);
 
     topMotor.setInverted(false);
-    bottomMotor.setInverted(true);
+    // bottomMotor.setInverted(true);
 
     setNeutralMode(NeutralMode.Brake);
   }
@@ -37,7 +37,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     return runOnce(
       () -> {
         topMotor.set(ControlMode.PercentOutput, power);
-        bottomMotor.set(ControlMode.PercentOutput, power);
+        // bottomMotor.set(ControlMode.PercentOutput, power);
         setNeutralMode(NeutralMode.Brake);
       }
       
@@ -48,7 +48,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     return runOnce(
       () -> {
         topMotor.set(ControlMode.PercentOutput, topPower);
-        bottomMotor.set(ControlMode.PercentOutput, bottomPower);
+        // bottomMotor.set(ControlMode.PercentOutput, bottomPower);
         setNeutralMode(NeutralMode.Brake);
       }
       
@@ -77,7 +77,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
 
   public void setNeutralMode(NeutralMode mode) {
     topMotor.setNeutralMode(mode);
-    bottomMotor.setNeutralMode(mode);
+    // bottomMotor.setNeutralMode(mode);
   }
 
   @Override
