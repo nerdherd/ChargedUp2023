@@ -82,7 +82,7 @@ public final class Constants {
     public static final int kPCMPort = 3;
 
     public static final int kTopMotorID = 61;
-    // public static final int kBottomMotorID = 61;
+    public static final int kBottomMotorID = 62;
     public static final double kIntakePower = -0.3;
     public static final double kOuttakePower = 1;
     public static final double kIntakeNeutralPower = -0.15;
@@ -95,8 +95,8 @@ public final class Constants {
     public static final int kArmScore = -416800;//596443; // 89744;
     public static final int kArmGroundPickup = -242170;//767054;// 34352;
     public static final int kArmSubstation = -480486; // TODO: MEASURE THIS PWEASE
-    public static final int kArmMotionAcceleration = 40000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 20000;//18000;//21777;
+    public static final int kArmMotionAcceleration = 80000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 22000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
@@ -295,7 +295,7 @@ public final class Constants {
   }
 
   public static final class SwerveAutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 2;
+    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
       SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
     public static final double kMaxAccelerationMetersPerSecondSquared = 2;
@@ -319,7 +319,7 @@ public final class Constants {
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
     public static final double kPBalancingInitial = 0.6;
-    public static final double kPBalancing = 0.4;
+    public static final double kPBalancing = 0.3; // 0.4
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
     public static final double kBalancingTowPeriod = 0.5;
   }

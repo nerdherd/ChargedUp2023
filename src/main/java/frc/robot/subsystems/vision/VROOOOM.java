@@ -492,53 +492,53 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 //arm.moveArm(elevator::percentExtended),
                 
                 Commands.sequence(
-                    Commands.parallel(
-                        Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
-                        Commands.runOnce(() -> initVisionScore(objType, pos))
-                    ),
+                    // Commands.parallel(
+                    //     Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
+                    //     Commands.runOnce(() -> initVisionScore(objType, pos))
+                    // ),
                     
-                    // Stow arm
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        )
-                    ),
+                    // // Stow arm
+                    // Commands.race(
+                    //     Commands.waitSeconds(5),
+                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
+                    //         Commands.waitUntil(arm.atTargetPosition),
+                    //         Commands.waitUntil(elevator.atTargetPosition),
+                    //         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                    //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    //     )
+                    // ),
                     
                     new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(5),
     
                     // Arm and elevator to selected position
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
-                        )
-                    ),
+                    // Commands.race(
+                    //     Commands.waitSeconds(5),
+                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
+                    //         Commands.waitUntil(arm.atTargetPosition),
+                    //         Commands.waitUntil(elevator.atTargetPosition),
+                    //         Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks)),
+                    //         Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
+                    //     )
+                    // ),
                     
                     // Open claw/eject piece with rollers
-                    claw.setPower(1),
-                    // Wait 1 second
-                    Commands.waitSeconds(1),
+                    // claw.setPower(1),
+                    // // Wait 1 second
+                    // Commands.waitSeconds(1),
     
-                    // Close claw/stop rollers
-                    claw.setPower(0),
+                    // // Close claw/stop rollers
+                    // claw.setPower(0),
     
                     // Stow arm
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        )
-                    ),
+                    // Commands.race(
+                    //     Commands.waitSeconds(5),
+                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
+                    //         Commands.waitUntil(arm.atTargetPosition),
+                    //         Commands.waitUntil(elevator.atTargetPosition),
+                    //         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                    //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    //     )
+                    // ),
                     
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
                 )

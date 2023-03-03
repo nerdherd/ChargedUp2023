@@ -308,7 +308,7 @@ public class SwerveAutos {
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
                 new Translation2d(-0.25, 0), // Negate both axes because the drivetrain starts 180 degrees but theh gyro resets to zero
-                new Translation2d(-0.25, 2)), // 2 m for cone (tape), 1.75 m for cube (april tag)
+                new Translation2d(-0.25, 1.75)), // 2 m for cone (tape), 1.75 m for cube (april tag)
             new Pose2d(-2, 2, Rotation2d.fromDegrees(0)), 
             trajectoryConfig);
 
@@ -489,7 +489,7 @@ public class SwerveAutos {
             List.of(
                 new Translation2d(-0.75, 0),
                 new Translation2d(-0.75, -1.25)), 
-            new Pose2d(1, -1.75, Rotation2d.fromDegrees(0)), 
+            new Pose2d(1, -1.75, Rotation2d.fromDegrees(180)), 
             trajectoryConfig);
 
         //Create PID Controllers
