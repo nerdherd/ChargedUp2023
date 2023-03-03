@@ -284,7 +284,45 @@ public class SwerveAutos {
         );
     }
 
-    public static CommandBase preloadBackup(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround) {
+    /** Start from in front of the rightmost cone grid */
+    public static CommandBase preloadBackup(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, SCORE_POS scorePos, double waitTime) {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+        
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)), 
+            List.of(
+                new Translation2d(0.25, 0),
+                new Translation2d(0.25, -2)), 
+            new Pose2d(2, -2, Rotation2d.fromDegrees(0)), 
+            trajectoryConfig);
+
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand autoCommand = new SwerveControllerCommand(
+            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        int elevatorPos = ElevatorConstants.kElevatorScoreMid;
+        switch (scorePos) {
+            case LOW:
+                elevatorPos = ElevatorConstants.kElevatorStow;
+                break;
+            case MID:
+                elevatorPos = ElevatorConstants.kElevatorScoreMid;
+                break;
+            case HIGH:
+                elevatorPos = ElevatorConstants.kElevatorScoreHigh;
+                break;
+        }
+
+        final int elevatorPosFinal = elevatorPos;
+
         return parallel(
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
@@ -298,7 +336,7 @@ public class SwerveAutos {
                         waitUntil(arm.atTargetPosition)
                     ),
                     sequence(
-                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                        runOnce(() -> elevator.setTargetTicks(elevatorPosFinal)),
                         waitSeconds(0.5),
                         waitUntil(elevator.atTargetPosition)
                     )
@@ -318,6 +356,7 @@ public class SwerveAutos {
                         waitUntil(elevator.atTargetPosition)
                     )
                 ),
+                waitSeconds(waitTime),
                 backupChargeAuto(swerveDrive)
             )
         );
@@ -348,7 +387,7 @@ public class SwerveAutos {
      * @param swerveDrive 
      * @return Command to reset odometry run auto to go onto charging station then run balancing auto
      */
-    public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround) {
+    public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround, double startAngle) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
         
@@ -377,8 +416,9 @@ public class SwerveAutos {
         
         if (!goAround || startPos == StartPosition.MIDDLE) {
             trajectory = TrajectoryGenerator.generateTrajectory(
-                new Pose2d(0, 0, new Rotation2d(180)), 
+                new Pose2d(0, 0, new Rotation2d(startAngle)), 
                 List.of(
+                    new Translation2d(0.25, 0),
                     new Translation2d(0.25, yOvershoot)), 
                 new Pose2d(1.5, yTranslation, Rotation2d.fromDegrees(180)), 
                 trajectoryConfig);
@@ -414,6 +454,10 @@ public class SwerveAutos {
             // new TheGreatBalancingAct(swerveDrive),
             // new TowSwerve(swerveDrive)
         );
+    }
+
+    public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround) {
+        return chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround, 180);
     }
 
      /**

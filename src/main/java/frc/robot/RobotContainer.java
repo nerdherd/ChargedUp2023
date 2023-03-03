@@ -302,6 +302,8 @@ public class RobotContainer {
     autoChooser.addOption("Direct Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, false));
     autoChooser.addOption("Go Around and Charge", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, 1, true));
     autoChooser.addOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
+    autoChooser.addOption("Preload Charge", () -> SwerveAutos.preloadBackup(swerveDrive, arm, elevator, motorClaw, scorePos, 0));
+    autoChooser.addOption("Preload Charge Mid", () -> SwerveAutos.preloadBackup(swerveDrive, arm, elevator, motorClaw, SCORE_POS.MID, 0));
     autoChooser.addOption("Test Auto",  () -> Commands.runOnce(() -> SmartDashboard.putBoolean("Dummy Auto", true)));
     // autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
     autosTab.add("Selected Auto", autoChooser);
@@ -314,7 +316,7 @@ public class RobotContainer {
     autosTab.addString("Selected Start Position", () -> startPos.toString());
 
     // TODO: Implement changing score position in the autos
-    scoreChooser.setDefaultOption("Hybrid", SCORE_POS.LOW);
+    scoreChooser.setDefaultOption("Mid", SCORE_POS.MID);
     scoreChooser.addOption("Hybrid", SCORE_POS.LOW);
     scoreChooser.addOption("Mid", SCORE_POS.MID);
     scoreChooser.addOption("High", SCORE_POS.HIGH);
