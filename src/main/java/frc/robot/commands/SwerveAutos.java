@@ -402,7 +402,7 @@ public class SwerveAutos {
      * @param swerveDrive 
      * @return Command to reset odometry run auto to go onto charging station then run balancing auto
      */
-    public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround, double startAngle) {
+    public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
         
@@ -470,11 +470,7 @@ public class SwerveAutos {
             // new TowSwerve(swerveDrive)
         );
     }
-
-    public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround) {
-        return chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround, 180);
-    }
-
+    
      /**
      * Start with the front left swerve module aligned with the charging station's edge
      * in the x axis and around 8 inches to the right in the y axis
