@@ -111,7 +111,7 @@ public class RobotContainer {
       // Initialize vision after swerve has been initialized
       vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
 
-      this.alliance = DriverStation.getAlliance();
+      // this.alliance = DriverStation.getAlliance();
       initAutoChoosers();
       
       SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
