@@ -258,7 +258,8 @@ public class SwerveAutos {
                     )
                 ),
                 waitSeconds(0.5),
-                claw.outtake(),
+                // claw.outtake(),
+                claw.setPower(.1),
                 waitSeconds(0.5),
                 
                 runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
