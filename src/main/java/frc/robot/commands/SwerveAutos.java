@@ -152,9 +152,7 @@ public class SwerveAutos {
             pickupToScore, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
-        return parallel(
-            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+        return deadline(
             sequence(
                 parallel(
                     runOnce(() -> SmartDashboard.putString("Stage", "Start")),
@@ -220,7 +218,9 @@ public class SwerveAutos {
                         waitSeconds(0.5),
                         waitUntil(arm.atTargetPosition)
                     ))
-                )
+                ),
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
             );
     } 
 
@@ -240,9 +240,7 @@ public class SwerveAutos {
 
         final int elevatorPosFinal = elevatorPos;
 
-        return parallel(
-            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+        return deadline(
             sequence(
                 claw.intake(),
                 runOnce(() -> SmartDashboard.putString("Stage", "Score")),
@@ -277,7 +275,9 @@ public class SwerveAutos {
                         waitUntil(arm.atTargetPosition)
                     )
                 )
-            )
+            ),
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
         );
     }
 
@@ -287,10 +287,24 @@ public class SwerveAutos {
             chargeAuto(swerveDrive, position, alliance, 0, false));
     }
 
+    public static CommandBase pickupForwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, SCORE_POS scorePos, Alliance alliance) {
+        return sequence(
+            pickupAuto(swerveDrive, arm, elevator, claw, position, alliance, scorePos),
+            driveForwardAuto(swerveDrive)
+        );
+    }
+
     public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround, Alliance alliance) {
         return sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround)
+        );
+    }
+
+    public static CommandBase preloadForwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
+        return sequence(
+            preloadAuto(arm, elevator, claw, scorePos),
+            driveForwardAuto(swerveDrive)
         );
     }
 
@@ -306,6 +320,14 @@ public class SwerveAutos {
             preloadAuto(arm, elevator, claw, scorePos),
             pickupAuto(swerveDrive, arm, elevator, claw, startPos, alliance, scorePos),
             chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround)
+        );
+    }
+
+    public static CommandBase twoPieceForwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
+        return sequence(
+            preloadAuto(arm, elevator, claw, scorePos),
+            pickupAuto(swerveDrive, arm, elevator, claw, startPos, alliance, scorePos),
+            driveForwardAuto(swerveDrive)
         );
     }
 
@@ -338,21 +360,6 @@ public class SwerveAutos {
                 // ),
                 vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID),
                 chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround)
-            )
-        );
-    }
-
-    public static CommandBase backupVisionPreloadChargeAuto(VROOOOM vision, SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround) {
-        return parallel(
-            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
-            sequence(
-                // parallel(
-                //     //runOnce(() -> vision.updateCurrentGameObject(OBJECT_TYPE.CONE)),
-                //     runOnce(() -> vision.updateCurrentHeight(SCORE_POS.MID))
-                // ),
-                vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID),
-                backupChargeAuto(swerveDrive)
             )
         );
     }
