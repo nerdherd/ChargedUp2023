@@ -132,6 +132,15 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
+        
+        if (limitSwitch.get()) {
+            rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        }
+
+        if (targetTicks <= ArmConstants.kArmStow) {
+            targetTicks = ArmConstants.kArmStow;
+        }
+        
         rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
 
         SmartDashboard.putNumber("Arm FF", ff);

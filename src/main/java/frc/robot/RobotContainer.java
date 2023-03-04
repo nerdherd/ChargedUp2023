@@ -381,12 +381,13 @@ public class RobotContainer {
     // if (!IsSwerveDrive) { // TODO: Move resets to robot init? 
     //   tankDrive.resetEncoders();
     //   // drive.setEncoder(drive.meterToTicks(0.381));
-       imu.zeroHeading();
+    imu.zeroHeading();
+    
 
     // }
     
-    // arm.resetEncoder();
-    // elevator.resetEncoder();
+    arm.resetEncoderStow();
+    elevator.resetEncoder();
 
     // if (IsSwerveDrive) {
     //   swerveDrive.resetEncoders();
