@@ -152,9 +152,7 @@ public class SwerveAutos {
             pickupToScore, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
-        return parallel(
-            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+        return deadline(
             sequence(
                 parallel(
                     runOnce(() -> SmartDashboard.putString("Stage", "Start")),
@@ -220,7 +218,9 @@ public class SwerveAutos {
                         waitSeconds(0.5),
                         waitUntil(arm.atTargetPosition)
                     ))
-                )
+                ),
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
             );
     } 
 
@@ -240,9 +240,7 @@ public class SwerveAutos {
 
         final int elevatorPosFinal = elevatorPos;
 
-        return parallel(
-            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+        return deadline(
             sequence(
                 claw.intake(),
                 runOnce(() -> SmartDashboard.putString("Stage", "Score")),
@@ -277,7 +275,9 @@ public class SwerveAutos {
                         waitUntil(arm.atTargetPosition)
                     )
                 )
-            )
+            ),
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
         );
     }
 
@@ -363,7 +363,7 @@ public class SwerveAutos {
             )
         );
     }
-    
+
     /**
      * Start with the swerve drive facing the driver at either the rightmost cone grid, the leftmost cone grid, or directly in front of the charging station (middle)
      * @param swerveDrive 
