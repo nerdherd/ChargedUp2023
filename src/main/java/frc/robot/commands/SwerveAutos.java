@@ -226,19 +226,25 @@ public class SwerveAutos {
 
     public static CommandBase preloadAuto(Arm arm, Elevator elevator, MotorClaw claw, SCORE_POS scorePos) {
         int elevatorPos = ElevatorConstants.kElevatorScoreMid;
+        int armPos = ArmConstants.kArmScoreCubeMid;
+
         switch (scorePos) {
             case LOW:
                 elevatorPos = ElevatorConstants.kElevatorStow;
+                armPos = ArmConstants.kArmScore; // Not real(ly accurate)
                 break;
             case MID:
                 elevatorPos = ElevatorConstants.kElevatorScoreMid;
+                armPos = ArmConstants.kArmScoreCubeMid;
                 break;
             case HIGH:
                 elevatorPos = ElevatorConstants.kElevatorScoreHigh;
+                armPos = ArmConstants.kArmScoreCubeHigh;
                 break;
         }
 
         final int elevatorPosFinal = elevatorPos;
+        final int armPosFinal = armPos;
 
         return deadline(
             sequence(
@@ -247,7 +253,7 @@ public class SwerveAutos {
                 deadline(
                     waitSeconds(2),
                     sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                        runOnce(() -> arm.setTargetTicks(armPosFinal)),
                         waitSeconds(0.5),
                         waitUntil(arm.atTargetPosition)
                     ),
@@ -259,7 +265,7 @@ public class SwerveAutos {
                 ),
                 waitSeconds(0.5),
                 // claw.outtake(),
-                claw.setPower(.1),
+                claw.setPower(.3),
                 waitSeconds(0.5),
                 
                 runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
