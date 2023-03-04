@@ -173,7 +173,7 @@ public class Elevator extends SubsystemBase implements Reportable{
 
   public void resetEncoderStow() {
     elevator.setSelectedSensorPosition(ElevatorConstants.kElevatorStow);
-  }
+  } 
 
   @Override
   public void periodic() {

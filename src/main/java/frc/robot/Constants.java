@@ -83,7 +83,7 @@ public final class Constants {
 
     public static final int kTopMotorID = 61;
     public static final int kBottomMotorID = 62;
-    public static final double kIntakePower = -0.3;
+    public static final double kIntakePower = -0.35;
     public static final double kOuttakePower = 1;
     public static final double kIntakeNeutralPower = -0.15;
   }
@@ -91,11 +91,11 @@ public final class Constants {
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
-    public static final int kArmStow = -630435;//144278;
-    public static final int kArmScore = -416800;//596443; // 89744;
-    public static final int kArmScoreCubeMid = -379000;//596443; // 89744;
-    public static final int kArmScoreCubeHigh = -391000;//596443; // 89744;
-    public static final int kArmGroundPickup = -223000;//-242170;//767054;// 34352;
+    public static final int kArmStow = -622485;//-630435;//144278;
+    public static final int kArmScore = -408850;//596443; // 89744;
+    public static final int kArmScoreCubeMid = -371050;//596443; // 89744;
+    public static final int kArmScoreCubeHigh = -383050;//596443; // 89744;
+    public static final int kArmGroundPickup = -215050;//-242170;//767054;// 34352;
     public static final int kArmSubstation = -499000;//-480486; // TODO: MEASURE THIS PWEASE
     public static final int kArmMotionAcceleration = 40000;//800000; //160000;
     public static final int kArmCruiseVelocity = 22000;//18000;//21777;
@@ -122,8 +122,10 @@ public final class Constants {
   public static class ElevatorConstants{
     public static final int kElevatorID = 18;
     public static final int kElevatorStow = 0;
-    public static final int kElevatorScoreMid = -85285;//-143634;
-    public static final int kElevatorScoreHigh = -198657;//-240000;
+    public static final int kElevatorScoreMidCube = -85285;//-143634;
+    public static final int kElevatorScoreMid = -143634;
+    public static final int kElevatorScoreHighCube = -198657;//-240000;
+    public static final int kElevatorScoreHigh = -240000;
     public static final int kElevatorSubstation = -69400;//-68100;//-116680; // Height for substation i think
     public static final int kElevatorMotionAcceleration = 60000;
     public static final int kElevatorCruiseVelocity = 30000;

@@ -37,7 +37,7 @@ public class SwerveAutos {
         MIDDLE
     }
 
-    public static CommandBase driveForwardAuto(SwerveDrivetrain swerveDrive) {
+    public static CommandBase driveBackwardAuto(SwerveDrivetrain swerveDrive) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
@@ -45,8 +45,38 @@ public class SwerveAutos {
         Trajectory driveForward = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-            new Translation2d(2, 0)), 
-            new Pose2d(4, 1, Rotation2d.fromDegrees(180)), 
+            new Translation2d(-2, 0)), 
+            new Pose2d(-4, 1, Rotation2d.fromDegrees(180)), 
+            trajectoryConfig);
+        
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        
+        SwerveControllerCommand driveForwardCommand = new SwerveControllerCommand(
+            driveForward, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return sequence(
+            runOnce(() -> swerveDrive.setPoseMeters(driveForward.getInitialPose())),
+            driveForwardCommand,
+            runOnce(swerveDrive::stopModules)
+        );
+    }
+
+    public static CommandBase driveBackwardLeftAuto(SwerveDrivetrain swerveDrive) {
+        // Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+        
+        Trajectory driveForward = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)), 
+            List.of(
+            new Translation2d(-2, 0)), 
+            new Pose2d(-4, -1, Rotation2d.fromDegrees(180)), 
             trajectoryConfig);
         
         //Create PID Controllers
@@ -96,7 +126,7 @@ public class SwerveAutos {
                 elevatorPos = ElevatorConstants.kElevatorScoreMid;
                 break;
             case HIGH:
-                elevatorPos = ElevatorConstants.kElevatorScoreHigh;
+                elevatorPos = ElevatorConstants.kElevatorScoreHighCube;
                 break;
         }
 
@@ -238,7 +268,7 @@ public class SwerveAutos {
                 armPos = ArmConstants.kArmScoreCubeMid;
                 break;
             case HIGH:
-                elevatorPos = ElevatorConstants.kElevatorScoreHigh;
+                elevatorPos = ElevatorConstants.kElevatorScoreHighCube;
                 armPos = ArmConstants.kArmScoreCubeHigh;
                 break;
         }
@@ -246,7 +276,8 @@ public class SwerveAutos {
         final int elevatorPosFinal = elevatorPos;
         final int armPosFinal = armPos;
 
-        return deadline(
+        return race(
+            waitSeconds(5),
             sequence(
                 claw.intake(),
                 runOnce(() -> SmartDashboard.putString("Stage", "Score")),
@@ -290,14 +321,15 @@ public class SwerveAutos {
 
     public static CommandBase pickupChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance, SCORE_POS scorePos) {
         return sequence(
+
             pickupAuto(swerveDrive, arm, elevator, claw, position, alliance, scorePos),
             chargeAuto(swerveDrive, position, alliance, 0, false));
     }
 
-    public static CommandBase pickupForwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, SCORE_POS scorePos, Alliance alliance) {
+    public static CommandBase pickupBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, SCORE_POS scorePos, Alliance alliance) {
         return sequence(
             pickupAuto(swerveDrive, arm, elevator, claw, position, alliance, scorePos),
-            driveForwardAuto(swerveDrive)
+            driveBackwardAuto(swerveDrive)
         );
     }
 
@@ -308,10 +340,18 @@ public class SwerveAutos {
         );
     }
 
-    public static CommandBase preloadForwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
+    public static CommandBase preloadBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
         return sequence(
             preloadAuto(arm, elevator, claw, scorePos),
-            driveForwardAuto(swerveDrive)
+            driveBackwardAuto(swerveDrive)
+        );
+    }
+
+    
+    public static CommandBase preloadBackwardLeftAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
+        return sequence(
+            preloadAuto(arm, elevator, claw, scorePos),
+            driveBackwardLeftAuto(swerveDrive)
         );
     }
 
@@ -330,11 +370,11 @@ public class SwerveAutos {
         );
     }
 
-    public static CommandBase twoPieceForwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
+    public static CommandBase twoPieceBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
         return sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             pickupAuto(swerveDrive, arm, elevator, claw, startPos, alliance, scorePos),
-            driveForwardAuto(swerveDrive)
+            driveBackwardAuto(swerveDrive)
         );
     }
 

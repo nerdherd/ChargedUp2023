@@ -121,7 +121,7 @@ public class RobotContainer {
 
     // }
 
-    // elevator.resetEncoderStow();
+    elevator.resetEncoderStow();
     // Configure the trigger bindings
     configureBindings();
     
@@ -292,15 +292,15 @@ public class RobotContainer {
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
     SmartDashboard.putBoolean("Dummy Auto", false);
 
-    autoChooser.addOption("Forward Auto", () -> SwerveAutos.driveForwardAuto(swerveDrive));
+    autoChooser.addOption("Backward Auto", () -> SwerveAutos.driveBackwardAuto(swerveDrive));
     autoChooser.addOption("Preload Auto", () -> SwerveAutos.preloadAuto(arm, elevator, motorClaw, scorePos));
     autoChooser.addOption("Preload Charge Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
     autoChooser.addOption("Preload Charge Go Around Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
-    autoChooser.addOption("Preload Forward Auto", () -> SwerveAutos.preloadForwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
+    autoChooser.addOption("Preload Backward Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     autoChooser.addOption("Preload Pickup Auto", () -> SwerveAutos.twoPieceAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     autoChooser.addOption("Preload Pickup Charge Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
     autoChooser.addOption("Preload Pickup Charge Go Around Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
-    autoChooser.addOption("Preload Pickup Forward Auto", () -> SwerveAutos.twoPieceForwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
+    autoChooser.addOption("Preload Pickup Backward Auto", () -> SwerveAutos.twoPieceBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     autoChooser.setDefaultOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
     autoChooser.addOption("Test Auto",  () -> Commands.runOnce(() -> SmartDashboard.putBoolean("Dummy Auto", true)));
     // autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
