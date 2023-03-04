@@ -89,6 +89,7 @@ public class RobotContainer {
   private SendableChooser<Supplier<CommandBase>> autoChooser = new SendableChooser<Supplier<CommandBase>>();
   private SendableChooser<StartPosition> positionChooser = new SendableChooser<StartPosition>();
   private SendableChooser<SCORE_POS> scoreChooser = new SendableChooser<SCORE_POS>();
+  private SendableChooser<Alliance> allianceChooser = new SendableChooser<Alliance>();
 
   private SCORE_POS scorePos = SCORE_POS.MID;
   private StartPosition startPos = StartPosition.RIGHT;
@@ -318,9 +319,13 @@ public class RobotContainer {
     scoreChooser.addOption("Mid", SCORE_POS.MID);
     scoreChooser.addOption("High", SCORE_POS.HIGH);
     autosTab.add("Score Position", scoreChooser);
-    autosTab.addString("Selected Score Position", () -> scorePos.toString());
 
-    autosTab.addString("Current Alliance", () -> alliance.toString());
+    allianceChooser.setDefaultOption("Red", Alliance.Red);
+    allianceChooser.addOption("Red", Alliance.Red);
+    allianceChooser.addOption("Blue", Alliance.Blue);
+    autosTab.add("Alliance", allianceChooser);
+
+    autosTab.addString("Selected Score Position", () -> scorePos.toString());
   }
   
   public void initShuffleboard() {
@@ -365,8 +370,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // startPos = positionChooser.getSelected();
-    // scorePos = scoreChooser.getSelected();
+    startPos = positionChooser.getSelected();
+    scorePos = scoreChooser.getSelected();
+    alliance = allianceChooser.getSelected();
     Command currentAuto = autoChooser.getSelected().get();
     // Command currentAuto = SwerveAutos.backupChargeAuto(swerveDrive);
     String autoName = currentAuto.getName();
