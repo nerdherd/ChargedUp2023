@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
@@ -450,7 +451,7 @@ public class SwerveAutos {
                 List.of(
                     new Translation2d(-0.25, 0),
                     new Translation2d(-0.25, yOvershoot)), 
-                new Pose2d(-1, yTranslation - 0.01, Rotation2d.fromDegrees(180)), // -2
+                new Pose2d(-2, yTranslation - 0.01, Rotation2d.fromDegrees(180)), // -2
                 trajectoryConfig);
         } else {
             trajectory = TrajectoryGenerator.generateTrajectory(
