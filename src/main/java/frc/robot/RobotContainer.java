@@ -173,7 +173,9 @@ public class RobotContainer {
           driverController::getRightX,
           // () -> true,
           badPS4::getSquareButton,
-          badPS4::getL3Button,
+          () -> {
+            return badPS4.getL2Button() || badPS4.getR2Button();
+          },
           // driverControllerButtons::getTriangleButton,
           badPS4::getR3Button,
           () -> {
@@ -264,10 +266,10 @@ public class RobotContainer {
       // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
       // ====== Vision Bindings ====== 
-      driverController.L2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CONE))
-        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-      driverController.R2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CUBE))
-        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // driverController.L2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CONE))
+      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // driverController.R2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CUBE))
+      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
 
       //operatorController.L2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
