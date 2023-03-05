@@ -85,7 +85,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
     double ff = -ElevatorConstants.kArbitraryFF * Math.sin(angle);
 
-    if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 10000 && targetTicks == 0) { // TODO: Measure elevator lower limit
+    if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 30000 && targetTicks == 0) { // TODO: Measure elevator lower limit
       elevator.set(ControlMode.PercentOutput, 0);
     } else {
       elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
@@ -107,7 +107,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     
     double ff = -ElevatorConstants.kArbitraryFF * Math.sin(angle);
 
-    if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 10000 && targetTicks == 0)  { // TODO: Measure elevator lower limit
+    if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 30000 && targetTicks == 0)  { // TODO: Measure elevator lower limit
       elevator.set(ControlMode.PercentOutput, 0);
       targetTicks = ElevatorConstants.kElevatorStow;
     } else {

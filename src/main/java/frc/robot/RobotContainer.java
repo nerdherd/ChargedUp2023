@@ -129,7 +129,7 @@ public class RobotContainer {
 
   public void initDefaultCommands() {
     arm.resetEncoderStow();
-    elevator.resetEncoder();
+    // elevator.resetEncoder();
 
     arm.setDefaultCommand(
       new RunCommand(
@@ -172,12 +172,12 @@ public class RobotContainer {
           // () -> 0.0,
           driverController::getRightX,
           // () -> true,
-          badPS4::getSquareButton,
+          badPS5::getSquareButton,
           () -> {
-            return badPS4.getL2Button() || badPS4.getR2Button();
+            return badPS5.getL2Button() || badPS5.getR2Button();
           },
           // driverControllerButtons::getTriangleButton,
-          badPS4::getR3Button,
+          badPS5::getR3Button,
           () -> {
             // if (badPS4.getL2Button()) {
             //   return DodgeDirection.LEFT;
@@ -381,9 +381,9 @@ public class RobotContainer {
     alliance = allianceChooser.getSelected();
     Command currentAuto = autoChooser.getSelected().get();
     // Command currentAuto = SwerveAutos.backupChargeAuto(swerveDrive);
-    String autoName = currentAuto.getName();
+    // String autoName = currentAuto.getName();
     if (currentAuto != null) {
-      Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);
+      // Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);
     }
     return currentAuto;
     // if (IsSwerveDrive)
