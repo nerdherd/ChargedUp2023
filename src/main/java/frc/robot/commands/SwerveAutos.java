@@ -449,7 +449,7 @@ public class SwerveAutos {
                 List.of(
                     new Translation2d(-0.25, 0),
                     new Translation2d(-0.25, yOvershoot)), 
-                new Pose2d(-2, yTranslation, Rotation2d.fromDegrees(0)), 
+                new Pose2d(-1, -0.01, Rotation2d.fromDegrees(0)), // -2
                 trajectoryConfig);
         } else {
             trajectory = TrajectoryGenerator.generateTrajectory(
