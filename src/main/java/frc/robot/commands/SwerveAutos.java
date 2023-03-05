@@ -268,7 +268,7 @@ public class SwerveAutos {
                 armPos = ArmConstants.kArmScoreCubeMid;
                 break;
             case HIGH:
-                elevatorPos = ElevatorConstants.kElevatorScoreHighCube;
+                elevatorPos = ElevatorConstants.kElevatorScoreHigh; //ElevatorConstants.kElevatorScoreHighCube; // Note: this is a bandaid
                 armPos = ArmConstants.kArmScoreCubeHigh;
                 break;
         }
@@ -501,8 +501,8 @@ public class SwerveAutos {
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(-0.75, 0),
-                new Translation2d(-0.75, -1.25)), 
+                new Translation2d(-0.05, 0), // -0.75
+                new Translation2d(-0.05, -1.25)), 
             new Pose2d(1, -1.75, Rotation2d.fromDegrees(180)), 
             trajectoryConfig);
 

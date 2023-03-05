@@ -85,18 +85,18 @@ public final class Constants {
     public static final int kBottomMotorID = 62;
     public static final double kIntakePower = -0.35;
     public static final double kOuttakePower = 1;
-    public static final double kIntakeNeutralPower = -0.15;
+    public static final double kIntakeNeutralPower = -0.20;
   }
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
     public static final int kArmStow = -622485;//-630435;//144278;
-    public static final int kArmScore = -408850;//596443; // 89744;
-    public static final int kArmScoreCubeMid = -371050;//596443; // 89744;
-    public static final int kArmScoreCubeHigh = -383050;//596443; // 89744;
-    public static final int kArmGroundPickup = -215050;//-242170;//767054;// 34352;
-    public static final int kArmSubstation = -499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmScore = -432700;//-408850;//596443; // 89744;
+    public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
+    public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
+    public static final int kArmGroundPickup = -238900;//-215050;//-242170;//767054;// 34352;
+    public static final int kArmSubstation = -522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
     public static final int kArmMotionAcceleration = 40000;//800000; //160000;
     public static final int kArmCruiseVelocity = 22000;//18000;//21777;
     public static final double kArmDeadband = 0.05;

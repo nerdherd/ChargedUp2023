@@ -121,13 +121,16 @@ public class RobotContainer {
 
     // }
 
-    elevator.resetEncoderStow();
+    // elevator.resetEncoderStow();
     // Configure the trigger bindings
     configureBindings();
     
   }
 
   public void initDefaultCommands() {
+    arm.resetEncoderStow();
+    elevator.resetEncoder();
+
     arm.setDefaultCommand(
       new RunCommand(
         () -> {

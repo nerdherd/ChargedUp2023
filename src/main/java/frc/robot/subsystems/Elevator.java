@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.util.NerdyMath;
 
@@ -34,7 +35,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.setInverted(true);
     // limitSwitch = new DigitalInput(ElevatorConstants.kLimitSwitchID);
 
-    atTargetPosition = () -> NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 4000, targetTicks + 4000);
+    atTargetPosition = () -> NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 40000, targetTicks + 40000);
     SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
     SmartDashboard.putNumber("Elevator kI", ElevatorConstants.kElevatorI);
     SmartDashboard.putNumber("Elevator kD", ElevatorConstants.kElevatorD);
@@ -57,7 +58,7 @@ public class Elevator extends SubsystemBase implements Reportable{
             // elevator.setNeutralMode(NeutralMode.Coast);
           //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
-          if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 30000) { // TODO: Measure elevator lower limit
+          if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 20000) {
             elevator.set(ControlMode.PercentOutput, 0);
           } else {
             elevator.set(ControlMode.PercentOutput, 0.8);
@@ -82,8 +83,14 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.config_kF(0, SmartDashboard.getNumber("Elevator kF", ElevatorConstants.kElevatorF));
     elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
     elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
-    double ff = ElevatorConstants.kArbitraryFF * Math.sin(angle);
-    elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+    double ff = -ElevatorConstants.kArbitraryFF * Math.sin(angle);
+
+    if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 10000 && targetTicks == 0) { // TODO: Measure elevator lower limit
+      elevator.set(ControlMode.PercentOutput, 0);
+    } else {
+      elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+    }
+
   }
   
 
@@ -97,8 +104,15 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
     elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
 
+    
     double ff = -ElevatorConstants.kArbitraryFF * Math.sin(angle);
-    elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+
+    if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 10000 && targetTicks == 0)  { // TODO: Measure elevator lower limit
+      elevator.set(ControlMode.PercentOutput, 0);
+      targetTicks = ElevatorConstants.kElevatorStow;
+    } else {
+      elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+    }
 
     SmartDashboard.putNumber("FF", ff);
   }
