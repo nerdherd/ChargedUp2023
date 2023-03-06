@@ -42,6 +42,10 @@
       "/LiveWindow/Ungrouped/PIDController[9]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
+      "/Shuffleboard/Autos/Alliance": "String Chooser",
+      "/Shuffleboard/Autos/Score Position": "String Chooser",
+      "/Shuffleboard/Autos/Selected Auto": "String Chooser",
+      "/Shuffleboard/Autos/Start Position": "String Chooser",
       "/SmartDashboard/Encoder reset": "Command",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/SendableChooser[0]": "String Chooser"
