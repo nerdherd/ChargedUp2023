@@ -98,17 +98,17 @@ public class NavX extends SubsystemBase implements Gyro {
     public void initShuffleboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Imu");
 
-        tab.add("Calibrate NavX", new InstantCommand(() -> ahrs.calibrate()));
-        tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
+        // tab.add("Calibrate NavX", new InstantCommand(() -> ahrs.calibrate()));
+        // tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
         tab.addNumber("Robot Heading", () -> getHeading());
-        tab.addNumber("Robot Yaw", () -> ahrs.getYaw());
-        tab.addNumber("Robot Pitch", () -> ahrs.getPitch());
-        tab.addNumber("Robot Roll", () -> ahrs.getRoll());
-        tab.addNumber("Robot Raw Yaw", () -> ahrs.getRawGyroZ());
-        tab.addNumber("Robot Raw Pitch", () -> ahrs.getRawGyroX());
-        tab.addNumber("Robot Raw Roll", () -> ahrs.getRawGyroY());
-        tab.addBoolean("AHRS Calibrating", () -> ahrs.isCalibrating());
-        tab.addBoolean("AHRS Connected", () -> ahrs.isConnected());
-        tab.addString("NavX Firmware version", () -> ahrs.getFirmwareVersion());
+        // tab.addNumber("Robot Yaw", () -> ahrs.getYaw());
+        // tab.addNumber("Robot Pitch", () -> ahrs.getPitch());
+        // tab.addNumber("Robot Roll", () -> ahrs.getRoll());
+        // tab.addNumber("Robot Raw Yaw", () -> ahrs.getRawGyroZ());
+        // tab.addNumber("Robot Raw Pitch", () -> ahrs.getRawGyroX());
+        // tab.addNumber("Robot Raw Roll", () -> ahrs.getRawGyroY());
+        // tab.addBoolean("AHRS Calibrating", () -> ahrs.isCalibrating());
+        // tab.addBoolean("AHRS Connected", () -> ahrs.isConnected());
+        // tab.addString("NavX Firmware version", () -> ahrs.getFirmwareVersion());
     }
 }

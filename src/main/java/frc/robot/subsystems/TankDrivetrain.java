@@ -88,7 +88,7 @@ public class TankDrivetrain extends SubsystemBase implements Reportable{
     }
 
     public TankDrivetrain() {
-        this(RobotContainer.gyro);
+        this(RobotContainer.imu);
     }
  
     public void drive(double leftInput, double rightInput) {

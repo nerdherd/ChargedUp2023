@@ -5,7 +5,7 @@ Team 687's code for the 2023 FRC game, Charged Up.
 ## How to Use
 
 This program requires WPILib VSCode 2023 and FRC Game Tools 2023 to be installed.
-Clone this repository from [https://github.com/nerdherd/ChargedUp2023], open it in VSCode, and press shift + F5 to deploy it to the robot. 
+Clone this repository from <https://github.com/nerdherd/ChargedUp2023>, open it in VSCode, and press shift + F5 to deploy it to the robot. 
 Then use Driver Station to enable the robot.
 
 This program uses two PS4 Controllers for operator input. Because the buttons on the controllers used by team 687 are mapped incorrectly,
@@ -22,3 +22,4 @@ This repository uses:
 - [NavX (Unofficial 2023 release)](https://github.com/rzblue/navx-frc)
 - [Phoenix CTRE v5](https://store.ctr-electronics.com/software/)
 - [PhotonVision](https://photonvision.org/)
+- [PathPlanner](https://github.com/mjansen4857/pathplanner)

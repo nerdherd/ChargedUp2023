@@ -54,11 +54,11 @@ public class Arm extends SubsystemBase implements Reportable {
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
             
-            if (rotatingArm.getSelectedSensorPosition() >= ArmConstants.kArmLowerLimit) {
-                rotatingArm.set(ControlMode.PercentOutput, 0);
-              } else {
+            // if (rotatingArm.getSelectedSensorPosition() >= ArmConstants.kArmLowerLimit) {
+            //     rotatingArm.set(ControlMode.PercentOutput, 0);
+            //   } else {
                 rotatingArm.set(ControlMode.PercentOutput, 0.8);
-            }
+            // }
 
             // rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
@@ -107,6 +107,11 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
+        
+        if (limitSwitch.get()) {
+            rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        }
+        
         rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
         targetTicks = position;
 
@@ -132,6 +137,15 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
+        
+        if (limitSwitch.get()) {
+            rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        }
+
+        if (targetTicks <= ArmConstants.kArmStow) {
+            targetTicks = ArmConstants.kArmStow;
+        }
+        
         rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
 
         SmartDashboard.putNumber("Arm FF", ff);
@@ -169,6 +183,12 @@ public class Arm extends SubsystemBase implements Reportable {
     public CommandBase moveArm(int ticks, Supplier<Double> percentExtendedSupplier) {
         return Commands.run(
             () -> moveArmMotionMagic(ticks, percentExtendedSupplier.get()), this
+        );
+    }
+
+    public CommandBase moveArm(Supplier<Double> percentExtendedSupplier) {
+        return Commands.run(
+            () -> moveArmMotionMagic(percentExtendedSupplier.get()), this
         );
     }
 
@@ -233,41 +253,41 @@ public class Arm extends SubsystemBase implements Reportable {
     public void initShuffleboard() {
         ShuffleboardTab tab = Shuffleboard.getTab("Arm");
 
-        tab.addNumber("Motor Output", rotatingArm::getMotorOutputPercent);
-        tab.addNumber("Angle", () -> (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
-        tab.addString("Control Mode", rotatingArm.getControlMode()::toString);
-        tab.addNumber("target velocity", rotatingArm::getActiveTrajectoryVelocity);
-        tab.addNumber("velocity", rotatingArm::getSelectedSensorVelocity);
+        // tab.addNumber("Motor Output", rotatingArm::getMotorOutputPercent);
+        // tab.addNumber("Angle", () -> (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
+        // tab.addString("Control Mode", rotatingArm.getControlMode()::toString);
+        // tab.addNumber("target velocity", rotatingArm::getActiveTrajectoryVelocity);
+        // tab.addNumber("velocity", rotatingArm::getSelectedSensorVelocity);
         // tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
-        tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
+        // tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
         
         tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
         tab.addNumber("Target Arm Ticks", () -> targetTicks);
-        tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
-        tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
+        // tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
+        // tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
     }
 
     public void reportToSmartDashboard() {
-        SmartDashboard.putBoolean("Limit switch", limitSwitch.get());
+        // SmartDashboard.putBoolean("Limit switch", limitSwitch.get());
 
-        SmartDashboard.putNumber("Arm Motor Output", rotatingArm.getMotorOutputPercent());
-        SmartDashboard.putNumber("Arm Angle", Math.toDegrees(getArmAngle()));
+        // SmartDashboard.putNumber("Arm Motor Output", rotatingArm.getMotorOutputPercent());
+        // SmartDashboard.putNumber("Arm Angle", Math.toDegrees(getArmAngle()));
 
-        SmartDashboard.putString("Arm Control Mode", rotatingArm.getControlMode().toString());
+        // SmartDashboard.putString("Arm Control Mode", rotatingArm.getControlMode().toString());
         // SmartDashboard.putNumber("Closed Loop Target", rotatingArm.getClosedLoopTarget());
-        SmartDashboard.putNumber("arm target velocity", rotatingArm.getActiveTrajectoryVelocity());
-        SmartDashboard.putNumber("arm velocity", rotatingArm.getSelectedSensorVelocity());
-        SmartDashboard.putNumber("arm target velocity", rotatingArm.getActiveTrajectoryVelocity());
-        SmartDashboard.putNumber("Closed loop error", rotatingArm.getClosedLoopError());
+        // SmartDashboard.putNumber("arm target velocity", rotatingArm.getActiveTrajectoryVelocity());
+        // SmartDashboard.putNumber("arm velocity", rotatingArm.getSelectedSensorVelocity());
+        // SmartDashboard.putNumber("arm target velocity", rotatingArm.getActiveTrajectoryVelocity());
+        // SmartDashboard.putNumber("Closed loop error", rotatingArm.getClosedLoopError());
 
         SmartDashboard.putNumber("Arm Ticks", rotatingArm.getSelectedSensorPosition());
         SmartDashboard.putNumber("Target Arm Ticks", targetTicks);
-        if (this.getCurrentCommand() != null) {
-            SmartDashboard.putBoolean("Arm subsystem", this.getCurrentCommand() == this.getDefaultCommand());
-        }
+        // if (this.getCurrentCommand() != null) {
+        //     SmartDashboard.putBoolean("Arm subsystem", this.getCurrentCommand() == this.getDefaultCommand());
+        // }
 
-        SmartDashboard.putNumber("Arm Current", rotatingArm.getStatorCurrent());
-        SmartDashboard.putNumber("Arm Voltage", rotatingArm.getMotorOutputVoltage());
+        // SmartDashboard.putNumber("Arm Current", rotatingArm.getStatorCurrent());
+        // SmartDashboard.putNumber("Arm Voltage", rotatingArm.getMotorOutputVoltage());
     }
 
 }

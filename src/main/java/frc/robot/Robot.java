@@ -38,8 +38,8 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.initShuffleboard();
 	
-    DataLogManager.start("/home/lvuser/logs/");
-    DataLogManager.logNetworkTables(true);
+    // DataLogManager.start("/home/lvuser/logs/");
+    // DataLogManager.logNetworkTables(true);
   }
 
   /**
@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
+    // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
     // autoTest.report();
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,

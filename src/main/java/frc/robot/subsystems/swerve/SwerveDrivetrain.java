@@ -133,10 +133,10 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     @Override
     public void periodic() {
-        reportToSmartDashboard();
+        // reportToSmartDashboard();
         // SwerveModulePosition[] modules = getModulePositions();
         odometer.update(gyro.getRotation2d(), getModulePositions());
-        field.setRobotPose(odometer.getPoseMeters());
+        // field.setRobotPose(odometer.getPoseMeters());
     }
     
     //****************************** RESETTERS ******************************/
