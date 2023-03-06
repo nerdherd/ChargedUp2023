@@ -30,7 +30,7 @@
                 "linuxarm64",
                 "linuxx86-64",
                 "linuxathena",
-                "osxx86-64",
+                "osxuniversal",
                 "windowsx86-64"
             ]
         }

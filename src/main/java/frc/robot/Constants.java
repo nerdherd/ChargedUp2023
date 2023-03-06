@@ -80,30 +80,64 @@ public final class Constants {
     public static final int kPistonForwardID = 2;
     public static final int kPistonReverseID = 3;
     public static final int kPCMPort = 3;
+
+    public static final int kTopMotorID = 61;
+    public static final int kBottomMotorID = 62;
+    public static final double kIntakePower = -0.35;
+    public static final double kOuttakePower = 1;
+    public static final double kIntakeNeutralPower = -0.25;
   }
 
   public static class ArmConstants{
-    public static final int kRotatingArmID = 20;
-    public static final int kArmStow = -344320;
-    public static final int kArmScore = -196323;
-    public static final int kArmMotionAcceleration = 0;
-    public static final int kArmCruiseVelocity = 0;
+    public static final int kRotatingArmID = 17;
+    public static final int kArmLowerLimit = -220000;
+    public static final int kArmStow = -622485;//-630435;//144278;
+    public static final int kArmScore = -432700;//-408850;//596443; // 89744;
+    public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
+    public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
+    public static final int kArmGroundPickup = -238900;//-215050;//-242170;//767054;// 34352;
+    public static final int kArmSubstation = -522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmMotionAcceleration = 40000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 22000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
-    public static final double kArmP = SmartDashboard.getNumber("kP Arm", 0);
-    public static final double kArmI = SmartDashboard.getNumber("kI Arm", 0);
-    public static final double kArmD = SmartDashboard.getNumber("kD Arm", 0);
-    public static final double kArbitraryFF = 0;
-    public static final int kPistonForwardID = 4;
-    public static final int kPistonReverseID = 5;
+    public static final double kArmP = 0.1;
+    public static final double kArmI = 0;
+    public static final double kArmD = 0.0;
+    public static final double kArmF = 0.047;
+    public static final double kStowedFF = 0.069;
+    public static final double kExtendedFF = 0.089;
+    public static final double kDiffFF = kExtendedFF - kStowedFF;
+    public static final int kPistonForwardID = 5;
+    public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
+    public static final double kTicksPerAngle = 7950;
+    public static final int kLimitSwitchID = 0;
 
-    public static final double kP = 0;
-    public static final double kI = 0;
-    public static final double kD = 0; 
 
-    public static final double kCruiseVelocity = 0;
-    public static final double kMotionAcceleration = 0;
+    // public static final double kCruiseVelocity = 0;
+    // public static final double kMotionAcceleration = 0;
 
+  }
+
+  public static class ElevatorConstants{
+    public static final int kElevatorID = 18;
+    public static final int kElevatorStow = 0;
+    public static final int kElevatorScoreMidCube = -85285;//-143634;
+    public static final int kElevatorScoreMid = -143634;
+    public static final int kElevatorScoreHighCube = -198657;//-240000;
+    public static final int kElevatorScoreHigh = -240000;
+    public static final int kElevatorSubstation = -69400;//-68100;//-116680; // Height for substation i think
+    public static final int kElevatorMotionAcceleration = 60000;
+    public static final int kElevatorCruiseVelocity = 30000;
+    public static final double kElevatorP = 0.1;
+    public static final double kElevatorI = 0;
+    public static final double kElevatorD = 0;
+    public static final double kElevatorF = 0.062;
+    public static final double kArbitraryFF = 0.0085;
+    public static final double kElevatorDeadband = 0.05;
+    public static final double kJoystickMultiplier = 1;
+    public static final double kTicksPerAngle = 0;
+    public static final int kLimitSwitchID = 0;
   }
 
   public static class VisionConstants{
@@ -122,14 +156,20 @@ public final class Constants {
 
   public static final class ModuleConstants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
-    public static final double kDriveMotorGearRatio = 1 / 6.75;
+    public static final double kDriveMotorGearRatio = 1 / 8.14;
     public static final double kTurningMotorGearRatio = 1 / 21.428; // 150 : 7 : 1 MK4i
     public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI;
     public static final double kDriveTicksToMeters = (1 / 2048.0) * kMetersPerRevolution; 
-    public static final double kTurningTicksToRad = (1.0 / 4096.0) * 2 * Math.PI;
+    public static final double kAbsoluteTurningTicksToRad = (1.0 / 4096.0) * 2 * Math.PI;
+    public static final double kIntegratedTurningTicksToRad = (1.0 / 2048.0) * 2 * Math.PI;
     public static final double kDriveTicksPer100MsToMetersPerSec = kDriveTicksToMeters * 10;
-    public static final double kTurningTicksPer100MsToRadPerSec = kTurningTicksToRad * 10;
+    public static final double kAbsoluteTurningTicksPer100MsToRadPerSec = kAbsoluteTurningTicksToRad * 10;
+    public static final double kIntegratedTurningTicksPer100MsToRadPerSec = kIntegratedTurningTicksToRad * 10;
+
     
+    public static final double kDriveMotorDeadband = 0.05;
+    public static final double kTurnMotorDeadband = 0.02;
+
     public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
     public static final double kDTurning = 0.02; 
@@ -146,61 +186,105 @@ public final class Constants {
     public static final double kWheelBase = Units.inchesToMeters(21);       // verify
     // Distance between front and back wheels
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-      new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+      new Translation2d(kWheelBase / 2, -kTrackWidth / 2), // TODO: This should be front right not front left
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
+    
+    public static final double kDodgeDistance = Units.inchesToMeters(12);
+    
+    public static final Translation2d[] kRotationCenters = new Translation2d[] {
+      new Translation2d(kDodgeDistance, -kDodgeDistance),  // FL
+      new Translation2d(kDodgeDistance, kDodgeDistance),   // FR
+      new Translation2d(-kDodgeDistance, -kDodgeDistance), // BL
+      new Translation2d(-kDodgeDistance, kDodgeDistance)   // BR
+    };
+    
+    public static final int[] kLeftRotationCenters = new int[] {0, 1, 3, 2};
+    public static final int[] kRightRotationCenters = new int[] {1, 3, 2, 0};
 
-    public static final int kFrontLeftDriveMotorPort = 21;
-    public static final int kBackLeftDriveMotorPort = 31;
-    public static final int kFrontRightDriveMotorPort = 11;
-    public static final int kBackRightDriveMotorPort = 41;
+    public static final double kRotationOffset = 0.5 * kTrackWidth;
 
-    public static final int kFrontLeftTurningMotorPort = 22;
-    public static final int kBackLeftTurningMotorPort = 32;
-    public static final int kFrontRightTurningMotorPort = 12;
-    public static final int kBackRightTurningMotorPort = 42;
+    public static final int kFRDriveID = 11;
+    public static final int kFLDriveID = 21;
+    public static final int kBLDriveID = 31;
+    public static final int kBRDriveID = 41;
 
-    public static final boolean kFrontLeftTurningMotorReversed = false; 
-    public static final boolean kBackLeftTurningMotorReversed = false; 
-    public static final boolean kFrontRightTurningMotorReversed = false; 
-    public static final boolean kBackRightTurningMotorReversed = false; 
+    public static final int kFRTurningID = 12;
+    public static final int kFLTurningID = 22;
+    public static final int kBLTurningID = 32;
+    public static final int kBRTurningID = 42;
 
-    public static final boolean kFrontLeftDriveMotorReversed = false;     
-    public static final boolean kBackLeftDriveMotorReversed = false;      
-    public static final boolean kFrontRightDriveMotorReversed = false;
-    public static final boolean kBackRightDriveMotorReversed = false;
+    public static final boolean kFRTurningReversed = false; 
+    public static final boolean kFLTurningReversed = false; 
+    public static final boolean kBLTurningReversed = false; 
+    public static final boolean kBRTurningReversed = false; 
 
-    public static final int kFrontLeftDriveAbsoluteEncoderPort = 23;
-    public static final int kBackLeftDriveAbsoluteEncoderPort = 33;
-    public static final int kFrontRightDriveAbsoluteEncoderPort = 13;
-    public static final int kBackRightDriveAbsoluteEncoderPort = 43;
+    public static final boolean kFRDriveReversed = false;
+    public static final boolean kFLDriveReversed = false;     
+    public static final boolean kBLDriveReversed = false;      
+    public static final boolean kBRDriveReversed = false;
 
-    public static final boolean kFrontLeftDriveAbsoluteEncoderReversed = false;      
-    public static final boolean kBackLeftDriveAbsoluteEncoderReversed = false;       
-    public static final boolean kFrontRightDriveAbsoluteEncoderReversed = false;    
-    public static final boolean kBackRightDriveAbsoluteEncoderReversed = false;      
+    public static final class MagEncoderConstants {
+      public static final int kFRAbsoluteID = 13;
+      public static final int kFLAbsoluteID = 23;
+      public static final int kBLAbsoluteID = 33;
+      public static final int kBRAbsoluteID = 43;
 
-    public static final double kFrontLeftDriveAbsoluteEncoderOffsetRad = 2794;         
-    public static final double kBackLeftDriveAbsoluteEncoderOffsetRad = 2354;          
-    public static final double kFrontRightDriveAbsoluteEncoderOffsetRad = 237;       
-    public static final double kBackRightDriveAbsoluteEncoderOffsetRad = 2048;
+      public static final boolean kFRAbsoluteReversed = false;    
+      public static final boolean kFLAbsoluteReversed = false;      
+      public static final boolean kBLAbsoluteReversed = false;       
+      public static final boolean kBRAbsoluteReversed = false; 
 
-    public static final double kFrontLeftDriveAbsoluteEncoderOffsetTicks = 2794;         
-    public static final double kBackLeftDriveAbsoluteEncoderOffsetTicks = 2354;          
-    public static final double kFrontRightDriveAbsoluteEncoderOffsetTicks = 237; //237        
-    public static final double kBackRightDriveAbsoluteEncoderOffsetTicks = 2048;
+      // public static final double kFRAbsoluteOffsetTicks = 4411;       
+      // public static final double kFLAbsoluteOffsetTicks = 3782;         
+      // public static final double kBLAbsouteOffsetTicks = 3042;          
+      // public static final double kBRAbsoluteOffsetTicks = 2364;
+  
+      public static final double kFRAbsoluteOffsetTicks = 2794 + 1024;       
+      public static final double kFLAbsoluteOffsetTicks = 2354 + 1024 + 52;         
+      public static final double kBLAbsoluteOffsetTicks = 2048 + 1024 + 46;          
+      public static final double kBRAbsoluteOffsetTicks = 237 + 1024 + 25;
+    }
 
-    public static final double kPhysicalMaxSpeedMetersPerSecond = 5;    
+    public static final class CANCoderConstants {
+      public static final int kFRCANCoderID = 14;
+      public static final int kFLCANCoderID = 24;
+      public static final int kBLCANCoderID = 34;
+      public static final int kBRCANCoderID = 44;
+
+      public static final boolean kFRCANCoderReversed = false;    
+      public static final boolean kFLCANCoderReversed = false;      
+      public static final boolean kBLCANCoderReversed = false;       
+      public static final boolean kBRCANCoderReversed = false; 
+
+      public static final double kFRCANCoderOffsetDegrees = 71.895 + 180;       
+      public static final double kFLCANCoderOffsetDegrees = 253.125 - 180;         
+      public static final double kBLCANCoderOffsetDegrees = 286.260 - 180;          
+      public static final double kBRCANCoderOffsetDegrees = 7.734; // 1.406
+    }
+
+
+
+
+
+    public static final double kPhysicalMaxSpeedMetersPerSecond = 4;    
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
-    public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 2;
+    public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;
+    public static final double kTeleMaxAcceleration = 3;
+    // THIS CONSTANT HAS TO BE NEGATIVE OTHERWISE THE ROBOT WILL CRASH
+    //TODO: Change deceleration with driver feedback, only in small increments (<= -2 is dangerous)
+    public static final double kTeleMaxDeceleration = -3; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
+
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
       kPhysicalMaxAngularSpeedRadiansPerSecond / 2;
     public static final double kTurnToAngleMaxAngularSpeedRadiansPerSecond 
       = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
     public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
     public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 3;
+
+    public static final double kMinimumMotorOutput = 0.05; // Minimum percent output on the falcons
     
     public static final double kDriveAlpha = 0.11765;
     public static final double kDriveOneMinusAlpha = 0.88235;
@@ -215,7 +299,7 @@ public final class Constants {
   }
 
   public static final class SwerveAutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 2;
+    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
       SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
     public static final double kMaxAccelerationMetersPerSecondSquared = 2;
@@ -239,7 +323,7 @@ public final class Constants {
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
     public static final double kPBalancingInitial = 0.6;
-    public static final double kPBalancing = 0.3;
+    public static final double kPBalancing = 0.3; // 0.4
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
     public static final double kBalancingTowPeriod = 0.5;
   }
@@ -262,8 +346,20 @@ public final class Constants {
   }
 
   public static final class ConeRunnerConstants {
-    public static final int kRightMasterID = 0;
-    public static final int kLeftMasterID = 0;
+    public static final int kPositionID = 62;
+    public static final int kSpeedID = 61;
+
+    public static final double kConeRunnerP = 0;
+    public static final double kConeRunnerI = 0;
+    public static final double kConeRunnerD = 0;
+    public static final double kConeRunnerF = 0;
+    public static final double kConeRunnerArbitraryFF = 0;
+
+    public static final double kInitialAngleDegrees = 90;
+    public static final double kDegreesPerTicks = 360 / 4096;
+
+    public static final double kConeRunnerCruiseVelocity = 100;
+    public static final double kConeRunnerMotionAcceleration = 100;
   }
   public static final class PneumaticsConstants {
     public static final int kPCMPort = 3;

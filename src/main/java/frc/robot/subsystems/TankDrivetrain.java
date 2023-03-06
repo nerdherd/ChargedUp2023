@@ -2,22 +2,14 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import java.util.HashMap;
 
-import org.photonvision.PhotonUtils;
-
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -29,28 +21,28 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
  
-public class TankDrivetrain extends SubsystemBase{
+public class TankDrivetrain extends SubsystemBase implements Reportable{
     private TalonFX rightMaster;
     private TalonFX leftMaster;
     private TalonFX rightFollower;
     private TalonFX leftFollower;
  
     private DifferentialDrive drive;
-    private MotorControllerGroup leftMotors;
-    private MotorControllerGroup rightMotors;
+    // private MotorControllerGroup leftMotors;
+    // private MotorControllerGroup rightMotors;
     
     // Vision variables
-    private Vision vision;
-    private PIDController turnController = new PIDController(DriveConstants.kAngularP, 0, DriveConstants.kAngularD);
-    private PIDController forwardController = new PIDController(DriveConstants.kLinearP, 0, DriveConstants.kLinearD);
-    private AHRS ahrs;//; = new AHRS();
+    // private Vision vision;
+    // private PIDController turnController = new PIDController(DriveConstants.kAngularP, 0, DriveConstants.kAngularD);
+    // private PIDController forwardController = new PIDController(DriveConstants.kLinearP, 0, DriveConstants.kLinearD);
+    // private AHRS ahrs;//; = new AHRS();
+    private Imu imu;
     private DoubleSolenoid shifter;
 
-    public TankDrivetrain() {
-        ahrs = RobotContainer.imu.ahrs;
-        
+    public TankDrivetrain(Imu imu) {
+        this.imu = imu;
+
         shifter = new DoubleSolenoid(ClawConstants.kPCMPort, PneumaticsModuleType.CTREPCM, 
             DriveConstants.kPistonForwardID, DriveConstants.kPistonReverseID);
 
@@ -94,11 +86,11 @@ public class TankDrivetrain extends SubsystemBase{
         // this.vision = vision;
     }
 
-
-    
-   
+    public TankDrivetrain() {
+        this(RobotContainer.imu);
+    }
  
-    public void tankDrive(double leftInput, double rightInput) {
+    public void drive(double leftInput, double rightInput) {
         double prevLeftOutput = leftMaster.getMotorOutputPercent();
         double prevRightOutput = rightMaster.getMotorOutputPercent();
    
@@ -131,6 +123,10 @@ public class TankDrivetrain extends SubsystemBase{
         setPower(leftOutput, rightOutput);
     }
 
+    public Imu getImu() {
+        return this.imu;
+    }
+
     boolean shiftedHigh;
     public CommandBase shiftHigh() {
         return runOnce(
@@ -158,35 +154,24 @@ public class TankDrivetrain extends SubsystemBase{
     public void setPower(double power) {
         leftMaster.set(ControlMode.PercentOutput, power);
         rightMaster.set(ControlMode.PercentOutput, power);
+
         SmartDashboard.putNumber("Left Power", power);
         SmartDashboard.putNumber("Right Power", power);
-
-        SmartDashboard.putNumber("Left Master Current", leftMaster.getStatorCurrent());
-        SmartDashboard.putNumber("Left Follower Current", leftFollower.getStatorCurrent());
-        SmartDashboard.putNumber("Right Master Current", rightMaster.getStatorCurrent());
-        SmartDashboard.putNumber("Right Follower Current", rightFollower.getStatorCurrent());
-        SmartDashboard.putNumber("Right Master Current Input", rightMaster.getSupplyCurrent());
-        SmartDashboard.putNumber("Right Follower Current Input", rightFollower.getSupplyCurrent());
-        
+        reportCurrent();
     }
 
     public void setPower(double leftPower, double rightPower) {
         leftMaster.set(ControlMode.PercentOutput, leftPower);
         rightMaster.set(ControlMode.PercentOutput, rightPower);
+
         SmartDashboard.putNumber("Left Power", leftPower);
         SmartDashboard.putNumber("Right Power", rightPower);
-
-        SmartDashboard.putNumber("Left Master Current", leftMaster.getStatorCurrent());
-        SmartDashboard.putNumber("Left Follower Current", leftFollower.getStatorCurrent());
-        SmartDashboard.putNumber("Right Master Current", rightMaster.getStatorCurrent());
-        SmartDashboard.putNumber("Right Follower Current", rightFollower.getStatorCurrent());
-        SmartDashboard.putNumber("Right Master Current Input", rightMaster.getSupplyCurrent());
-        SmartDashboard.putNumber("Right Follower Current Input", rightFollower.getSupplyCurrent());
+        reportCurrent();
         // leftMotors.setVoltage(leftPower);
         // rightMotors.setVoltage(rightPower);
     }
 
-    public void resetEncoder() {
+    public void resetEncoders() {
         leftMaster.setSelectedSensorPosition(0);
         rightMaster.setSelectedSensorPosition(0);
     }
@@ -258,26 +243,20 @@ public class TankDrivetrain extends SubsystemBase{
     //     SmartDashboard.putNumber("ForwardSpeed", forwardSpeed);
     //     return forwardSpeed;
     // }
-
-    public double getHeading() {
-        return ahrs.getYaw();
+    
+    public void reportCurrent() {
+        SmartDashboard.putNumber("Left Master Current", leftMaster.getStatorCurrent());
+        SmartDashboard.putNumber("Left Follower Current", leftFollower.getStatorCurrent());
+        SmartDashboard.putNumber("Right Master Current", rightMaster.getStatorCurrent());
+        SmartDashboard.putNumber("Right Follower Current", rightFollower.getStatorCurrent());
+        SmartDashboard.putNumber("Right Master Current Input", rightMaster.getSupplyCurrent());
+        SmartDashboard.putNumber("Right Follower Current Input", rightFollower.getSupplyCurrent());
     }
 
-    public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
+    public void reportToSmartDashboard() {
+        reportCurrent();
     }
-
-    public Rotation3d getRotation3d() {
-        return new Rotation3d(
-            ahrs.getRoll() * Math.PI / 180, 
-            ahrs.getPitch()* Math.PI / 180, 
-            ahrs.getYaw() * Math.PI / 180) ;
-    }
-
-    public void zeroHeading() {
-        ahrs.reset();
-    }
-
+    
     public void initShuffleboard() {  
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 

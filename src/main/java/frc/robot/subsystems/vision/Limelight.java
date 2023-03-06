@@ -1,14 +1,19 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.vision;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+
 import java.util.Arrays;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.Reportable;
 import frc.robot.util.NerdyMath;
 
-public class Limelight {
+public class Limelight implements Reportable{
     private static Limelight m_Instance;
 
     private NetworkTable table; // Network table to access Lime Light Values
@@ -17,6 +22,10 @@ public class Limelight {
     private NetworkTableEntry tx;
     private NetworkTableEntry ty;
     private NetworkTableEntry ta;
+    private String name = "";
+
+    private double tXList[] = new double[10];
+    private double tAList[] = new double[10];
 
     public enum LightMode {
         DEFAULT(0), OFF(1), BLINK(2), ON(3);
@@ -118,20 +127,29 @@ public class Limelight {
     private double m_LimelightDriveCommand = 0.0;
     private double m_LimelightSteerCommand = 0.0;
 
-    //double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
-    //double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
-
-    // calculate distance
-    //double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
-
-    public Limelight()
+    public Limelight(String keyN)
     {
-        table = NetworkTableInstance.getDefault().getTable("limelight");
+        reinitBuffer(); // need to reset everytime change pipeline
+
+        table = NetworkTableInstance.getDefault().getTable(keyN);
+        this.name = keyN;
 
         tx = table.getEntry("tx");
         ty = table.getEntry("ty");
         ta = table.getEntry("ta");
         setLightState(LIGHT_OFF);
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void reinitBuffer()
+    {
+        indexTX = 0;
+        initDoneTX = false;
+        indexTA = 0;
+        initDoneTA = false;
     }
     
     /**
@@ -144,13 +162,48 @@ public class Limelight {
         return !has;
     }
 
+    
+
+    
     /**
      * Horizontal offset from crosshair to target
      * 
      * @return Horizontal Offset From Crosshair To Target (LL1: -27 degrees to 27
      *         degrees | LL2: -29.8 to 29.8 degrees)
      */
-    public double getXAngle() {
+    int indexTX = 0;
+    boolean initDoneTX = false;
+    public double getXAngle_avg() {
+        tXList[indexTX] = tx.getDouble(0);
+        indexTX ++;
+        if(indexTX >= tXList.length) {
+            indexTX = 0;
+            initDoneTX = true;
+        }
+
+        //SmartDashboard.putNumberArray("txFiltered", tXList);
+
+        double TXSum = 0;
+        if(initDoneTX) {
+            for(int i = 0; i < tXList.length; i++) {
+                TXSum += tXList[i];
+            }
+            
+            //SmartDashboard.putNumber("TXAverage", TXSum / tXList.length);
+
+            return TXSum / tXList.length;
+        }
+        else {
+            for(int i = 0; i < indexTX; i++) {
+                TXSum += tXList[i];
+            }
+
+            return TXSum / indexTX;
+        }
+    }
+
+    public double getXAngle()
+    {
         return tx.getDouble(0);
     }
 
@@ -169,7 +222,38 @@ public class Limelight {
      * 
      * @return Target Area (0% of image to 100% of image)
      */
-    public double getArea() {
+    int indexTA = 0;
+    boolean initDoneTA = false;
+    public double getArea_avg() {
+
+        tAList[indexTA] = ta.getDouble(0);
+        indexTA ++;
+        if(indexTA >= tAList.length) {
+            indexTA = 0;
+            initDoneTA = true;
+        }
+
+        //SmartDashboard.putNumberArray("taFiltered", tAList);
+        
+        double TASum = 0;
+        if(initDoneTA) {
+            for(int i = 0; i < tAList.length; i++) {
+                TASum += tAList[i];
+            }
+            //SmartDashboard.putNumber("TAAverage", TASum / tAList.length);
+
+            return TASum / tAList.length;
+        }
+        else {
+            for(int i = 0; i < indexTA; i++) {
+                TASum += tAList[i];
+            }
+
+            return TASum / indexTA;
+        }
+    }
+
+    public double getArea(){
         return ta.getDouble(0);
     }
 
@@ -332,9 +416,9 @@ public class Limelight {
      * 
      * @return The Lime Light instance
      */
-    public static Limelight getInstance() {
+    public static Limelight getInstance(String keyN) {
         if (m_Instance == null) {
-            m_Instance = new Limelight();
+            m_Instance = new Limelight(keyN);
         }
 
         return m_Instance;
@@ -354,10 +438,24 @@ public class Limelight {
         return (h2 - h1) / Math.abs(Math.tan(Math.toRadians(a1) + Math.toRadians(a2)));
     }
 
+    public void initShuffleboard() {
+        ShuffleboardTab tab = Shuffleboard.getTab(this.getName());
+
+        tab.addBoolean("HasTarget", this::hasValidTarget);
+        tab.addNumber("Horizontal Offset", this::getXAngle);
+        tab.addNumber("Vertical Offset", this::getYAngle);
+        tab.addNumber("Area", this::getArea);
+        tab.addNumber("Skew", this::getSkew);
+        tab.addString("XCorners", () -> Arrays.toString(getXCorners()));
+        tab.addString("YCorners", () -> Arrays.toString(getYCorners()));
+        tab.add("LED ON", Commands.runOnce(() -> this.turnLightOn()));
+        tab.add("LED OFF", Commands.runOnce(() -> this.turnLightOff()));
+    }
+
     /**
      * Output diagnostics
      */
-    public void outputTelemetry() {
+    public void reportToSmartDashboard() {
         SmartDashboard.putBoolean("HasTarget", hasValidTarget());
         SmartDashboard.putNumber("Horizontal Offset", getXAngle());
         SmartDashboard.putNumber("Vertical Offset", getYAngle());
@@ -409,30 +507,4 @@ public class Limelight {
         m_LimelightDriveCommand = drive_cmd;
   }
 
-  /* public void teleopPeriodic() {
-
-        Update_Limelight_Tracking();
-
-        double steer = m_Controller.getX(Hand.kRight);
-        double drive = -m_Controller.getY(Hand.kLeft);
-        boolean auto = m_Controller.getAButton();
-
-        steer *= 0.70;
-        drive *= 0.70;
-
-        if (auto)
-        {
-          if (m_LimelightHasValidTarget)
-          {
-                m_Drive.arcadeDrive(m_LimelightDriveCommand,m_LimelightSteerCommand);
-          }
-          else
-          {
-                m_Drive.arcadeDrive(0.0,0.0);
-          }
-        }
-        else
-        {
-          m_Drive.arcadeDrive(drive,steer);
-        } */
-}
+  }

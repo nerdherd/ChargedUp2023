@@ -1,46 +1,54 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static frc.robot.Constants.*;
 
-public class SwerveModule {
+/**
+ * Swerve module that uses CANCoder for the absolute position
+ */
+public class CANSwerveModule implements SwerveModule {
     private final TalonFX driveMotor;
     private final TalonFX turnMotor;
+    private final CANCoder canCoder;
 
     private final int driveMotorID;
     private final int turnMotorID;
-    private final int absoluteEncoderId;
+    private final int CANCoderID;
 
     private final PIDController turningController;
-    private final TalonSRX absoluteTurningEncoder;
     private final boolean invertTurningEncoder;
-    private final double absoluteEncoderOffset;
+    private final double CANCoderOffsetDegrees;
+
+    private double currentAngle = 0;
+    private double desiredAngle = 0;
+    private double currentPercent = 0;
 
     /**
-     * Constuct a new Swerve Module
+     * Construct a new CANCoder Swerve Module.
      * 
-     * @param driveMotorId              CAN ID of the drive motor
-     * @param turningMotorId            CAN ID of the turning motor
-     * @param invertDriveMotor          Whether or not the drive motor is inverted         
-     * @param invertTurningMotor        Whether or not the turning motor is inverted
-     * @param absoluteEncoderId         CAN ID of the absolute encoder
-     * @param absoluteEncoderOffset     Zero position for the absolute encoder (in ticks)
-     * @param absoluteEncoderReversed   Whether or not the absolute encoder is inverted
+     * @param driveMotorId
+     * @param turningMotorId
+     * @param invertDriveMotor
+     * @param invertTurningMotor
+     * @param CANCoderId
+     * @param CANCoderOffsetDegrees
+     * @param CANCoderReversed
      */
-    public SwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
-    int absoluteEncoderId, double absoluteEncoderOffset, boolean absoluteEncoderReversed) {
+    public CANSwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
+    int CANCoderId, double CANCoderOffsetDegrees, boolean CANCoderReversed) {
         this.driveMotor = new TalonFX(driveMotorId);
         this.turnMotor = new TalonFX(turningMotorId);
 
@@ -49,20 +57,20 @@ public class SwerveModule {
 
         this.driveMotorID = driveMotorId;
         this.turnMotorID = turningMotorId;
-        this.absoluteEncoderId = absoluteEncoderId;
+        this.CANCoderID = CANCoderId;
 
         this.turningController = new PIDController(
             SmartDashboard.getNumber("kPTurning", ModuleConstants.kPTurning),
             SmartDashboard.getNumber("kITurning", ModuleConstants.kITurning),
             SmartDashboard.getNumber("kDTurning", ModuleConstants.kDTurning));
-        turningController.enableContinuousInput(-Math.PI, Math.PI);
+        turningController.enableContinuousInput(0, 2 * Math.PI); // Originally was -pi to pi
         turningController.setTolerance(.025);
 
         this.driveMotor.setInverted(invertDriveMotor);
         this.turnMotor.setInverted(invertTurningMotor);
-        this.absoluteTurningEncoder = new TalonSRX(absoluteEncoderId);
-        this.absoluteEncoderOffset = absoluteEncoderOffset;
-        this.invertTurningEncoder = absoluteEncoderReversed;
+        this.canCoder = new CANCoder(CANCoderId);
+        this.invertTurningEncoder = CANCoderReversed;
+        this.CANCoderOffsetDegrees = CANCoderOffsetDegrees;
 
         initEncoders();
     }
@@ -86,32 +94,33 @@ public class SwerveModule {
      *          <td> Integrated Sensor </td>
      *      </tr>
      *      <tr>
-     *          <td> Talon SRX </td> 
-     *          <td> PID 0 </td> 
-     *          <td> Quadrature Encoder </td>
+     *          <td> CANCoder </td> 
+     *          <td> Slot 0 </td> 
+     *          <td> Relative Encoder </td>
      *      </tr>
      *      <tr>
-     *          <td> Talon SRX </td> 
-     *          <td> PID 1 </td> 
-     *          <td> PWM Mag Encoder (Absolute) </td>
+     *          <td> CANCoder </td> 
+     *          <td> Slot 1 </td> 
+     *          <td> Absolute Encoder </td>
      *      </tr>
+     *  </table>
      *  </table>
      */
     private void initEncoders() {
         driveMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
         turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 1000);
-        absoluteTurningEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.QuadEncoder, 0, 1000);
-        absoluteTurningEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.PulseWidthEncodedPosition, 1, 1000);
+
+        driveMotor.configNeutralDeadband(ModuleConstants.kDriveMotorDeadband);
+        turnMotor.configNeutralDeadband(ModuleConstants.kTurnMotorDeadband);
     }
 
     /**
-     * Reset the SRX's quadrature encoder (slot 0) using the SRX's mag encoder (slot 1)
+     * Reset the CANCoder's relative encoder using its absolute encoder
      */
     public void resetEncoder() {
-        double startPos = (absoluteTurningEncoder.getSelectedSensorPosition(1) - absoluteEncoderOffset) % 4096;
-        double startAngle = startPos / 4096;
-        SmartDashboard.putNumber("Reset Angle Encoder #" + absoluteEncoderId, startAngle);
-        absoluteTurningEncoder.setSelectedSensorPosition(startPos, 0, 100);
+        double startAngle = (canCoder.getAbsolutePosition() - this.CANCoderOffsetDegrees) % 360;
+        SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
+        canCoder.setPosition(startAngle);
     }
 
     /**
@@ -135,13 +144,22 @@ public class SwerveModule {
     }
 
     /**
-     * Get the angle of the turning motor from the absolute encoder's quad encoder
+     * Get the angle of the turning motor's integrated sensor
      * @return Angle in radians
      */
     public double getTurningPosition() {
-        double turningPosition = -(Math.IEEEremainder(absoluteTurningEncoder.getSelectedSensorPosition(0) + 1024, 4096) * ModuleConstants.kTurningTicksToRad);
-        // SmartDashboard.putNumber("turning position motor #" + turnMotorID, turningPosition);
-        // SmartDashboard.putNumber("Turning angle #" + turnMotorID, 180 * turningPosition / Math.PI);
+        double turningPosition = Math.toRadians(getTurningPositionDegrees());
+        return turningPosition;
+    }
+
+    /**
+     * Get the angle of the turning motor's integrated sensor
+     * @return Angle in degrees
+     */
+    public double getTurningPositionDegrees() {
+        double turningPosition = -canCoder.getPosition() % 360;
+        // SmartDashboard.putNumber("Turning radians #" + turnMotorID, Math.toRadians(turningPosition));
+        // SmartDashboard.putNumber("Turning angle #" + turnMotorID, turningPosition);
         return turningPosition;
     }
 
@@ -158,19 +176,18 @@ public class SwerveModule {
      * @return Velocity of the turning motor (in radians / sec)
      */
     public double getTurningVelocity() {
-        double turnVelocity = turnMotor.getSelectedSensorVelocity(0) * ModuleConstants.kTurningTicksPer100MsToRadPerSec;
-        // SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, turnVelocity);
+        double turnVelocity = Math.toRadians(getTurningVelocityDegrees());
         return turnVelocity;
     }
 
     /**
-     * Get the position of the absolute mag encoder
-     * @return Position of the absolute mag encoder (in radians)
+     * Get the velocity of the turning motor
+     * @return Velocity of the turning motor (in radians / sec)
      */
-    public double getAbsoluteEncoderRadians() {
-        double angle = (absoluteTurningEncoder.getSelectedSensorPosition(1) % 4096) * ModuleConstants.kTurningTicksToRad + absoluteEncoderOffset;
-        // SmartDashboard.putNumber("AbsoluteEncoder in rad", angle * (invertTurningEncoder ? -1 : 1));
-        return angle * (invertTurningEncoder ? -1 : 1);
+    public double getTurningVelocityDegrees() {
+        double turnVelocity = canCoder.getVelocity();
+        // SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, Math.toRadians(turnVelocity));
+        return turnVelocity;
     }
 
     /**
@@ -198,23 +215,46 @@ public class SwerveModule {
         }
         // state.angle = state.angle.rotateBy(Rotation2d.fromDegrees(-90));
         state = SwerveModuleState.optimize(state, getState().angle);
+
+        desiredAngle = state.angle.getDegrees();
         
         // TODO: switch to velocity control
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
-        double percentOutput = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        driveMotor.set(ControlMode.PercentOutput, percentOutput);
-        
+        currentPercent = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        driveMotor.set(ControlMode.PercentOutput, currentPercent);
         double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
         // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
 
         turnMotor.set(ControlMode.PercentOutput, turnPower);
+    }
 
-        SmartDashboard.putNumber("Target velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
-        SmartDashboard.putNumber("Motor percent #" + turnMotorID, percentOutput);
-        SmartDashboard.putNumber("Turn angle #" + turnMotorID, Math.toDegrees(getTurningPosition()));
-        SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, state.angle.getDegrees());
-        SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, state.angle.getDegrees() - (getTurningPosition() * 180 / Math.PI));
-        SmartDashboard.putNumber("Current Motor #" + turnMotorID, driveMotor.getStatorCurrent());
+    public void initShuffleboard() {
+        int moduleId = (driveMotorID - (driveMotorID % 10));
+        ShuffleboardTab tab = Shuffleboard.getTab("Module " + moduleId);
+
+        tab.addNumber("Module velocity", () -> driveMotor.getSelectedSensorVelocity());
+        tab.addNumber("Drive percent", () -> currentPercent);
+        tab.addNumber("Turn angle", () -> currentAngle);
+        tab.addNumber("Desired Angle", () -> desiredAngle);
+        tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
+        tab.addNumber("Drive Motor Current", driveMotor::getStatorCurrent);
+        tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
+        tab.addNumber("Drive Motor Voltage", driveMotor::getMotorOutputVoltage);
+        tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
+    }
+
+    public void reportToSmartDashboard() {
+        currentAngle = Math.toDegrees(getTurningPosition());
+
+        SmartDashboard.putNumber("Module velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Drive percent #" + driveMotorID, currentPercent);
+        SmartDashboard.putNumber("Turn angle #" + turnMotorID, currentAngle);
+        SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, desiredAngle);
+        SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, desiredAngle - currentAngle);
+        SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Current", driveMotor.getStatorCurrent());
+        SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Current", turnMotor.getStatorCurrent());
+        SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Voltage", driveMotor.getMotorOutputVoltage());
+        SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Voltage", turnMotor.getMotorOutputVoltage());
     }
 
     /**

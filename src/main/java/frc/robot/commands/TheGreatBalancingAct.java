@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
-import frc.robot.subsystems.SwerveDrivetrain;
+import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 public class TheGreatBalancingAct extends CommandBase {
     private SwerveDrivetrain swerveDrive;
@@ -19,10 +19,10 @@ public class TheGreatBalancingAct extends CommandBase {
     // private double period = 0.02;
 
     /**
-     * Construct a new TurnToAngle Command
-     * @param swerveDrive   Swerve drivetrain to rotate
-     * @param period      
-     *   Time between each calculation (default 20ms)
+     * Construct a new BalancingAct Command
+     * @param swerveDrive   Swerve drivetrain to balance
+     * @param period        Time intervals for pid controller calculations (default 20ms)
+     * @param pBalancing    Constant P for roll and pitch pid controllers
      */
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double period, double pBalancing) {
         this.swerveDrive = swerveDrive;
@@ -41,10 +41,21 @@ public class TheGreatBalancingAct extends CommandBase {
         // this.period = period;
     }
 
+    /**
+     * Construct a new BalancingAct Command and assume period is the default (20ms)
+     * @param swerveDrive   Swerve drivetrain to balance
+     * @param pBalancing    Constant P for roll and pitch pid controllers
+     */
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double pBalancing) {
         this(swerveDrive, 0.02, pBalancing);
     }
 
+    /**
+     * Construct a new BalancingAct Command
+     * assumes period is the default (20ms)
+     * Uses swerve auto constant for roll and pitch pid controllers
+     * @param swerveDrive   Swerve drivetrain to balance
+     */
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive) {
         // Default period is 20 ms
         this(swerveDrive, 0.02, SwerveAutoConstants.kPBalancing);
@@ -55,16 +66,20 @@ public class TheGreatBalancingAct extends CommandBase {
 
     }
 
+    /**
+     * Balances robot by using its pitch and roll as inputs for pid controllers
+     * and then sends the values given by the pid controllers to swerve states
+     */
     @Override
     public void execute() {
-        Rotation3d currentRotation = swerveDrive.getRotation3d();
+        Rotation3d currentRotation = swerveDrive.getImu().getRotation3d();
 
         // Calculate turning speed with PID
-        double xSpeed = -7.5 * pitchPidController.calculate(
-            currentRotation.getY(), 0
-        );
-        double ySpeed = -7.5 * rollPidController.calculate(
+        double xSpeed = 8 * pitchPidController.calculate(
             currentRotation.getX(), 0
+        );
+        double ySpeed = -8 * rollPidController.calculate(
+            currentRotation.getY(), 0
         );
 
         SmartDashboard.putNumber("xSpeed", xSpeed);
