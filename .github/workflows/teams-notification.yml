@@ -7,7 +7,7 @@ on:
 jobs:
   without_optional_params:
     name: Minimal notification
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@master
       - name: Microsoft Teams Notification
@@ -18,7 +18,7 @@ jobs:
 
   if_failure:
     name: Only if failure
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@master
       - name: Microsoft Teams Notification
