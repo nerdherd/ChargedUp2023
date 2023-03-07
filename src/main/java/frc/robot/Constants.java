@@ -278,7 +278,7 @@ public final class Constants {
     public static final double kTeleMaxDeceleration = -3; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
-      kPhysicalMaxAngularSpeedRadiansPerSecond / 2;
+      kPhysicalMaxAngularSpeedRadiansPerSecond * 0.75;
     public static final double kTurnToAngleMaxAngularSpeedRadiansPerSecond 
       = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
     public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
@@ -338,7 +338,9 @@ public final class Constants {
     public static final int kDriverRotAxis = 4;
     public static final int kDriverFieldOrientedButtonIdx = 1;
 
-    public static final double kDeadband = 0.05;    }
+    public static final double kDeadband = 0.05;
+    public static final double kRotationDeadband = 0.1;
+  }
 
   public static class BananaConstants {
     public static final double kPIDControllerP = 0.1;

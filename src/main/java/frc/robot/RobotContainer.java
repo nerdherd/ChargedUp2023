@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -75,6 +76,7 @@ public class RobotContainer {
   private final CommandBadPS4 operatorController = new CommandBadPS4(
       ControllerConstants.kOperatorControllerPort);
   private final BadPS4 badPS4 = operatorController.getHID();
+  // private final Joystick joystick = new Joystick(2);
 
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);
@@ -167,17 +169,26 @@ public class RobotContainer {
       swerveDrive.setDefaultCommand(
         new SwerveJoystickCommand(
           swerveDrive,
+          // Translation Y
+          // () -> -joystick.getY(),
           () -> -driverController.getLeftY(),
+
+          // Translation X
           driverController::getLeftX,
-          // () -> 0.0,
+          // joystick::getX,
+
+          // Rotation
+          // joystick::getTwist,
           driverController::getRightX,
           // () -> true,
+
+          // Field oriented
           badPS5::getSquareButton,
-          () -> {
-            return badPS5.getL2Button() || badPS5.getR2Button();
-          },
+          badPS5::getL2Button,
           // driverControllerButtons::getTriangleButton,
+          // Dodge
           badPS5::getR3Button,
+          // Dodging
           () -> {
             // if (badPS4.getL2Button()) {
             //   return DodgeDirection.LEFT;
@@ -186,7 +197,9 @@ public class RobotContainer {
             //   return DodgeDirection.RIGHT;
             // }
             return DodgeDirection.NONE;
-          }
+          },
+          // Precision/"Sniper Button"
+          badPS5::getR2Button
         ));
     // } else {
     //   tankDrive.setDefaultCommand(
@@ -342,7 +355,7 @@ public class RobotContainer {
     // coneRunner.initShuffleboard();
     //if (IsSwerveDrive) {
       // swerveDrive.initShuffleboard();
-      // swerveDrive.initModuleShuffleboard();
+      swerveDrive.initModuleShuffleboard();
     // } else {
     //   tankDrive.initShuffleboard();
     // }
