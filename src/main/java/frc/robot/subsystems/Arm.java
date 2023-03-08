@@ -57,7 +57,7 @@ public class Arm extends SubsystemBase implements Reportable {
             // if (rotatingArm.getSelectedSensorPosition() >= ArmConstants.kArmLowerLimit) {
             //     rotatingArm.set(ControlMode.PercentOutput, 0);
             //   } else {
-                rotatingArm.set(ControlMode.PercentOutput, 0.8);
+                rotatingArm.set(ControlMode.PercentOutput, 0.1);
             // }
 
             // rotatingArm.set(ControlMode.PercentOutput, 0.60);
@@ -67,7 +67,7 @@ public class Arm extends SubsystemBase implements Reportable {
                 rotatingArm.set(ControlMode.PercentOutput, 0);
                 resetEncoderStow();
             } else {
-                rotatingArm.set(ControlMode.PercentOutput, -0.8);
+                rotatingArm.set(ControlMode.PercentOutput, -0.1);
             }
             // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));

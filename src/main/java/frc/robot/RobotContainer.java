@@ -179,6 +179,7 @@ public class RobotContainer {
 
           // Rotation
           // joystick::getTwist,
+          // () -> 0.0,
           driverController::getRightX,
           // () -> true,
 
@@ -355,7 +356,7 @@ public class RobotContainer {
     // coneRunner.initShuffleboard();
     //if (IsSwerveDrive) {
       // swerveDrive.initShuffleboard();
-      swerveDrive.initModuleShuffleboard();
+      // swerveDrive.initModuleShuffleboard();
     // } else {
     //   tankDrive.initShuffleboard();
     // }
