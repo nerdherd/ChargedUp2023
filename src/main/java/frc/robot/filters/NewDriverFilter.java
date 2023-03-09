@@ -70,6 +70,16 @@ public class NewDriverFilter extends FilterSeries {
                         * slewRateLimiter.calculate(Math.abs(x));
                 }
             ),
+            // Inverse Deadband
+            new WrapperFilter(
+                (x) -> {
+                    if (x >= (1 - deadband)) {
+                        return 1.00;
+                    } else {
+                        return x;
+                    }
+                }
+            ),
             new ScaleFilter(scale),
             new ClampFilter(scale)
         );
