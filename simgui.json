@@ -3,7 +3,6 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/LiveWindow/Imu": "Subsystem",
-      "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
       "/LiveWindow/Ungrouped/PIDController[10]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[11]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[12]": "PIDController",
@@ -43,7 +42,6 @@
       "/LiveWindow/Ungrouped/PIDController[9]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
-      "/LiveWindow/VROOOOM": "Subsystem",
       "/Shuffleboard/Autos/Alliance": "String Chooser",
       "/Shuffleboard/Autos/Score Position": "String Chooser",
       "/Shuffleboard/Autos/Selected Auto": "String Chooser",

@@ -14,7 +14,6 @@ import frc.robot.tests.DodgeTest;
 //import frc.robot.states.StateMachine;
 // import frc.robot.tests.FilterTest;
 import frc.robot.tests.FilterTest;
-import frc.robot.tests.MagnitudeTest;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -114,7 +113,6 @@ public class Robot extends TimedRobot {
 
   FilterTest filterTest;
   DodgeTest dodgeTest;
-  MagnitudeTest magTest;
 
   @Override
   public void testInit() {
@@ -123,18 +121,15 @@ public class Robot extends TimedRobot {
     // autoTest.ReinitExecution();
     // filterTest = new FilterTest();
     // filterTest.initialize();
-    // dodgeTest = new DodgeTest();
-    // dodgeTest.initialize();
-    magTest = new MagnitudeTest();
-    magTest.init();
+    dodgeTest = new DodgeTest();
+    dodgeTest.initialize();
   }
   // StateMachine autoTest = new StateMachine();
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    // dodgeTest.execute();
-    magTest.periodic();
+    dodgeTest.execute();
     // filterTest.periodic();
     // filterTest.testBothFilters();
     // filterTest.driveFilterTestPeriodic();
