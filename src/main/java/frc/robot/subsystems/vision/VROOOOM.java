@@ -244,10 +244,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             //     currentVisionRunCommand = driveToTargetRunCommand;
             // }
     
-            return Commands.parallel(
+            return Commands.race(
                 // Constantly run elevator and arm motion magic
-                elevator.moveElevator(arm::getArmAngle),
-                arm.moveArm(elevator::percentExtended),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
 
                 Commands.sequence(
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
@@ -343,10 +343,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             //    currentVisionRunCommand = driveToTargetRunCommand;
             //}
     
-            return Commands.parallel(
+            return Commands.race(
                 // Constantly run elevator and arm motion magic
-                //elevator.moveElevator(arm::getArmAngle),
-                //arm.moveArm(elevator::percentExtended),
+                // run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                // run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
 
                 Commands.sequence(
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
@@ -486,10 +486,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // } else {
             //     currentVisionRunCommand = driveToTargetRunCommand;
             // }
-            return Commands.parallel(
+            return Commands.race(
                 // Constantly run elevator and arm motion magic
-                //elevator.moveElevator(arm::getArmAngle),
-                //arm.moveArm(elevator::percentExtended),
+                // run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                // run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
                 
                 Commands.sequence(
                     // Commands.parallel(
