@@ -258,10 +258,10 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 71.895 + 180;       
-      public static final double kFLCANCoderOffsetDegrees = 253.125 - 180;         
-      public static final double kBLCANCoderOffsetDegrees = 286.260 - 180;          
-      public static final double kBRCANCoderOffsetDegrees = 7.734; // 1.406
+      public static final double kFRCANCoderOffsetDegrees = 68.379 + 180;       
+      public static final double kFLCANCoderOffsetDegrees = 252.949 - 180;         
+      public static final double kBLCANCoderOffsetDegrees = 105.293;          
+      public static final double kBRCANCoderOffsetDegrees = 180.176 - 180; // 1.406
     }
 
 
