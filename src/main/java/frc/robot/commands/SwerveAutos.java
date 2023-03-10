@@ -310,7 +310,7 @@ public class SwerveAutos {
                         waitUntil(elevator.atTargetPosition)
                     ),
                     sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmSubstation)),
                         waitSeconds(0.5),
                         waitUntil(arm.atTargetPosition)
                     )
@@ -431,8 +431,8 @@ public class SwerveAutos {
                 yOvershoot = -1.75;
                 break;
             case RIGHT:
-                yTranslation = 1.75;
-                yOvershoot = 1.75;
+                yTranslation = 1;
+                yOvershoot = 1;
                 break;
             case MIDDLE:
                 break;
@@ -445,21 +445,21 @@ public class SwerveAutos {
 
         Trajectory trajectory;
         
-        if (!goAround || startPos == StartPosition.MIDDLE) {
+        if (!goAround) {
             trajectory = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(0, 0, new Rotation2d(0)), 
                 List.of(
                     new Translation2d(-0.25, 0),
                     new Translation2d(-0.25, yOvershoot)), 
-                new Pose2d(-2, yTranslation - 0.01, Rotation2d.fromDegrees(180)), // -2
+                new Pose2d(-2.7, yTranslation - 0.01, Rotation2d.fromDegrees(0)), // -2
                 trajectoryConfig);
         } else {
             trajectory = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(0, 0, new Rotation2d(0)), 
                 List.of(
-                    new Translation2d(-4, 0),
-                    new Translation2d(-4, yTranslation)), 
-                new Pose2d(-2, yTranslation, Rotation2d.fromDegrees(180)), 
+                    new Translation2d(-3.5, 0.01),
+                    new Translation2d(-3.5, yTranslation + 0.01)), 
+                new Pose2d(-2, yTranslation - 0.01, Rotation2d.fromDegrees(0)), 
                 trajectoryConfig);
         }
 
@@ -505,7 +505,7 @@ public class SwerveAutos {
             List.of(
                 new Translation2d(-0.75, 0), // -0.75
                 new Translation2d(-0.75, -1.25)), 
-            new Pose2d(1, -1.75, Rotation2d.fromDegrees(180)), 
+            new Pose2d(1, -1.75, Rotation2d.fromDegrees(0)), 
             trajectoryConfig);
 
         //Create PID Controllers
