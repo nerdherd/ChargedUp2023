@@ -8,10 +8,10 @@ import java.util.function.Supplier;
  * For use with flight joysticks so that the magnitude of the input never exceeds 1
  */
 public class NormalizationFilter implements Filter {
-    static final double fourtyFive = Math.PI / 4;
+    private static final double fourtyFive = Math.PI / 4;
 
-    Supplier<Double> xInput;
-    Supplier<Double> yInput;
+    private Supplier<Double> xInput;
+    private Supplier<Double> yInput;
 
     /**
      * Create a new normalization filter.
