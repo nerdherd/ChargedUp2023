@@ -81,22 +81,24 @@ public final class Constants {
     public static final int kPistonReverseID = 3;
     public static final int kPCMPort = 3;
 
-    public static final int kTopMotorID = 62;
-    public static final int kBottomMotorID = 61;
-    public static final double kIntakePower = -0.3;
+    public static final int kTopMotorID = 61;
+    public static final int kBottomMotorID = 62;
+    public static final double kIntakePower = -0.35;
     public static final double kOuttakePower = 1;
-    public static final double kIntakeNeutralPower = -0.15;
+    public static final double kIntakeNeutralPower = -0.25;
   }
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
-    public static final int kArmLowerLimit = -260000;
-    public static final int kArmStow = -622481;//144278;
-    public static final int kArmScore = -444298;//596443; // 89744;
-    public static final int kArmGroundPickup = -258000;//767054;// 34352;
-    public static final int kArmSubstation = -477000; // TODO: MEASURE THIS PWEASE
-    public static final int kArmMotionAcceleration = 20000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 20000;//18000;//21777;
+    public static final int kArmLowerLimit = -220000;
+    public static final int kArmStow = -622485;//-630435;//144278;
+    public static final int kArmScore = -432700;//-408850;//596443; // 89744;
+    public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
+    public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
+    public static final int kArmGroundPickup = -238900;//-215050;//-242170;//767054;// 34352;
+    public static final int kArmSubstation = -522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmMotionAcceleration = 40000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 22000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
@@ -120,11 +122,13 @@ public final class Constants {
   public static class ElevatorConstants{
     public static final int kElevatorID = 18;
     public static final int kElevatorStow = 0;
+    public static final int kElevatorScoreMidCube = -85285;//-143634;
     public static final int kElevatorScoreMid = -143634;
-    public static final int kElevatorScoreHigh = -205000;
-    public static final int kElevatorSubstation = -125000; // Height for substation i think
-    public static final int kElevatorMotionAcceleration = 20000;
-    public static final int kElevatorCruiseVelocity = 20000;
+    public static final int kElevatorScoreHighCube = -198657;//-240000;
+    public static final int kElevatorScoreHigh = -240000;
+    public static final int kElevatorSubstation = -69400;//-68100;//-116680; // Height for substation i think
+    public static final int kElevatorMotionAcceleration = 60000;
+    public static final int kElevatorCruiseVelocity = 30000;
     public static final double kElevatorP = 0.1;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
@@ -271,10 +275,10 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRDefaultOffsetDegrees = 72.07 + 180;       
-      public static final double kFLDefaultOffsetDegrees = 298.564;         
-      public static final double kBLDefaultOffsetDegrees = 298.740 - 180;          
-      public static final double kBRDefaultOffsetDegrees = 196.084 - 180; // 1.406
+      public static final double kFRCANCoderOffsetDegrees = 72.07 + 180;       
+      public static final double kFLCANCoderOffsetDegrees = 298.564;         
+      public static final double kBLCANCoderOffsetDegrees = 298.740 - 180;          
+      public static final double kBRCANCoderOffsetDegrees = 196.084 - 180; // 1.406
     }
 
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
@@ -287,7 +291,7 @@ public final class Constants {
     public static final double kTeleMaxDeceleration = -3;
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
-      kPhysicalMaxAngularSpeedRadiansPerSecond / 2;
+      kPhysicalMaxAngularSpeedRadiansPerSecond * 0.75;
     public static final double kTurnToAngleMaxAngularSpeedRadiansPerSecond 
       = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
     public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
@@ -308,10 +312,10 @@ public final class Constants {
   }
 
   public static final class SwerveAutoConstants {
-    public static final double kMaxAutoSpeedMetersPerSecond = SwerveDriveConstants.kMaxSpeedMetersPerSecond * 0.5;
+    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kMaxSpeedMetersPerSecond / 2;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
       SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 2;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
     public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 1.5);
     public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0);
@@ -332,7 +336,7 @@ public final class Constants {
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
     public static final double kPBalancingInitial = 0.6;
-    public static final double kPBalancing = 0.35;
+    public static final double kPBalancing = 0.3;
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
     public static final double kBalancingTowPeriod = 0.5;
   }
@@ -347,7 +351,9 @@ public final class Constants {
     public static final int kDriverRotAxis = 4;
     public static final int kDriverFieldOrientedButtonIdx = 1;
 
-    public static final double kDeadband = 0.05;    }
+    public static final double kDeadband = 0.05;
+    public static final double kRotationDeadband = 0.1;
+  }
 
   public static class BananaConstants {
     public static final double kPIDControllerP = 0.1;

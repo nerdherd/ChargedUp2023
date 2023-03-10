@@ -21,7 +21,7 @@ public class SwerveJoystickCommand extends CommandBase {
     private final SwerveDrivetrain swerveDrive;
     private final Supplier<Double> xSpdFunction, ySpdFunction, turningSpdFunction;
     private final Supplier<Boolean> fieldOrientedFunction;
-    private final Supplier<Boolean> towSupplier, dodgeSupplier;
+    private final Supplier<Boolean> towSupplier, dodgeSupplier, precisionSupplier;
     private Filter xFilter, yFilter, turningFilter;
     private Translation2d robotOrientedJoystickDirection;
     private Supplier<DodgeDirection> dodgeDirectionSupplier;
@@ -45,7 +45,8 @@ public class SwerveJoystickCommand extends CommandBase {
      */
     public SwerveJoystickCommand(SwerveDrivetrain swerveDrive,
             Supplier<Double> xSpdFunction, Supplier<Double> ySpdFunction, Supplier<Double> turningSpdFunction,
-            Supplier<Boolean> fieldOrientedFunction, Supplier<Boolean> towSupplier, Supplier<Boolean> dodgeSupplier, Supplier<DodgeDirection> dodgeDirectionSupplier) {
+            Supplier<Boolean> fieldOrientedFunction, Supplier<Boolean> towSupplier, Supplier<Boolean> dodgeSupplier, 
+            Supplier<DodgeDirection> dodgeDirectionSupplier, Supplier<Boolean> precisionSupplier) {
         this.swerveDrive = swerveDrive;
         this.xSpdFunction = xSpdFunction;
         this.ySpdFunction = ySpdFunction;
@@ -53,6 +54,7 @@ public class SwerveJoystickCommand extends CommandBase {
         this.fieldOrientedFunction = fieldOrientedFunction;
         this.towSupplier = towSupplier;
         this.dodgeDirectionSupplier = dodgeDirectionSupplier;
+        this.precisionSupplier = precisionSupplier;
 
         // Old filters
         
@@ -95,7 +97,7 @@ public class SwerveJoystickCommand extends CommandBase {
             kTeleMaxAcceleration, 
             kTeleMaxDeceleration);
         this.turningFilter = new NewDriverFilter(
-            OIConstants.kDeadband, 
+            OIConstants.kRotationDeadband, 
             kMinimumMotorOutput,
             kTeleDriveMaxAngularSpeedRadiansPerSecond, 
             kDriveAlpha, 
@@ -140,6 +142,11 @@ public class SwerveJoystickCommand extends CommandBase {
         double filteredXSpeed = xFilter.calculate(xSpeed);
         double filteredYSpeed = yFilter.calculate(ySpeed);
         
+        if (precisionSupplier.get()) {
+            filteredTurningSpeed /= 2;
+            filteredXSpeed /= 2;
+            filteredYSpeed /= 2;
+        }
         
         ChassisSpeeds chassisSpeeds;
         // Check if in field oriented mode

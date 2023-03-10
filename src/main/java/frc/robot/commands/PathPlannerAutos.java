@@ -30,7 +30,8 @@ public class PathPlannerAutos {
         PathPlannerTrajectory testPath = PathPlanner.loadPath(
             pathName, 
             new PathConstraints(
-                kMaxAutoSpeedMetersPerSecond,
+                
+                kMaxSpeedMetersPerSecond,
                 kMaxAccelerationMetersPerSecondSquared));
         
         HashMap<String, Command> events = new HashMap<>() {{
@@ -123,20 +124,20 @@ public class PathPlannerAutos {
         PathPlannerTrajectory testPath = PathPlanner.loadPath(
             pathName, 
             new PathConstraints(
-                kMaxAutoSpeedMetersPerSecond, 
+                kMaxSpeedMetersPerSecond, 
                 kMaxAccelerationMetersPerSecondSquared));
         
         HashMap<String, Command> events = new HashMap<>() {{
-            put("Pickup", sequence(
-                vision.updateCurrentGameObject(OBJECT_TYPE.CONE),
-                vision.updateCurrentHeight(SCORE_POS.MID),
-                vision.VisionPickup()
-            ));
-            put("Score", sequence(
-                vision.updateCurrentGameObject(OBJECT_TYPE.CONE),
-                vision.updateCurrentHeight(SCORE_POS.MID),
-                vision.VisionScore()
-            ));
+            // put("Pickup", sequence(
+            //     vision.updateCurrentGameObject(OBJECT_TYPE.CONE),
+            //     vision.updateCurrentHeight(SCORE_POS.MID),
+            //     vision.VisionPickup()
+            // ));
+            // put("Score", sequence(
+            //     vision.updateCurrentGameObject(OBJECT_TYPE.CONE),
+            //     vision.updateCurrentHeight(SCORE_POS.MID),
+            //     vision.VisionScore()
+            // ));
             put("Charge", new TheGreatBalancingAct(swerveDrive));
             if (preload) {
                 put("ScorePickup", get("Score"));

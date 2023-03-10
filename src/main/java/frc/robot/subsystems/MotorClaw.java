@@ -26,8 +26,10 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     topMotor = new TalonSRX(ClawConstants.kTopMotorID);
     bottomMotor = new TalonSRX(ClawConstants.kBottomMotorID);
 
-    topMotor.setInverted(false);
+    topMotor.setInverted(true);
     bottomMotor.setInverted(true);
+
+    bottomMotor.follow(topMotor);
 
     setNeutralMode(NeutralMode.Brake);
   }
@@ -37,7 +39,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     return runOnce(
       () -> {
         topMotor.set(ControlMode.PercentOutput, power);
-        bottomMotor.set(ControlMode.PercentOutput, power);
+        // bottomMotor.set(ControlMode.PercentOutput, power);
         setNeutralMode(NeutralMode.Brake);
       }
       
@@ -48,7 +50,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     return runOnce(
       () -> {
         topMotor.set(ControlMode.PercentOutput, topPower);
-        bottomMotor.set(ControlMode.PercentOutput, bottomPower);
+        // bottomMotor.set(ControlMode.PercentOutput, bottomPower);
         setNeutralMode(NeutralMode.Brake);
       }
       
@@ -62,16 +64,16 @@ public class MotorClaw extends SubsystemBase implements Reportable {
   public CommandBase outtake() {
     return sequence(
       setPower(ClawConstants.kOuttakePower),
-      waitSeconds(1),
-      setPower(ClawConstants.kIntakeNeutralPower)
+      waitSeconds(0.25),
+      setPowerZero()
     );
   }
 
   public CommandBase intake() {
     return sequence(
       setPower(ClawConstants.kIntakePower),
-      waitSeconds(1),
-      setPowerZero()
+      waitSeconds(0.25),
+      setPower(ClawConstants.kIntakeNeutralPower)
     );
   }
 

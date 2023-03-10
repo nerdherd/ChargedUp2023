@@ -35,7 +35,7 @@ public class Dodge extends SwerveControllerCommand {
     private static Trajectory getDodgeTrajectory(SwerveDrivetrain swerveDrive, double xSpeed, double ySpeed, boolean isLeft, double distance) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxAutoSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
 
         double angle;
 
