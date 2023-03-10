@@ -70,6 +70,7 @@ public class NewDriverFilter extends FilterSeries {
                         * slewRateLimiter.calculate(Math.abs(x));
                 }
             ),
+            new ReverseDeadbandFilter(deadband, 1, -1),
             new ScaleFilter(scale),
             new ClampFilter(scale)
         );
