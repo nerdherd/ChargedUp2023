@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.MotorClaw;
@@ -244,10 +245,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             //     currentVisionRunCommand = driveToTargetRunCommand;
             // }
     
-            return Commands.parallel(
+            return Commands.race(
                 // Constantly run elevator and arm motion magic
-                elevator.moveElevator(arm::getArmAngle),
-                arm.moveArm(elevator::percentExtended),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
 
                 Commands.sequence(
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
@@ -343,10 +344,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             //    currentVisionRunCommand = driveToTargetRunCommand;
             //}
     
-            return Commands.parallel(
+            return Commands.race(
                 // Constantly run elevator and arm motion magic
-                //elevator.moveElevator(arm::getArmAngle),
-                //arm.moveArm(elevator::percentExtended),
+                // run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                // run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
 
                 Commands.sequence(
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
@@ -486,10 +487,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // } else {
             //     currentVisionRunCommand = driveToTargetRunCommand;
             // }
-            return Commands.parallel(
+            return Commands.race(
                 // Constantly run elevator and arm motion magic
-                //elevator.moveElevator(arm::getArmAngle),
-                //arm.moveArm(elevator::percentExtended),
+                // run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                // run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
                 
                 Commands.sequence(
                     // Commands.parallel(
@@ -539,7 +540,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
                     //     )
                     // ),
-                    
+                    new TurnToAngle(0, drivetrain), // Turn back towards field after scoring
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
                 )
             );
