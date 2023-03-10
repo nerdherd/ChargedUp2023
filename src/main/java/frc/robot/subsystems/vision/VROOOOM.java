@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.MotorClaw;
@@ -539,7 +540,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
                     //     )
                     // ),
-                    
+                    new TurnToAngle(0, drivetrain), // Turn back towards field after scoring
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
                 )
             );
