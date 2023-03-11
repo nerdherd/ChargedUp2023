@@ -207,15 +207,17 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         if (currentGameObject == OBJECT_TYPE.CONE) {
             goalArea = 3.8; // This line is running, so we know the conditional is working (3/11/2023)
             currentLimelight.setPipeline(1);
-            PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
-            PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-            PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
+
+            // TODO (3/11/23): Check if this works, I think the logic error MIGHT be because we are creating new PID controllers all the time (?)
+            PIDArea.setPID(0.4, 0, 0.01);
+            PIDTX.setPID(0.04, 0, 0.01);
+            PIDYaw.setPID(0, 0, 0);
         } else {
             goalArea = 0; // Goal area for cube ground pickup
             currentLimelight.setPipeline(2);
-            PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
-            PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-            PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
+            PIDArea.setPID(0, 0, 0);
+            PIDTX.setPID(0, 0, 0);
+            PIDYaw.setPID(0, 0, 0);
         }
     }
 
@@ -302,15 +304,17 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             if (currentGameObject == OBJECT_TYPE.CONE) {
                 goalArea = 21; // Goal area for cone substation pickup, area is an estimate because a different camera position was used, updated 2/23/2023
                 currentLimelight.setPipeline(1);
-                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
-                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
+
+                PIDArea.setPID(0, 0, 0);
+                PIDTX.setPID(0, 0, 0);
+                PIDYaw.setPID(0, 0, 0);
             } else {
                 goalArea = 0; // Goal area for cube substation pickup
                 currentLimelight.setPipeline(2);
-                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
-                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
+                
+                PIDArea.setPID(0, 0, 0);
+                PIDTX.setPID(0, 0, 0);
+                PIDYaw.setPID(0, 0, 0);
             }
 
             //final int armPositionTicksFinal  = armPositionTicks;
@@ -397,10 +401,12 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 currentLimelight = limelightLow; // Use low for testing
                 currentLimelight.setPipeline(3); // Tape pipeline
                 currentLimelight.setLightState(LightMode.ON);
-                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
-                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
-                goalArea = 0.5; // Unsure if correct, updated 2/23/2023
+
+                PIDArea.setPID(2, 0, 0);
+                PIDTX.setPID(0.08, 0, 0.02);
+                PIDYaw.setPID(0, 0, 0);
+
+                goalArea = 0.5;
 
                 switch(currentHeightPos) {
                     case HIGH:
@@ -424,9 +430,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             case CUBE:
                 currentLimelight = limelightLow;
                 currentLimelight.setPipeline(4); // April tag pipeline
-                PIDArea = new PIDController(0.2, SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
-                PIDTX = new PIDController(0.1, SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-                PIDYaw = new PIDController(0, SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
+                
+                PIDArea.setPID(0, 0, 0);
+                PIDTX.setPID(0, 0, 0);
+                PIDYaw.setPID(0, 0, 0);
+
                 goalArea = 2; // April tag target area, unsure if correct, updated 2/23/2023
 
                 switch(currentHeightPos) {
@@ -535,12 +543,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             currentCameraMode = CAMERA_MODE.WAIT;
         }
         else {
+            // NOTE (3/11/2023): This should be commented out, BUT if the PID is still 0,
+            // you can use this but we still need to find a permenant solution
 
             // Score cone (low tape, max distance is the charging station)
-            pidArea.setP(2);
-            pidArea.setD(0);
-            pidTX.setP(0.08);
-            pidTX.setD(0.02);
+            // pidArea.setP(2);
+            // pidArea.setD(0);
+            // pidTX.setP(0.08);
+            // pidTX.setD(0.02);
 
             // Cone ground
             // pidArea.setP(0.4);
