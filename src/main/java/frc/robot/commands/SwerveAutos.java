@@ -61,11 +61,13 @@ public class SwerveAutos {
             driveForward, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
-        return sequence(
+        CommandBase auto = sequence(
             runOnce(() -> swerveDrive.setPoseMeters(driveForward.getInitialPose())),
             driveForwardCommand,
             runOnce(swerveDrive::stopModules)
         );
+        auto.setName("Drive Backwards");
+        return auto;
     }
 
     public static CommandBase driveBackwardLeftAuto(SwerveDrivetrain swerveDrive) {
@@ -91,11 +93,13 @@ public class SwerveAutos {
             driveForward, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
-        return sequence(
+        CommandBase auto = sequence(
             runOnce(() -> swerveDrive.setPoseMeters(driveForward.getInitialPose())),
             driveForwardCommand,
             runOnce(swerveDrive::stopModules)
         );
+        auto.setName("Drive Backwards Left");
+        return auto;
     }
 
     /**
@@ -183,7 +187,7 @@ public class SwerveAutos {
             pickupToScore, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
-        return deadline(
+        CommandBase auto = deadline(
             sequence(
                 parallel(
                     runOnce(() -> SmartDashboard.putString("Stage", "Start")),
@@ -252,7 +256,9 @@ public class SwerveAutos {
                 ),
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
-            );
+        );
+        auto.setName("Pickup " + position.toString() + scorePosition.toString() + alliance.toString());
+        return auto;
     } 
 
     public static CommandBase preloadAuto(Arm arm, Elevator elevator, MotorClaw claw, SCORE_POS scorePos) {
@@ -277,7 +283,7 @@ public class SwerveAutos {
         final int elevatorPosFinal = elevatorPos;
         final int armPosFinal = armPos;
 
-        return race(
+        CommandBase auto = race(
             waitSeconds(5),
             sequence(
                 claw.intake(),
@@ -320,65 +326,82 @@ public class SwerveAutos {
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
         );
+        auto.setName("Preload " + scorePos.toString());
+        return auto;
     }
 
     public static CommandBase pickupChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance, SCORE_POS scorePos) {
-        return sequence(
-
+        CommandBase auto = sequence(
             pickupAuto(swerveDrive, arm, elevator, claw, position, alliance, scorePos),
             chargeAuto(swerveDrive, position, alliance, 0, false));
+        auto.setName("Pickup Charge " + position.toString() + scorePos.toString() + alliance.toString());
+        return auto;
     }
 
     public static CommandBase pickupBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, SCORE_POS scorePos, Alliance alliance) {
-        return sequence(
+        CommandBase auto = sequence(
             pickupAuto(swerveDrive, arm, elevator, claw, position, alliance, scorePos),
             driveBackwardAuto(swerveDrive)
         );
+        auto.setName("Pickup Backward " + position.toString() + scorePos.toString() + alliance.toString());
+        return auto;
     }
 
     public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround, Alliance alliance) {
-        return sequence(
+        CommandBase auto = sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround)
         );
+        auto.setName("Preload Charge " + startPos.toString() + scorePos.toString() + alliance.toString());
+        return auto;
     }
 
     public static CommandBase preloadBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
-        return sequence(
+        CommandBase auto = sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             driveBackwardAuto(swerveDrive)
         );
+        auto.setName("Preload Backward " + startPos.toString() + scorePos.toString() + alliance.toString());
+        return auto;
     }
 
     
     public static CommandBase preloadBackwardLeftAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
-        return sequence(
+        CommandBase auto = sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             driveBackwardLeftAuto(swerveDrive)
         );
+        auto.setName("Preload Backward Left" + startPos.toString() + scorePos.toString() + alliance.toString());
+        return auto;
     }
 
     public static CommandBase twoPieceAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
-        return sequence(
+        CommandBase auto = sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             pickupAuto(swerveDrive, arm, elevator, claw, startPos, alliance, scorePos)
         );
+        auto.setName("Two Piece " + startPos.toString() + scorePos.toString() + alliance.toString());
+        return auto;
     }
 
     public static CommandBase twoPieceChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround, Alliance alliance) {
-        return sequence(
+        CommandBase auto = sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             pickupAuto(swerveDrive, arm, elevator, claw, startPos, alliance, scorePos),
             chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround)
         );
+        auto.setName("Two Piece Charge " + startPos.toString() + scorePos.toString() + alliance.toString());
+        return auto;
     }
 
     public static CommandBase twoPieceBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
-        return sequence(
+        CommandBase auto = sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             pickupAuto(swerveDrive, arm, elevator, claw, startPos, alliance, scorePos),
             driveBackwardAuto(swerveDrive)
         );
+        auto.setName("Two Piece Backward " + startPos.toString() + scorePos.toString() + alliance.toString());
+        return auto;
     }
 
     public static CommandBase visionPickupAuto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance, SCORE_POS scorePos) {
@@ -476,7 +499,7 @@ public class SwerveAutos {
             trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
-        return sequence(
+        CommandBase auto = sequence(
             runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             waitSeconds(waitTime),
             autoCommand,
@@ -486,6 +509,8 @@ public class SwerveAutos {
             // new TheGreatBalancingAct(swerveDrive),
             // new TowSwerve(swerveDrive)
         );
+        auto.setName("Charge " + startPos.toString() + alliance.toString());
+        return auto;
     }
     
      /**
@@ -520,7 +545,7 @@ public class SwerveAutos {
             trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
-        return sequence(
+        CommandBase auto = sequence(
             runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             deadline(
                 waitSeconds(3),
@@ -532,5 +557,7 @@ public class SwerveAutos {
             // new TheGreatBalancingAct(swerveDrive),
             // new TowSwerve(swerveDrive)
         );
+        auto.setName("Backup Charge");
+        return auto;
     }
 }

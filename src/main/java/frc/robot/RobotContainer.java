@@ -99,32 +99,26 @@ public class RobotContainer {
   private SCORE_POS scorePos = SCORE_POS.MID;
   private StartPosition startPos = StartPosition.RIGHT;
   private Alliance alliance = Alliance.Invalid;
+  private String currentAutoStr = "None";
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-
-    //if (IsSwerveDrive) {
-      try {
-        swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
-        vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
-      } catch (IllegalArgumentException e) {
-        DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
-      }
-
-      // Initialize vision after swerve has been initialized
+    try {
+      swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
       vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+    } catch (IllegalArgumentException e) {
+      DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
+    }
 
-      // this.alliance = DriverStation.getAlliance();
-      initAutoChoosers();
-      
-      SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
+    // Initialize vision after swerve has been initialized
+    vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
 
-    // } else {
-    //   tankDrive = new TankDrivetrain();
-
-    // }
+    // this.alliance = DriverStation.getAlliance();
+    initAutoChoosers();
+    
+    SmartDashboard.putData("Encoder reset", Commands.runOnce(swerveDrive::resetEncoders, swerveDrive));
 
     // elevator.resetEncoderStow();
     // Configure the trigger bindings
@@ -168,53 +162,42 @@ public class RobotContainer {
     // coneRunner.resetEncoders();
     // arm.setDefaultCommand(arm.moveArmJoystickCommand(operatorController::getLeftY));
 
-    //if (IsSwerveDrive) {
-      swerveDrive.setDefaultCommand(
-        new SwerveJoystickCommand(
-          swerveDrive,
-          // Translation Y
-          // () -> -joystick.getY(),
-          () -> -driverController.getLeftY(),
+    swerveDrive.setDefaultCommand(
+      new SwerveJoystickCommand(
+        swerveDrive,
+        // Translation Y
+        // () -> -joystick.getY(),
+        () -> -driverController.getLeftY(),
 
-          // Translation X
-          driverController::getLeftX,
-          // joystick::getX,
+        // Translation X
+        driverController::getLeftX,
+        // joystick::getX,
 
-          // Rotation
-          // joystick::getTwist,
-          // () -> 0.0,
-          driverController::getRightX,
-          // () -> true,
+        // Rotation
+        // joystick::getTwist,
+        // () -> 0.0,
+        driverController::getRightX,
+        // () -> true,
 
-          // Field oriented
-          badPS5::getSquareButton,
-          badPS5::getL2Button,
-          // driverControllerButtons::getTriangleButton,
-          // Dodge
-          badPS5::getR3Button,
-          // Dodging
-          () -> {
-            // if (badPS4.getL2Button()) {
-            //   return DodgeDirection.LEFT;
-            // } 
-            // if (badPS4.getR2Button()) {
-            //   return DodgeDirection.RIGHT;
-            // }
-            return DodgeDirection.NONE;
-          },
-          // Precision/"Sniper Button"
-          badPS5::getR2Button
-        ));
-    // } else {
-    //   tankDrive.setDefaultCommand(
-    //     new RunCommand(
-    //       () -> tankDrive.drive(
-    //         -driverController.getLeftY(), 
-    //         -driverController.getRightY()
-    //       ), tankDrive));
-    // }
-
-
+        // Field oriented
+        badPS5::getSquareButton,
+        badPS5::getL2Button,
+        // driverControllerButtons::getTriangleButton,
+        // Dodge
+        badPS5::getR3Button,
+        // Dodging
+        () -> {
+          // if (badPS4.getL2Button()) {
+          //   return DodgeDirection.LEFT;
+          // } 
+          // if (badPS4.getR2Button()) {
+          //   return DodgeDirection.RIGHT;
+          // }
+          return DodgeDirection.NONE;
+        },
+        // Precision/"Sniper Button"
+        badPS5::getR2Button
+      ));
   }
 
   private void configureBindings() {
@@ -330,8 +313,8 @@ public class RobotContainer {
     autoChooser.addOption("Preload Pickup Backward Auto", () -> SwerveAutos.twoPieceBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     autoChooser.setDefaultOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
     autoChooser.addOption("Test Auto",  () -> Commands.runOnce(() -> SmartDashboard.putBoolean("Dummy Auto", true)));
-    // autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
     autosTab.add("Selected Auto", autoChooser);
+    autosTab.addString("Current Auto", () -> currentAutoStr);
     
     positionChooser.setDefaultOption("Right", StartPosition.RIGHT);
     positionChooser.addOption("Left", StartPosition.LEFT);
@@ -340,19 +323,18 @@ public class RobotContainer {
     autosTab.add("Start Position", positionChooser);
     autosTab.addString("Selected Start Position", () -> startPos.toString());
 
-    // TODO: Implement changing score position in the autos
     scoreChooser.setDefaultOption("Mid", SCORE_POS.MID);
     scoreChooser.addOption("Hybrid", SCORE_POS.LOW);
     scoreChooser.addOption("Mid", SCORE_POS.MID);
     scoreChooser.addOption("High", SCORE_POS.HIGH);
     autosTab.add("Score Position", scoreChooser);
+    autosTab.addString("Selected Score Position", () -> scorePos.toString());
 
     allianceChooser.setDefaultOption("Red", Alliance.Red);
     allianceChooser.addOption("Red", Alliance.Red);
     allianceChooser.addOption("Blue", Alliance.Blue);
     autosTab.add("Alliance", allianceChooser);
-
-    autosTab.addString("Selected Score Position", () -> scorePos.toString());
+    autosTab.addString("Selected Alliance", () -> alliance.toString());
   }
   
   public void initShuffleboard() {
@@ -362,12 +344,8 @@ public class RobotContainer {
     elevator.initShuffleboard(loggingLevel);
     motorClaw.initShuffleboard(loggingLevel);
     // coneRunner.initShuffleboard(loggingLevel);
-    //if (IsSwerveDrive) {
-      swerveDrive.initShuffleboard(loggingLevel);
-      swerveDrive.initModuleShuffleboard(loggingLevel);
-    // } else {
-    //   tankDrive.initShuffleboard(loggingLevel);
-    // }
+    swerveDrive.initShuffleboard(loggingLevel);
+    swerveDrive.initModuleShuffleboard(loggingLevel);
     // airCompressor.initShuffleboard(loggingLevel);
 
     vision.initShuffleboard(loggingLevel);
@@ -384,12 +362,8 @@ public class RobotContainer {
     elevator.reportToSmartDashboard(loggingLevel);
     vision.reportToSmartDashboard(loggingLevel);
     // coneRunner.reportToSmartDashboard(loggingLevel);
-    // if (IsSwerveDrive) {
-      swerveDrive.reportToSmartDashboard(loggingLevel);
-      swerveDrive.reportModulesToSmartDashboard(loggingLevel);
-    // } else {
-    //   tankDrive.reportToSmartDashboard(loggingLevel);
-    // }
+    swerveDrive.reportToSmartDashboard(loggingLevel);
+    swerveDrive.reportModulesToSmartDashboard(loggingLevel);
     // airCompressor.reportToSmartDashboard(loggingLevel);
   }
   
@@ -403,32 +377,13 @@ public class RobotContainer {
     scorePos = scoreChooser.getSelected();
     alliance = allianceChooser.getSelected();
     Command currentAuto = autoChooser.getSelected().get();
-    // Command currentAuto = SwerveAutos.backupChargeAuto(swerveDrive);
-    // String autoName = currentAuto.getName();
-    if (currentAuto != null) {
-      // Shuffleboard.getTab("Autos").addString("Current Auto", () -> autoName);
-    }
+    currentAutoStr = currentAuto.getName();
     return currentAuto;
-    // if (IsSwerveDrive)
-    //   return SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, claw, StartPosition.Right);
-    // else
-    //   return TankAutos.HardCarryAuto(tankDrive, claw, arm);
   }
 
   public void autonomousInit() {
-    // if (!IsSwerveDrive) { // TODO: Move resets to robot init? 
-    //   tankDrive.resetEncoders();
-    //   // drive.setEncoder(drive.meterToTicks(0.381));
     imu.zeroHeading();
-    
-
-    // }
-    
     arm.resetEncoderStow();
     elevator.resetEncoder();
-
-    // if (IsSwerveDrive) {
-    //   swerveDrive.resetEncoders();
-    // }
   }
 }
