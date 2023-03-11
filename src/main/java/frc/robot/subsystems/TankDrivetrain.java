@@ -253,68 +253,85 @@ public class TankDrivetrain extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Right Follower Current Input", rightFollower.getSupplyCurrent());
     }
 
-    public void reportToSmartDashboard() {
-        reportCurrent();
+    public void reportToSmartDashboard(LOG_LEVEL level) {
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                reportCurrent();
+            case MEDIUM:
+            case MINIMAL:
+                break;
+        }
     }
-    
-    public void initShuffleboard() {  
+
+    public void initShuffleboard(LOG_LEVEL level) {  
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-        ShuffleboardLayout power =
-            tab.getLayout("Power", BuiltInLayouts.kGrid)
-                .withSize(2, 2)
-                .withProperties(new HashMap<String, Object>() {{
-                    put("Number of columns", 2);
-                    put("Number of rows", 1);
-                    }});
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                ShuffleboardLayout power =
+                    tab.getLayout("Power", BuiltInLayouts.kGrid)
+                        .withSize(2, 2)
+                        .withProperties(new HashMap<String, Object>() {{
+                            put("Number of columns", 2);
+                            put("Number of rows", 1);
+                            }});
+                
+                HashMap<String, Object> powerProperties = new HashMap<String, Object>() {{
+                    put("Min" , 0);
+                    put("Max", 1);
+                }};
+                    
+                power.addNumber("Left Master Velocity", () -> leftMaster.getSelectedSensorVelocity())
+                    .withWidget(BuiltInWidgets.kNumberBar)
+                    .withProperties(powerProperties);
+                
+                power.addNumber("Left Follower Velocity", () -> leftFollower.getSelectedSensorVelocity())
+                    .withWidget(BuiltInWidgets.kNumberBar)
+                    .withProperties(powerProperties);        
         
-        HashMap<String, Object> powerProperties = new HashMap<String, Object>() {{
-            put("Min" , 0);
-            put("Max", 1);
-        }};
-            
-        power.addNumber("Left Master Velocity", () -> leftMaster.getSelectedSensorVelocity())
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withProperties(powerProperties);
+                power.addNumber("Right Master Velocity", () -> rightMaster.getSelectedSensorPosition())
+                    .withWidget(BuiltInWidgets.kNumberBar)
+                    .withProperties(powerProperties);
         
-        power.addNumber("Left Follower Velocity", () -> leftFollower.getSelectedSensorVelocity())
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withProperties(powerProperties);        
+                power.addNumber("Right Follower Velocity", () -> rightFollower.getSelectedSensorPosition())
+                    .withWidget(BuiltInWidgets.kNumberBar)
+                    .withProperties(powerProperties);
+                
+                // ========== CURRENT LAYOUT ========== //
+        
+                ShuffleboardLayout current = 
+                    tab.getLayout("Current", BuiltInLayouts.kGrid)
+                        .withSize(3, 3)
+                        .withProperties(new HashMap<String, Object>() {{
+                            put("Number of columns", 2);
+                            put("Number of rows", 2);
+                            }});
+                
+                HashMap<String, Object> falconCurrent = new HashMap<String, Object>() {{
+                    put("Min" , 0);
+                    put("Max", DriveConstants.kFalconMaxCurrent);
+                }};
+                current.addNumber("Left Master Current", leftMaster::getStatorCurrent)
+                    .withWidget(BuiltInWidgets.kNumberBar)
+                    .withProperties(falconCurrent);
+                current.addNumber("Left Follower Current", leftFollower::getStatorCurrent)
+                    .withWidget(BuiltInWidgets.kNumberBar)
+                    .withProperties(falconCurrent);
+                current.addNumber("Right Master Current", rightMaster::getStatorCurrent)
+                    .withWidget(BuiltInWidgets.kNumberBar)
+                    .withProperties(falconCurrent);
+                current.addNumber("Right Follower Current", rightFollower::getStatorCurrent)
+                    .withWidget(BuiltInWidgets.kNumberBar)
+                    .withProperties(falconCurrent);
+            case MEDIUM:
+            case MINIMAL:
+                break;
+        }
 
-        power.addNumber("Right Master Velocity", () -> rightMaster.getSelectedSensorPosition())
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withProperties(powerProperties);
-
-        power.addNumber("Right Follower Velocity", () -> rightFollower.getSelectedSensorPosition())
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withProperties(powerProperties);
-        
-        // ========== CURRENT LAYOUT ========== //
-
-        ShuffleboardLayout current = 
-            tab.getLayout("Current", BuiltInLayouts.kGrid)
-                .withSize(3, 3)
-                .withProperties(new HashMap<String, Object>() {{
-                    put("Number of columns", 2);
-                    put("Number of rows", 2);
-                    }});
-        
-        HashMap<String, Object> falconCurrent = new HashMap<String, Object>() {{
-            put("Min" , 0);
-            put("Max", DriveConstants.kFalconMaxCurrent);
-        }};
-        current.addNumber("Left Master Current", leftMaster::getStatorCurrent)
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withProperties(falconCurrent);
-        current.addNumber("Left Follower Current", leftFollower::getStatorCurrent)
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withProperties(falconCurrent);
-        current.addNumber("Right Master Current", rightMaster::getStatorCurrent)
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withProperties(falconCurrent);
-        current.addNumber("Right Follower Current", rightFollower::getStatorCurrent)
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withProperties(falconCurrent);
     }
     
     

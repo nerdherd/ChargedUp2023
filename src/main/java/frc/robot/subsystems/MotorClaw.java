@@ -87,14 +87,31 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     // This method will be called once per scheduler run
   }
 
-  public void reportToSmartDashboard() {
-    SmartDashboard.putNumber("Motor Claw Velocity", topMotor.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("Motor Claw Current", topMotor.getStatorCurrent());
+  public void reportToSmartDashboard(LOG_LEVEL level) {
+    switch (level) {
+      case OFF:
+          break;
+      case ALL:
+      case MEDIUM:
+        SmartDashboard.putNumber("Motor Claw Velocity", topMotor.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Motor Claw Current", topMotor.getStatorCurrent());
+      case MINIMAL:
+          break;
+    }
   }
 
-  public void initShuffleboard() {
+  public void initShuffleboard(LOG_LEVEL level) {
     ShuffleboardTab tab = Shuffleboard.getTab("Motor Claw");
-    tab.addNumber("Velocity", topMotor::getSelectedSensorVelocity);
-    tab.addNumber("Current", topMotor::getStatorCurrent);
+    
+    switch (level) {
+      case OFF:
+          break;
+      case ALL:
+      case MEDIUM:
+        tab.addNumber("Velocity", topMotor::getSelectedSensorVelocity);
+        tab.addNumber("Current", topMotor::getStatorCurrent);
+      case MINIMAL:
+          break;
+    }
   }
 }

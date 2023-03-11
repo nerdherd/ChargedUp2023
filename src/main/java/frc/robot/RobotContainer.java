@@ -13,6 +13,7 @@ import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.MotorClaw;
+import frc.robot.subsystems.Reportable.LOG_LEVEL;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -77,6 +78,8 @@ public class RobotContainer {
       ControllerConstants.kOperatorControllerPort);
   private final BadPS4 badPS4 = operatorController.getHID();
   // private final Joystick joystick = new Joystick(2);
+
+  private final LOG_LEVEL loggingLevel = LOG_LEVEL.MINIMAL;
 
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);
@@ -352,39 +355,41 @@ public class RobotContainer {
   }
   
   public void initShuffleboard() {
-    imu.initShuffleboard();
-    // claw.initShuffleboard();
-    arm.initShuffleboard();
-    elevator.initShuffleboard();
-    // coneRunner.initShuffleboard();
+    imu.initShuffleboard(loggingLevel);
+    // claw.initShuffleboard(loggingLevel);
+    arm.initShuffleboard(loggingLevel);
+    elevator.initShuffleboard(loggingLevel);
+    motorClaw.initShuffleboard(loggingLevel);
+    // coneRunner.initShuffleboard(loggingLevel);
     //if (IsSwerveDrive) {
-      // swerveDrive.initShuffleboard();
-      // swerveDrive.initModuleShuffleboard();
+      swerveDrive.initShuffleboard(loggingLevel);
+      swerveDrive.initModuleShuffleboard(loggingLevel);
     // } else {
-    //   tankDrive.initShuffleboard();
+    //   tankDrive.initShuffleboard(loggingLevel);
     // }
-    // airCompressor.initShuffleboard();
+    // airCompressor.initShuffleboard(loggingLevel);
 
-    vision.initShuffleboard();
+    vision.initShuffleboard(loggingLevel);
   }
 
   public void reportAllToSmartDashboard() {
     SmartDashboard.putNumber("Elevator FF", Math.sin(arm.getArmAngle()) * ElevatorConstants.kArbitraryFF);
     SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
     // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
-    imu.reportToSmartDashboard();
-    // claw.reportToSmartDashboard();
-    arm.reportToSmartDashboard();
-    elevator.reportToSmartDashboard();
-    vision.reportToSmartDashboard();
-    // coneRunner.reportToSmartDashboard();
+    imu.reportToSmartDashboard(loggingLevel);
+    // claw.reportToSmartDashboard(loggingLevel);
+    motorClaw.reportToSmartDashboard(loggingLevel);
+    arm.reportToSmartDashboard(loggingLevel);
+    elevator.reportToSmartDashboard(loggingLevel);
+    vision.reportToSmartDashboard(loggingLevel);
+    // coneRunner.reportToSmartDashboard(loggingLevel);
     // if (IsSwerveDrive) {
-      // swerveDrive.reportToSmartDashboard();
-      // swerveDrive.reportModulesToSmartDashboard();
+      swerveDrive.reportToSmartDashboard(loggingLevel);
+      swerveDrive.reportModulesToSmartDashboard(loggingLevel);
     // } else {
-    //   tankDrive.reportToSmartDashboard();
+    //   tankDrive.reportToSmartDashboard(loggingLevel);
     // }
-    // airCompressor.reportToSmartDashboard();
+    // airCompressor.reportToSmartDashboard(loggingLevel);
   }
   
   /**
