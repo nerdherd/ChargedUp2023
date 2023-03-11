@@ -194,28 +194,55 @@ public class Elevator extends SubsystemBase implements Reportable{
     // This method will be called once per scheduler run
   }
 
-  public void reportToSmartDashboard() {
-    // SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
-    // SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
-    SmartDashboard.putNumber("Elevator Current Ticks", elevator.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Elevator Target Ticks", targetTicks);
-    // SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
-    // SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
-    // SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
-    // SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
-    // SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
+  public void reportToSmartDashboard(LOG_LEVEL level) {
+    switch (level) {
+      case OFF:
+        break;
+      case ALL:
+        SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
+        SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
+        SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
+        SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
+      case MEDIUM:
+        SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
+      case MINIMAL:
+        SmartDashboard.putNumber("Elevator Current Ticks", elevator.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Elevator Target Ticks", targetTicks);
+        break;
+    }
   }
 
-  public void initShuffleboard() {
-    ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
+  public void initShuffleboard(LOG_LEVEL level) {
+    if (level == LOG_LEVEL.OFF)  {
+      return;
+    }
+    ShuffleboardTab tab;
+    if (level == LOG_LEVEL.MINIMAL) {
+      tab = Shuffleboard.getTab("Main");
+    } else {
+      tab = Shuffleboard.getTab("Elevator");
+    }
 
-    // tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
-    // tab.addNumber("Current", () -> elevator.getStatorCurrent());
-    tab.addNumber("Current Ticks", () -> elevator.getSelectedSensorPosition());
-    tab.addNumber("Target Ticks", () -> targetTicks);
-    // tab.addNumber("Current Velocity", () -> elevator.getSelectedSensorVelocity());
-    // tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
-    // tab.addNumber("Percent Extended", () -> percentExtended());
-    // tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
+    switch (level) {
+      case OFF:
+        break;
+      case ALL:
+        tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
+        tab.addNumber("Current", () -> elevator.getStatorCurrent());
+        tab.addNumber("Velocity", () -> elevator.getSelectedSensorVelocity());
+        tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
+        tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
+      case MEDIUM:
+        tab.addNumber("Percent Extended", () -> percentExtended());
+      case MINIMAL:
+        tab.addNumber("Current Elevator Ticks", () -> elevator.getSelectedSensorPosition());
+        tab.addNumber("Target Elevator Ticks", () -> targetTicks);
+        break;
+    }
+
+    
+    
+    
   }
 }
