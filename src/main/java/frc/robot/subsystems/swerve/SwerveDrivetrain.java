@@ -283,9 +283,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     public void initModuleShuffleboard(LOG_LEVEL level) {
         frontRight.initShuffleboard(level);
-        backRight.initShuffleboard(level);
         frontLeft.initShuffleboard(level);
         backLeft.initShuffleboard(level);
+        backRight.initShuffleboard(level);
     }
 
     /**
@@ -306,8 +306,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     public void reportModulesToSmartDashboard(LOG_LEVEL level) {
         frontRight.reportToSmartDashboard(level);
-        backRight.reportToSmartDashboard(level);
         frontLeft.reportToSmartDashboard(level);
         backLeft.reportToSmartDashboard(level);
+        backRight.reportToSmartDashboard(level);
     }
 }
