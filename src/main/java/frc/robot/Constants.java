@@ -92,7 +92,7 @@ public final class Constants {
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
     public static final int kArmStow = -622485;//-630435;//144278;
-    public static final int kArmScore = -432700;//-408850;//596443; // 89744;
+    public static final int kArmScore = -377161; //-432700;//-408850;//596443; // 89744;
     public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
     public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
     public static final int kArmGroundPickup = -238900;//-215050;//-242170;//767054;// 34352;
@@ -123,7 +123,7 @@ public final class Constants {
     public static final int kElevatorID = 18;
     public static final int kElevatorStow = 0;
     public static final int kElevatorScoreMidCube = -85285;//-143634;
-    public static final int kElevatorScoreMid = -143634;
+    public static final int kElevatorScoreMid = -98123; //-143634;
     public static final int kElevatorScoreHighCube = -198657;//-240000;
     public static final int kElevatorScoreHigh = -240000;
     public static final int kElevatorSubstation = -69400;//-68100;//-116680; // Height for substation i think
@@ -156,7 +156,7 @@ public final class Constants {
 
   public static final class ModuleConstants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
-    public static final double kDriveMotorGearRatio = 1 / 8.14;
+    public static final double kDriveMotorGearRatio = 1 / 6.75;
     public static final double kTurningMotorGearRatio = 1 / 21.428; // 150 : 7 : 1 MK4i
     public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI;
     public static final double kDriveTicksToMeters = (1 / 2048.0) * kMetersPerRevolution; 

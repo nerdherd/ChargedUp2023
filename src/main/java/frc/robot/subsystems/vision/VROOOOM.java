@@ -216,7 +216,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             rotationIsNeeded = false;
 
             if (currentGameObject == OBJECT_TYPE.CONE) {
-                goalArea = 21; // Goal area for cone ground pickup, area is an estimate because a different camera position was used, updated 2/23/2023
+                goalArea = 3.8; // Goal area for cone ground pickup, area is an estimate because a different camera position was used, updated 2/23/2023
                 currentLimelight.setPipeline(1);
                 PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
                 PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
@@ -247,43 +247,43 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     
             return Commands.race(
                 // Constantly run elevator and arm motion magic
-                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+                // run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                // run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
 
                 Commands.sequence(
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
                     Commands.runOnce(() -> initVisionPickupOnGround(objType)),
     
                     // Arm and elevator to selected position
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        )
-                    ),
+                    // Commands.race(
+                    //     Commands.waitSeconds(5),
+                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
+                    //         Commands.waitUntil(arm.atTargetPosition),
+                    //         Commands.waitUntil(elevator.atTargetPosition),
+                    //         Commands.runOnce(() -> arm.setTargetTicks(-234000)),
+                    //         Commands.runOnce(() -> elevator.setTargetTicks(-116897))
+                    //     )
+                    // ),
                     
                     new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(5), // Timeout after 30 seconds
     
                     // Open claw/Start claw intake rollers
-                    claw.setPower(-0.3),
-                    new WaitCommand(2),
+                    // claw.setPower(-0.3),
+                    // new WaitCommand(2),
     
-                    // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-                    claw.setPower(-0.15),
+                    // // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+                    // claw.setPower(-0.15),
     
                     // Stow arm/elev
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        )
-                    ),
+                    // Commands.race(
+                    //     Commands.waitSeconds(5),
+                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
+                    //         Commands.waitUntil(arm.atTargetPosition),
+                    //         Commands.waitUntil(elevator.atTargetPosition),
+                    //         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                    //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    //     )
+                    // ),
                     
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
                 )
@@ -437,9 +437,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             case CUBE:
                 currentLimelight = limelightLow;
                 currentLimelight.setPipeline(4); // April tag pipeline
-                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
-                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
+                PIDArea = new PIDController(0.2, SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+                PIDTX = new PIDController(0.1, SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+                PIDYaw = new PIDController(0, SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
                 goalArea = 2; // April tag target area, unsure if correct, updated 2/23/2023
 
                 switch(currentHeightPos) {
@@ -572,6 +572,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             currentCameraMode = CAMERA_MODE.WAIT;
         }
         else {
+            pidArea.setP(0.4);
+            pidArea.setD(0.01);
+            pidTX.setP(0.04);
+            pidTX.setD(0.01);
             double calculatedX = getAvgArea(currentLimelight.getArea_avg());
             double calculatedY = getAvgTX(currentLimelight.getXAngle_avg());
             SmartDashboard.putNumber("Vision average X", calculatedX);

@@ -27,10 +27,10 @@ public class Arm extends SubsystemBase implements Reportable {
     private TalonFX rotatingArm;
     private int targetTicks = ArmConstants.kArmStow;
     public BooleanSupplier atTargetPosition;
-    private DigitalInput limitSwitch;
+    // private DigitalInput limitSwitch;
 
     public Arm() {
-        limitSwitch = new DigitalInput(ArmConstants.kLimitSwitchID);
+        // limitSwitch = new DigitalInput(ArmConstants.kLimitSwitchID);
         
         // gear ratio 27:1
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
@@ -63,12 +63,12 @@ public class Arm extends SubsystemBase implements Reportable {
             // rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) { // Up
-            if (limitSwitch.get()) {
-                rotatingArm.set(ControlMode.PercentOutput, 0);
-                resetEncoderStow();
-            } else {
+            // if (limitSwitch.get()) {
+            //     rotatingArm.set(ControlMode.PercentOutput, 0);
+            //     resetEncoderStow();
+            // } else {
                 rotatingArm.set(ControlMode.PercentOutput, -0.1);
-            }
+            // }
             // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
@@ -108,9 +108,9 @@ public class Arm extends SubsystemBase implements Reportable {
         // config tuning params in slot 0
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
         
-        if (limitSwitch.get()) {
-            rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
-        }
+        // if (limitSwitch.get()) {
+            // rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        // }
         
         rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
         targetTicks = position;
@@ -138,9 +138,9 @@ public class Arm extends SubsystemBase implements Reportable {
         // config tuning params in slot 0
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
         
-        if (limitSwitch.get()) {
-            rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
-        }
+        // if (limitSwitch.get()) {
+        //     rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        // }
 
         if (targetTicks <= ArmConstants.kArmStow) {
             targetTicks = ArmConstants.kArmStow;
