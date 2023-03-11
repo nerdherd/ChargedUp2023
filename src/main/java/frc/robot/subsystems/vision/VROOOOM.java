@@ -102,7 +102,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         try {
             limelightLow = new Limelight("limelight-low");
-            limelightLow.setLightState(Limelight.LightMode.OFF);
+            limelightLow.setLightState(Limelight.LightMode.ON);
         } catch (Exception ex) {
             limelightLow = null;
             DriverStation.reportWarning("Error instantiating low camera:  " + ex.getMessage(), true);
@@ -255,17 +255,17 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     Commands.runOnce(() -> initVisionPickupOnGround(objType)),
     
                     // Arm and elevator to selected position
-                    // Commands.race(
-                    //     Commands.waitSeconds(5),
-                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
-                    //         Commands.waitUntil(arm.atTargetPosition),
-                    //         Commands.waitUntil(elevator.atTargetPosition),
-                    //         Commands.runOnce(() -> arm.setTargetTicks(-258000)),
-                    //         Commands.runOnce(() -> elevator.setTargetTicks(-116897))
-                    //     )
-                    // ),
+                    Commands.deadline(
+                        Commands.waitSeconds(5),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(-328500)),
+                            Commands.runOnce(() -> elevator.setTargetTicks(-15000))
+                        ),
+                        new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(5) // Timeout after 30 seconds
+                    ),
                     
-                    new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(5), // Timeout after 30 seconds
     
                     // AGAIN
                     Commands.race(
@@ -280,7 +280,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
                     // Open claw/Start claw intake rollers
                     claw.setPower(-0.3),
-                    new WaitCommand(2),
+                    new WaitCommand(.5),
     
                     // // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
                     claw.setPower(-0.15),
@@ -424,7 +424,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
                 PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
                 PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
-                goalArea = 0.15; // Unsure if correct, updated 2/23/2023
+                goalArea = 0.5; // Unsure if correct, updated 2/23/2023
 
                 switch(currentHeightPos) {
                     case HIGH:
@@ -500,47 +500,15 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // }
             return Commands.race(
                 // Constantly run elevator and arm motion magic
-                // run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                // run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+                Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                Commands.run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
                 
                 Commands.sequence(
-                    // Commands.parallel(
-                    //     Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
-                    //     Commands.runOnce(() -> initVisionScore(objType, pos))
-                    // ),
+                    Commands.parallel(
+                        Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
+                        Commands.runOnce(() -> initVisionScore(objType, pos))
+                    ),
                     
-                    // // Stow arm
-                    // Commands.race(
-                    //     Commands.waitSeconds(5),
-                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
-                    //         Commands.waitUntil(arm.atTargetPosition),
-                    //         Commands.waitUntil(elevator.atTargetPosition),
-                    //         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                    //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                    //     )
-                    // ),
-                    
-                    new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(5),
-    
-                    // Arm and elevator to selected position
-                    // Commands.race(
-                    //     Commands.waitSeconds(5),
-                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
-                    //         Commands.waitUntil(arm.atTargetPosition),
-                    //         Commands.waitUntil(elevator.atTargetPosition),
-                    //         Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks)),
-                    //         Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
-                    //     )
-                    // ),
-                    
-                    // Open claw/eject piece with rollers
-                    // claw.setPower(1),
-                    // // Wait 1 second
-                    // Commands.waitSeconds(1),
-    
-                    // // Close claw/stop rollers
-                    // claw.setPower(0),
-    
                     // Stow arm
                     // Commands.race(
                     //     Commands.waitSeconds(5),
@@ -551,7 +519,46 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
                     //     )
                     // ),
-                    new TurnToAngle(0, drivetrain), // Turn back towards field after scoring
+                    
+                    new TurnToAngle(180, drivetrain),
+                    new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(2),
+                    // Arm and elevator to selected position
+                    Commands.race(
+                        Commands.waitSeconds(5),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks))
+                        )
+                    ),
+
+                    Commands.race(
+                        Commands.waitSeconds(5),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
+                        )
+                    ),
+                    
+                    Commands.waitSeconds(1),
+                    // // Open claw/eject piece with rollers
+                    claw.setPower(1),
+                    // // Wait 1 second
+                    Commands.waitSeconds(.5),
+    
+                    // // // Close claw/stop rollers
+                    claw.setPower(0),
+    
+                    // // Stow arm
+                    Commands.race(
+                        Commands.waitSeconds(5),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                        )
+                    ),
+                    // new TurnToAngle(0, drivetrain), // Turn back towards field after scoring
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
                 )
             );
@@ -583,10 +590,19 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             currentCameraMode = CAMERA_MODE.WAIT;
         }
         else {
-            pidArea.setP(0.4);
-            pidArea.setD(0.01);
-            pidTX.setP(0.04);
-            pidTX.setD(0.01);
+
+            // Score cone
+            pidArea.setP(2);
+            pidArea.setD(0);
+            pidTX.setP(0.08);
+            pidTX.setD(0.02);
+
+            // Cone ground
+            // pidArea.setP(0.4);
+            // pidArea.setD(0.01);
+            // pidTX.setP(0.04);
+            // pidTX.setD(0.01);
+
             double calculatedX = getAvgArea(currentLimelight.getArea_avg());
             double calculatedY = getAvgTX(currentLimelight.getXAngle_avg());
             SmartDashboard.putNumber("Vision average X", calculatedX);
