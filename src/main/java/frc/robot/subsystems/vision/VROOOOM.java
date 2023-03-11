@@ -247,8 +247,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     
             return Commands.race(
                 // Constantly run elevator and arm motion magic
-                // run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                // run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+                Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                Commands.run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
 
                 Commands.sequence(
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
@@ -260,30 +260,41 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     //     Commands.parallel( // End command once both arm and elevator have reached their target position
                     //         Commands.waitUntil(arm.atTargetPosition),
                     //         Commands.waitUntil(elevator.atTargetPosition),
-                    //         Commands.runOnce(() -> arm.setTargetTicks(-234000)),
+                    //         Commands.runOnce(() -> arm.setTargetTicks(-258000)),
                     //         Commands.runOnce(() -> elevator.setTargetTicks(-116897))
                     //     )
                     // ),
                     
                     new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(5), // Timeout after 30 seconds
     
+                    // AGAIN
+                    Commands.race(
+                        Commands.waitSeconds(5),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(-196000)),
+                            Commands.runOnce(() -> elevator.setTargetTicks(-116897))
+                        )
+                    ),
+
                     // Open claw/Start claw intake rollers
-                    // claw.setPower(-0.3),
-                    // new WaitCommand(2),
+                    claw.setPower(-0.3),
+                    new WaitCommand(2),
     
                     // // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-                    // claw.setPower(-0.15),
+                    claw.setPower(-0.15),
     
                     // Stow arm/elev
-                    // Commands.race(
-                    //     Commands.waitSeconds(5),
-                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
-                    //         Commands.waitUntil(arm.atTargetPosition),
-                    //         Commands.waitUntil(elevator.atTargetPosition),
-                    //         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                    //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                    //     )
-                    // ),
+                    Commands.race(
+                        Commands.waitSeconds(5),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                        )
+                    ),
                     
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
                 )
