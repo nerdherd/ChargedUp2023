@@ -228,33 +228,53 @@ public class CANSwerveModule implements SwerveModule {
         turnMotor.set(ControlMode.PercentOutput, turnPower);
     }
 
-    public void initShuffleboard() {
-        int moduleId = (driveMotorID - (driveMotorID % 10));
+    public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL)  {
+            return;
+        }
+        int moduleId = (driveMotorID / 10);
         ShuffleboardTab tab = Shuffleboard.getTab("Module " + moduleId);
 
-        tab.addNumber("Module velocity", () -> driveMotor.getSelectedSensorVelocity());
-        tab.addNumber("Drive percent", () -> currentPercent);
-        tab.addNumber("Turn angle", () -> currentAngle);
-        tab.addNumber("Desired Angle", () -> desiredAngle);
-        tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
-        tab.addNumber("Drive Motor Current", driveMotor::getStatorCurrent);
-        tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
-        tab.addNumber("Drive Motor Voltage", driveMotor::getMotorOutputVoltage);
-        tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                tab.addNumber("Drive Motor Current", driveMotor::getStatorCurrent);
+                tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
+                tab.addNumber("Drive Motor Voltage", driveMotor::getMotorOutputVoltage);
+                tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
+            case MEDIUM:
+                tab.addNumber("Module velocity", () -> driveMotor.getSelectedSensorVelocity());
+                tab.addNumber("Drive percent", () -> currentPercent);
+                tab.addNumber("Turn angle", () -> currentAngle);
+                tab.addNumber("Desired Angle", () -> desiredAngle);
+                tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
+            case MINIMAL:
+                break;
+        }
+
     }
 
-    public void reportToSmartDashboard() {
+    public void reportToSmartDashboard(LOG_LEVEL level) {
         currentAngle = Math.toDegrees(getTurningPosition());
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Current", driveMotor.getStatorCurrent());
+                SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Current", turnMotor.getStatorCurrent());
+                SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Voltage", driveMotor.getMotorOutputVoltage());
+                SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Voltage", turnMotor.getMotorOutputVoltage());
+            case MEDIUM:
+                SmartDashboard.putNumber("Module velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
+                SmartDashboard.putNumber("Drive percent #" + driveMotorID, currentPercent);
+                SmartDashboard.putNumber("Turn angle #" + turnMotorID, currentAngle);
+                SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, desiredAngle);
+                SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, desiredAngle - currentAngle);
+            case MINIMAL:
+                break;
+        }
 
-        SmartDashboard.putNumber("Module velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
-        SmartDashboard.putNumber("Drive percent #" + driveMotorID, currentPercent);
-        SmartDashboard.putNumber("Turn angle #" + turnMotorID, currentAngle);
-        SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, desiredAngle);
-        SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, desiredAngle - currentAngle);
-        SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Current", driveMotor.getStatorCurrent());
-        SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Current", turnMotor.getStatorCurrent());
-        SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Voltage", driveMotor.getMotorOutputVoltage());
-        SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Voltage", turnMotor.getMotorOutputVoltage());
     }
 
     /**

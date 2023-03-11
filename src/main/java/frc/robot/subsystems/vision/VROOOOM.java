@@ -647,34 +647,71 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     // Smartdashboard
 
     @Override
-    public void reportToSmartDashboard() {
-        if( currentGameObject != null)
-        SmartDashboard.putString("Vision Current Object", currentGameObject.toString());
-        if(currentHeightPos != null)
-        SmartDashboard.putString("Vision Current Height", currentHeightPos.toString());
-        if(currentLimelight != null) {
-            SmartDashboard.putString("Vision Current Limelight", currentLimelight.getName());
-            SmartDashboard.putNumber("Vision Current Pipeline", currentLimelight.getPipeIndex());
-        }
-        else {
-            SmartDashboard.putString("Vision Current Limelight", "L + ratio");
+    public void reportToSmartDashboard(LOG_LEVEL level) {
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+            case MEDIUM:
+                if( currentGameObject != null)
+                SmartDashboard.putString("Vision Current Object", currentGameObject.toString());
+                if(currentHeightPos != null)
+                SmartDashboard.putString("Vision Current Height", currentHeightPos.toString());
+                if(currentLimelight != null) {
+                    SmartDashboard.putString("Vision Current Limelight", currentLimelight.getName());
+                    SmartDashboard.putNumber("Vision Current Pipeline", currentLimelight.getPipeIndex());
+                }
+                else {
+                    SmartDashboard.putString("Vision Current Limelight", "L + ratio");
+                }
+            case MINIMAL:
+                break;
         }
     }
 
     @Override
-    public void initShuffleboard() {
-        ShuffleboardTab tab = Shuffleboard.getTab(this.getName());
-        if( currentGameObject != null)
-        tab.addString("Vision Current Object", () -> currentGameObject.toString());
-        if(currentHeightPos != null)
-        tab.addString("Vision Current Height", () -> currentHeightPos.toString());
-        if(currentLimelight != null) {
-            tab.addBoolean("has target", currentLimelight::hasValidTarget);
-            tab.addString("Vision Current Limelight", () -> currentLimelight.getName());
-            tab.addNumber("Vision Pipeline", () -> currentLimelight.getPipeIndex());
+    public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL)  {
+            return;
         }
-        else {
-            tab.addString("Vision Current Limelight", () -> "L + ratio");
+        ShuffleboardTab tab = Shuffleboard.getTab(this.getName());
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+            case MEDIUM:
+                tab.addString("Vision Current Object", () -> {
+                    if (currentGameObject != null) {
+                        return currentGameObject.toString();
+                    }
+                    return "";
+                });
+                tab.addString("Vision Current Height", () -> {
+                    if(currentHeightPos != null) {
+                        return currentHeightPos.toString();
+                    } 
+                    return "";
+                });
+                tab.addBoolean("has target", () -> {
+                    if(currentLimelight != null)  {
+                        return currentLimelight.hasValidTarget();
+                    }
+                    return false;
+                });
+                tab.addNumber("Pipeline", () -> {
+                    if(currentLimelight != null)  {
+                        return currentLimelight.getPipeIndex();
+                    }
+                    return -1;
+                });
+                tab.addString("Current Limelight", () -> {
+                    if(currentLimelight != null)  {
+                        return currentLimelight.getName();
+                    }
+                    return "L + ratio";
+                });
+            case MINIMAL:
+                break;
         }
     }
 }
