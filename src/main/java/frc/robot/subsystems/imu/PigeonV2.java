@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class PigeonV2 extends SubsystemBase implements Gyro {
-
     private Pigeon2 pigeon;
 
     public PigeonV2(int id) {
@@ -24,6 +23,10 @@ public class PigeonV2 extends SubsystemBase implements Gyro {
     
     public void zeroHeading() {
         pigeon.setYaw(0);
+    }
+
+    public void resetHeading(double headingDegrees) {
+        pigeon.setYaw(-headingDegrees % 360);
     }
 
     public double getHeading() {

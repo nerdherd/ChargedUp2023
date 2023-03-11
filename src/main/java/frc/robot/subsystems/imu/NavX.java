@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class NavX extends SubsystemBase implements Gyro {
     public AHRS ahrs;
     private int numResets = 0;
+    private double offset = 0;
     
     /**
      * Attempt to instantiate a new NavX IMU.
@@ -44,8 +45,14 @@ public class NavX extends SubsystemBase implements Gyro {
      */
     public void zeroHeading() {
         ahrs.reset();
+        offset = 0;
         numResets += 1;
         SmartDashboard.putNumber("Gyro resets", numResets);
+    }
+
+    public void resetHeading(double headingDegrees) {
+        zeroHeading();
+        offset = -headingDegrees;
     }
 
     /**
@@ -53,7 +60,7 @@ public class NavX extends SubsystemBase implements Gyro {
      * @return Angle of the robot (degrees)
      */
     public double getHeading() {
-        double heading = Math.IEEEremainder(ahrs.getYaw(), 360);
+        double heading = Math.IEEEremainder(ahrs.getYaw() - offset, 360);
         SmartDashboard.putNumber("Heading degrees", heading);
         return heading;
     }
@@ -68,13 +75,12 @@ public class NavX extends SubsystemBase implements Gyro {
 
     public Rotation3d getRotation3d() {
         return new Rotation3d(
-            ahrs.getRoll() * Math.PI / 180, 
-            ahrs.getPitch()* Math.PI / 180, 
-            ahrs.getYaw() * Math.PI / 180) ;
+            Math.toRadians(ahrs.getRoll()),
+            Math.toRadians(ahrs.getPitch()),
+            Math.toRadians(getHeading()));
     }
 
     public Rotation3d getRotation3dRaw() {
-        
         return new Rotation3d(
             Math.toRadians(ahrs.getRawGyroX()),
             Math.toRadians(ahrs.getRawGyroY()),

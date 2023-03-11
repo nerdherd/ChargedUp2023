@@ -34,6 +34,10 @@ public class Pigeon extends SubsystemBase implements Gyro {
         pigeon.setYaw(0);
     }
 
+    public void resetHeading(double headingDegrees) {
+        pigeon.setYaw(-headingDegrees % 360);
+    }
+
     public double getHeading() {
         return -pigeon.getCompassHeading() % 360;
     }

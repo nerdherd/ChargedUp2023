@@ -19,6 +19,7 @@ import frc.robot.subsystems.Reportable;
 //TODO: Change to CCW = positive to match with WPILib conventions
 public interface Gyro extends Reportable {
     public void zeroHeading();
+    public void resetHeading(double headingDegrees);
     /**
      * Get the heading in degrees. (CW = positive)
      * @return  IMU Heading in degrees.
