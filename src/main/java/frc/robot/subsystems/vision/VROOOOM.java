@@ -27,11 +27,6 @@ import frc.robot.util.NerdyMath;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 
-// Subsystem integration notes from Ayaka
-// arm.movearmmotionmagic(ticks, elevator.percentextended)
-// elevator.movemotionmagic(ticks, arm.getarmangle)
-// claw negative is intake at 30%
-
 public class VROOOOM extends SubsystemBase implements Reportable{
 
     private Limelight limelightHigh;
@@ -203,48 +198,29 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     public void initVisionPickupOnGround(OBJECT_TYPE objType) {
         initVisionCommands();
 
-        //int armPositionTicks = ArmConstants.kArmStow;
-        //    int elevatorPositionTicks = ElevatorConstants.kElevatorStow;
+        currentGameObject = objType;
+        currentHeightPos = SCORE_POS.LOW;
+        rotationIsNeeded = false; // Reset rotation variable
+        currentLimelight = limelightLow;
 
-            currentGameObject = objType;
-            currentHeightPos = SCORE_POS.LOW;
-            rotationIsNeeded = false; // Reset rotation variable
-                
-            //armPositionTicks = ArmConstants.kArmGroundPickup; // Ground pickup
-            //elevatorPositionTicks = ElevatorConstants.kElevatorStow;
-            currentLimelight = limelightLow;
-            rotationIsNeeded = false;
-
-            if (currentGameObject == OBJECT_TYPE.CONE) {
-                goalArea = 3.8; // Goal area for cone ground pickup, area is an estimate because a different camera position was used, updated 2/23/2023
-                currentLimelight.setPipeline(1);
-                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
-                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
-            } else {
-                goalArea = 0; // Goal area for cube ground pickup
-                currentLimelight.setPipeline(2);
-                PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
-                PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-                PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
-            }
-    
-            //final int armPositionTicksFinal  = armPositionTicks;
-            //final int elevatorPositionTicksFinal  = elevatorPositionTicks;
+        // This doesn't work for some reason, so we might need to pass the currentGameObject into the drive command directly. (3/11/2023)
+        if (currentGameObject == OBJECT_TYPE.CONE) {
+            goalArea = 3.8; // This line is running, so we know the conditional is working (3/11/2023)
+            currentLimelight.setPipeline(1);
+            PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+            PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+            PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
+        } else {
+            goalArea = 0; // Goal area for cube ground pickup
+            currentLimelight.setPipeline(2);
+            PIDArea = new PIDController(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+            PIDTX = new PIDController(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
+            PIDYaw = new PIDController(SmartDashboard.getNumber("Yaw P", 0), SmartDashboard.getNumber("Yaw I", 0), SmartDashboard.getNumber("Yaw D", 0));
+        }
     }
+
     public CommandBase VisionPickupOnGround(OBJECT_TYPE objType) {
         if(limelightLow != null) {
-            // Had to declare both RunCommands in advance because syntax errors would appear if they weren't
-            // RunCommand driveRotateToTargetRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
-            // RunCommand driveToTargetRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
-            // RunCommand currentVisionRunCommand;
-    
-            // if (rotationIsNeeded) {
-            //     currentVisionRunCommand = driveRotateToTargetRunCommand;
-            // } else {
-            //     currentVisionRunCommand = driveToTargetRunCommand;
-            // }
-    
             return Commands.race(
                 // Constantly run elevator and arm motion magic
                 Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
@@ -473,101 +449,70 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
                 break;
         }
-
-        
-
-        
-
-        //final int armPositionTicksFinal  = armPositionTicks;
-        //final int elevatorPositionTicksFinal  = elevatorPositionTicks;
     }
 
     public CommandBase VisionScore(OBJECT_TYPE objType, SCORE_POS pos) {
-        //if(currentLimelight != null) {
-            // if (currentLimelight)
-            // SmartDashboard.putBoolean("Vision has target", currentLimelight.hasValidTarget());
+        return Commands.race(
+            // Constantly run elevator and arm motion magic
+            Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            Commands.run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
             
-    
-            // Had to declare both RunCommands in advance because syntax errors would appear if they weren't
-            // RunCommand driveRotateToTargetRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
-            // RunCommand driveToTargetRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
-            // RunCommand currentVisionRunCommand;
-    
-            // if (rotationIsNeeded) {
-            //     currentVisionRunCommand = driveRotateToTargetRunCommand;
-            // } else {
-            //     currentVisionRunCommand = driveToTargetRunCommand;
-            // }
-            return Commands.race(
-                // Constantly run elevator and arm motion magic
-                Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                Commands.run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
+            Commands.sequence(
+                Commands.parallel(
+                    Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
+                    Commands.runOnce(() -> initVisionScore(objType, pos))
+                ),
                 
-                Commands.sequence(
-                    Commands.parallel(
-                        Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
-                        Commands.runOnce(() -> initVisionScore(objType, pos))
-                    ),
-                    
-                    // Stow arm
-                    // Commands.race(
-                    //     Commands.waitSeconds(5),
-                    //     Commands.parallel( // End command once both arm and elevator have reached their target position
-                    //         Commands.waitUntil(arm.atTargetPosition),
-                    //         Commands.waitUntil(elevator.atTargetPosition),
-                    //         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                    //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                    //     )
-                    // ),
-                    
-                    new TurnToAngle(180, drivetrain),
-                    new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(2),
-                    // Arm and elevator to selected position
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks))
-                        )
-                    ),
+                new TurnToAngle(180, drivetrain),
 
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
-                        )
-                    ),
-                    
-                    Commands.waitSeconds(1),
-                    // // Open claw/eject piece with rollers
-                    claw.setPower(1),
-                    // // Wait 1 second
-                    Commands.waitSeconds(.5),
-    
-                    // // // Close claw/stop rollers
-                    claw.setPower(0),
-    
-                    // // Stow arm
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                        )
-                    ),
-                    // new TurnToAngle(0, drivetrain), // Turn back towards field after scoring
-                    Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
-                )
-            );
-            
-        // }
-        // else {
-        //     return runOnce(() -> SmartDashboard.putString("Limelight command status:", "Sequence cancelled"));
-        // }
-        
+                // Possible test case: Wait for vision to timeout since sometimes, the speed is not within the stopping range (0.1 m/s)
+                new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain)
+                    .until(cameraStatusSupplier)
+                    .withTimeout(2),
+
+                // Arm and elevator to selected position
+                Commands.race(
+                    Commands.waitSeconds(5),
+                    Commands.parallel( // End command once both arm and elevator have reached their target position
+                        Commands.waitUntil(arm.atTargetPosition),
+                        Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks))
+                    )
+                ),
+
+                Commands.race(
+                    Commands.waitSeconds(5),
+                    Commands.parallel( // End command once both arm and elevator have reached their target position
+                        Commands.waitUntil(elevator.atTargetPosition),
+                        Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
+                    )
+                ),
+                
+                // Buffer time for elevator motion magic to reach
+                Commands.waitSeconds(1),
+
+                // Open claw/eject piece with rollers
+                claw.setPower(1),
+
+                // Wait to intake
+                Commands.waitSeconds(.5),
+
+                // Close claw/stop rollers
+                claw.setPower(0),
+
+                // Stow arm
+                Commands.race(
+                    Commands.waitSeconds(5),
+                    Commands.parallel( // End command once both arm and elevator have reached their target position
+                        Commands.waitUntil(arm.atTargetPosition),
+                        Commands.waitUntil(elevator.atTargetPosition),
+                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    )
+                ),
+                // new TurnToAngle(0, drivetrain), // Turn back towards field after scoring
+                Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
+            )
+        );
     }
 
     public void driveRotateToTarget(PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
@@ -591,7 +536,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         }
         else {
 
-            // Score cone
+            // Score cone (low tape, max distance is the charging station)
             pidArea.setP(2);
             pidArea.setD(0);
             pidTX.setP(0.08);
