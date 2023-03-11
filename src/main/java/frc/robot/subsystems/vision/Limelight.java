@@ -439,6 +439,10 @@ public class Limelight implements Reportable{
     }
 
     public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF)  {
+            return;
+        }
+
         ShuffleboardTab tab = Shuffleboard.getTab(this.getName());
 
         switch (level) {

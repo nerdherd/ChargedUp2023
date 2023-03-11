@@ -710,6 +710,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
     @Override
     public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL)  {
+            return;
+        }
         ShuffleboardTab tab = Shuffleboard.getTab(this.getName());
         switch (level) {
             case OFF:

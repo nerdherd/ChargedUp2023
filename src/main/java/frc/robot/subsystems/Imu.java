@@ -104,7 +104,15 @@ public class Imu extends SubsystemBase implements Reportable {
     }
 
     public void initShuffleboard(LOG_LEVEL level) {
-        ShuffleboardTab tab = Shuffleboard.getTab("Imu");
+        if (level == LOG_LEVEL.OFF)  {
+            return;
+        }
+        ShuffleboardTab tab;
+        if (level == LOG_LEVEL.MINIMAL) {
+            tab = Shuffleboard.getTab("Main");
+        } else {
+            tab = Shuffleboard.getTab("Imu");
+        }
         switch (level) {
             case OFF:
                 break;

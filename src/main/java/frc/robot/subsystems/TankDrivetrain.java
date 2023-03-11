@@ -265,7 +265,10 @@ public class TankDrivetrain extends SubsystemBase implements Reportable{
         }
     }
 
-    public void initShuffleboard(LOG_LEVEL level) {  
+    public void initShuffleboard(LOG_LEVEL level) { 
+        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL || level == LOG_LEVEL.MEDIUM)  {
+            return;
+        }
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
         switch (level) {

@@ -214,7 +214,16 @@ public class Elevator extends SubsystemBase implements Reportable{
   }
 
   public void initShuffleboard(LOG_LEVEL level) {
-    ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
+    if (level == LOG_LEVEL.OFF)  {
+      return;
+    }
+    ShuffleboardTab tab;
+    if (level == LOG_LEVEL.MINIMAL) {
+      tab = Shuffleboard.getTab("Main");
+    } else {
+      tab = Shuffleboard.getTab("Elevator");
+    }
+
     switch (level) {
       case OFF:
         break;
@@ -227,8 +236,8 @@ public class Elevator extends SubsystemBase implements Reportable{
       case MEDIUM:
         tab.addNumber("Percent Extended", () -> percentExtended());
       case MINIMAL:
-        tab.addNumber("Current Ticks", () -> elevator.getSelectedSensorPosition());
-        tab.addNumber("Target Ticks", () -> targetTicks);
+        tab.addNumber("Current Elevator Ticks", () -> elevator.getSelectedSensorPosition());
+        tab.addNumber("Target Elevator Ticks", () -> targetTicks);
         break;
     }
 

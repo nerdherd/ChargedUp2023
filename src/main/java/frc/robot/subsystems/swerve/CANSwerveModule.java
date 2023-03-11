@@ -229,7 +229,10 @@ public class CANSwerveModule implements SwerveModule {
     }
 
     public void initShuffleboard(LOG_LEVEL level) {
-        int moduleId = (driveMotorID - (driveMotorID % 10));
+        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL)  {
+            return;
+        }
+        int moduleId = (driveMotorID / 10);
         ShuffleboardTab tab = Shuffleboard.getTab("Module " + moduleId);
 
         switch (level) {

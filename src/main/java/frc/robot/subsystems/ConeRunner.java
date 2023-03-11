@@ -96,7 +96,15 @@ public class ConeRunner extends SubsystemBase implements Reportable {
     }
 
     public void initShuffleboard(LOG_LEVEL level) {
-        ShuffleboardTab tab = Shuffleboard.getTab("Cone Runner");
+        if (level == LOG_LEVEL.OFF)  {
+            return;
+        }
+        ShuffleboardTab tab;
+        if (level == LOG_LEVEL.MINIMAL) {
+            tab = Shuffleboard.getTab("Main");
+        } else {
+            tab = Shuffleboard.getTab("Cone Runner");
+        }
 
         switch (level) {
             case OFF:
@@ -105,8 +113,8 @@ public class ConeRunner extends SubsystemBase implements Reportable {
                 tab.addNumber("Intake Velocity", speedMotor::getSelectedSensorVelocity);
             case MEDIUM:
             case MINIMAL:
-                tab.addNumber("Target Ticks", () -> targetTicks);   
-                tab.addNumber("Angle Ticks", positionMotor::getSelectedSensorPosition);
+                tab.addNumber("Cone Runner Target Ticks", () -> targetTicks);   
+                tab.addNumber("Cone Runner Angle Ticks", positionMotor::getSelectedSensorPosition);
                 break;
         }
 

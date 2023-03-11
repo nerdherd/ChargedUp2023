@@ -55,6 +55,9 @@ public class AirCompressor extends SubsystemBase implements Reportable {
     public void periodic() {}
 
     public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL)  {
+            return;
+        }
         ShuffleboardTab tab = Shuffleboard.getTab("Pneumatics");
 
         switch (level) {

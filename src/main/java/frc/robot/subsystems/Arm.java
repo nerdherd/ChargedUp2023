@@ -251,7 +251,15 @@ public class Arm extends SubsystemBase implements Reportable {
     }
 
     public void initShuffleboard(LOG_LEVEL level) {
-        ShuffleboardTab tab = Shuffleboard.getTab("Arm");
+        if (level == LOG_LEVEL.OFF)  {
+            return;
+        }
+        ShuffleboardTab tab;
+        if (level == LOG_LEVEL.MINIMAL) {
+            tab = Shuffleboard.getTab("Main");
+        } else {
+            tab = Shuffleboard.getTab("Arm");
+        }
         switch (level) {
             case OFF:
                 break;
