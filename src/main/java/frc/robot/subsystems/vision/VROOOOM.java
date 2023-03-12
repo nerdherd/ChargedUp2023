@@ -234,6 +234,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     }
 
     public CommandBase VisionPickupOnGround(OBJECT_TYPE objType) {
+        final PIDController pidAreaFinal = PIDArea;
+        final PIDController pidTXFinal = PIDTX;
+        final PIDController pidYawFinal = PIDYaw;
+
         if(limelightLow != null) {
             return Commands.race(
                 // Constantly run elevator and arm motion magic
@@ -253,7 +257,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                             Commands.runOnce(() -> arm.setTargetTicks(-328500)),
                             Commands.runOnce(() -> elevator.setTargetTicks(-15000))
                         ),
-                        new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(5) // Timeout after 30 seconds
+                        new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(5) // Timeout after 30 seconds
                     ),
                     
     
@@ -460,6 +464,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     }
 
     public CommandBase VisionScore(OBJECT_TYPE objType, SCORE_POS pos) {
+        final PIDController pidAreaFinal = PIDArea;
+        final PIDController pidTXFinal = PIDTX;
+        final PIDController pidYawFinal = PIDYaw;
+
         return Commands.race(
             // Constantly run elevator and arm motion magic
             Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
@@ -474,7 +482,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 new TurnToAngle(180, drivetrain),
 
                 // Possible test case: Wait for vision to timeout since sometimes, the speed is not within the stopping range (0.1 m/s)
-                new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain)
+                new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain)
                     .until(cameraStatusSupplier)
                     .withTimeout(2),
 
