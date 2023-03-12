@@ -186,6 +186,18 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         }
     }
 
+    // Returns ID of AprilTag if one is in front of the robot when this command is called. Otherwise, returns -1.
+    public int getAprilTagID() {
+        if (limelightLow != null) {
+            limelightLow.setPipeline(4); // April tag pipeline
+            if (limelightLow.hasValidTarget()) {
+                return limelightLow.getAprilTagID();
+            }
+        }
+
+        return -1;
+    }
+
      
     public void initVisionCommands( ) {
         currentCameraMode = CAMERA_MODE.IDLE;
@@ -232,7 +244,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
                     Commands.runOnce(() -> initVisionPickupOnGround(objType)),
     
-                    // Arm and elevator to selected position
+                    // Move arm and elevator to near ground position in parallel with approaching target
                     Commands.deadline(
                         Commands.waitSeconds(5),
                         Commands.parallel( // End command once both arm and elevator have reached their target position
@@ -245,7 +257,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     ),
                     
     
-                    // AGAIN
+                    // Drop arm and elevator so the game piece can be intook
                     Commands.race(
                         Commands.waitSeconds(5),
                         Commands.parallel( // End command once both arm and elevator have reached their target position
@@ -322,19 +334,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         }
     public CommandBase VisionPickupOnSubstation(OBJECT_TYPE objType) {
         if(limelightHigh != null) {
-            
-    
-            // Had to declare both RunCommands in advance because syntax errors would appear if they weren't
-            //RunCommand driveRotateToTargetRunCommand = new RunCommand(() -> driveRotateToTarget(PIDArea, PIDTX, PIDYaw), arm, elevator, claw, drivetrain);
-            //RunCommand driveToTargetRunCommand = new RunCommand(() -> skrttttToTarget(PIDArea, PIDTX), arm, elevator, claw, drivetrain);
-            //RunCommand currentVisionRunCommand;
-    
-            //if (rotationIsNeeded) {
-            //    currentVisionRunCommand = driveRotateToTargetRunCommand;
-            //} else {
-            //    currentVisionRunCommand = driveToTargetRunCommand;
-            //}
-    
+
             return Commands.race(
                 // Constantly run elevator and arm motion magic
                 // run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
@@ -478,30 +478,25 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     .until(cameraStatusSupplier)
                     .withTimeout(2),
 
-                // Arm and elevator to selected position
+                // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
                 Commands.race(
-                    Commands.waitSeconds(5),
-                    Commands.parallel( // End command once both arm and elevator have reached their target position
-                        Commands.waitUntil(arm.atTargetPosition),
-                        Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks))
-                    )
-                ),
+                    Commands.waitSeconds(5), // Timeout
+                    Commands.sequence(
+                        Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks)),
+                        Commands.waitSeconds(0.5),
 
-                Commands.race(
-                    Commands.waitSeconds(5),
-                    Commands.parallel( // End command once both arm and elevator have reached their target position
-                        Commands.waitUntil(elevator.atTargetPosition),
-                        Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
+                        Commands.parallel( // End when target positions reached
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
+                        )
                     )
                 ),
-                
-                // Buffer time for elevator motion magic to reach
-                Commands.waitSeconds(1),
 
                 // Open claw/eject piece with rollers
                 claw.setPower(1),
 
-                // Wait to intake
+                // Wait to outtake
                 Commands.waitSeconds(.5),
 
                 // Close claw/stop rollers

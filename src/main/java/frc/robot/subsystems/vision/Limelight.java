@@ -162,7 +162,14 @@ public class Limelight implements Reportable{
         return !has;
     }
 
-    
+    /**
+     * Get ID of April Tag
+     * 
+     * @return Integer ID of April Tag or -1 if no ID exists
+     */
+    public int getAprilTagID() {
+        return (int)table.getEntry("tid").getDouble(-1.0);
+    }
 
     
     /**
