@@ -2,17 +2,20 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.claw;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.PneumaticsConstants;
+import frc.robot.subsystems.Reportable;
+import frc.robot.subsystems.Reportable.LOG_LEVEL;
 
 public class Claw extends SubsystemBase implements Reportable {
     public DoubleSolenoid clawPiston;
@@ -75,13 +78,31 @@ public class Claw extends SubsystemBase implements Reportable {
         return clawOpen;
     }
 
-    public void reportToSmartDashboard() {
-
+    public void reportToSmartDashboard(LOG_LEVEL level) {
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+            case MEDIUM:
+                SmartDashboard.putBoolean("Claw Open", isClawOpen());
+            case MINIMAL:
+                break;
+        }
     }
 
-    public void initShuffleboard() {
+    public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL)  {
+            return;
+        }
         ShuffleboardTab tab = Shuffleboard.getTab("Claw");
-
-        tab.addBoolean("Claw Open", this::isClawOpen);
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+            case MEDIUM:
+                tab.addBoolean("Claw Open", this::isClawOpen);
+            case MINIMAL:
+                break;
+        }
     }
 }

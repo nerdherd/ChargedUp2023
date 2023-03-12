@@ -20,7 +20,7 @@ import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.MotorClaw;
+import frc.robot.subsystems.claw.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.vision.VROOOOM;
 import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
@@ -266,11 +266,11 @@ public class SwerveAutos {
                 break;
             case MID:
                 elevatorPos = ElevatorConstants.kElevatorScoreMid;
-                armPos = ArmConstants.kArmScoreCubeMid;
+                armPos = ArmConstants.kArmScore;
                 break;
             case HIGH:
                 elevatorPos = ElevatorConstants.kElevatorScoreHigh; //ElevatorConstants.kElevatorScoreHighCube; // Note: this is a bandaid
-                armPos = ArmConstants.kArmScoreCubeHigh;
+                armPos = ArmConstants.kArmScore;
                 break;
         }
 
@@ -290,6 +290,7 @@ public class SwerveAutos {
                         waitUntil(arm.atTargetPosition)
                     ),
                     sequence(
+                        waitSeconds(0.5),
                         runOnce(() -> elevator.setTargetTicks(elevatorPosFinal)),
                         waitSeconds(0.5),
                         waitUntil(elevator.atTargetPosition)
@@ -431,8 +432,8 @@ public class SwerveAutos {
                 yOvershoot = -1.75;
                 break;
             case RIGHT:
-                yTranslation = 1;
-                yOvershoot = 1;
+                yTranslation = 1.75;
+                yOvershoot = 1.75;
                 break;
             case MIDDLE:
                 break;
@@ -447,7 +448,7 @@ public class SwerveAutos {
         
         if (!goAround) {
             trajectory = TrajectoryGenerator.generateTrajectory(
-                new Pose2d(0, 0, new Rotation2d(0)), 
+                new Pose2d(-0.125, 0, new Rotation2d(0)), 
                 List.of(
                     new Translation2d(-0.25, 0),
                     new Translation2d(-0.25, yOvershoot)), 

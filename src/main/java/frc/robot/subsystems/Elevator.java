@@ -26,14 +26,14 @@ public class Elevator extends SubsystemBase implements Reportable{
   private TalonFX elevator;
   private int targetTicks = ElevatorConstants.kElevatorStow;
   public BooleanSupplier atTargetPosition;
-  // private DigitalInput limitSwitch;
+  // private DigitalInput hallEffect; // not detecting is true, detecting is false
 
   /** Creates a new Elevator. */
   public Elevator() {
     elevator = new TalonFX(ElevatorConstants.kElevatorID);
     elevator.setNeutralMode(NeutralMode.Brake);
     elevator.setInverted(true);
-    // limitSwitch = new DigitalInput(ElevatorConstants.kLimitSwitchID);
+    // hallEffect = new DigitalInput(ElevatorConstants.kHallEffectID);
 
     atTargetPosition = () -> NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 40000, targetTicks + 40000);
     SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
@@ -48,7 +48,8 @@ public class Elevator extends SubsystemBase implements Reportable{
   public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
     setBrakeMode();
         if (currentJoystickOutput > ElevatorConstants.kElevatorDeadband) {
-            if (elevator.getSelectedSensorPosition() <= -239000) {
+            // if (!hallEffect.get() || elevator.getSelectedSensorPosition() <= -239000 || elevator.getStatorCurrent() >= 45) {
+            if (elevator.getSelectedSensorPosition() <= -239000 || elevator.getStatorCurrent() >= 45) {
             elevator.set(ControlMode.PercentOutput, 0);
             } else {
               elevator.set(ControlMode.PercentOutput, -0.8);
@@ -58,7 +59,7 @@ public class Elevator extends SubsystemBase implements Reportable{
             // elevator.setNeutralMode(NeutralMode.Coast);
           //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ElevatorConstants.kElevatorDeadband) {
-          if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 20000) {
+          if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 20000 || elevator.getStatorCurrent() >= 45) {
             elevator.set(ControlMode.PercentOutput, 0);
           } else {
             elevator.set(ControlMode.PercentOutput, 0.8);
@@ -85,7 +86,12 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
     double ff = -ElevatorConstants.kArbitraryFF * Math.sin(angle);
 
-    if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 30000 && targetTicks == 0) { // TODO: Measure elevator lower limit
+    // if (!hallEffect.get())
+    // {
+    //   elevator.setSelectedSensorPosition(ElevatorConstants.kElevatorStow);
+    // }
+
+    if ((elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 30000 || elevator.getStatorCurrent() >= 45) && targetTicks == 0) { // TODO: Measure elevator lower limit
       elevator.set(ControlMode.PercentOutput, 0);
     } else {
       elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
@@ -95,26 +101,8 @@ public class Elevator extends SubsystemBase implements Reportable{
   
 
   public void moveMotionMagic(int targetTicks, double angle) {
-    this.targetTicks = targetTicks;
-
-    elevator.config_kP(0, SmartDashboard.getNumber("Elevator kP", ElevatorConstants.kElevatorP));
-    elevator.config_kI(0, SmartDashboard.getNumber("Elevator kI", ElevatorConstants.kElevatorI));
-    elevator.config_kD(0, SmartDashboard.getNumber("Elevator kD", ElevatorConstants.kElevatorD));
-    elevator.config_kF(0, SmartDashboard.getNumber("Elevator kF", ElevatorConstants.kElevatorF));
-    elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
-    elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
-
-    
-    double ff = -ElevatorConstants.kArbitraryFF * Math.sin(angle);
-
-    if (elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 30000 && targetTicks == 0)  { // TODO: Measure elevator lower limit
-      elevator.set(ControlMode.PercentOutput, 0);
-      targetTicks = ElevatorConstants.kElevatorStow;
-    } else {
-      elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
-    }
-
-    SmartDashboard.putNumber("FF", ff);
+    setTargetTicks(targetTicks);
+    moveMotionMagic(angle);
   }
 
   public CommandBase moveElevator(int ticks, double angle) {
@@ -194,28 +182,55 @@ public class Elevator extends SubsystemBase implements Reportable{
     // This method will be called once per scheduler run
   }
 
-  public void reportToSmartDashboard() {
-    // SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
-    // SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
-    SmartDashboard.putNumber("Elevator Current Ticks", elevator.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Elevator Target Ticks", targetTicks);
-    // SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
-    // SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
-    // SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
-    // SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
-    // SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
+  public void reportToSmartDashboard(LOG_LEVEL level) {
+    switch (level) {
+      case OFF:
+        break;
+      case ALL:
+        SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
+        SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
+        SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
+        SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
+      case MEDIUM:
+        SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
+      case MINIMAL:
+        SmartDashboard.putNumber("Elevator Current Ticks", elevator.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Elevator Target Ticks", targetTicks);
+        break;
+    }
   }
 
-  public void initShuffleboard() {
-    ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
+  public void initShuffleboard(LOG_LEVEL level) {
+    if (level == LOG_LEVEL.OFF)  {
+      return;
+    }
+    ShuffleboardTab tab;
+    if (level == LOG_LEVEL.MINIMAL) {
+      tab = Shuffleboard.getTab("Main");
+    } else {
+      tab = Shuffleboard.getTab("Elevator");
+    }
 
-    // tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
-    // tab.addNumber("Current", () -> elevator.getStatorCurrent());
-    tab.addNumber("Current Ticks", () -> elevator.getSelectedSensorPosition());
-    tab.addNumber("Target Ticks", () -> targetTicks);
-    // tab.addNumber("Current Velocity", () -> elevator.getSelectedSensorVelocity());
-    // tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
-    // tab.addNumber("Percent Extended", () -> percentExtended());
-    // tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
+    switch (level) {
+      case OFF:
+        break;
+      case ALL:
+        tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
+        tab.addNumber("Current", () -> elevator.getStatorCurrent());
+        tab.addNumber("Velocity", () -> elevator.getSelectedSensorVelocity());
+        tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
+        tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
+      case MEDIUM:
+        tab.addNumber("Percent Extended", () -> percentExtended());
+      case MINIMAL:
+        tab.addNumber("Current Elevator Ticks", () -> elevator.getSelectedSensorPosition());
+        tab.addNumber("Target Elevator Ticks", () -> targetTicks);
+        break;
+    }
+
+    
+    
+    
   }
 }

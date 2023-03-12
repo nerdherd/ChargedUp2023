@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.claw;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
+import frc.robot.subsystems.Reportable;
+import frc.robot.subsystems.Reportable.LOG_LEVEL;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
@@ -87,14 +89,35 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     // This method will be called once per scheduler run
   }
 
-  public void reportToSmartDashboard() {
-    SmartDashboard.putNumber("Motor Claw Velocity", topMotor.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("Motor Claw Current", topMotor.getStatorCurrent());
+  public void reportToSmartDashboard(LOG_LEVEL level) {
+    switch (level) {
+      case OFF:
+          break;
+      case ALL:
+      case MEDIUM:
+        SmartDashboard.putNumber("Motor Claw Velocity", topMotor.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Motor Claw Current", topMotor.getStatorCurrent());
+      case MINIMAL:
+          break;
+    }
   }
 
-  public void initShuffleboard() {
+  public void initShuffleboard(LOG_LEVEL level) {
+    if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL)  {
+      return;
+    }
+
     ShuffleboardTab tab = Shuffleboard.getTab("Motor Claw");
-    tab.addNumber("Velocity", topMotor::getSelectedSensorVelocity);
-    tab.addNumber("Current", topMotor::getStatorCurrent);
+    
+    switch (level) {
+      case OFF:
+          break;
+      case ALL:
+      case MEDIUM:
+        tab.addNumber("Velocity", topMotor::getSelectedSensorVelocity);
+        tab.addNumber("Current", topMotor::getStatorCurrent);
+      case MINIMAL:
+          break;
+    }
   }
 }

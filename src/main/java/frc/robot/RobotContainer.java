@@ -9,10 +9,11 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Imu;
-import frc.robot.subsystems.MotorClaw;
+import frc.robot.subsystems.Reportable.LOG_LEVEL;
+import frc.robot.subsystems.claw.ConeRunner;
+import frc.robot.subsystems.claw.MotorClaw;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -77,6 +78,8 @@ public class RobotContainer {
       ControllerConstants.kOperatorControllerPort);
   private final BadPS4 badPS4 = operatorController.getHID();
   // private final Joystick joystick = new Joystick(2);
+
+  private final LOG_LEVEL loggingLevel = LOG_LEVEL.MINIMAL;
 
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);
@@ -285,24 +288,28 @@ public class RobotContainer {
       // driverController.R2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CUBE))
       //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
+      operatorController.L2().whileTrue(vision.VisionPickupOnGround(OBJECT_TYPE.CONE));
+      operatorController.R2().whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.HIGH));
 
-      //operatorController.L2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
+      //operatorController.L2().onTrue(vision.updateCurrentGameObjects(OBJECT_TYPE.CONE));
       //operatorController.R2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
 
       //upButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
       //rightButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
       //downButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
 
-      upButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.HIGH))
-      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-      leftButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID))
-        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+
+
+      // upButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.HIGH))
+      // .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // leftButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID))
+      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
       
-      rightButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH))
-        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-      downButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.MID))
-      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // rightButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH))
+      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // downButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.MID))
+      // .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
     //}
   }
@@ -349,39 +356,41 @@ public class RobotContainer {
   }
   
   public void initShuffleboard() {
-    imu.initShuffleboard();
-    // claw.initShuffleboard();
-    arm.initShuffleboard();
-    elevator.initShuffleboard();
-    // coneRunner.initShuffleboard();
+    imu.initShuffleboard(loggingLevel);
+    // claw.initShuffleboard(loggingLevel);
+    arm.initShuffleboard(loggingLevel);
+    elevator.initShuffleboard(loggingLevel);
+    motorClaw.initShuffleboard(loggingLevel);
+    // coneRunner.initShuffleboard(loggingLevel);
     //if (IsSwerveDrive) {
-      // swerveDrive.initShuffleboard();
-      // swerveDrive.initModuleShuffleboard();
+      swerveDrive.initShuffleboard(loggingLevel);
+      swerveDrive.initModuleShuffleboard(loggingLevel);
     // } else {
-    //   tankDrive.initShuffleboard();
+    //   tankDrive.initShuffleboard(loggingLevel);
     // }
-    // airCompressor.initShuffleboard();
+    // airCompressor.initShuffleboard(loggingLevel);
 
-    vision.initShuffleboard();
+    vision.initShuffleboard(loggingLevel);
   }
 
   public void reportAllToSmartDashboard() {
     SmartDashboard.putNumber("Elevator FF", Math.sin(arm.getArmAngle()) * ElevatorConstants.kArbitraryFF);
     SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
     // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
-    imu.reportToSmartDashboard();
-    // claw.reportToSmartDashboard();
-    arm.reportToSmartDashboard();
-    elevator.reportToSmartDashboard();
-    vision.reportToSmartDashboard();
-    // coneRunner.reportToSmartDashboard();
+    imu.reportToSmartDashboard(loggingLevel);
+    // claw.reportToSmartDashboard(loggingLevel);
+    motorClaw.reportToSmartDashboard(loggingLevel);
+    arm.reportToSmartDashboard(loggingLevel);
+    elevator.reportToSmartDashboard(loggingLevel);
+    vision.reportToSmartDashboard(loggingLevel);
+    // coneRunner.reportToSmartDashboard(loggingLevel);
     // if (IsSwerveDrive) {
-      // swerveDrive.reportToSmartDashboard();
-      // swerveDrive.reportModulesToSmartDashboard();
+      swerveDrive.reportToSmartDashboard(loggingLevel);
+      swerveDrive.reportModulesToSmartDashboard(loggingLevel);
     // } else {
-    //   tankDrive.reportToSmartDashboard();
+    //   tankDrive.reportToSmartDashboard(loggingLevel);
     // }
-    // airCompressor.reportToSmartDashboard();
+    // airCompressor.reportToSmartDashboard(loggingLevel);
   }
   
   /**

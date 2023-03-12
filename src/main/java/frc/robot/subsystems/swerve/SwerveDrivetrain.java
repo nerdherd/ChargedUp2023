@@ -297,37 +297,59 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         odometer.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
     }
 
-    public void initShuffleboard() {
+    public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL)  {
+            return;
+        }
         ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
-        tab.add("Field Position", field).withSize(6, 3);
-        tab.addNumber("X Position", odometer.getPoseMeters()::getX);
-        // Might be negative because our swerveDriveKinematics is flipped across the Y axis
-        tab.addNumber("Y Position", odometer.getPoseMeters()::getY);
-        tab.add("Reset Encoders", runOnce(this::resetEncoders));
-        tab.add("Calibrate Encoders", runOnce(this::calibrateEncoders));
-        tab.add("Reset Encoders to Default", runOnce(this::resetEncodersToDefault));
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                tab.add("Field Position", field).withSize(6, 3);
+                tab.addNumber("X Position", odometer.getPoseMeters()::getX);
+                // Might be negative because our swerveDriveKinematics is flipped across the Y axis
+                tab.addNumber("Y Position", odometer.getPoseMeters()::getY);
+            case MEDIUM:
+                tab.add("Reset Encoders", runOnce(this::resetEncoders));
+                tab.add("Calibrate Encoders", runOnce(this::calibrateEncoders));
+                tab.add("Reset Encoders to Default", runOnce(this::resetEncodersToDefault));
+            case MINIMAL:
+                break;
+        }
     }
 
-    public void initModuleShuffleboard() {
-        frontRight.initShuffleboard();
-        backRight.initShuffleboard();
-        frontLeft.initShuffleboard();
-        backLeft.initShuffleboard();
+    public void initModuleShuffleboard(LOG_LEVEL level) {
+        frontRight.initShuffleboard(level);
+        frontLeft.initShuffleboard(level);
+        backLeft.initShuffleboard(level);
+        backRight.initShuffleboard(level);
     }
 
     /**
      * Report values to smartdashboard.
      */
-    public void reportToSmartDashboard() {
-        SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
-        SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
+    public void reportToSmartDashboard(LOG_LEVEL level) {
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
+                SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
+            case MEDIUM:
+            case MINIMAL:
+                SmartDashboard.putData("Reset Encoders", runOnce(this::resetEncoders));
+                SmartDashboard.putData("Calibrate Encoders", runOnce(this::calibrateEncoders));
+                SmartDashboard.putData("Reset Encoders to Default", runOnce(this::resetEncodersToDefault));
+                break;
+        }
     }
 
-    public void reportModulesToSmartDashboard() {
-        frontRight.reportToSmartDashboard();
-        backRight.reportToSmartDashboard();
-        frontLeft.reportToSmartDashboard();
-        backLeft.reportToSmartDashboard();
+    public void reportModulesToSmartDashboard(LOG_LEVEL level) {
+        frontRight.reportToSmartDashboard(level);
+        frontLeft.reportToSmartDashboard(level);
+        backLeft.reportToSmartDashboard(level);
+        backRight.reportToSmartDashboard(level);
     }
 }

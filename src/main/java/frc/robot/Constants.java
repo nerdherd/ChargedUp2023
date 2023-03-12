@@ -92,7 +92,7 @@ public final class Constants {
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
     public static final int kArmStow = -622485;//-630435;//144278;
-    public static final int kArmScore = -432700;//-408850;//596443; // 89744;
+    public static final int kArmScore = -377161; //-432700;//-408850;//596443; // 89744;
     public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
     public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
     public static final int kArmGroundPickup = -238900;//-215050;//-242170;//767054;// 34352;
@@ -111,7 +111,8 @@ public final class Constants {
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
     public static final double kTicksPerAngle = 7950;
-    public static final int kLimitSwitchID = 0;
+    public static final int kTalonTachTopID = 0;
+    public static final int kTalonTachBottomID = 1;
 
 
     // public static final double kCruiseVelocity = 0;
@@ -123,7 +124,7 @@ public final class Constants {
     public static final int kElevatorID = 18;
     public static final int kElevatorStow = 0;
     public static final int kElevatorScoreMidCube = -85285;//-143634;
-    public static final int kElevatorScoreMid = -143634;
+    public static final int kElevatorScoreMid = -98123; //-143634;
     public static final int kElevatorScoreHighCube = -198657;//-240000;
     public static final int kElevatorScoreHigh = -240000;
     public static final int kElevatorSubstation = -69400;//-68100;//-116680; // Height for substation i think
@@ -137,7 +138,7 @@ public final class Constants {
     public static final double kElevatorDeadband = 0.05;
     public static final double kJoystickMultiplier = 1;
     public static final double kTicksPerAngle = 0;
-    public static final int kLimitSwitchID = 0;
+    public static final int kHallEffectID = 2;
   }
 
   public static class VisionConstants{
@@ -275,12 +276,11 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 72.07 + 180;       
-      public static final double kFLCANCoderOffsetDegrees = 298.564;         
-      public static final double kBLCANCoderOffsetDegrees = 298.740 - 180;          
-      public static final double kBRCANCoderOffsetDegrees = 196.084 - 180; // 1.406
+      public static final double kFRDefaultOffsetDegrees = 68.379 + 180;       
+      public static final double kFLDefaultOffsetDegrees = 252.949 - 180;         
+      public static final double kBLDefaultOffsetDegrees = 105.293;          
+      public static final double kBRDefaultOffsetDegrees = 180.176 - 180; // 1.406
     }
-
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
     public static final double kTeleDriveMaxSpeedProportion = 1;
