@@ -221,6 +221,16 @@ public class VisionAutos {
         );
     }
 
+    /**
+     * Finds April Tag ID when command is executed
+     * 
+     * @return Command that displays April Tag ID on SmartDashboard
+     */
+    public static CommandBase debugVisionAprilTagAuto(VROOOOM vision) {
+        final int aprilTagID = vision.getAprilTagID();
+        return Commands.run(() -> SmartDashboard.putNumber("April Tag ID Auto", aprilTagID));
+    }
+
     public static CommandBase visionAutoChoose(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, 
             MotorClaw claw, Alliance selectedAlliance, StartPosition selectedStartPosition) {
         final int aprilTagID = vision.getAprilTagID();
