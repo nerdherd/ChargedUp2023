@@ -143,9 +143,9 @@ public class SwerveJoystickCommand extends CommandBase {
         double filteredYSpeed = yFilter.calculate(ySpeed);
         
         if (precisionSupplier.get()) {
-            filteredTurningSpeed /= 2;
-            filteredXSpeed /= 2;
-            filteredYSpeed /= 2;
+            filteredTurningSpeed /= 4;
+            filteredXSpeed /= 4;
+            filteredYSpeed /= 4;
         }
         
         ChassisSpeeds chassisSpeeds;

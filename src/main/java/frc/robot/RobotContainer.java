@@ -284,8 +284,8 @@ public class RobotContainer {
       // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
       // ====== Vision Bindings ====== 
-      // driverController.L2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CONE))
-      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.cross().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CONE))
+        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
       // driverController.R2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CUBE))
       //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 

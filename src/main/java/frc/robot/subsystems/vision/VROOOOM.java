@@ -326,8 +326,19 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 goalArea = 21; // Goal area for cone substation pickup, area is an estimate because a different camera position was used, updated 2/23/2023
                 currentLimelight.setPipeline(1);
 
-                PIDArea.setPID(0, 0, 0);
-                PIDTX.setPID(0, 0, 0);
+                PIDArea.setPID(
+                    SmartDashboard.getNumber("Ta P", 0.4),
+                    SmartDashboard.getNumber("Ta I", 0.01),
+                    SmartDashboard.getNumber("Ta D", 0.01)
+                );
+                PIDTX.setPID(
+                    SmartDashboard.getNumber("Tx P", 0.04),
+                    SmartDashboard.getNumber("Tx I", 0.01),
+                    SmartDashboard.getNumber("Tx D", 0.01)
+                );
+                
+                // PIDArea.setPID(0.4, 0.01, 0.01);
+                // PIDTX.setPID(0.04, 0.01, 0.01);
                 PIDYaw.setPID(0, 0, 0);
             } else {
                 goalArea = 0; // Goal area for cube substation pickup
