@@ -5,7 +5,6 @@
 package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Reportable.LOG_LEVEL;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,13 +25,14 @@ import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.SwerveAutos.StartPosition;
+import frc.robot.subsystems.imu.Gyro;
+import frc.robot.subsystems.imu.NavX;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
 import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -44,7 +44,7 @@ import frc.robot.util.CommandBadPS4;
  * subsystems, commands, and trigger mappings) should be declared here.
  */// 10.6.87.98:5800
 public class RobotContainer {
-  public static Imu imu = new Imu();
+  public static Gyro imu = new NavX();
   public static SwerveDrivetrain swerveDrive;
 
   private final CommandBadPS4 driverController = new CommandBadPS4(

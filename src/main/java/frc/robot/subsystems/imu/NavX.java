@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.imu;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -18,16 +18,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // TODO: Wrap crucial ahrs methods so that functionality is swappable between the NavX and Pigeon IMU
 
-public class Imu extends SubsystemBase implements Reportable {
+public class NavX extends SubsystemBase implements Gyro {
     public AHRS ahrs;
     private int numResets = 0;
+    private double offset = 0;
     
     /**
      * Attempt to instantiate a new NavX IMU.
      * 
      * If an exception is thrown, it is caught and reported to the drivetrain.
      */
-    public Imu() {
+    public NavX() {
         this.numResets = 0;
         
         try { 
@@ -44,8 +45,14 @@ public class Imu extends SubsystemBase implements Reportable {
      */
     public void zeroHeading() {
         ahrs.reset();
+        offset = 0;
         numResets += 1;
         SmartDashboard.putNumber("Gyro resets", numResets);
+    }
+
+    public void resetHeading(double headingDegrees) {
+        zeroHeading();
+        offset = -headingDegrees;
     }
 
     /**
@@ -53,7 +60,7 @@ public class Imu extends SubsystemBase implements Reportable {
      * @return Angle of the robot (degrees)
      */
     public double getHeading() {
-        double heading = Math.IEEEremainder(ahrs.getYaw(), 360);
+        double heading = Math.IEEEremainder(ahrs.getYaw() - offset, 360);
         SmartDashboard.putNumber("Heading degrees", heading);
         return heading;
     }
@@ -68,13 +75,12 @@ public class Imu extends SubsystemBase implements Reportable {
 
     public Rotation3d getRotation3d() {
         return new Rotation3d(
-            ahrs.getRoll() * Math.PI / 180, 
-            ahrs.getPitch()* Math.PI / 180, 
-            ahrs.getYaw() * Math.PI / 180) ;
+            Math.toRadians(ahrs.getRoll()),
+            Math.toRadians(ahrs.getPitch()),
+            Math.toRadians(getHeading()));
     }
 
     public Rotation3d getRotation3dRaw() {
-        
         return new Rotation3d(
             Math.toRadians(ahrs.getRawGyroX()),
             Math.toRadians(ahrs.getRawGyroY()),
