@@ -68,15 +68,15 @@ public class VisionAutos {
                 pickupXDistance = -4.1;
                 pickupYDistance = 0.48;
                 pickupRotation = -150;
-                yOffset = -0.3;
+                yOffset = -0.4;
                 yOffset2 = -0.5;
                 break;
             case LEFT:
-                pickupXDistance = -4.1;
-                pickupYDistance = -0.48;
-                pickupRotation = 150;
-                yOffset = 0.3;
-                yOffset2 = 0.5;
+                pickupXDistance = -3.2;//-4.1;
+                pickupYDistance = 0;//-0.48;
+                pickupRotation = 180;//150;
+                yOffset = 0.75;//0.75;
+                yOffset2 = 0.75;
                 break;
             case MIDDLE:
                 pickupXDistance = -5; // TODO: Measure IRL
@@ -99,14 +99,16 @@ public class VisionAutos {
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-            new Translation2d(pickupXDistance * 0.75, yOffset)), 
+            new Translation2d(-1.5, 0.3),
+            new Translation2d(pickupXDistance * 0.75, yOffset)),
+            //new Translation2d(-2.9, 0.8), 
             new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)), 
             trajectoryConfig);
 
         Trajectory pickupToScore = TrajectoryGenerator.generateTrajectory(
             new Pose2d(pickupXDistance, pickupYDistance, new Rotation2d(pickupRotation)), 
             List.of(
-            new Translation2d(pickupXDistance * 0.75, yOffset)), 
+            new Translation2d(pickupXDistance * 0.75, yOffset/2)), 
             new Pose2d(0, yOffset2, Rotation2d.fromDegrees(0)), 
             trajectoryConfig);
 
@@ -154,7 +156,7 @@ public class VisionAutos {
                 ),
 
                 // Open claw/eject piece with rollers
-                claw.setPower(1),
+                claw.setPower(0.5),
 
                 // Wait to outtake
                 Commands.waitSeconds(.5),

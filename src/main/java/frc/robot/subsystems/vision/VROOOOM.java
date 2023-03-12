@@ -217,18 +217,18 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         // This doesn't work for some reason, so we might need to pass the currentGameObject into the drive command directly. (3/11/2023)
         if (currentGameObject == OBJECT_TYPE.CONE) {
-            goalArea = 3.8; // This line is running, so we know the conditional is working (3/11/2023)
+            goalArea = 3.4;//3.8; // This line is running, so we know the conditional is working (3/11/2023)
             currentLimelight.setPipeline(1);
 
             // Old PID for max 4 m/s
-            // PIDArea.setPID(0.4, 0, 0.01);
-            // PIDTX.setPID(0.04, 0, 0.01);
-            // PIDYaw.setPID(0, 0, 0);
+            PIDArea.setPID(0.4, 0.01, 0.01);
+            PIDTX.setPID(0.04, 0.01, 0.01);
+            PIDYaw.setPID(0, 0, 0);
 
             // New PID for max 5 m/s
-            PIDArea.setPID(0.5, 0, 0.0125);
-            PIDTX.setPID(0.05, 0, 0.0125);
-            PIDYaw.setPID(0, 0, 0);
+            // PIDArea.setPID(0.5, 0, 0.0125);
+            // PIDTX.setPID(0.05, 0, 0.0125);
+            // PIDYaw.setPID(0, 0, 0);
         } else {
             goalArea = 0; // Goal area for cube ground pickup
             currentLimelight.setPipeline(2);
@@ -262,7 +262,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                             Commands.runOnce(() -> arm.setTargetTicks(-328500)),
                             Commands.runOnce(() -> elevator.setTargetTicks(-15000))
                         ),
-                        new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(5) // Timeout after 30 seconds
+                        new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(1) // Timeout after 30 seconds
                     ),
                     
     
@@ -412,20 +412,20 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 currentLimelight.setLightState(LightMode.ON);
 
                 // PID when the max speed was 4 m/s
-                // PIDArea.setPID(2, 0, 0);
-                // PIDTX.setPID(0.08, 0, 0.02);
-                // PIDYaw.setPID(0, 0, 0);
-
-                // New PID for max speed of 5 m/s, just calculated (multiplied by 5/4) but has to be tuned
-                PIDArea.setPID(2.5, 0, 0);
-                PIDTX.setPID(0.1, 0, 0.025);
+                PIDArea.setPID(2, 0, 0);
+                PIDTX.setPID(0.08, 0.02, 0.02);
                 PIDYaw.setPID(0, 0, 0);
 
-                goalArea = 0.5;
+                // New PID for max speed of 5 m/s, just calculated (multiplied by 5/4) but has to be tuned
+                // PIDArea.setPID(2.5, 0, 0);
+                // PIDTX.setPID(0.1, 0, 0.025);
+                // PIDYaw.setPID(0, 0, 0);
+
+                goalArea = 0.6;
 
                 switch(currentHeightPos) {
                     case HIGH:
-                        armPositionTicks = ArmConstants.kArmScore; // Score high
+                        armPositionTicks = ArmConstants.kArmScore - 15900; // Score high
                         elevatorPositionTicks = ElevatorConstants.kElevatorScoreHigh;
                         break;
         
@@ -491,7 +491,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         Commands.runOnce(() -> initVisionScore(objType, pos))
                     ),
                     
-                    new TurnToAngle(180, drivetrain),
+                    new TurnToAngle(0, drivetrain),
     
                     // Possible test case: Wait for vision to timeout since sometimes, the speed is not within the stopping range (0.1 m/s)
                     new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain)
@@ -513,6 +513,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         )
                     ),
     
+                    Commands.waitSeconds(0.5),
                     // Open claw/eject piece with rollers
                     claw.setPower(1),
     
@@ -582,9 +583,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             SmartDashboard.putNumber("Vision average X", calculatedX);
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
-            xSpeed = pidArea.calculate(calculatedX, goalArea);
-            ySpeed = -pidTX.calculate(calculatedY, goalTX);
-            rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
+            xSpeed = pidArea.calculate(calculatedX, goalArea) * (5/4);
+            ySpeed = -pidTX.calculate(calculatedY, goalTX) * (5/4);
+            rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw) * (5/4);
             
             if (NerdyMath.inRange(xSpeed, -.1, .1) &&
             NerdyMath.inRange(ySpeed, -.1, .1) &&

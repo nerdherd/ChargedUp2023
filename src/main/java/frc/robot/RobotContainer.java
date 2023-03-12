@@ -134,7 +134,7 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
-    arm.resetEncoderStow();
+    // arm.resetEncoderStow();
     // elevator.resetEncoder();
 
     arm.setDefaultCommand(
@@ -427,8 +427,9 @@ public class RobotContainer {
 
     // }
     
-    arm.resetEncoderStow();
-    elevator.resetEncoder();
+    // COME BACK TO THIS BEFORE LAR THIS IS VERY IMPORTANT TO THINK ABOUT
+    // arm.resetEncoderStow();
+    // elevator.resetEncoder();
 
     // if (IsSwerveDrive) {
     //   swerveDrive.resetEncoders();
