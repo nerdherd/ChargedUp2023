@@ -32,7 +32,7 @@ public class Elevator extends SubsystemBase implements Reportable{
   public Elevator() {
     elevator = new TalonFX(ElevatorConstants.kElevatorID);
     elevator.setNeutralMode(NeutralMode.Brake);
-    elevator.setInverted(true);
+    elevator.setInverted(false);
     // hallEffect = new DigitalInput(ElevatorConstants.kHallEffectID);
 
     atTargetPosition = () -> NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 40000, targetTicks + 40000);

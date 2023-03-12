@@ -91,7 +91,7 @@ public final class Constants {
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
-    public static final int kArmStow = -622485;//-630435;//144278;
+    public static final int kArmStow = -570828;//-622485;//-630435;//144278;
     public static final int kArmScore = -377161; //-432700;//-408850;//596443; // 89744;
     public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
     public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
