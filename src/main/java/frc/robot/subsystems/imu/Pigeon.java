@@ -57,22 +57,43 @@ public class Pigeon extends SubsystemBase implements Gyro {
         );
     }
     
-    public void reportToSmartDashboard() {
-        SmartDashboard.putNumber("Robot Heading", getHeading());
-        SmartDashboard.putNumber("Robot Yaw", -pigeon.getYaw());
-        SmartDashboard.putNumber("Robot Pitch", pigeon.getPitch());
-        SmartDashboard.putNumber("Robot Roll", -pigeon.getRoll());
-        SmartDashboard.putNumber("Pigeon Firmware Version", pigeon.getFirmwareVersion());
+    public void reportToSmartDashboard(LOG_LEVEL level) {
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                SmartDashboard.putNumber("Pigeon Firmware Version", pigeon.getFirmwareVersion());
+            case MEDIUM:
+                SmartDashboard.putNumber("Robot Yaw", -pigeon.getYaw());
+                SmartDashboard.putNumber("Robot Pitch", pigeon.getPitch());
+                SmartDashboard.putNumber("Robot Roll", -pigeon.getRoll());
+            case MINIMAL:
+                SmartDashboard.putNumber("Robot Heading", getHeading());
+        }
     }
     
-    public void initShuffleboard() {
-        ShuffleboardTab tab = Shuffleboard.getTab("Imu");
-
-        tab.addNumber("Robot Heading", this::getHeading);
-        tab.addNumber("Robot Yaw", () -> -pigeon.getYaw());
-        tab.addNumber("Robot Pitch", () -> pigeon.getPitch());
-        tab.addNumber("Robot Roll", () -> -pigeon.getRoll());
-        tab.addNumber("Pigeon Firmware Version", () -> pigeon.getFirmwareVersion());
+    public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF)  {
+            return;
+        }
+        ShuffleboardTab tab;
+        if (level == LOG_LEVEL.MINIMAL) {
+            tab = Shuffleboard.getTab("Main");
+        } else {
+            tab = Shuffleboard.getTab("Imu");
+        }
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                tab.addNumber("Pigeon Firmware Version", () -> pigeon.getFirmwareVersion());
+            case MEDIUM:
+                tab.addNumber("Robot Yaw", () -> -pigeon.getYaw());
+                tab.addNumber("Robot Pitch", () -> pigeon.getPitch());
+                tab.addNumber("Robot Roll", () -> -pigeon.getRoll());
+            case MINIMAL:
+                tab.addNumber("Robot Heading", this::getHeading);
+        }
     }
     
 }
