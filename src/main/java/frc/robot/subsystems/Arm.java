@@ -27,10 +27,11 @@ public class Arm extends SubsystemBase implements Reportable {
     private TalonFX rotatingArm;
     private int targetTicks = ArmConstants.kArmStow;
     public BooleanSupplier atTargetPosition;
-    // private DigitalInput limitSwitch;
+    // private DigitalInput talonTachTop, talonTachBottom;
 
     public Arm() {
-        // limitSwitch = new DigitalInput(ArmConstants.kLimitSwitchID);
+        // talonTachTop = new DigitalInput(ArmConstants.kTalonTachTopID);
+        // talonTachBottom = new DigitalInput(ArmConstants.kTalonTachBottomID);
         
         // gear ratio 27:1
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
@@ -54,21 +55,24 @@ public class Arm extends SubsystemBase implements Reportable {
         
         if (currentJoystickOutput > ArmConstants.kArmDeadband) {
             
-            // if (rotatingArm.getSelectedSensorPosition() >= ArmConstants.kArmLowerLimit) {
-            //     rotatingArm.set(ControlMode.PercentOutput, 0);
-            //   } else {
+            // if (talonTachBottom.get() || rotatingArm.getStatorCurrent() >= 45) {
+            if (rotatingArm.getStatorCurrent() >= 45)
+            {
+                rotatingArm.set(ControlMode.PercentOutput, 0);
+            } else {
                 rotatingArm.set(ControlMode.PercentOutput, 0.1);
-            // }
+            }
 
             // rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) { // Up
-            // if (limitSwitch.get()) {
-            //     rotatingArm.set(ControlMode.PercentOutput, 0);
-            //     resetEncoderStow();
-            // } else {
+            // if (talonTachTop.get() || rotatingArm.getStatorCurrent() >= 45) {
+            if (rotatingArm.getStatorCurrent() >= 45)
+            {
+                rotatingArm.set(ControlMode.PercentOutput, 0);
+            } else {
                 rotatingArm.set(ControlMode.PercentOutput, -0.1);
-            // }
+            }
             // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
@@ -97,33 +101,8 @@ public class Arm extends SubsystemBase implements Reportable {
     }
 
     public void moveArmMotionMagic(int position, double percentExtended) {
-        
-        rotatingArm.config_kP(0, SmartDashboard.getNumber("Arm kP", ArmConstants.kArmP));
-        rotatingArm.config_kI(0, SmartDashboard.getNumber("Arm kI", ArmConstants.kArmI));
-        rotatingArm.config_kD(0, SmartDashboard.getNumber("Arm kD", ArmConstants.kArmD));
-        rotatingArm.config_kF(0, SmartDashboard.getNumber("Arm kF", ArmConstants.kArmF));
-
-        rotatingArm.configMotionCruiseVelocity(SmartDashboard.getNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity));
-        rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
-        // config tuning params in slot 0
-        double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
-        
-        // if (limitSwitch.get()) {
-            // rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
-        // }
-        
-        rotatingArm.set(ControlMode.MotionMagic, position, DemandType.ArbitraryFeedForward, ff);
-        targetTicks = position;
-
-        SmartDashboard.putNumber("Arm FF", ff);
-
-        SmartDashboard.putBoolean("arm motion magic :(", true);
-
-        // if (Math.abs(currentPosition.getAsDouble() - position) > 10) {
-        //     rotatingArm.setNeutralMode(NeutralMode.Brake);
-        // } else {
-        //     rotatingArm.setNeutralMode(NeutralMode.Coast);
-        // }
+        setTargetTicks(position);
+        moveArmMotionMagic(percentExtended);
     }
 
     public void moveArmMotionMagic(double percentExtended) {
@@ -138,7 +117,7 @@ public class Arm extends SubsystemBase implements Reportable {
         // config tuning params in slot 0
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
         
-        // if (limitSwitch.get()) {
+        // if (talonTachTop.get()) {
         //     rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
         // }
 
@@ -146,8 +125,14 @@ public class Arm extends SubsystemBase implements Reportable {
             targetTicks = ArmConstants.kArmStow;
         }
         
-        rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
-
+        if (rotatingArm.getStatorCurrent() >= 45 && rotatingArm.getSelectedSensorPosition() > targetTicks)
+        {
+            rotatingArm.set(ControlMode.PercentOutput, 0);
+        } else 
+        {
+            rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
+            
+        }
         SmartDashboard.putNumber("Arm FF", ff);
 
         SmartDashboard.putBoolean("arm motion magic :(", true);

@@ -20,7 +20,7 @@ import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.MotorClaw;
+import frc.robot.subsystems.claw.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.vision.VROOOOM;
 import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
