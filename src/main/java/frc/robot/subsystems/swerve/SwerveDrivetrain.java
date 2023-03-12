@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.SwerveDriveConstants.CANCoderConstants;
 import frc.robot.Constants.SwerveDriveConstants.MagEncoderConstants;
-import frc.robot.subsystems.Imu;
+import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.Reportable;
 
 import static frc.robot.Constants.SwerveDriveConstants.*;
@@ -26,7 +26,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     private final SwerveModule backLeft;
     private final SwerveModule backRight;
 
-    private final Imu gyro;
+    private final Gyro gyro;
     private final SwerveDriveOdometry odometer;
 
     private Field2d field;
@@ -41,7 +41,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     /**
      * Construct a new {@link SwerveDrivetrain}
      */
-    public SwerveDrivetrain(Imu gyro, SwerveModuleType moduleType) throws IllegalArgumentException {
+    public SwerveDrivetrain(Gyro gyro, SwerveModuleType moduleType) throws IllegalArgumentException {
         switch (moduleType) {
             case MAG_ENCODER:
                 frontLeft = new MagSwerveModule(
@@ -176,7 +176,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     //****************************** GETTERS ******************************/
 
-    public Imu getImu() {
+    public Gyro getGyro() {
         return this.gyro;
     }
 
