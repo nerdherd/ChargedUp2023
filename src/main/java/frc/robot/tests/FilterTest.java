@@ -19,7 +19,7 @@ public class FilterTest {
         OIConstants.kDeadband, 
         SwerveDriveConstants.kDriveAlpha, 
         SwerveDriveConstants.kDriveOneMinusAlpha,
-        SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond,
+        4,
         SwerveDriveConstants.kTeleMaxAcceleration,
         3,
         -SwerveDriveConstants.kTeleMaxAcceleration);
@@ -28,7 +28,7 @@ public class FilterTest {
         OIConstants.kDeadband, 
         SwerveDriveConstants.kDriveAlpha, 
         SwerveDriveConstants.kDriveOneMinusAlpha,
-        SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond,
+        4,
         SwerveDriveConstants.kTeleMaxAcceleration,
         3,
         -SwerveDriveConstants.kTeleMaxAcceleration);
@@ -49,8 +49,8 @@ public class FilterTest {
     public double currentYPos = 0;
     public Rotation2d currentAngle = new Rotation2d(0);
 
-    public NewDriverFilter newXFilter = new NewDriverFilter(0.05, 0.05, SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, SwerveDriveConstants.kTeleMaxDeceleration);
-    public NewDriverFilter newYFilter = new NewDriverFilter(0.05, 0.05, SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, SwerveDriveConstants.kTeleMaxDeceleration);
+    public NewDriverFilter newXFilter = new NewDriverFilter(0.05, 0.05, 4, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, SwerveDriveConstants.kTeleMaxDeceleration);
+    public NewDriverFilter newYFilter = new NewDriverFilter(0.05, 0.05, 4, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, SwerveDriveConstants.kTeleMaxDeceleration);
     public NewDriverFilter newRotationFilter = new NewDriverFilter(0.05, 0.05, SwerveDriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond, SwerveDriveConstants.kDriveAlpha, SwerveDriveConstants.kTeleMaxAcceleration, SwerveDriveConstants.kTeleMaxDeceleration);    
 
     public BadPS4 badPS4 = new BadPS4(0);
@@ -149,7 +149,7 @@ public class FilterTest {
         originalFilterValue = originalLimiter.calculate(originalFilterValue);
     
         // Apply scale
-        originalFilterValue *= SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
+        originalFilterValue *= 4;
     
         SmartDashboard.putNumber("Original filter output:", originalFilterValue);
 

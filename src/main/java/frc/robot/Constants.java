@@ -157,7 +157,6 @@ public final class Constants {
 
   public static final class ModuleConstants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
-    public static final double kDriveMotorGearRatio = 1 / 8.14;
     public static final double kTurningMotorGearRatio = 1 / 21.428; // 150 : 7 : 1 MK4i
     public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI;
     public static final double kDriveTicksToMeters = (1 / 2048.0) * kMetersPerRevolution; 
@@ -167,6 +166,7 @@ public final class Constants {
     public static final double kAbsoluteTurningTicksPer100MsToRadPerSec = kAbsoluteTurningTicksToRad * 10;
     public static final double kIntegratedTurningTicksPer100MsToRadPerSec = kIntegratedTurningTicksToRad * 10;
 
+    public static final double kMaxRPM = 6380;
     
     public static final double kDriveMotorDeadband = 0.05;
     public static final double kTurnMotorDeadband = 0.02;
@@ -226,6 +226,24 @@ public final class Constants {
     public static final boolean kBLDriveReversed = false;      
     public static final boolean kBRDriveReversed = false;
 
+    public static final double kFRGearRatio = 1 / 6.75;
+    public static final double kFLGearRatio = 1 / 6.75;
+    public static final double kBLGearRatio = 1 / 6.75;
+    public static final double kBRGearRatio = 1 / 6.75;
+
+    // Circumference * RPM * 1 min / 60 sec * gear ratio = max theoretical speed
+    // Approx 4.1695 with L1 modules (1 / 8.14 gear ratio) (is 4.1148 according to manufacturer)
+    // Approx 5.2216 with L2 modules (1 / 6.75 gear ratio) (is 4.96824 according to manufacturer)
+    // https://www.swervedrivespecialties.com/products/mk4i-swerve-module
+    // https://cdn.shopify.com/s/files/1/0065/4308/1590/files/MK4iGearRatios_600x600.png?v=1637557453
+    public static final double kFRMaxSpeed = ModuleConstants.kWheelDiameterMeters * Math.PI * ModuleConstants.kMaxRPM / 60 * kFRGearRatio;
+    public static final double kFLMaxSpeed = ModuleConstants.kWheelDiameterMeters * Math.PI * ModuleConstants.kMaxRPM / 60 * kFLGearRatio;
+    public static final double kBLMaxSpeed = ModuleConstants.kWheelDiameterMeters * Math.PI * ModuleConstants.kMaxRPM / 60 * kBLGearRatio;
+    public static final double kBRMaxSpeed = ModuleConstants.kWheelDiameterMeters * Math.PI * ModuleConstants.kMaxRPM / 60 * kBRGearRatio;
+
+    // Max speed of the whole drivetrain is the max speed of the slowest module
+    public static final double kMaxSpeedMetersPerSecond = Math.min(Math.min(kFRMaxSpeed, kFLMaxSpeed), Math.min(kBLMaxSpeed, kBRMaxSpeed));
+
     public static final class MagEncoderConstants {
       public static final int kFRAbsoluteID = 13;
       public static final int kFLAbsoluteID = 23;
@@ -237,15 +255,15 @@ public final class Constants {
       public static final boolean kBLAbsoluteReversed = false;       
       public static final boolean kBRAbsoluteReversed = false; 
 
-      // public static final double kFRAbsoluteOffsetTicks = 4411;       
-      // public static final double kFLAbsoluteOffsetTicks = 3782;         
+      // public static final double kFRDefaultOffsetTicks = 4411;       
+      // public static final double kFLDefaultOffsetTicks = 3782;         
       // public static final double kBLAbsouteOffsetTicks = 3042;          
-      // public static final double kBRAbsoluteOffsetTicks = 2364;
+      // public static final double kBRDefaultOffsetTicks = 2364;
   
-      public static final double kFRAbsoluteOffsetTicks = 2794 + 1024;       
-      public static final double kFLAbsoluteOffsetTicks = 2354 + 1024 + 52;         
-      public static final double kBLAbsoluteOffsetTicks = 2048 + 1024 + 46;          
-      public static final double kBRAbsoluteOffsetTicks = 237 + 1024 + 25;
+      public static final double kFRDefaultOffsetTicks = 2794 + 1024;       
+      public static final double kFLDefaultOffsetTicks = 2354 + 1024 + 52;         
+      public static final double kBLDefaultOffsetTicks = 2048 + 1024 + 46;          
+      public static final double kBRDefaultOffsetTicks = 237 + 1024 + 25;
     }
 
     public static final class CANCoderConstants {
@@ -259,24 +277,19 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 68.379 + 180;       
-      public static final double kFLCANCoderOffsetDegrees = 252.949 - 180;         
-      public static final double kBLCANCoderOffsetDegrees = 105.293;          
-      public static final double kBRCANCoderOffsetDegrees = 180.176 - 180; // 1.406
+      public static final double kFRDefaultOffsetDegrees = 68.379 + 180;       
+      public static final double kFLDefaultOffsetDegrees = 252.949 - 180;         
+      public static final double kBLDefaultOffsetDegrees = 105.293;          
+      public static final double kBRDefaultOffsetDegrees = 180.176 - 180; // 1.406
     }
-
-
-
-
-
-    public static final double kPhysicalMaxSpeedMetersPerSecond = 4;    
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
-    public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;
+    public static final double kTeleDriveMaxSpeedProportion = 1;
+
     public static final double kTeleMaxAcceleration = 3;
     // THIS CONSTANT HAS TO BE NEGATIVE OTHERWISE THE ROBOT WILL CRASH
-    //TODO: Change deceleration with driver feedback, only in small increments (<= -2 is dangerous)
-    public static final double kTeleMaxDeceleration = -3; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
+    // KEEP BELOW -2.5
+    public static final double kTeleMaxDeceleration = -3;
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
       kPhysicalMaxAngularSpeedRadiansPerSecond * 0.75;
@@ -300,7 +313,7 @@ public final class Constants {
   }
 
   public static final class SwerveAutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 4;
+    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kMaxSpeedMetersPerSecond / 2;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
       SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
@@ -324,7 +337,7 @@ public final class Constants {
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
     public static final double kPBalancingInitial = 0.6;
-    public static final double kPBalancing = 0.3; // 0.4
+    public static final double kPBalancing = 0.3;
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
     public static final double kBalancingTowPeriod = 0.5;
   }

@@ -85,14 +85,14 @@ public class SwerveJoystickCommand extends CommandBase {
         this.xFilter = new NewDriverFilter(
             OIConstants.kDeadband, 
             kMinimumMotorOutput,
-            kTeleDriveMaxSpeedMetersPerSecond, 
+            kMaxSpeedMetersPerSecond, 
             kDriveAlpha, 
             kTeleMaxAcceleration, 
             kTeleMaxDeceleration);
         this.yFilter = new NewDriverFilter(
             OIConstants.kDeadband, 
             kMinimumMotorOutput,
-            kTeleDriveMaxSpeedMetersPerSecond, 
+            kMaxSpeedMetersPerSecond, 
             kDriveAlpha, 
             kTeleMaxAcceleration, 
             kTeleMaxDeceleration);

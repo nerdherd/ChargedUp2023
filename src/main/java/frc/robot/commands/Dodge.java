@@ -35,8 +35,7 @@ public class Dodge extends SwerveControllerCommand {
     private static Trajectory getDodgeTrajectory(SwerveDrivetrain swerveDrive, double xSpeed, double ySpeed, boolean isLeft, double distance) {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond, 
-            SwerveDriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
 
         double angle;
 
@@ -80,6 +79,7 @@ public class Dodge extends SwerveControllerCommand {
             endAngle -= (Math.PI / 2);
         }
 
+        // TODO: Change to robot oriented (does not work properly without)
         // Either to the top left or bottom right
         Trajectory dodgeTrajectory = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(angle)), 
