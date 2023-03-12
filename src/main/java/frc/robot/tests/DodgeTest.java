@@ -43,14 +43,14 @@ public class DodgeTest {
         this.xFilter = new NewDriverFilter(
             OIConstants.kDeadband, 
             kMinimumMotorOutput,
-            kTeleDriveMaxSpeedMetersPerSecond, 
+            4, 
             kDriveAlpha, 
             kTeleMaxAcceleration, 
             kTeleMaxDeceleration);
         this.yFilter = new NewDriverFilter(
             OIConstants.kDeadband, 
             kMinimumMotorOutput,
-            kTeleDriveMaxSpeedMetersPerSecond, 
+            4, 
             kDriveAlpha, 
             kTeleMaxAcceleration, 
             kTeleMaxDeceleration);

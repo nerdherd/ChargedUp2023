@@ -11,11 +11,12 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants.ModuleConstants;
-import frc.robot.Constants.SwerveDriveConstants;
 
 
 /**
@@ -28,11 +29,15 @@ public class MagSwerveModule implements SwerveModule {
     private final int driveMotorID;
     private final int turnMotorID;
     private final int absoluteEncoderId;
+    private final int moduleID;
 
     private final PIDController turningController;
     private final TalonSRX absoluteTurningEncoder;
     private final boolean invertTurningEncoder;
-    private final double absoluteEncoderOffset;
+    private final double originalAbsoluteEncoderOffset;
+    private double absoluteEncoderOffset;
+    private final double driveMotorGearRatio;
+    private final double maxSpeedMetersPerSecond;
 
     private double currentAngle = 0;
     private double desiredAngle = 0;
@@ -50,7 +55,7 @@ public class MagSwerveModule implements SwerveModule {
      * @param absoluteEncoderReversed   Whether or not the absolute encoder is inverted
      */
     public MagSwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
-    int absoluteEncoderId, double absoluteEncoderOffset, boolean absoluteEncoderReversed) {
+    int absoluteEncoderId, double absoluteEncoderOffset, boolean absoluteEncoderReversed, double driveMotorGearRatio, double maxSpeedMetersPerSecond) {
         this.driveMotor = new TalonFX(driveMotorId);
         this.turnMotor = new TalonFX(turningMotorId);
 
@@ -60,6 +65,7 @@ public class MagSwerveModule implements SwerveModule {
         this.driveMotorID = driveMotorId;
         this.turnMotorID = turningMotorId;
         this.absoluteEncoderId = absoluteEncoderId;
+        this.moduleID = driveMotorID / 10;
 
         this.turningController = new PIDController(
             SmartDashboard.getNumber("kPTurning", ModuleConstants.kPTurning),
@@ -71,8 +77,14 @@ public class MagSwerveModule implements SwerveModule {
         this.driveMotor.setInverted(invertDriveMotor);
         this.turnMotor.setInverted(invertTurningMotor);
         this.absoluteTurningEncoder = new TalonSRX(absoluteEncoderId);
-        this.absoluteEncoderOffset = absoluteEncoderOffset;
         this.invertTurningEncoder = absoluteEncoderReversed;
+
+        this.originalAbsoluteEncoderOffset = absoluteEncoderOffset;
+        Preferences.initDouble("MagEncoderOffset" + moduleID, absoluteEncoderOffset);
+        this.absoluteEncoderOffset = Preferences.getDouble("MagEncoderOffset" + moduleID, absoluteEncoderOffset);
+
+        this.driveMotorGearRatio = driveMotorGearRatio;
+        this.maxSpeedMetersPerSecond = maxSpeedMetersPerSecond;
 
         initEncoders();
     }
@@ -125,6 +137,28 @@ public class MagSwerveModule implements SwerveModule {
     }
 
     /**
+     * Set the current angle of the CANCoder to 0.
+     */
+    public double calibrateEncoder() {
+        this.absoluteEncoderOffset = (absoluteTurningEncoder.getSelectedSensorPosition(1)) % 4096;
+        absoluteTurningEncoder.setSelectedSensorPosition(0);
+        Preferences.setDouble("MagEncoderOffset" + moduleID, absoluteEncoderOffset);
+
+        return this.absoluteEncoderOffset;
+    }
+
+    /**
+     * Reset the encoder to the original offset.
+     */
+    public double resetEncoderToDefault() {
+        Preferences.setDouble("MagEncoderOffset", originalAbsoluteEncoderOffset);
+        this.absoluteEncoderOffset = originalAbsoluteEncoderOffset;
+        resetEncoder();
+
+        return this.absoluteEncoderOffset;
+    }
+
+    /**
      * Set the percent output of both motors to zero.
      */
     public void stop() {
@@ -134,7 +168,7 @@ public class MagSwerveModule implements SwerveModule {
     }
 
     //****************************** GETTERS ******************************/
-
+    
     /**
      * Get the distance travelled by the motor in meters
      * @return Distance travelled by motor (in meters)
@@ -142,7 +176,7 @@ public class MagSwerveModule implements SwerveModule {
     public double getDrivePosition() {
         return driveMotor.getSelectedSensorPosition(0) 
             * ModuleConstants.kDriveTicksToMeters
-            * ModuleConstants.kDriveMotorGearRatio;
+            * this.driveMotorGearRatio;
     }
 
     /**
@@ -216,7 +250,7 @@ public class MagSwerveModule implements SwerveModule {
         
         // TODO: switch to velocity control
         // driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond);
-        currentPercent = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        currentPercent = state.speedMetersPerSecond / maxSpeedMetersPerSecond;
         driveMotor.set(ControlMode.PercentOutput, currentPercent);
         double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
         // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
@@ -245,6 +279,9 @@ public class MagSwerveModule implements SwerveModule {
                 tab.addNumber("Turn angle", () -> currentAngle);
                 tab.addNumber("Desired Angle", () -> desiredAngle);
                 tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
+                tab.add("Calibrate Angle", new InstantCommand(this::calibrateEncoder));
+                tab.add("Reset Angle", new InstantCommand(this::resetEncoder));
+                tab.add("Reset Angle to Default", new InstantCommand(this::resetEncoderToDefault));
             case MINIMAL:
                 break;
         }
@@ -267,6 +304,9 @@ public class MagSwerveModule implements SwerveModule {
                 SmartDashboard.putNumber("Turn angle #" + turnMotorID, currentAngle);
                 SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, desiredAngle);
                 SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, desiredAngle - currentAngle);
+                SmartDashboard.putData("Calibrate Module #" + moduleID, new InstantCommand(this::calibrateEncoder));
+                SmartDashboard.putData("Reset Module #" + moduleID, new InstantCommand(this::resetEncoder));
+                SmartDashboard.putData("Default Module #" + moduleID, new InstantCommand(this::resetEncoderToDefault));
             case MINIMAL:
                 break;
         }
