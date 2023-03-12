@@ -232,9 +232,10 @@ public final class Constants {
     public static final double kBRGearRatio = 1 / 8.14;
 
     // Circumference * RPM * 1 min / 60 sec * gear ratio = max theoretical speed
-    // Approx 4.1695 with L2 modules (1 / 8.14 gear ratio) (is 4.1148 according to manufacturer)
-    // Approx 5.2216 with L1 modules (1 / 6.5 gear ratio) (is 4.96824 according to manufacturer)
-    // https://www.swervedrivespecialties.com/products/mk4-swerve-module
+    // Approx 4.1695 with L1 modules (1 / 8.14 gear ratio) (is 4.1148 according to manufacturer)
+    // Approx 5.2216 with L2 modules (1 / 6.75 gear ratio) (is 4.96824 according to manufacturer)
+    // https://www.swervedrivespecialties.com/products/mk4i-swerve-module
+    // https://cdn.shopify.com/s/files/1/0065/4308/1590/files/MK4iGearRatios_600x600.png?v=1637557453
     public static final double kFRMaxSpeed = ModuleConstants.kWheelDiameterMeters * Math.PI * ModuleConstants.kMaxRPM / 60 * kFRGearRatio;
     public static final double kFLMaxSpeed = ModuleConstants.kWheelDiameterMeters * Math.PI * ModuleConstants.kMaxRPM / 60 * kFLGearRatio;
     public static final double kBLMaxSpeed = ModuleConstants.kWheelDiameterMeters * Math.PI * ModuleConstants.kMaxRPM / 60 * kBLGearRatio;
