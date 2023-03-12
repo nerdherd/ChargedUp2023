@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.claw;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConeRunnerConstants;
+import frc.robot.subsystems.Reportable;
+import frc.robot.subsystems.Reportable.LOG_LEVEL;
 
 public class ConeRunner extends SubsystemBase implements Reportable {
     private TalonSRX positionMotor;
@@ -81,17 +83,43 @@ public class ConeRunner extends SubsystemBase implements Reportable {
         speedMotor.set(ControlMode.PercentOutput, 0);
     }
 
-    public void reportToSmartDashboard() {
-        SmartDashboard.putNumber("Cone Runner Target Ticks", targetTicks);   
-        SmartDashboard.putNumber("Cone Runner Angle Ticks", positionMotor.getSelectedSensorPosition());
-        SmartDashboard.putNumber("Cone Runner Intake Velocity", speedMotor.getSelectedSensorVelocity());
+    public void reportToSmartDashboard(LOG_LEVEL level) {
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                SmartDashboard.putNumber("Cone Runner Intake Velocity", speedMotor.getSelectedSensorVelocity());
+            case MEDIUM:
+            case MINIMAL:
+                SmartDashboard.putNumber("Cone Runner Target Ticks", targetTicks);   
+                SmartDashboard.putNumber("Cone Runner Angle Ticks", positionMotor.getSelectedSensorPosition());
+                break;
+        }
     }
 
-    public void initShuffleboard() {
-        ShuffleboardTab tab = Shuffleboard.getTab("Cone Runner");
+    public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF)  {
+            return;
+        }
+        ShuffleboardTab tab;
+        if (level == LOG_LEVEL.MINIMAL) {
+            tab = Shuffleboard.getTab("Main");
+        } else {
+            tab = Shuffleboard.getTab("Cone Runner");
+        }
 
-        tab.addNumber("Target Ticks", () -> targetTicks);   
-        tab.addNumber("Angle Ticks", positionMotor::getSelectedSensorPosition);
-        tab.addNumber("Intake Velocity", speedMotor::getSelectedSensorVelocity);
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                tab.addNumber("Intake Velocity", speedMotor::getSelectedSensorVelocity);
+            case MEDIUM:
+            case MINIMAL:
+                tab.addNumber("Cone Runner Target Ticks", () -> targetTicks);   
+                tab.addNumber("Cone Runner Angle Ticks", positionMotor::getSelectedSensorPosition);
+                break;
+        }
+
+        
     }
 }

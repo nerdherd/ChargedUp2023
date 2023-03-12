@@ -438,31 +438,52 @@ public class Limelight implements Reportable{
         return (h2 - h1) / Math.abs(Math.tan(Math.toRadians(a1) + Math.toRadians(a2)));
     }
 
-    public void initShuffleboard() {
+    public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF)  {
+            return;
+        }
+
         ShuffleboardTab tab = Shuffleboard.getTab(this.getName());
 
-        tab.addBoolean("HasTarget", this::hasValidTarget);
-        tab.addNumber("Horizontal Offset", this::getXAngle);
-        tab.addNumber("Vertical Offset", this::getYAngle);
-        tab.addNumber("Area", this::getArea);
-        tab.addNumber("Skew", this::getSkew);
-        tab.addString("XCorners", () -> Arrays.toString(getXCorners()));
-        tab.addString("YCorners", () -> Arrays.toString(getYCorners()));
-        tab.add("LED ON", Commands.runOnce(() -> this.turnLightOn()));
-        tab.add("LED OFF", Commands.runOnce(() -> this.turnLightOff()));
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+            case MEDIUM:
+                tab.addNumber("Horizontal Offset", this::getXAngle);
+                tab.addNumber("Vertical Offset", this::getYAngle);
+                tab.addNumber("Area", this::getArea);
+                tab.addNumber("Skew", this::getSkew);
+                tab.addString("XCorners", () -> Arrays.toString(getXCorners()));
+                tab.addString("YCorners", () -> Arrays.toString(getYCorners()));
+                tab.add("LED ON", Commands.runOnce(() -> this.turnLightOn()));
+                tab.add("LED OFF", Commands.runOnce(() -> this.turnLightOff()));
+            case MINIMAL:
+                tab.addBoolean("HasTarget", this::hasValidTarget);
+                break;
+        }
+
     }
 
     /**
      * Output diagnostics
      */
-    public void reportToSmartDashboard() {
-        SmartDashboard.putBoolean("HasTarget", hasValidTarget());
-        SmartDashboard.putNumber("Horizontal Offset", getXAngle());
-        SmartDashboard.putNumber("Vertical Offset", getYAngle());
-        SmartDashboard.putNumber("Area", getArea());
-        SmartDashboard.putNumber("Skew", getSkew());
-        SmartDashboard.putString("XCorners", Arrays.toString(getXCorners()));
-        SmartDashboard.putString("YCorners", Arrays.toString(getYCorners()));
+    public void reportToSmartDashboard(LOG_LEVEL level) {
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+            case MEDIUM:
+                SmartDashboard.putNumber("Horizontal Offset", getXAngle());
+                SmartDashboard.putNumber("Vertical Offset", getYAngle());
+                SmartDashboard.putNumber("Area", getArea());
+                SmartDashboard.putNumber("Skew", getSkew());
+                SmartDashboard.putString("XCorners", Arrays.toString(getXCorners()));
+                SmartDashboard.putString("YCorners", Arrays.toString(getYCorners()));
+            case MINIMAL:
+                SmartDashboard.putBoolean("HasTarget", hasValidTarget());
+                break;
+        }
     }
 
     /**
