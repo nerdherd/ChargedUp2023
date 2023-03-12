@@ -99,14 +99,14 @@ public class VisionAutos {
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-            new Translation2d(pickupXDistance / 2, yOffset)), 
+            new Translation2d(pickupXDistance * 0.75, yOffset)), 
             new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)), 
             trajectoryConfig);
 
         Trajectory pickupToScore = TrajectoryGenerator.generateTrajectory(
             new Pose2d(pickupXDistance, pickupYDistance, new Rotation2d(pickupRotation)), 
             List.of(
-            new Translation2d(pickupXDistance / 2, yOffset)), 
+            new Translation2d(pickupXDistance * 0.75, yOffset)), 
             new Pose2d(0, yOffset2, Rotation2d.fromDegrees(0)), 
             trajectoryConfig);
 
