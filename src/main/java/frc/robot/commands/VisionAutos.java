@@ -31,14 +31,19 @@ import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
 import static frc.robot.Constants.SwerveAutoConstants.*;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
-// Trajectory must stop 32 inches in front of the cone
+// Trajectory must stop ~32 inches in front of the cone
 // Trajectory can stop anywhere in front of the tape/tag as long as the robot is in front of the charging station
 // All score positions are assumed to be high for this file right now
 // Positive Y = left, positive X = towards drivers, rotation positive is clockwise
 
 public class VisionAutos {
     
-    // Go from starting position to pickup position
+    /**
+     * You should not be calling this function directly (nothing will break if you do, 
+     * but it is meant to be paired with vision auto choosing). Instead, call visionAutoChoose below.
+     * 
+     * @return Auto Command
+     */
     public static CommandBase visionPreloadPickupScoreCharge(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, 
         Alliance alliance, StartPosition position, SCORE_POS scorePosition) {
         // Create trajectory settings
@@ -74,17 +79,21 @@ public class VisionAutos {
                 yOffset2 = 0.5;
                 break;
             case MIDDLE:
-                pickupXDistance = 5; // TODO: Measure IRL
-                pickupYDistance = -0.5;
+                pickupXDistance = -5; // TODO: Measure IRL
+                pickupYDistance = -0.3;
+                pickupRotation = -165;
+                yOffset2 = -0.5; // Score on the nodes to the right of the middle shelf
                 break;
         }
         
         // Negate all measurements related to the y-axis because we are on the opposite side of the field
         if (alliance == Alliance.Red) {
-            pickupYDistance *= -1;
-            yOffset *= -1;
-            yOffset2 *= -1;
-            pickupRotation *= -1;
+            if (position != StartPosition.MIDDLE) {
+                pickupYDistance *= -1;
+                yOffset *= -1;
+                yOffset2 *= -1;
+                pickupRotation *= -1;
+            }
         }
         
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
@@ -169,50 +178,14 @@ public class VisionAutos {
                 scoreToPickupCommand,
                 runOnce(() -> swerveDrive.stopModules()),
 
+                // Potential source of error. When vision aligns to score, the odometry will be offset by a random amount
                 vision.VisionPickupOnGround(OBJECT_TYPE.CONE),
 
                 pickupToScoreCommand,
                 runOnce(() -> swerveDrive.stopModules()),
                 runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
 
-                // ======== Drop Cone Start ========
-
-                // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
-                Commands.race(
-                    Commands.waitSeconds(5), // Timeout
-                    Commands.sequence(
-                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
-                        Commands.waitSeconds(0.5),
-
-                        Commands.parallel( // End when target positions reached
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh))
-                        )
-                    )
-                ),
-
-                // Open claw/eject piece with rollers
-                claw.setPower(1),
-
-                // Wait to outtake
-                Commands.waitSeconds(.5),
-
-                // Close claw/stop rollers
-                claw.setPower(0),
-
-                // Stow arm
-                Commands.race(
-                    Commands.waitSeconds(5),
-                    Commands.parallel( // End command once both arm and elevator have reached their target position
-                        Commands.waitUntil(arm.atTargetPosition),
-                        Commands.waitUntil(elevator.atTargetPosition),
-                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                        Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                    )
-                ),
-
-                // ======== Drop Cone End ========
+                vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.HIGH),
 
                 SwerveAutos.chargeAuto(swerveDrive, startPositionFinal, allianceFinal, 0, false)
             ),
@@ -231,6 +204,22 @@ public class VisionAutos {
         return Commands.run(() -> SmartDashboard.putNumber("April Tag ID Auto", aprilTagID));
     }
 
+    /**
+     * Starting position: Facing any cube shelf (with bumpers flush to grid) with a cube preload.
+     * 
+     * Auto sequence:
+     * 1. Scores preload
+     * 2. Goes to pickup cone with vision assist
+     * 3. Goes to score cone with vision assist
+     * 4. Charges with gyro assist
+     * 
+     * Field placements:
+     * - If starting on the left, the leftmost game piece should be a cone
+     * - If starting on the right, the rightmost game piece should be a cone
+     * - If starting in the middle, the second game piece from the right should be a cone
+     * 
+     * @return Auto command
+     */
     public static CommandBase visionAutoChoose(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, 
             MotorClaw claw, Alliance selectedAlliance, StartPosition selectedStartPosition) {
         final int aprilTagID = vision.getAprilTagID();
