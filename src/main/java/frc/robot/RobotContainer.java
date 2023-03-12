@@ -107,7 +107,7 @@ public class RobotContainer {
 
     //if (IsSwerveDrive) {
       try {
-        swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
+        swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.MAG_ENCODER);
         vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
       } catch (IllegalArgumentException e) {
         DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());

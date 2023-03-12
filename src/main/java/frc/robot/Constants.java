@@ -157,7 +157,7 @@ public final class Constants {
 
   public static final class ModuleConstants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
-    public static final double kDriveMotorGearRatio = 1 / 6.75;
+    public static final double kDriveMotorGearRatio = 1 / 8.14;
     public static final double kTurningMotorGearRatio = 1 / 21.428; // 150 : 7 : 1 MK4i
     public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI;
     public static final double kDriveTicksToMeters = (1 / 2048.0) * kMetersPerRevolution; 
@@ -269,7 +269,7 @@ public final class Constants {
 
 
 
-    public static final double kPhysicalMaxSpeedMetersPerSecond = 5;    
+    public static final double kPhysicalMaxSpeedMetersPerSecond = 4;    
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;
