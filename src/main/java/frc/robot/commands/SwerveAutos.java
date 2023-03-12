@@ -381,6 +381,8 @@ public class SwerveAutos {
         );
     }
 
+    // Reimplemented following vision commands
+
     public static CommandBase visionPickupAuto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance, SCORE_POS scorePos) {
         return vision.VisionPickupOnGround(OBJECT_TYPE.CUBE);
     }

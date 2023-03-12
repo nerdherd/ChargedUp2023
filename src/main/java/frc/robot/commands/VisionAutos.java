@@ -1,5 +1,276 @@
 package frc.robot.commands;
 
+import java.util.List;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.SwerveAutoConstants;
+import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.commands.SwerveAutos.StartPosition;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.MotorClaw;
+import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.subsystems.vision.VROOOOM;
+import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
+import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
+
+import static frc.robot.Constants.SwerveAutoConstants.*;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
+
+// Trajectory must stop 32 inches in front of the cone
+// Trajectory can stop anywhere in front of the tape/tag as long as the robot is in front of the charging station
+// All score positions are assumed to be high for this file right now
+// Positive Y = left, positive X = towards drivers, rotation positive is clockwise
+
 public class VisionAutos {
     
+    // Go from starting position to pickup position
+    public static CommandBase visionPreloadPickupScoreCharge(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, 
+        Alliance alliance, StartPosition position, SCORE_POS scorePosition) {
+        // Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
+        
+        double pickupXDistance = 0;
+        double pickupYDistance = 0;
+        double pickupRotation = 0;
+
+        double yOffset = 0; // So we don't bump into the charging station
+        double yOffset2 = 0; // Align to cone nodes instead of cube shelves
+
+        if (alliance == Alliance.Red) {
+            if (position == StartPosition.RIGHT) position = StartPosition.LEFT;
+            if (position == StartPosition.LEFT) position = StartPosition.RIGHT;
+        }
+
+        switch (position) {
+            // Reversed because gyro starts reversed
+            case RIGHT:
+                pickupXDistance = -4.1;
+                pickupYDistance = 0.48;
+                pickupRotation = -150;
+                yOffset = -0.3;
+                yOffset2 = -0.5;
+                break;
+            case LEFT:
+                pickupXDistance = -4.1;
+                pickupYDistance = -0.48;
+                pickupRotation = 150;
+                yOffset = 0.3;
+                yOffset2 = 0.5;
+                break;
+            case MIDDLE:
+                pickupXDistance = 5; // TODO: Measure IRL
+                pickupYDistance = -0.5;
+                break;
+        }
+        
+        // Negate all measurements related to the y-axis because we are on the opposite side of the field
+        if (alliance == Alliance.Red) {
+            pickupYDistance *= -1;
+            yOffset *= -1;
+            yOffset2 *= -1;
+            pickupRotation *= -1;
+        }
+        
+        Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)), 
+            List.of(
+            new Translation2d(pickupXDistance / 2, yOffset)), 
+            new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)), 
+            trajectoryConfig);
+
+        Trajectory pickupToScore = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(pickupXDistance, pickupYDistance, new Rotation2d(pickupRotation)), 
+            List.of(
+            new Translation2d(pickupXDistance / 2, yOffset)), 
+            new Pose2d(0, yOffset2, Rotation2d.fromDegrees(0)), 
+            trajectoryConfig);
+
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        
+        SwerveControllerCommand scoreToPickupCommand = new SwerveControllerCommand(
+            scoreToPickup, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        SwerveControllerCommand pickupToScoreCommand = new SwerveControllerCommand(
+            pickupToScore, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        final StartPosition startPositionFinal = position;
+        final Alliance allianceFinal = alliance;
+
+        return race(
+            sequence(
+                parallel(
+                    runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+                    runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
+                    runOnce(() -> swerveDrive.stopModules())
+                ),
+                
+                // ======== Drop Preload Start ========
+
+                // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
+                Commands.race(
+                    Commands.waitSeconds(5), // Timeout
+                    Commands.sequence(
+                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                        Commands.waitSeconds(0.5),
+
+                        Commands.parallel( // End when target positions reached
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh))
+                        )
+                    )
+                ),
+
+                // Open claw/eject piece with rollers
+                claw.setPower(1),
+
+                // Wait to outtake
+                Commands.waitSeconds(.5),
+
+                // Close claw/stop rollers
+                claw.setPower(0),
+
+                // Stow arm
+                Commands.race(
+                    Commands.waitSeconds(5),
+                    Commands.parallel( // End command once both arm and elevator have reached their target position
+                        Commands.waitUntil(arm.atTargetPosition),
+                        Commands.waitUntil(elevator.atTargetPosition),
+                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    )
+                ),
+
+                // ======== Drop Preload End ========
+
+                scoreToPickupCommand,
+                runOnce(() -> swerveDrive.stopModules()),
+
+                vision.VisionPickupOnGround(OBJECT_TYPE.CONE),
+
+                pickupToScoreCommand,
+                runOnce(() -> swerveDrive.stopModules()),
+                runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
+
+                // ======== Drop Cone Start ========
+
+                // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
+                Commands.race(
+                    Commands.waitSeconds(5), // Timeout
+                    Commands.sequence(
+                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                        Commands.waitSeconds(0.5),
+
+                        Commands.parallel( // End when target positions reached
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh))
+                        )
+                    )
+                ),
+
+                // Open claw/eject piece with rollers
+                claw.setPower(1),
+
+                // Wait to outtake
+                Commands.waitSeconds(.5),
+
+                // Close claw/stop rollers
+                claw.setPower(0),
+
+                // Stow arm
+                Commands.race(
+                    Commands.waitSeconds(5),
+                    Commands.parallel( // End command once both arm and elevator have reached their target position
+                        Commands.waitUntil(arm.atTargetPosition),
+                        Commands.waitUntil(elevator.atTargetPosition),
+                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    )
+                ),
+
+                // ======== Drop Cone End ========
+
+                SwerveAutos.chargeAuto(swerveDrive, startPositionFinal, allianceFinal, 0, false)
+            ),
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+        );
+    }
+
+    public static CommandBase visionAutoChoose(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, 
+            MotorClaw claw, Alliance selectedAlliance, StartPosition selectedStartPosition) {
+        final int aprilTagID = vision.getAprilTagID();
+
+        // Default values
+        Alliance alliance = Alliance.Red;
+        StartPosition startPosition = StartPosition.LEFT;
+
+        switch (aprilTagID) {
+            // Red alliance positions
+            case 1:
+                alliance = Alliance.Red;
+                startPosition = StartPosition.LEFT;
+                break;
+
+            case 2:
+                alliance = Alliance.Red;
+                startPosition = StartPosition.MIDDLE;
+                break;
+
+            case 3: 
+                alliance = Alliance.Red;
+                startPosition = StartPosition.RIGHT;
+                break;
+
+            // Blue alliance positions
+            case 6:
+                alliance = Alliance.Blue;
+                startPosition = StartPosition.LEFT;
+                break;
+
+            case 7: 
+                alliance = Alliance.Blue;
+                startPosition = StartPosition.MIDDLE;
+                break;
+
+            case 8:
+                alliance = Alliance.Blue;
+                startPosition = StartPosition.RIGHT;
+                break;
+
+            default: // Case that runs if no april tag is found, in which april tag ID will be -1
+                alliance = selectedAlliance;
+                startPosition = selectedStartPosition;
+                break;
+        }
+
+        final Alliance allianceFinal = alliance;
+        final StartPosition startPositionFinal = startPosition;
+
+        return visionPreloadPickupScoreCharge(swerveDrive, vision, arm, elevator, claw, allianceFinal, startPositionFinal, SCORE_POS.HIGH);
+    }
 }
