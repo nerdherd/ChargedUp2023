@@ -220,9 +220,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             goalArea = 3.8; // This line is running, so we know the conditional is working (3/11/2023)
             currentLimelight.setPipeline(1);
 
-            // TODO (3/11/23): Check if this works, I think the logic error MIGHT be because we are creating new PID controllers all the time (?)
-            PIDArea.setPID(0.4, 0, 0.01);
-            PIDTX.setPID(0.04, 0, 0.01);
+            // Old PID for max 4 m/s
+            // PIDArea.setPID(0.4, 0, 0.01);
+            // PIDTX.setPID(0.04, 0, 0.01);
+            // PIDYaw.setPID(0, 0, 0);
+
+            // New PID for max 5 m/s
+            PIDArea.setPID(0.5, 0, 0.0125);
+            PIDTX.setPID(0.05, 0, 0.0125);
             PIDYaw.setPID(0, 0, 0);
         } else {
             goalArea = 0; // Goal area for cube ground pickup
@@ -406,8 +411,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 currentLimelight.setPipeline(3); // Tape pipeline
                 currentLimelight.setLightState(LightMode.ON);
 
-                PIDArea.setPID(2, 0, 0);
-                PIDTX.setPID(0.08, 0, 0.02);
+                // PID when the max speed was 4 m/s
+                // PIDArea.setPID(2, 0, 0);
+                // PIDTX.setPID(0.08, 0, 0.02);
+                // PIDYaw.setPID(0, 0, 0);
+
+                // New PID for max speed of 5 m/s, just calculated (multiplied by 5/4) but has to be tuned
+                PIDArea.setPID(2.5, 0, 0);
+                PIDTX.setPID(0.1, 0, 0.025);
                 PIDYaw.setPID(0, 0, 0);
 
                 goalArea = 0.5;
