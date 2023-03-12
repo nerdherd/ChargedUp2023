@@ -468,62 +468,67 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         final PIDController pidTXFinal = PIDTX;
         final PIDController pidYawFinal = PIDYaw;
 
-        return Commands.race(
-            // Constantly run elevator and arm motion magic
-            Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            Commands.run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
-            
-            Commands.sequence(
-                Commands.parallel(
-                    Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
-                    Commands.runOnce(() -> initVisionScore(objType, pos))
-                ),
+        if (limelightLow != null) {
+            return Commands.race(
+                // Constantly run elevator and arm motion magic
+                Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                Commands.run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
                 
-                new TurnToAngle(180, drivetrain),
-
-                // Possible test case: Wait for vision to timeout since sometimes, the speed is not within the stopping range (0.1 m/s)
-                new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain)
-                    .until(cameraStatusSupplier)
-                    .withTimeout(2),
-
-                // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
-                Commands.race(
-                    Commands.waitSeconds(5), // Timeout
-                    Commands.sequence(
-                        Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks)),
-                        Commands.waitSeconds(0.5),
-
-                        Commands.parallel( // End when target positions reached
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
+                Commands.sequence(
+                    Commands.parallel(
+                        Commands.runOnce(() -> SmartDashboard.putString("Vision Score Stage", "Stow")),
+                        Commands.runOnce(() -> initVisionScore(objType, pos))
+                    ),
+                    
+                    new TurnToAngle(180, drivetrain),
+    
+                    // Possible test case: Wait for vision to timeout since sometimes, the speed is not within the stopping range (0.1 m/s)
+                    new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain)
+                        .until(cameraStatusSupplier)
+                        .withTimeout(2),
+    
+                    // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
+                    Commands.race(
+                        Commands.waitSeconds(5), // Timeout
+                        Commands.sequence(
+                            Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks)),
+                            Commands.waitSeconds(0.5),
+    
+                            Commands.parallel( // End when target positions reached
+                                Commands.waitUntil(elevator.atTargetPosition),
+                                Commands.waitUntil(arm.atTargetPosition),
+                                Commands.runOnce(() -> elevator.setTargetTicks(elevatorPositionTicks))
+                            )
                         )
-                    )
-                ),
-
-                // Open claw/eject piece with rollers
-                claw.setPower(1),
-
-                // Wait to outtake
-                Commands.waitSeconds(.5),
-
-                // Close claw/stop rollers
-                claw.setPower(0),
-
-                // Stow arm
-                Commands.race(
-                    Commands.waitSeconds(5),
-                    Commands.parallel( // End command once both arm and elevator have reached their target position
-                        Commands.waitUntil(arm.atTargetPosition),
-                        Commands.waitUntil(elevator.atTargetPosition),
-                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                        Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
-                    )
-                ),
-                // new TurnToAngle(0, drivetrain), // Turn back towards field after scoring
-                Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
-            )
-        );
+                    ),
+    
+                    // Open claw/eject piece with rollers
+                    claw.setPower(1),
+    
+                    // Wait to outtake
+                    Commands.waitSeconds(.5),
+    
+                    // Close claw/stop rollers
+                    claw.setPower(0),
+    
+                    // Stow arm
+                    Commands.race(
+                        Commands.waitSeconds(5),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                        )
+                    ),
+                    // new TurnToAngle(0, drivetrain), // Turn back towards field after scoring
+                    Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Score Running", false))
+                )
+            );
+        }
+        else {
+            return runOnce(() -> SmartDashboard.putString("Limelight command status:", "Sequence cancelled"));
+        }
     }
 
     public void driveRotateToTarget(PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
