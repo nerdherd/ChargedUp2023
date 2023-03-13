@@ -217,12 +217,12 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         // This doesn't work for some reason, so we might need to pass the currentGameObject into the drive command directly. (3/11/2023)
         if (currentGameObject == OBJECT_TYPE.CONE) {
-            goalArea = 3.4;//3.8; // This line is running, so we know the conditional is working (3/11/2023)
+            goalArea = 3.05; // Alex changed from 3.4 to 2.6 //3.8; // This line is running, so we know the conditional is working (3/11/2023)
             currentLimelight.setPipeline(1);
 
             // Old PID for max 4 m/s
             PIDArea.setPID(0.4, 0.01, 0.01);
-            PIDTX.setPID(0.04, 0.01, 0.01);
+            PIDTX.setPID(0.05, 0.01, 0.01);
             PIDYaw.setPID(0, 0, 0);
 
             // New PID for max 5 m/s
@@ -260,7 +260,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                             Commands.waitUntil(arm.atTargetPosition),
                             Commands.waitUntil(elevator.atTargetPosition),
                             Commands.runOnce(() -> arm.setTargetTicks(-328500)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(-15000))
+                            Commands.runOnce(() -> elevator.setTargetTicks(-36000))
                         ),
                         new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(1) // Timeout after 30 seconds
                     ),
@@ -273,7 +273,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                             Commands.waitUntil(arm.atTargetPosition),
                             Commands.waitUntil(elevator.atTargetPosition),
                             Commands.runOnce(() -> arm.setTargetTicks(-196000)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(-116897))
+                            Commands.runOnce(() -> elevator.setTargetTicks(-160000))
                         )
                     ),
 
@@ -432,7 +432,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 // PIDTX.setPID(0.1, 0, 0.025);
                 // PIDYaw.setPID(0, 0, 0);
 
-                goalArea = 0.6;
+                goalArea = 0.7;
 
                 switch(currentHeightPos) {
                     case HIGH:

@@ -99,17 +99,19 @@ public class VisionAutos {
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-            new Translation2d(-1.5, 0.3),
-            new Translation2d(pickupXDistance * 0.75, yOffset)),
-            //new Translation2d(-2.9, 0.8), 
-            new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)), 
+            new Translation2d(-1.6, 0.3), // 1.4x to 1.7x  |  y to y
+            //new Translation2d(pickupXDistance * 0.75, yOffset),
+            new Translation2d(-3.6, 0.8)), // 2.8x to 3.3x  |  y to y
+            // new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)),
+            new Pose2d(-4.6, -0.65, Rotation2d.fromDegrees(140)), // 3.9x to 4.3x  |  y to y
             trajectoryConfig);
 
         Trajectory pickupToScore = TrajectoryGenerator.generateTrajectory(
             new Pose2d(pickupXDistance, pickupYDistance, new Rotation2d(pickupRotation)), 
             List.of(
-            new Translation2d(pickupXDistance * 0.75, yOffset/2)), 
-            new Pose2d(0, yOffset2, Rotation2d.fromDegrees(0)), 
+            new Translation2d(-4.6, 0.3),
+            new Translation2d(pickupXDistance * 0.75, yOffset/2)),
+            new Pose2d(0.2, yOffset2, Rotation2d.fromDegrees(0)), 
             trajectoryConfig);
 
         //Create PID Controllers
