@@ -262,7 +262,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                             Commands.runOnce(() -> arm.setTargetTicks(-328500)),
                             Commands.runOnce(() -> elevator.setTargetTicks(-36000))
                         ),
-                        new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier).withTimeout(1) // Timeout after 30 seconds
+                        new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier)
                     ),
                     
     
@@ -502,7 +502,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         Commands.runOnce(() -> initVisionScore(objType, pos))
                     ),
                     
-                    new TurnToAngle(0, drivetrain),
+                    new TurnToAngle(0, drivetrain), //  TODO: merge with driveRotateToTarget Yaw PID
     
                     // Possible test case: Wait for vision to timeout since sometimes, the speed is not within the stopping range (0.1 m/s)
                     new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain)
