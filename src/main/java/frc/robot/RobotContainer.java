@@ -189,22 +189,34 @@ public class RobotContainer {
 
           // Field oriented
           badPS5::getSquareButton,
+
+          // Towing
           badPS5::getL2Button,
-          // driverControllerButtons::getTriangleButton,
+
           // Dodge
           badPS5::getR3Button,
           // Dodging
           () -> {
-            // if (badPS4.getL2Button()) {
+            // if (badPS5.getL2Button()) {
             //   return DodgeDirection.LEFT;
             // } 
-            // if (badPS4.getR2Button()) {
+            // if (badPS5.getR2Button()) {
             //   return DodgeDirection.RIGHT;
             // }
             return DodgeDirection.NONE;
           },
           // Precision/"Sniper Button"
-          badPS5::getR2Button
+          badPS5::getR2Button,
+          // Turn to angle
+          () -> badPS5.getR1Button() || badPS5.getL1Button(),
+          // Turn To angle Direction
+          () -> {
+            if (badPS5.getR1Button()) {
+              return 180.0;
+            } else {
+              return 0.0;
+            }
+          }
         ));
     // } else {
     //   tankDrive.setDefaultCommand(
@@ -275,8 +287,8 @@ public class RobotContainer {
       driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
       driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
 
-      driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
-      driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+      // driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive)); // Replaced with turn to angles in the drive command
+      // driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
       
       driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
 
