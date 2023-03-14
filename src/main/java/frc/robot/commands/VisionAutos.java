@@ -65,11 +65,11 @@ public class VisionAutos {
         switch (position) {
             // Reversed because gyro starts reversed
             case RIGHT:
-                pickupXDistance = -4.1;
-                pickupYDistance = 0.48;
+                pickupXDistance = -4.4;
+                pickupYDistance = 0.33;
                 pickupRotation = -150;
-                yOffset = -0.4;
-                yOffset2 = -0.5;
+                yOffset = -0.5;
+                yOffset2 = -0.75;
                 break;
             case LEFT:
                 pickupXDistance = -4.4;
