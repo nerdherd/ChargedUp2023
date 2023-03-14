@@ -461,7 +461,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 PIDTX.setPID(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
                 PIDYaw.setPID(0, 0, 0);
 
-                goalArea = 8.2; // April tag target area, unsure if correct, updated 2/23/2023
+                goalArea = 7.2; // April tag target area, unsure if correct, updated 2/23/2023
 
                 switch(currentHeightPos) {
                     case HIGH:

@@ -181,13 +181,13 @@ public class VisionAutos {
                 runOnce(() -> swerveDrive.stopModules()),
 
                 // Potential source of error. When vision aligns to score, the odometry will be offset by a random amount
-                vision.VisionPickupOnGround(OBJECT_TYPE.CONE),
+                vision.VisionPickupOnGround(OBJECT_TYPE.CUBE),
 
                 pickupToScoreCommand,
                 runOnce(() -> swerveDrive.stopModules()),
                 runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
 
-                vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.HIGH),
+                vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH),
 
                 SwerveAutos.chargeAuto(swerveDrive, startPositionFinal, allianceFinal, 0, false)
             ),
