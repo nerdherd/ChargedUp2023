@@ -75,8 +75,8 @@ public class VisionAutos {
                 pickupXDistance = -4.4;
                 pickupYDistance = -0.33;
                 pickupRotation = 150; // Tested at Da Vinci, not accurate likely because of limelight placement
-                yOffset = 0.5; // Was 0.75 when tested at Da Vinci with only 1 waypoint, but now we're using 2
-                yOffset2 = 0.75;
+                yOffset = 0.64; // Was 0.75 when tested at Da Vinci with only 1 waypoint, but now we're using 2
+                yOffset2 = 0.42;
                 break;
             case MIDDLE:
                 pickupXDistance = -5; // TODO: Measure IRL

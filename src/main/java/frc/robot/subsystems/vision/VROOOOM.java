@@ -217,7 +217,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         // This doesn't work for some reason, so we might need to pass the currentGameObject into the drive command directly. (3/11/2023)
         if (currentGameObject == OBJECT_TYPE.CONE) {
-            goalArea = 3.05; // Alex changed from 3.4 to 2.6 //3.8; // This line is running, so we know the conditional is working (3/11/2023)
+            goalArea = 2.8; // Alex changed from 3.4 to 2.6 //3.8; // This line is running, so we know the conditional is working (3/11/2023)
             currentLimelight.setPipeline(1);
 
             // Old PID for max 4 m/s
@@ -230,10 +230,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // PIDTX.setPID(0.05, 0, 0.0125);
             // PIDYaw.setPID(0, 0, 0);
         } else {
-            goalArea = 0; // Goal area for cube ground pickup
+            goalArea = 2.3; // Goal area for cube ground pickup
             currentLimelight.setPipeline(2);
-            PIDArea.setPID(0, 0, 0);
-            PIDTX.setPID(0, 0, 0);
+            PIDArea.setPID(0.94, 0, 0);
+            PIDTX.setPID(0.06, 0, 0);
             PIDYaw.setPID(0, 0, 0);
         }
     }
@@ -255,7 +255,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     
                     // Move arm and elevator to near ground position in parallel with approaching target
                     Commands.deadline(
-                        Commands.waitSeconds(5),
+                        Commands.waitSeconds(2),
                         Commands.parallel( // End command once both arm and elevator have reached their target position
                             Commands.waitUntil(arm.atTargetPosition),
                             Commands.waitUntil(elevator.atTargetPosition),
@@ -432,7 +432,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 // PIDTX.setPID(0.1, 0, 0.025);
                 // PIDYaw.setPID(0, 0, 0);
 
-                goalArea = 0.7;
+                goalArea = 0.55;
 
                 switch(currentHeightPos) {
                     case HIGH:
@@ -457,11 +457,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 currentLimelight = limelightLow;
                 currentLimelight.setPipeline(4); // April tag pipeline
                 
-                PIDArea.setPID(0, 0, 0);
-                PIDTX.setPID(0, 0, 0);
+                PIDArea.setPID(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
+                PIDTX.setPID(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
                 PIDYaw.setPID(0, 0, 0);
 
-                goalArea = 2; // April tag target area, unsure if correct, updated 2/23/2023
+                goalArea = 8.2; // April tag target area, unsure if correct, updated 2/23/2023
 
                 switch(currentHeightPos) {
                     case HIGH:
@@ -508,12 +508,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain)
                         .until(cameraStatusSupplier)
                         .withTimeout(2),
+
+                        new TurnToAngle(0, drivetrain),
     
                     // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
                     Commands.race(
                         Commands.waitSeconds(5), // Timeout
                         Commands.sequence(
-                            Commands.runOnce(() -> arm.setTargetTicks(armPositionTicks)),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
                             Commands.waitSeconds(0.5),
     
                             Commands.parallel( // End when target positions reached

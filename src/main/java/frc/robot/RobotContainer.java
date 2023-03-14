@@ -301,8 +301,8 @@ public class RobotContainer {
       // driverController.R2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CUBE))
       //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-      operatorController.L2().whileTrue(vision.VisionPickupOnGround(OBJECT_TYPE.CONE));
-      operatorController.R2().whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.HIGH));
+      operatorController.L2().whileTrue(vision.VisionPickupOnGround(OBJECT_TYPE.CUBE));
+      operatorController.R2().whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH));
 
       //operatorController.L2().onTrue(vision.updateCurrentGameObjects(OBJECT_TYPE.CONE));
       //operatorController.R2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));

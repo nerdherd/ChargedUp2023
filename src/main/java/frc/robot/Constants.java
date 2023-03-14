@@ -92,7 +92,7 @@ public final class Constants {
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
     public static final int kArmStow = -570828;//-622485;//-630435;//144278;
-    public static final int kArmScore = -377161 - 7950; //-432700;//-408850;//596443; // 89744;
+    public static final int kArmScore = -403000;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
     public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
     public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
     public static final int kArmGroundPickup = -212000 + 7950;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
@@ -306,7 +306,7 @@ public final class Constants {
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
     public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 1.5);
-    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0);
+    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0.01);
     public static final double kDXController = SmartDashboard.getNumber("kD X Speed", 0);
     public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 1.5);
     public static final double kIYController = SmartDashboard.getNumber("kI Y Speed", 0);
