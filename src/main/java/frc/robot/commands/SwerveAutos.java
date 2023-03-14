@@ -304,7 +304,7 @@ public class SwerveAutos {
                 
                 runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
                 deadline(
-                    waitSeconds(2),
+                    waitSeconds(0.5),
                     sequence(
                         runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
                         waitSeconds(0.5),
@@ -339,7 +339,11 @@ public class SwerveAutos {
     public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround, Alliance alliance) {
         return sequence(
             preloadAuto(arm, elevator, claw, scorePos),
-            chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround)
+            deadline(
+                chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+            )
         );
     }
 
@@ -460,7 +464,7 @@ public class SwerveAutos {
             trajectory = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(0, 0, new Rotation2d(0)), 
                 List.of(
-                    new Translation2d(-3.5, 0.01),
+                    new Translation2d(-3.5, yTranslation / 4),
                     new Translation2d(-3.5, yTranslation + 0.01)), 
                 new Pose2d(-2, yTranslation - 0.01, Rotation2d.fromDegrees(0)), 
                 trajectoryConfig);
@@ -482,7 +486,7 @@ public class SwerveAutos {
             runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             waitSeconds(waitTime),
             autoCommand,
-            new TimedBalancingAct(swerveDrive, 0.5, 
+            new TimedBalancingAct(swerveDrive, 1, 
                 SwerveAutoConstants.kPBalancingInitial, 
                 SwerveAutoConstants.kPBalancing)
             // new TheGreatBalancingAct(swerveDrive),
