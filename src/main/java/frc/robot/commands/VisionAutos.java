@@ -65,17 +65,17 @@ public class VisionAutos {
         switch (position) {
             // Reversed because gyro starts reversed
             case RIGHT:
-                pickupXDistance = -4.1;
-                pickupYDistance = 0.48;
+                pickupXDistance = -4.4;
+                pickupYDistance = 0.33;
                 pickupRotation = -150;
-                yOffset = -0.4;
-                yOffset2 = -0.5;
+                yOffset = -0.5;
+                yOffset2 = -0.75;
                 break;
             case LEFT:
-                pickupXDistance = -3.2;//-4.1;
-                pickupYDistance = 0;//-0.48;
-                pickupRotation = 180;//150;
-                yOffset = 0.75;//0.75;
+                pickupXDistance = -4.4;
+                pickupYDistance = -0.33;
+                pickupRotation = 150; // Tested at Da Vinci, not accurate likely because of limelight placement
+                yOffset = 0.5; // Was 0.75 when tested at Da Vinci with only 1 waypoint, but now we're using 2
                 yOffset2 = 0.75;
                 break;
             case MIDDLE:
@@ -99,19 +99,17 @@ public class VisionAutos {
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-            new Translation2d(-1.6, 0.3), // 1.4x to 1.7x  |  y to y
-            //new Translation2d(pickupXDistance * 0.75, yOffset),
-            new Translation2d(-3.6, 0.8)), // 2.8x to 3.3x  |  y to y
-            // new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)),
-            new Pose2d(-4.6, -0.65, Rotation2d.fromDegrees(140)), // 3.9x to 4.3x  |  y to y
+            new Translation2d(pickupXDistance * 0.25, yOffset),
+            new Translation2d(pickupXDistance * 0.75, yOffset)),
+            new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)),
             trajectoryConfig);
 
         Trajectory pickupToScore = TrajectoryGenerator.generateTrajectory(
             new Pose2d(pickupXDistance, pickupYDistance, new Rotation2d(pickupRotation)), 
             List.of(
-            new Translation2d(-4.6, 0.3),
-            new Translation2d(pickupXDistance * 0.75, yOffset/2)),
-            new Pose2d(0.2, yOffset2, Rotation2d.fromDegrees(0)), 
+            new Translation2d(pickupXDistance * 0.75, yOffset),
+            new Translation2d(pickupXDistance * 0.25, yOffset)),
+            new Pose2d(-0.2, yOffset2, Rotation2d.fromDegrees(0)), // 0.2 meters offset on X for vision to move forwards
             trajectoryConfig);
 
         //Create PID Controllers
