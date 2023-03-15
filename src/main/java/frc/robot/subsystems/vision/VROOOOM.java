@@ -709,6 +709,16 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             SmartDashboard.putNumber("Vision average X", calculatedX);
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
+            if(currentLimelight.getPipeIndex()==4){
+                if (NerdyMath.inRange(calculatedY, -2.2, 1) 
+                    && calculatedX > 7) {
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ARRIVED; 
+                return;
+                }
+            }
             xSpeed = pidArea.calculate(calculatedX, goalArea) * (5/4);
             ySpeed = -pidTX.calculate(calculatedY, goalTX) * (5/4);
             rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw) * (5/4);
