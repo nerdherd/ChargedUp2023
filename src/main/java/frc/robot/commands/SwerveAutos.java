@@ -384,42 +384,7 @@ public class SwerveAutos {
             driveBackwardAuto(swerveDrive)
         );
     }
-
-    // Current vision autos are now in VisionAutos.java
-
-    public static CommandBase visionPickupAuto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance, SCORE_POS scorePos) {
-        return vision.VisionPickupOnGround(OBJECT_TYPE.CUBE);
-    }
-
-    public static CommandBase preloadVisionPickupAuto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance, SCORE_POS scorePos) {
-        return sequence(
-            preloadAuto(arm, elevator, claw, scorePos),
-            visionPickupAuto(swerveDrive, vision, arm, elevator, claw, position, alliance, scorePos)
-        );
-    }
-
-    public static CommandBase preloadVisionPickupChargeAuto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, Alliance alliance, SCORE_POS scorePos) {
-        return sequence(
-            preloadVisionPickupAuto(swerveDrive, vision, arm, elevator, claw, position, alliance, scorePos),
-            visionChargeAuto(swerveDrive, position, alliance, 0, false)
-        );
-    }
-
-    public static CommandBase visionPreloadChargeAuto(VROOOOM vision, SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround, Alliance alliance) {
-        return parallel(
-            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
-            sequence(
-                // parallel(
-                //     //runOnce(() -> vision.updateCurrentGameObject(OBJECT_TYPE.CONE)),
-                //     runOnce(() -> vision.updateCurrentHeight(SCORE_POS.MID))
-                // ),
-                vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID),
-                chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround)
-            )
-        );
-    }
-
+    
     /**
      * Start with the swerve drive facing the driver at either the rightmost cone grid, the leftmost cone grid, or directly in front of the charging station (middle)
      * @param swerveDrive 
@@ -484,77 +449,6 @@ public class SwerveAutos {
         
         return sequence(
             runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
-            waitSeconds(waitTime),
-            autoCommand,
-            new TheGreatBalancingAct(swerveDrive)
-            // new TowSwerve(swerveDrive)
-        );
-    }
-
-    /**
-     * Start with the swerve drive facing the driver at either the rightmost cone grid, the leftmost cone grid, or directly in front of the charging station (middle)
-     * @param swerveDrive 
-     * @return Command to reset odometry run auto to go onto charging station then run balancing auto
-     */
-    public static CommandBase visionChargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround) {
-        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
-        
-        double yTranslation = 0;
-        double yOvershoot = 0;
-
-        switch (startPos) {
-            case LEFT:
-                yTranslation = -2.4;
-                yOvershoot = -2.4;
-                break;
-            case RIGHT:
-                yTranslation = 2.4;
-                yOvershoot = 2.4;
-                break;
-            case MIDDLE:
-                break;
-        }
-
-        if (alliance == Alliance.Red) {
-            yTranslation *= -1;
-            yOvershoot *= -1;
-        }
-
-        Trajectory trajectory;
-        
-        if (!goAround) {
-            trajectory = TrajectoryGenerator.generateTrajectory(
-                List.of(
-                    new Pose2d(-0.5, yOvershoot * 0.2, Rotation2d.fromDegrees(0)),
-                    new Pose2d(-0.25, yOvershoot, Rotation2d.fromDegrees(0)),
-                    new Pose2d(-2.7, yTranslation - 0.01, Rotation2d.fromDegrees(0))
-                ), // -2
-                trajectoryConfig);
-        } else {
-            trajectory = TrajectoryGenerator.generateTrajectory(
-                List.of(
-                    new Pose2d(0, 0, new Rotation2d(0)), 
-                    new Pose2d(-3.5, yTranslation / 4, new Rotation2d(0)), 
-                    new Pose2d(-3.5, yTranslation + 0.01, new Rotation2d(0)), 
-                    new Pose2d(-2, yTranslation - 0.01, Rotation2d.fromDegrees(0))
-                ), 
-                trajectoryConfig);
-        }
-
-
-        //Create PID Controllers
-        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
-        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
-        ProfiledPIDController thetaController = new ProfiledPIDController(
-            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        SwerveControllerCommand autoCommand = new SwerveControllerCommand(
-            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
-            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
-        
-        return sequence(
             waitSeconds(waitTime),
             autoCommand,
             new TheGreatBalancingAct(swerveDrive)
