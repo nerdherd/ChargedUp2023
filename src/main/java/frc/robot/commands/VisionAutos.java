@@ -54,8 +54,11 @@ public class VisionAutos {
         double pickupYDistance = 0;
         double pickupRotation = 0;
 
-        double yOffset = 0; // So we don't bump into the charging station
-        double yOffset2 = 0; // Align to cone nodes instead of cube shelves
+        double avoidCollisionYOffset = 0; // So we don't bump into the charging station
+
+        // Position when scoring the object we picked up
+        double scoreXDistance = 0;
+        double scoreYDistance = 0;
 
         if (alliance == Alliance.Red) {
             if (position == StartPosition.RIGHT) position = StartPosition.LEFT;
@@ -65,24 +68,27 @@ public class VisionAutos {
         switch (position) {
             // Reversed because gyro starts reversed
             case RIGHT:
-                pickupXDistance = -4.4;
-                pickupYDistance = 0.33;
+                pickupXDistance = -3.73;
+                pickupYDistance = 0.93;
                 pickupRotation = -150;
-                yOffset = -0.5;
-                yOffset2 = -0.75;
+                avoidCollisionYOffset = 0.28;
+                scoreXDistance = -0.26;
+                scoreYDistance = 0.5;
                 break;
             case LEFT:
-                pickupXDistance = -4.4;
-                pickupYDistance = -0.33;
+                pickupXDistance = -3.73;
+                pickupYDistance = -0.93;
                 pickupRotation = 150; // Tested at Da Vinci, not accurate likely because of limelight placement
-                yOffset = 0.64; // Was 0.75 when tested at Da Vinci with only 1 waypoint, but now we're using 2
-                yOffset2 = 0.42;
+                avoidCollisionYOffset = -0.28; // Was 0.75 when tested at Da Vinci with only 1 waypoint, but now we're using 2
+                scoreXDistance = -0.26;
+                scoreYDistance = -0.5;
                 break;
             case MIDDLE:
                 pickupXDistance = -5; // TODO: Measure IRL
                 pickupYDistance = -0.3;
                 pickupRotation = -165;
-                yOffset2 = -0.5; // Score on the nodes to the right of the middle shelf
+                scoreXDistance = -0.26;
+                scoreYDistance = 0.5;
                 break;
         }
         
@@ -90,8 +96,8 @@ public class VisionAutos {
         if (alliance == Alliance.Red) {
             if (position != StartPosition.MIDDLE) {
                 pickupYDistance *= -1;
-                yOffset *= -1;
-                yOffset2 *= -1;
+                avoidCollisionYOffset *= -1;
+                scoreYDistance *= -1;
                 pickupRotation *= -1;
             }
         }
@@ -99,18 +105,27 @@ public class VisionAutos {
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-            new Translation2d(pickupXDistance * 0.25, yOffset),
-            new Translation2d(pickupXDistance * 0.75, yOffset)),
+            new Translation2d(pickupXDistance * 0.25, avoidCollisionYOffset),
+            new Translation2d(pickupXDistance * 0.75, avoidCollisionYOffset)),
             new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)),
             trajectoryConfig);
 
+        // Trajectory with an inital pose
+        // Trajectory pickupToScore = TrajectoryGenerator.generateTrajectory(
+        //     new Pose2d(pickupXDistance, pickupYDistance, new Rotation2d(pickupRotation)), 
+        //     List.of(
+        //     new Translation2d(pickupXDistance * 0.75, yOffset),
+        //     new Translation2d(pickupXDistance * 0.25, yOffset)),
+        //     new Pose2d(scoreXDistance, scoreYDistance, Rotation2d.fromDegrees(0)),
+        //     trajectoryConfig);
+
+        // Trajectory without an intial pose so we don't do unnecessary movement after vision pickup
         Trajectory pickupToScore = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(pickupXDistance, pickupYDistance, new Rotation2d(pickupRotation)), 
             List.of(
-            new Translation2d(pickupXDistance * 0.75, yOffset),
-            new Translation2d(pickupXDistance * 0.25, yOffset)),
-            new Pose2d(-0.2, yOffset2, Rotation2d.fromDegrees(0)), // 0.2 meters offset on X for vision to move forwards
-            trajectoryConfig);
+            new Pose2d(pickupXDistance * 0.75, avoidCollisionYOffset, Rotation2d.fromDegrees(pickupRotation * 0.75)),
+            new Pose2d(pickupXDistance * 0.25, avoidCollisionYOffset, Rotation2d.fromDegrees(pickupRotation * 0.25)),
+            new Pose2d(scoreXDistance, scoreYDistance, Rotation2d.fromDegrees(0)))
+            , trajectoryConfig);
 
         //Create PID Controllers
         PIDController xController = new PIDController(kPXController, kIXController, kDXController);
@@ -164,33 +179,63 @@ public class VisionAutos {
                 // Close claw/stop rollers
                 claw.setPower(0),
 
-                // Stow arm
-                Commands.race(
-                    Commands.waitSeconds(5),
-                    Commands.parallel( // End command once both arm and elevator have reached their target position
-                        Commands.waitUntil(arm.atTargetPosition),
-                        Commands.waitUntil(elevator.atTargetPosition),
-                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                        Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                // Parallel driving to pickup position and moving arm/elev to ready-to-pickup position
+                Commands.deadline(
+                    scoreToPickupCommand,
+
+                    // Move arm to ready-to-pickup position
+                    Commands.deadline(
+                        Commands.waitSeconds(2),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(-328500)),
+                            Commands.runOnce(() -> elevator.setTargetTicks(-160000))
+                        )
+                    )
+                ),
+                runOnce(() -> swerveDrive.stopModules()),
+
+                // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
+                vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE),
+
+                // Drive to score in parallel with arm moving to score position and elevator stowing
+                Commands.parallel(
+                    pickupToScoreCommand,
+
+                    Commands.deadline(
+                        Commands.waitSeconds(2),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                        )
                     )
                 ),
 
-                // ======== Drop Preload End ========
-
-                scoreToPickupCommand,
-                runOnce(() -> swerveDrive.stopModules()),
-
-                // Potential source of error. When vision aligns to score, the odometry will be offset by a random amount
-                vision.VisionPickupOnGround(OBJECT_TYPE.CUBE),
-
-                pickupToScoreCommand,
                 runOnce(() -> swerveDrive.stopModules()),
                 runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
 
-                vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH),
+                // Drive to target and score, ends with arm/elev fully extended to score
+                vision.VisionScoreNoArm(OBJECT_TYPE.CUBE, SCORE_POS.HIGH),
+                    
+                // Stow the elevator, move arm to substation pos, and charge in parallel
+                Commands.parallel(
+                    Commands.deadline(
+                        Commands.waitSeconds(2),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmSubstation)),
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                        )
+                    ),
 
-                SwerveAutos.chargeAuto(swerveDrive, startPositionFinal, allianceFinal, 0, false)
+                    SwerveAutos.chargeAuto(swerveDrive, startPositionFinal, allianceFinal, 0, false)
+                )
             ),
+            
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
         );
