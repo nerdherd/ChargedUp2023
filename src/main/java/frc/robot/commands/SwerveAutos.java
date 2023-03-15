@@ -486,10 +486,7 @@ public class SwerveAutos {
             runOnce(() -> swerveDrive.resetOdometry(trajectory.getInitialPose())),
             waitSeconds(waitTime),
             autoCommand,
-            new TimedBalancingAct(swerveDrive, 1, 
-                SwerveAutoConstants.kPBalancingInitial, 
-                SwerveAutoConstants.kPBalancing)
-            // new TheGreatBalancingAct(swerveDrive),
+            new TheGreatBalancingAct(swerveDrive)
             // new TowSwerve(swerveDrive)
         );
     }
@@ -560,10 +557,7 @@ public class SwerveAutos {
         return sequence(
             waitSeconds(waitTime),
             autoCommand,
-            new TimedBalancingAct(swerveDrive, 1, 
-                SwerveAutoConstants.kPBalancingInitial, 
-                SwerveAutoConstants.kPBalancing)
-            // new TheGreatBalancingAct(swerveDrive),
+            new TheGreatBalancingAct(swerveDrive)
             // new TowSwerve(swerveDrive)
         );
     }
@@ -606,10 +600,7 @@ public class SwerveAutos {
                 waitSeconds(3),
                 autoCommand
             ),
-            new TimedBalancingAct(swerveDrive, 0.25, 
-                SwerveAutoConstants.kPBalancingInitial, 
-                SwerveAutoConstants.kPBalancing)
-            // new TheGreatBalancingAct(swerveDrive),
+            new TheGreatBalancingAct(swerveDrive)
             // new TowSwerve(swerveDrive)
         );
     }

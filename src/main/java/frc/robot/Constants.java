@@ -323,8 +323,10 @@ public final class Constants {
       new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
-    public static final double kPBalancingInitial = 0.6;
-    public static final double kPBalancing = 0.29; // 0.4
+    public static final double kPBalancingInitial = 4.8;
+    public static final double kPBalancing = 2.37; // 0.4
+    public static final double kIBalancing = 0;
+    public static final double kDBalancing = 0;
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
     public static final double kBalancingTowPeriod = 0.5;
   }
