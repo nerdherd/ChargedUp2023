@@ -165,7 +165,7 @@ public class VisionAutos {
                         Commands.parallel( // End when target positions reached
                             Commands.waitUntil(elevator.atTargetPosition),
                             Commands.waitUntil(arm.atTargetPosition),
-                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh))
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreMid))
                         )
                     )
                 ),
@@ -184,13 +184,24 @@ public class VisionAutos {
                     scoreToPickupCommand,
 
                     // Move arm to ready-to-pickup position
-                    Commands.deadline(
-                        Commands.waitSeconds(2),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(-328500)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(-160000))
+                    Commands.sequence(
+                        Commands.deadline(
+                            Commands.waitSeconds(2),
+                            Commands.parallel( // End command once both arm and elevator have reached their target position
+                                Commands.waitUntil(arm.atTargetPosition),
+                                Commands.waitUntil(elevator.atTargetPosition),
+                                Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                                Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                            )
+                        ),
+                        Commands.deadline(
+                            Commands.waitSeconds(2),
+                            Commands.parallel( // End command once both arm and elevator have reached their target position
+                                Commands.waitUntil(arm.atTargetPosition),
+                                Commands.waitUntil(elevator.atTargetPosition),
+                                Commands.runOnce(() -> arm.setTargetTicks(-328500)),
+                                Commands.runOnce(() -> elevator.setTargetTicks(-160000))
+                            )
                         )
                     )
                 ),
@@ -209,7 +220,7 @@ public class VisionAutos {
                             Commands.waitUntil(arm.atTargetPosition),
                             Commands.waitUntil(elevator.atTargetPosition),
                             Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreMid))
                         )
                     )
                 ),
@@ -218,7 +229,7 @@ public class VisionAutos {
                 runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
 
                 // Drive to target and score, ends with arm/elev fully extended to score
-                vision.VisionScoreNoArm(OBJECT_TYPE.CUBE, SCORE_POS.HIGH),
+                vision.VisionScoreNoArm(OBJECT_TYPE.CUBE, SCORE_POS.MID),
                     
                 // Stow the elevator, move arm to substation pos, and charge in parallel
                 Commands.parallel(
@@ -227,12 +238,12 @@ public class VisionAutos {
                         Commands.parallel( // End command once both arm and elevator have reached their target position
                             Commands.waitUntil(arm.atTargetPosition),
                             Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmSubstation)),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                             Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
                         )
                     ),
 
-                    SwerveAutos.chargeAuto(swerveDrive, startPositionFinal, allianceFinal, 0, false)
+                    SwerveAutos.visionChargeAuto(swerveDrive, startPositionFinal, allianceFinal, 0, false)
                 )
             ),
             

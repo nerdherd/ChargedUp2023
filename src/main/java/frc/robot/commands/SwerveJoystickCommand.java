@@ -183,6 +183,8 @@ public class SwerveJoystickCommand extends CommandBase {
                 -SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond, 
                 SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond);
             filteredTurningSpeed = turningSpeed;
+            xSpeed += 0.01;
+            ySpeed += 0.01;
         } else {
             // Manual turning
             turningSpeed = turningSpdFunction.get();
@@ -213,6 +215,7 @@ public class SwerveJoystickCommand extends CommandBase {
         SmartDashboard.putNumber("Swerve Drive X Chassis", chassisSpeeds.vxMetersPerSecond);
         SmartDashboard.putNumber("Swerve Drive Y Chassis", chassisSpeeds.vyMetersPerSecond);
         SmartDashboard.putBoolean("Turn to angle", turnToAngleSupplier.get());
+        SmartDashboard.putNumber("Swerve Drive Target Angle", desiredAngle.get());
         SmartDashboard.putNumber("Turning speed", filteredTurningSpeed);
 
         SwerveModuleState[] moduleStates;

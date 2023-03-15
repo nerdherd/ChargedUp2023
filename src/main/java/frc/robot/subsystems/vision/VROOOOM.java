@@ -233,7 +233,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             goalArea = 2.3; // Goal area for cube ground pickup
             currentLimelight.setPipeline(2);
             PIDArea.setPID(0.94, 0, 0);
-            PIDTX.setPID(0.06, 0, 0);
+            PIDTX.setPID(0.09, 0, 0.02);
             PIDYaw.setPID(0, 0, 0);
         }
     }
@@ -329,7 +329,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                             Commands.waitUntil(arm.atTargetPosition),
                             Commands.waitUntil(elevator.atTargetPosition),
                             Commands.runOnce(() -> arm.setTargetTicks(-196000)),
-                            Commands.runOnce(() -> elevator.setTargetTicks(-160000))
+                            Commands.sequence(
+                                Commands.waitSeconds(0.25),
+                                Commands.runOnce(() -> elevator.setTargetTicks(-160000))
+                            )
                         )
                     ),
 
@@ -633,7 +636,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                             Commands.waitSeconds(5), // Timeout
                             Commands.sequence(
                                 Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
-                                Commands.waitSeconds(0.5),
+                                // Commands.waitSeconds(0.5),
                                 
                                 Commands.parallel( // End when target positions reached
                                     Commands.waitUntil(elevator.atTargetPosition),

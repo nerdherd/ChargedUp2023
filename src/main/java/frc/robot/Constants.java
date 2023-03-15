@@ -97,8 +97,8 @@ public final class Constants {
     public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
     public static final int kArmGroundPickup = -212000 + 7950;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
     public static final int kArmSubstation = -479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
-    public static final int kArmMotionAcceleration = 40000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 22000;//18000;//21777;
+    public static final int kArmMotionAcceleration = 60000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 40000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
@@ -273,10 +273,10 @@ public final class Constants {
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;
-    public static final double kTeleMaxAcceleration = 3;
+    public static final double kTeleMaxAcceleration = 5;
     // THIS CONSTANT HAS TO BE NEGATIVE OTHERWISE THE ROBOT WILL CRASH
     //TODO: Change deceleration with driver feedback, only in small increments (<= -2 is dangerous)
-    public static final double kTeleMaxDeceleration = -3; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
+    public static final double kTeleMaxDeceleration = -5; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
       kPhysicalMaxAngularSpeedRadiansPerSecond * 0.75;
