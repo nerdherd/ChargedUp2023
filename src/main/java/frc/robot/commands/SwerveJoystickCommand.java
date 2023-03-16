@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -19,6 +20,7 @@ import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.filters.Filter;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.filters.NewDriverFilter;
+import frc.robot.filters.NewRotationFilter;
 
 public class SwerveJoystickCommand extends CommandBase {
     private final SwerveDrivetrain swerveDrive;
@@ -29,7 +31,8 @@ public class SwerveJoystickCommand extends CommandBase {
     private final Supplier<Double> desiredAngle;
     private final Supplier<Boolean> turnToAngleSupplier;
     private final PIDController turnToAngleController;
-    private Filter xFilter, yFilter, turningFilter;
+    private Filter magnitudeFilter, turningFilter;
+    private SlewRateLimiter xLimiter, yLimiter;
     private Translation2d robotOrientedJoystickDirection;
     private Supplier<DodgeDirection> dodgeDirectionSupplier;
 
@@ -103,27 +106,21 @@ public class SwerveJoystickCommand extends CommandBase {
 
         // New filters
 
-        this.xFilter = new NewDriverFilter(
+        this.magnitudeFilter = new NewDriverFilter(
             OIConstants.kDeadband, 
             kMinimumMotorOutput,
             kTeleDriveMaxSpeedMetersPerSecond, 
-            kDriveAlpha, 
-            kTeleMaxAcceleration, 
-            kTeleMaxDeceleration);
-        this.yFilter = new NewDriverFilter(
-            OIConstants.kDeadband, 
-            kMinimumMotorOutput,
-            kTeleDriveMaxSpeedMetersPerSecond, 
-            kDriveAlpha, 
-            kTeleMaxAcceleration, 
-            kTeleMaxDeceleration);
-        this.turningFilter = new NewDriverFilter(
+            kDriveAlpha);
+        this.turningFilter = new NewRotationFilter(
             OIConstants.kRotationDeadband, 
             kMinimumMotorOutput,
             kTeleDriveMaxAngularSpeedRadiansPerSecond, 
-            kDriveAlpha, 
-            kTeleMaxAcceleration, 
-            kTeleMaxDeceleration);
+            kDriveAlpha,
+            kTeleDriveMaxAngularAccelerationUnitsPerSecond,
+            -kTeleDriveMaxAngularAccelerationUnitsPerSecond);
+        
+        this.xLimiter = new SlewRateLimiter(kTeleMaxAcceleration, kTeleMaxDeceleration, 0);
+        this.yLimiter = new SlewRateLimiter(kTeleMaxAcceleration, kTeleMaxDeceleration, 0);
         
         this.turnToAngleController = new PIDController(
             SwerveAutoConstants.kPTurnToAngle, 
@@ -137,15 +134,11 @@ public class SwerveJoystickCommand extends CommandBase {
         
         this.turnToAngleController.enableContinuousInput(0, 360);
 
-        // this.xFilter = new FilterSeries(
+        // this.magnitudeFilter = new FilterSeries(
         //     new DeadbandFilter(OIConstants.kDeadband),
         //     new ScaleFilter(kTeleDriveMaxSpeedMetersPerSecond)
         // );
         
-        // this.yFilter = new FilterSeries(
-        //     new DeadbandFilter(OIConstants.kDeadband),
-        //     new ScaleFilter(kTeleDriveMaxSpeedMetersPerSecond)
-        // );
         // this.turningFilter = new FilterSeries(
         //     new DeadbandFilter(OIConstants.kDeadband),
         //     new ScaleFilter(kTeleDriveMaxAngularSpeedRadiansPerSecond)
@@ -169,9 +162,15 @@ public class SwerveJoystickCommand extends CommandBase {
         double xSpeed = xSpdFunction.get();
         double ySpeed = ySpdFunction.get();
 
+        // Convert to polar coordinates
+        double magnitude = Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
+        double filteredMagnitude = magnitudeFilter.calculate(magnitude);
+
+        double scale = filteredMagnitude / magnitude;
+
+        double filteredXSpeed = xLimiter.calculate(xSpeed * scale);
+        double filteredYSpeed = yLimiter.calculate(ySpeed * scale);
         double filteredTurningSpeed;
-        double filteredXSpeed = xFilter.calculate(xSpeed);
-        double filteredYSpeed = yFilter.calculate(ySpeed);
 
         // Turn to angle
         if (turnToAngleSupplier.get()) {

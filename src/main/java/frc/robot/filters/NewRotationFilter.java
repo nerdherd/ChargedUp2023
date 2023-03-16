@@ -6,7 +6,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 /**
  * New driver filter for swerve drive teleop input. Accepts a value in [-1, 1]
  */
-public class NewDriverFilter extends FilterSeries {
+public class NewRotationFilter extends FilterSeries {
+    private SlewRateLimiter slewRateLimiter;
     private boolean belowDeadband;
     private final double deadbandScaler;
 
@@ -19,10 +20,23 @@ public class NewDriverFilter extends FilterSeries {
      * @param posRateLimit
      * @param negRateLimit
      */
-    public NewDriverFilter(double deadband, double motorDeadband, double scale, double alpha) {
+    public NewRotationFilter(double deadband, double motorDeadband, double scale, 
+            double alpha, double posRateLimit, double negRateLimit) {
         super();
 
         deadbandScaler = (1 - motorDeadband) * (1 - motorDeadband);
+
+        if (negRateLimit > -3) {
+            DriverStation.reportWarning(
+                String.format(
+                    "Swerve deceleration Value of %f is too low!", 
+                    negRateLimit), 
+                true);
+            return;
+        }
+
+        slewRateLimiter = new SlewRateLimiter(posRateLimit, negRateLimit, 0);
+
         super.setFilters(
             new DeadbandFilter(deadband),
             new WrapperFilter(
@@ -52,7 +66,13 @@ public class NewDriverFilter extends FilterSeries {
             ),
             new ReverseDeadbandFilter(deadband, 1, -1),
             new ScaleFilter(scale),
-            new ClampFilter(scale)
+            new ClampFilter(scale),
+            new WrapperFilter(
+                (x) -> {
+                    return Math.signum(x) 
+                        * slewRateLimiter.calculate(Math.abs(x));
+                }
+            )
         );
     }
 }
