@@ -147,17 +147,17 @@ public class VisionAutos {
 
         return race(
             sequence(
-                parallel(
-                    runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                    runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
-                    runOnce(() -> swerveDrive.stopModules())
-                ),
                 
                 // ======== Drop Preload Start ========
 
                 // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
                 Commands.race(
                     Commands.waitSeconds(5), // Timeout
+                    parallel(
+                        runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+                        runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
+                        runOnce(() -> swerveDrive.stopModules())
+                    ),
                     Commands.sequence(
                         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
                         Commands.waitSeconds(0.5),
@@ -225,8 +225,10 @@ public class VisionAutos {
                     )
                 ),
 
-                runOnce(() -> swerveDrive.stopModules()),
-                runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
+                parallel(
+                    runOnce(() -> swerveDrive.stopModules()),
+                    runOnce(() -> SmartDashboard.putString("Stage", "Score 2"))
+                ),
 
                 // Drive to target and score, ends with arm/elev fully extended to score
                 vision.VisionScoreNoArm(OBJECT_TYPE.CUBE, SCORE_POS.MID),
@@ -243,10 +245,180 @@ public class VisionAutos {
                         )
                     ),
 
-                    SwerveAutos.visionChargeAuto(swerveDrive, startPositionFinal, allianceFinal, 0, false)
+                    VisionAutos.visionChargeAuto(swerveDrive, startPositionFinal, allianceFinal, 0, false)
                 )
             ),
             
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+        );
+    }
+
+    public static CommandBase visionPreloadPickupChargeAuto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, StartPosition position, SCORE_POS scorePos, Alliance alliance) {
+        // Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
+
+        double pickupXDistance = 0;
+        double pickupYDistance = 0;
+        double pickupRotation = 0;
+
+        double avoidCollisionYOffset = 0; // So we don't bump into the charging station
+
+        // for charging
+        double yTranslation = 0;
+        double yOvershoot = 0;
+
+        if (alliance == Alliance.Red) {
+            if (position == StartPosition.RIGHT) position = StartPosition.LEFT;
+            if (position == StartPosition.LEFT) position = StartPosition.RIGHT;
+        }
+
+        switch (position) {
+            // Reversed because gyro starts reversed
+            case RIGHT:
+                pickupXDistance = -3.73;
+                pickupYDistance = 0.93;
+                pickupRotation = -150;
+                avoidCollisionYOffset = 0.28;
+                yTranslation = 1.75;
+                yOvershoot = 1.75;
+                break;
+            case LEFT:
+                pickupXDistance = -3.73;
+                pickupYDistance = -0.93;
+                pickupRotation = 150; // Tested at Da Vinci, not accurate likely because of limelight placement
+                avoidCollisionYOffset = -0.28; // Was 0.75 when tested at Da Vinci with only 1 waypoint, but now we're using 2
+                yTranslation = -1.75;
+                yOvershoot = -1.75;
+                break;
+            case MIDDLE:
+                pickupXDistance = -5; // TODO: Measure IRL
+                pickupYDistance = -0.3;
+                pickupRotation = -165;
+                break;
+        }
+
+        // Negate all measurements related to the y-axis because we are on the opposite side of the field
+        if (alliance == Alliance.Red) {
+            if (position != StartPosition.MIDDLE) {
+                pickupYDistance *= -1;
+                avoidCollisionYOffset *= -1;
+                pickupRotation *= -1;
+            }
+        }
+
+        Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)), 
+            List.of(
+            new Translation2d(pickupXDistance * 0.25, avoidCollisionYOffset),
+            new Translation2d(pickupXDistance * 0.75, avoidCollisionYOffset)),
+            new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)),
+            trajectoryConfig);
+        
+        Trajectory chargeTrajectory = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(-4, yOvershoot, Rotation2d.fromDegrees(0)),
+                new Pose2d(-2.7, yTranslation, Rotation2d.fromDegrees(0))),
+            trajectoryConfig);
+        
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand scoreToPickupCommand = new SwerveControllerCommand(
+            scoreToPickup, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        SwerveControllerCommand chargeCommand = new SwerveControllerCommand(
+            chargeTrajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return race(
+            sequence(
+                // ======== Drop Preload Start ========
+
+                // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
+                Commands.race(
+                    Commands.waitSeconds(5), // Timeout
+                    parallel(
+                        runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+                        runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
+                        runOnce(() -> swerveDrive.stopModules())
+                    ),
+                    Commands.sequence(
+                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                        Commands.waitSeconds(0.5),
+
+                        Commands.parallel( // End when target positions reached
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreMid))
+                        )
+                    )
+                ),
+
+                // Open claw/eject piece with rollers
+                claw.setPower(0.5),
+
+                // Wait to outtake
+                Commands.waitSeconds(.5),
+
+                // Close claw/stop rollers
+                claw.setPower(0),
+
+                // Parallel driving to pickup position and moving arm/elev to ready-to-pickup position
+                Commands.deadline(
+                    scoreToPickupCommand,
+
+                    // Move arm to ready-to-pickup position
+                    Commands.sequence(
+                        Commands.deadline(
+                            Commands.waitSeconds(2),
+                            Commands.parallel( // End command once both arm and elevator have reached their target position
+                                Commands.waitUntil(arm.atTargetPosition),
+                                Commands.waitUntil(elevator.atTargetPosition),
+                                Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                                Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                            )
+                        ),
+                        Commands.deadline(
+                            Commands.waitSeconds(2),
+                            Commands.parallel( // End command once both arm and elevator have reached their target position
+                                Commands.waitUntil(arm.atTargetPosition),
+                                Commands.waitUntil(elevator.atTargetPosition),
+                                Commands.runOnce(() -> arm.setTargetTicks(-328500)),
+                                Commands.runOnce(() -> elevator.setTargetTicks(-160000))
+                            )
+                        )
+                    )
+                ),
+                runOnce(() -> swerveDrive.stopModules()),
+
+                // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
+                vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE),
+
+                // Drive to score in parallel with arm moving to score position and elevator stowing
+                Commands.parallel(
+                    chargeCommand,
+                    Commands.deadline(
+                        Commands.waitSeconds(2),
+                        Commands.parallel( // End command once both arm and elevator have reached their target position
+                            Commands.waitUntil(arm.atTargetPosition),
+                            Commands.waitUntil(elevator.atTargetPosition),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                        )
+                    )
+                ),
+
+                runOnce(() -> swerveDrive.stopModules()),
+                runOnce(() -> SmartDashboard.putString("Stage", "Charging")),
+                new TheGreatBalancingAct(swerveDrive)
+            ),
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
         );
@@ -329,5 +501,76 @@ public class VisionAutos {
         final StartPosition startPositionFinal = startPosition;
 
         return visionPreloadPickupScoreCharge(swerveDrive, vision, arm, elevator, claw, allianceFinal, startPositionFinal, SCORE_POS.HIGH);
+    }
+
+    /**
+     * Start with the swerve drive facing the driver at either the rightmost cone grid, the leftmost cone grid, or directly in front of the charging station (middle)
+     * @param swerveDrive 
+     * @return Command to reset odometry run auto to go onto charging station then run balancing auto
+     */
+    public static CommandBase visionChargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround) {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+        
+        double yTranslation = 0;
+        double yOvershoot = 0;
+
+        switch (startPos) {
+            case LEFT:
+                yTranslation = -2.4;
+                yOvershoot = -2.4;
+                break;
+            case RIGHT:
+                yTranslation = 2.4;
+                yOvershoot = 2.4;
+                break;
+            case MIDDLE:
+                break;
+        }
+
+        if (alliance == Alliance.Red) {
+            yTranslation *= -1;
+            yOvershoot *= -1;
+        }
+
+        Trajectory trajectory;
+        
+        if (!goAround) {
+            trajectory = TrajectoryGenerator.generateTrajectory(
+                List.of(
+                    new Pose2d(-0.5, yOvershoot * 0.2, Rotation2d.fromDegrees(0)),
+                    new Pose2d(-0.5, yOvershoot, Rotation2d.fromDegrees(0)),
+                    new Pose2d(-2.7, yTranslation - 0.01, Rotation2d.fromDegrees(0))
+                ), // -2
+                trajectoryConfig);
+        } else {
+            trajectory = TrajectoryGenerator.generateTrajectory(
+                List.of(
+                    new Pose2d(0, 0, new Rotation2d(0)), 
+                    new Pose2d(-3.5, yTranslation / 4, new Rotation2d(0)), 
+                    new Pose2d(-3.5, yTranslation + 0.01, new Rotation2d(0)), 
+                    new Pose2d(-2, yTranslation - 0.01, Rotation2d.fromDegrees(0))
+                ), 
+                trajectoryConfig);
+        }
+
+
+        //Create PID Controllers
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand autoCommand = new SwerveControllerCommand(
+            trajectory, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return sequence(
+            waitSeconds(waitTime),
+            autoCommand,
+            new TheGreatBalancingAct(swerveDrive)
+            // new TowSwerve(swerveDrive)
+        );
     }
 }
