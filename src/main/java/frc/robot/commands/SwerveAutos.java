@@ -188,14 +188,14 @@ public class SwerveAutos {
                 parallel(
                     runOnce(() -> SmartDashboard.putString("Stage", "Start")),
                     runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
-                    runOnce(() -> swerveDrive.stopModules())
+                    runOnce(() -> swerveDrive.stopModules()),
+                    scoreToPickupCommand
                 ),
-                scoreToPickupCommand,
-                runOnce(() -> swerveDrive.stopModules()),
-
-                runOnce(() -> SmartDashboard.putString("Stage", "Ground")),
+                
                 deadline(
                     waitSeconds(2),
+                    runOnce(() -> swerveDrive.stopModules()),
+                    runOnce(() -> SmartDashboard.putString("Stage", "Ground")),
                     sequence(
                         runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
                         waitSeconds(0.5),
@@ -207,19 +207,19 @@ public class SwerveAutos {
                 claw.intake(),
                 waitSeconds(0.25),
 
-                runOnce(() -> SmartDashboard.putString("Stage", "Stow 2")),
                 deadline(
                     waitSeconds(2),
+                    runOnce(() -> SmartDashboard.putString("Stage", "Stow 2")),
                     runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                     waitUntil(arm.atTargetPosition)
                 ),
 
                 pickupToScoreCommand,
 
-                runOnce(() -> swerveDrive.stopModules()),
-                runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
                 deadline(
                     waitSeconds(2),
+                    runOnce(() -> swerveDrive.stopModules()),
+                    runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
                     sequence(
                         runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
                         waitSeconds(0.5),
@@ -236,9 +236,9 @@ public class SwerveAutos {
                 claw.outtake(),
                 waitSeconds(0.25),
 
-                runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
                 deadline(
                     waitSeconds(2),
+                    runOnce(() -> SmartDashboard.putString("Stage", "Stow 3")),
                     sequence(
                         runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
                         waitSeconds(0.5),
@@ -281,9 +281,9 @@ public class SwerveAutos {
             waitSeconds(5),
             sequence(
                 claw.intake(),
-                runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                 deadline(
                     waitSeconds(2),
+                    runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                     sequence(
                         runOnce(() -> arm.setTargetTicks(armPosFinal)),
                         waitSeconds(0.5),
@@ -302,9 +302,9 @@ public class SwerveAutos {
                 waitSeconds(0.5),
                 claw.setPowerZero(),
                 
-                runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
                 deadline(
                     waitSeconds(0.5),
+                    runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
                     sequence(
                         runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
                         waitSeconds(0.5),

@@ -147,17 +147,17 @@ public class VisionAutos {
 
         return race(
             sequence(
-                parallel(
-                    runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                    runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
-                    runOnce(() -> swerveDrive.stopModules())
-                ),
                 
                 // ======== Drop Preload Start ========
 
                 // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
                 Commands.race(
                     Commands.waitSeconds(5), // Timeout
+                    parallel(
+                        runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+                        runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
+                        runOnce(() -> swerveDrive.stopModules())
+                    ),
                     Commands.sequence(
                         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
                         Commands.waitSeconds(0.5),
@@ -225,8 +225,10 @@ public class VisionAutos {
                     )
                 ),
 
-                runOnce(() -> swerveDrive.stopModules()),
-                runOnce(() -> SmartDashboard.putString("Stage", "Score 2")),
+                parallel(
+                    runOnce(() -> swerveDrive.stopModules()),
+                    runOnce(() -> SmartDashboard.putString("Stage", "Score 2"))
+                ),
 
                 // Drive to target and score, ends with arm/elev fully extended to score
                 vision.VisionScoreNoArm(OBJECT_TYPE.CUBE, SCORE_POS.MID),
@@ -337,17 +339,16 @@ public class VisionAutos {
         
         return race(
             sequence(
-                parallel(
-                    runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                    runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
-                    runOnce(() -> swerveDrive.stopModules())
-                ),
-                
                 // ======== Drop Preload Start ========
 
                 // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
                 Commands.race(
                     Commands.waitSeconds(5), // Timeout
+                    parallel(
+                        runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+                        runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
+                        runOnce(() -> swerveDrive.stopModules())
+                    ),
                     Commands.sequence(
                         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
                         Commands.waitSeconds(0.5),
@@ -415,7 +416,8 @@ public class VisionAutos {
                 ),
 
                 runOnce(() -> swerveDrive.stopModules()),
-                runOnce(() -> SmartDashboard.putString("Stage", "Charging"))
+                runOnce(() -> SmartDashboard.putString("Stage", "Charging")),
+                new TheGreatBalancingAct(swerveDrive)
             ),
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
