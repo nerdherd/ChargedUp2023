@@ -262,21 +262,26 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     }
 
     public void initShuffleboard(LOG_LEVEL level) {
-        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL || level == LOG_LEVEL.MEDIUM)  {
+        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MEDIUM)  {
             return;
         }
-        ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
+        ShuffleboardTab tab;
+        if (level == LOG_LEVEL.MINIMAL) {
+            tab = Shuffleboard.getTab("Main");
+        } else {
+            tab = Shuffleboard.getTab("Swerve");
+        }
 
         switch (level) {
             case OFF:
                 break;
             case ALL:
                 tab.add("Field Position", field).withSize(6, 3);
-                tab.addNumber("X Position", odometer.getPoseMeters()::getX);
                 // Might be negative because our swerveDriveKinematics is flipped across the Y axis
-                tab.addNumber("Y Position", odometer.getPoseMeters()::getY);
             case MEDIUM:
             case MINIMAL:
+                tab.addNumber("X Position", () -> odometer.getPoseMeters().getX());
+                tab.addNumber("Y Position", () -> odometer.getPoseMeters().getY());
                 break;
         }
     }

@@ -478,7 +478,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         currentGameObject = objType;
         currentHeightPos = pos;
         rotationIsNeeded = true;
-        goalYaw = 180; // All scoring is facing towards our drivers
+        goalYaw = 0; // All scoring is facing towards our drivers
 
         switch(currentGameObject) {
             case CONE:
@@ -523,7 +523,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 
                 PIDArea.setPID(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
                 PIDTX.setPID(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-                PIDYaw.setPID(0, 0, 0);
+                PIDYaw.setPID(10, 0, 0.2);
 
                 goalArea = 7.2; // April tag target area, unsure if correct, updated 2/23/2023
 
@@ -640,8 +640,6 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         Commands.runOnce(() -> initVisionScore(objType, pos))
                     ),
                     
-                    new TurnToAngle(0, drivetrain), //  TODO: merge with driveRotateToTarget Yaw PID
-    
                     Commands.parallel(
                         new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain)
                             .until(cameraStatusSupplier)
@@ -662,8 +660,6 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                             )
                         )
                     ),
-                    
-                    new TurnToAngle(0, drivetrain),
 
                     Commands.waitSeconds(0.5),
                     // Open claw/eject piece with rollers
@@ -737,23 +733,23 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             }
             xSpeed = pidArea.calculate(calculatedX, goalArea) * (5/4);
             ySpeed = -pidTX.calculate(calculatedY, goalTX) * (5/4);
-            rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw) * (5/4);
+            rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
             
-            // if (NerdyMath.inRange(xSpeed, -.1, .1) &&
-            // NerdyMath.inRange(ySpeed, -.1, .1) &&
-            // NerdyMath.inRange(rotationSpeed, -.1, .1))
-            // {
-            //     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-            //     SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-            //     drivetrain.setModuleStates(moduleStates);
-            //     currentCameraMode = CAMERA_MODE.ARRIVED; 
-            // }
-            // else{
+            if (NerdyMath.inRange(xSpeed, -.1, .1) &&
+            NerdyMath.inRange(ySpeed, -.1, .1) &&
+            NerdyMath.inRange(rotationSpeed, -.1, .1))
+            {
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ARRIVED; 
+            }
+            else{
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ACTION;
-            // }
+            }
         }
         
         SmartDashboard.putString("Vision status", currentCameraMode.toString());

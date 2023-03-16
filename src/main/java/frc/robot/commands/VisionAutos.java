@@ -149,15 +149,15 @@ public class VisionAutos {
             sequence(
                 
                 // ======== Drop Preload Start ========
+                Commands.parallel(
+                    runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+                    runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
+                    runOnce(() -> swerveDrive.stopModules())
+                ),
 
                 // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
                 Commands.race(
                     Commands.waitSeconds(5), // Timeout
-                    parallel(
-                        runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                        runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
-                        runOnce(() -> swerveDrive.stopModules())
-                    ),
                     Commands.sequence(
                         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
                         Commands.waitSeconds(0.5),
@@ -279,18 +279,18 @@ public class VisionAutos {
             case RIGHT:
                 pickupXDistance = -3.73;
                 pickupYDistance = 0.93;
-                pickupRotation = -150;
-                avoidCollisionYOffset = 0.28;
-                yTranslation = 1.75;
-                yOvershoot = 1.75;
+                pickupRotation = -175;
+                avoidCollisionYOffset = -0.28;
+                yTranslation = 2.25;
+                yOvershoot = 2.25;
                 break;
             case LEFT:
                 pickupXDistance = -3.73;
                 pickupYDistance = -0.93;
-                pickupRotation = 150; // Tested at Da Vinci, not accurate likely because of limelight placement
-                avoidCollisionYOffset = -0.28; // Was 0.75 when tested at Da Vinci with only 1 waypoint, but now we're using 2
-                yTranslation = -1.75;
-                yOvershoot = -1.75;
+                pickupRotation = 175; // Tested at Da Vinci, not accurate likely because of limelight placement
+                avoidCollisionYOffset = 0.28; // Was 0.75 when tested at Da Vinci with only 1 waypoint, but now we're using 2
+                yTranslation = -2.25;
+                yOvershoot = -2.25;
                 break;
             case MIDDLE:
                 pickupXDistance = -5; // TODO: Measure IRL
@@ -312,14 +312,15 @@ public class VisionAutos {
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
             new Translation2d(pickupXDistance * 0.25, avoidCollisionYOffset),
-            new Translation2d(pickupXDistance * 0.75, avoidCollisionYOffset)),
+            new Translation2d(pickupXDistance * 0.9, avoidCollisionYOffset)),
             new Pose2d(pickupXDistance, pickupYDistance, Rotation2d.fromDegrees(pickupRotation)),
             trajectoryConfig);
         
         Trajectory chargeTrajectory = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(-4, yOvershoot, Rotation2d.fromDegrees(0)),
-                new Pose2d(-2.7, yTranslation, Rotation2d.fromDegrees(0))),
+                new Pose2d(-4.0, yOvershoot * 0.75, Rotation2d.fromDegrees(175)),
+                new Pose2d(-3.5, yOvershoot, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-2.3, yTranslation, Rotation2d.fromDegrees(179.9))),
             trajectoryConfig);
         
         //Create PID Controllers
@@ -341,14 +342,15 @@ public class VisionAutos {
             sequence(
                 // ======== Drop Preload Start ========
 
+                parallel(
+                    runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+                    runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
+                    runOnce(() -> swerveDrive.stopModules())
+                ),
+
                 // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
                 Commands.race(
                     Commands.waitSeconds(5), // Timeout
-                    parallel(
-                        runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                        runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
-                        runOnce(() -> swerveDrive.stopModules())
-                    ),
                     Commands.sequence(
                         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
                         Commands.waitSeconds(0.5),
@@ -540,7 +542,7 @@ public class VisionAutos {
                 List.of(
                     new Pose2d(-0.5, yOvershoot * 0.2, Rotation2d.fromDegrees(0)),
                     new Pose2d(-0.5, yOvershoot, Rotation2d.fromDegrees(0)),
-                    new Pose2d(-2.7, yTranslation - 0.01, Rotation2d.fromDegrees(0))
+                    new Pose2d(-2.3, yTranslation - 0.01, Rotation2d.fromDegrees(0))
                 ), // -2
                 trajectoryConfig);
         } else {
