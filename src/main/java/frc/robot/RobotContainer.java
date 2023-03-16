@@ -37,6 +37,7 @@ import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
 import frc.robot.subsystems.vision.VROOOOM;
 import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
@@ -331,6 +332,8 @@ public class RobotContainer {
     scorePos = scoreChooser.getSelected();
     alliance = allianceChooser.getSelected();
     Command currentAuto = autoChooser.getSelected().get();
+
+    swerveDrive.setDriveMode(DRIVE_MODE.AUTONOMOUS);
     return currentAuto;
   }
 }

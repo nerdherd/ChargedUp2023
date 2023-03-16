@@ -18,6 +18,7 @@ import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.filters.Filter;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.filters.NewDriverFilter;
 
 public class SwerveJoystickCommand extends CommandBase {
@@ -200,12 +201,12 @@ public class SwerveJoystickCommand extends CommandBase {
         ChassisSpeeds chassisSpeeds;
         // Check if in field oriented mode
         if (!fieldOrientedFunction.get()) {
-            SmartDashboard.putString("Mode", "Field Oriented");
+            swerveDrive.setDriveMode(DRIVE_MODE.FIELD_ORIENTED);
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 filteredXSpeed, filteredYSpeed, filteredTurningSpeed, 
                 swerveDrive.getImu().getRotation2d());
-            } else {
-            SmartDashboard.putString("Mode", "Robot Oriented");
+        } else {
+            swerveDrive.setDriveMode(DRIVE_MODE.ROBOT_ORIENTED);
             chassisSpeeds = new ChassisSpeeds(
                 filteredXSpeed, filteredYSpeed, filteredTurningSpeed);
         }

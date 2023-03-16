@@ -28,6 +28,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     private final Imu gyro;
     private final SwerveDriveOdometry odometer;
+    private DRIVE_MODE driveMode = DRIVE_MODE.FIELD_ORIENTED;
 
     private Field2d field;
 
@@ -36,6 +37,12 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     public enum SwerveModuleType {
         MAG_ENCODER,
         CANCODER
+    }
+
+    public enum DRIVE_MODE {
+        FIELD_ORIENTED,
+        ROBOT_ORIENTED,
+        AUTONOMOUS
     }
 
     /**
@@ -201,6 +208,14 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     //****************************** SETTERS ******************************/
 
+    /**
+     * Set the drive mode (only for telemetry purposes)
+     * @param driveMode
+     */
+    public void setDriveMode(DRIVE_MODE driveMode) {
+        this.driveMode = driveMode;
+    }
+
     public void drive(double xSpeed, double ySpeed, double turnSpeed) {
         setModuleStates(
             SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
@@ -281,6 +296,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
             case MINIMAL:
                 tab.addNumber("X Position", () -> odometer.getPoseMeters().getX());
                 tab.addNumber("Y Position", () -> odometer.getPoseMeters().getY());
+                tab.addString("Drive Mode", () -> this.driveMode.toString());
                 break;
         }
     }
@@ -300,11 +316,12 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
             case OFF:
                 break;
             case ALL:
-                SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
-                SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
             case MEDIUM:
                 SmartDashboard.putNumber("Encoder Resets", numEncoderResets);
             case MINIMAL:
+                SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
+                SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
+                SmartDashboard.putString("Drive Mode", this.driveMode.toString());
                 break;
         }
     }
