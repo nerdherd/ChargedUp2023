@@ -232,8 +232,21 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         } else {
             goalArea = 2.3; // Goal area for cube ground pickup
             currentLimelight.setPipeline(2);
-            PIDArea.setPID(0.94, 0, 0);
-            PIDTX.setPID(0.09, 0, 0.02);
+            currentLimelight.setLightState(LightMode.OFF);
+
+            // PIDArea.setPID(
+            //         SmartDashboard.getNumber("Ta P", 0.75),
+            //         SmartDashboard.getNumber("Ta I", 0.0),
+            //         SmartDashboard.getNumber("Ta D", 0.02)
+            //     );
+            //     PIDTX.setPID(
+            //         SmartDashboard.getNumber("Tx P", 0.05),
+            //         SmartDashboard.getNumber("Tx I", 0.0),
+            //         SmartDashboard.getNumber("Tx D", 0.008)
+            //     );
+
+            PIDArea.setPID(0.75, 0, 0.02);
+            PIDTX.setPID(0.05, 0, 0.008);
             PIDYaw.setPID(0, 0, 0);
         }
     }
@@ -320,7 +333,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
                     Commands.runOnce(() -> initVisionPickupOnGround(objType)),
 
-                    new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier),
+                    Commands.race(
+                        new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier),
+                        Commands.waitSeconds(2)
+                    ),
     
                     // Drop arm and elevator so the game piece can be intook
                     Commands.race(
@@ -723,21 +739,21 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             ySpeed = -pidTX.calculate(calculatedY, goalTX) * (5/4);
             rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw) * (5/4);
             
-            if (NerdyMath.inRange(xSpeed, -.1, .1) &&
-            NerdyMath.inRange(ySpeed, -.1, .1) &&
-            NerdyMath.inRange(rotationSpeed, -.1, .1))
-            {
-                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-                drivetrain.setModuleStates(moduleStates);
-                currentCameraMode = CAMERA_MODE.ARRIVED; 
-            }
-            else{
+            // if (NerdyMath.inRange(xSpeed, -.1, .1) &&
+            // NerdyMath.inRange(ySpeed, -.1, .1) &&
+            // NerdyMath.inRange(rotationSpeed, -.1, .1))
+            // {
+            //     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+            //     SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+            //     drivetrain.setModuleStates(moduleStates);
+            //     currentCameraMode = CAMERA_MODE.ARRIVED; 
+            // }
+            // else{
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ACTION;
-            }
+            // }
         }
         
         SmartDashboard.putString("Vision status", currentCameraMode.toString());

@@ -70,7 +70,7 @@ public class VisionAutos {
             case RIGHT:
                 pickupXDistance = -3.73;
                 pickupYDistance = 0.93;
-                pickupRotation = -150;
+                pickupRotation = -175;
                 avoidCollisionYOffset = 0.28;
                 scoreXDistance = -0.26;
                 scoreYDistance = 0.5;
@@ -78,7 +78,7 @@ public class VisionAutos {
             case LEFT:
                 pickupXDistance = -3.73;
                 pickupYDistance = -0.93;
-                pickupRotation = 150; // Tested at Da Vinci, not accurate likely because of limelight placement
+                pickupRotation = 175; // Tested at Da Vinci, not accurate likely because of limelight placement
                 avoidCollisionYOffset = -0.28; // Was 0.75 when tested at Da Vinci with only 1 waypoint, but now we're using 2
                 scoreXDistance = -0.26;
                 scoreYDistance = -0.5;
@@ -199,7 +199,7 @@ public class VisionAutos {
                             Commands.parallel( // End command once both arm and elevator have reached their target position
                                 Commands.waitUntil(arm.atTargetPosition),
                                 Commands.waitUntil(elevator.atTargetPosition),
-                                Commands.runOnce(() -> arm.setTargetTicks(-328500)),
+                                Commands.runOnce(() -> arm.setTargetTicks(-328500 + 7950)),
                                 Commands.runOnce(() -> elevator.setTargetTicks(-160000))
                             )
                         )
