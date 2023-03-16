@@ -210,13 +210,9 @@ public class SwerveJoystickCommand extends CommandBase {
                 filteredXSpeed, filteredYSpeed, filteredTurningSpeed);
         }
                 
-        SmartDashboard.putNumber("Swerve Drive X Speed", filteredXSpeed);
-        SmartDashboard.putNumber("Swerve Drive Y Speed", filteredYSpeed);
-        SmartDashboard.putNumber("Swerve Drive X Chassis", chassisSpeeds.vxMetersPerSecond);
-        SmartDashboard.putNumber("Swerve Drive Y Chassis", chassisSpeeds.vyMetersPerSecond);
-        SmartDashboard.putBoolean("Turn to angle", turnToAngleSupplier.get());
-        SmartDashboard.putNumber("Swerve Drive Target Angle", desiredAngle.get());
-        SmartDashboard.putNumber("Turning speed", filteredTurningSpeed);
+        // SmartDashboard.putBoolean("Turn to angle", turnToAngleSupplier.get());
+        // SmartDashboard.putNumber("Swerve Drive Target Angle", desiredAngle.get());
+        // SmartDashboard.putNumber("Turning speed", filteredTurningSpeed);
 
         SwerveModuleState[] moduleStates;
 

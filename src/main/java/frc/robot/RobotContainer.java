@@ -120,7 +120,7 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           arm.moveArmJoystick(operatorController.getLeftY(), elevator.percentExtended());
-          SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
+          // SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
         }, 
         arm
       ));
@@ -129,7 +129,7 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           elevator.moveElevatorJoystick(operatorController.getRightY() * -0.125, arm.getArmAngle());
-          SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
+          // SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
         }, 
         elevator
       ));
@@ -310,8 +310,8 @@ public class RobotContainer {
   }
 
   public void reportAllToSmartDashboard() {
-    SmartDashboard.putNumber("Elevator FF", Math.sin(arm.getArmAngle()) * ElevatorConstants.kArbitraryFF);
-    SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
+    // SmartDashboard.putNumber("Elevator FF", Math.sin(arm.getArmAngle()) * ElevatorConstants.kArbitraryFF);
+    // SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
     imu.reportToSmartDashboard(loggingLevel);
     motorClaw.reportToSmartDashboard(loggingLevel);
     arm.reportToSmartDashboard(loggingLevel);

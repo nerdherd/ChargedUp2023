@@ -119,7 +119,7 @@ public class CANSwerveModule implements SwerveModule {
      */
     public void resetEncoder() {
         double startAngle = (canCoder.getAbsolutePosition() - this.CANCoderOffsetDegrees) % 360;
-        SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
+        // SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
         canCoder.setPosition(startAngle);
     }
 

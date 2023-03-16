@@ -116,7 +116,6 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         }
 
         numEncoderResets = 0;
-        SmartDashboard.putNumber("Encoder resets", 0);
         resetEncoders();
         this.gyro = gyro;
         this.odometer = new SwerveDriveOdometry(
@@ -156,8 +155,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     public void resetEncoders() {
         numEncoderResets += 1;
-        SmartDashboard.putNumber("Encoder resets", numEncoderResets);
-        // SmartDashboard.putNumber("Encoder resets", SmartDashboard.getNumber("Encoder resets", 0)+1);
+        // SmartDashboard.putNumber("Encoder resets", numEncoderResets);
         frontLeft.resetEncoder();
         frontRight.resetEncoder();
         backLeft.resetEncoder();
@@ -279,6 +277,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                 tab.add("Field Position", field).withSize(6, 3);
                 // Might be negative because our swerveDriveKinematics is flipped across the Y axis
             case MEDIUM:
+                tab.addNumber("Encoder Resets", () -> this.numEncoderResets);
             case MINIMAL:
                 tab.addNumber("X Position", () -> odometer.getPoseMeters().getX());
                 tab.addNumber("Y Position", () -> odometer.getPoseMeters().getY());
@@ -304,6 +303,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                 SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
                 SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
             case MEDIUM:
+                SmartDashboard.putNumber("Encoder Resets", numEncoderResets);
             case MINIMAL:
                 break;
         }

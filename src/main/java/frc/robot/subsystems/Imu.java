@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-// TODO: Wrap crucial ahrs methods so that functionality is swappable between the NavX and Pigeon IMU
-
 public class Imu extends SubsystemBase implements Reportable {
     public AHRS ahrs;
     private int numResets = 0;
@@ -45,7 +43,6 @@ public class Imu extends SubsystemBase implements Reportable {
     public void zeroHeading() {
         ahrs.reset();
         numResets += 1;
-        SmartDashboard.putNumber("Gyro resets", numResets);
     }
 
     /**
@@ -54,7 +51,6 @@ public class Imu extends SubsystemBase implements Reportable {
      */
     public double getHeading() {
         double heading = Math.IEEEremainder(ahrs.getYaw(), 360);
-        SmartDashboard.putNumber("Heading degrees", heading);
         return heading;
     }
 
@@ -98,6 +94,7 @@ public class Imu extends SubsystemBase implements Reportable {
             SmartDashboard.putString("NavX Firmware version", ahrs.getFirmwareVersion());
         case MEDIUM:
         case MINIMAL:
+            SmartDashboard.putNumber("IMU Resets", numResets);
             SmartDashboard.putNumber("Robot Heading", getHeading());
             break;
         }
@@ -130,6 +127,7 @@ public class Imu extends SubsystemBase implements Reportable {
                 tab.addNumber("Robot Roll", () -> ahrs.getRoll());
                 tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
             case MINIMAL:
+                tab.addNumber("IMU Resets", () -> numResets);
                 tab.addNumber("Robot Heading", () -> getHeading());
                 break;
         }
