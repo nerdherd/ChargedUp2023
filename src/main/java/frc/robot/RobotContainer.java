@@ -332,6 +332,7 @@ public class RobotContainer {
     SmartDashboard.putBoolean("Dummy Auto", false);
 
     autoChooser.addOption("Vision Auto", () -> VisionAutos.visionAutoChoose(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos));
+    autoChooser.addOption("Vision Preload Pickup Charge No Score", () -> VisionAutos.visionPreloadPickupChargeAuto(swerveDrive, vision, arm, elevator, motorClaw, startPos, scorePos, alliance));
     autoChooser.addOption("April Tag Debug Auto", () -> VisionAutos.debugVisionAprilTagAuto(vision));
     autoChooser.addOption("Charge only", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, alliance, 0, false));
     autoChooser.addOption("Backward Auto", () -> SwerveAutos.driveBackwardAuto(swerveDrive));
