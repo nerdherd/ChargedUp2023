@@ -82,33 +82,56 @@ public class Imu extends SubsystemBase implements Reportable {
         );
     }
 
-    public void reportToSmartDashboard() {
-        SmartDashboard.putNumber("Robot Heading", getHeading());
-        SmartDashboard.putNumber("Robot Yaw", ahrs.getYaw());
-        SmartDashboard.putNumber("Robot Pitch", ahrs.getPitch());
-        SmartDashboard.putNumber("Robot Roll", ahrs.getRoll());
-        SmartDashboard.putNumber("Robot Raw Yaw", ahrs.getRawGyroZ());
-        SmartDashboard.putNumber("Robot Raw Pitch", ahrs.getRawGyroX());
-        SmartDashboard.putNumber("Robot Raw Roll", ahrs.getRawGyroY());
-        SmartDashboard.putBoolean("AHRS Calibrating", ahrs.isCalibrating());
-        SmartDashboard.putBoolean("AHRS Connected", ahrs.isConnected());
-        SmartDashboard.putString("NavX Firmware version", ahrs.getFirmwareVersion());
+    public void reportToSmartDashboard(LOG_LEVEL level) {
+        switch (level) {
+        case OFF:
+            break;
+        case ALL:
+            SmartDashboard.putNumber("Robot Yaw", ahrs.getYaw());
+            SmartDashboard.putNumber("Robot Pitch", ahrs.getPitch());
+            SmartDashboard.putNumber("Robot Roll", ahrs.getRoll());
+            SmartDashboard.putNumber("Robot Raw Yaw", ahrs.getRawGyroZ());
+            SmartDashboard.putNumber("Robot Raw Pitch", ahrs.getRawGyroX());
+            SmartDashboard.putNumber("Robot Raw Roll", ahrs.getRawGyroY());
+            SmartDashboard.putBoolean("AHRS Calibrating", ahrs.isCalibrating());
+            SmartDashboard.putBoolean("AHRS Connected", ahrs.isConnected());
+            SmartDashboard.putString("NavX Firmware version", ahrs.getFirmwareVersion());
+        case MEDIUM:
+        case MINIMAL:
+            SmartDashboard.putNumber("Robot Heading", getHeading());
+            break;
+        }
     }
 
-    public void initShuffleboard() {
-        ShuffleboardTab tab = Shuffleboard.getTab("Imu");
-
-        // tab.add("Calibrate NavX", new InstantCommand(() -> ahrs.calibrate()));
-        // tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
-        tab.addNumber("Robot Heading", () -> getHeading());
-        // tab.addNumber("Robot Yaw", () -> ahrs.getYaw());
-        // tab.addNumber("Robot Pitch", () -> ahrs.getPitch());
-        // tab.addNumber("Robot Roll", () -> ahrs.getRoll());
-        // tab.addNumber("Robot Raw Yaw", () -> ahrs.getRawGyroZ());
-        // tab.addNumber("Robot Raw Pitch", () -> ahrs.getRawGyroX());
-        // tab.addNumber("Robot Raw Roll", () -> ahrs.getRawGyroY());
-        // tab.addBoolean("AHRS Calibrating", () -> ahrs.isCalibrating());
-        // tab.addBoolean("AHRS Connected", () -> ahrs.isConnected());
-        // tab.addString("NavX Firmware version", () -> ahrs.getFirmwareVersion());
+    public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF)  {
+            return;
+        }
+        ShuffleboardTab tab;
+        if (level == LOG_LEVEL.MINIMAL) {
+            tab = Shuffleboard.getTab("Main");
+        } else {
+            tab = Shuffleboard.getTab("Imu");
+        }
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                tab.add("Calibrate NavX", new InstantCommand(() -> ahrs.calibrate()));
+                tab.addNumber("Robot Raw Yaw", () -> ahrs.getRawGyroZ());
+                tab.addNumber("Robot Raw Pitch", () -> ahrs.getRawGyroX());
+                tab.addNumber("Robot Raw Roll", () -> ahrs.getRawGyroY());
+                tab.addBoolean("AHRS Calibrating", () -> ahrs.isCalibrating());
+                tab.addBoolean("AHRS Connected", () -> ahrs.isConnected());
+                tab.addString("NavX Firmware version", () -> ahrs.getFirmwareVersion());
+            case MEDIUM:
+                tab.addNumber("Robot Yaw", () -> ahrs.getYaw());
+                tab.addNumber("Robot Pitch", () -> ahrs.getPitch());
+                tab.addNumber("Robot Roll", () -> ahrs.getRoll());
+                tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
+            case MINIMAL:
+                tab.addNumber("Robot Heading", () -> getHeading());
+                break;
+        }
     }
 }

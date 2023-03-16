@@ -9,10 +9,11 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.ConeRunner;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Imu;
-import frc.robot.subsystems.MotorClaw;
+import frc.robot.subsystems.Reportable.LOG_LEVEL;
+import frc.robot.subsystems.claw.ConeRunner;
+import frc.robot.subsystems.claw.MotorClaw;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,6 +34,7 @@ import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
+import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
@@ -77,6 +79,8 @@ public class RobotContainer {
       ControllerConstants.kOperatorControllerPort);
   private final BadPS4 badPS4 = operatorController.getHID();
   // private final Joystick joystick = new Joystick(2);
+
+  private final LOG_LEVEL loggingLevel = LOG_LEVEL.MINIMAL;
 
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);
@@ -130,7 +134,7 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
-    arm.resetEncoderStow();
+    // arm.resetEncoderStow();
     // elevator.resetEncoder();
 
     arm.setDefaultCommand(
@@ -185,22 +189,34 @@ public class RobotContainer {
 
           // Field oriented
           badPS5::getSquareButton,
+
+          // Towing
           badPS5::getL2Button,
-          // driverControllerButtons::getTriangleButton,
+
           // Dodge
           badPS5::getR3Button,
           // Dodging
           () -> {
-            // if (badPS4.getL2Button()) {
+            // if (badPS5.getL2Button()) {
             //   return DodgeDirection.LEFT;
             // } 
-            // if (badPS4.getR2Button()) {
+            // if (badPS5.getR2Button()) {
             //   return DodgeDirection.RIGHT;
             // }
             return DodgeDirection.NONE;
           },
           // Precision/"Sniper Button"
-          badPS5::getR2Button
+          badPS5::getR2Button,
+          // Turn to angle
+          () -> badPS5.getR1Button() || badPS5.getL1Button(),
+          // Turn To angle Direction
+          () -> {
+            if (badPS5.getR1Button()) {
+              return 180.0;
+            } else {
+              return 0.0;
+            }
+          }
         ));
     // } else {
     //   tankDrive.setDefaultCommand(
@@ -271,8 +287,8 @@ public class RobotContainer {
       driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
       driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
 
-      driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive));
-      driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
+      // driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive)); // Replaced with turn to angles in the drive command
+      // driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
       
       driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
 
@@ -280,29 +296,33 @@ public class RobotContainer {
       // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
       // ====== Vision Bindings ====== 
-      // driverController.L2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CONE))
-      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      driverController.cross().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CONE))
+        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
       // driverController.R2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CUBE))
       //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
+      operatorController.L2().whileTrue(vision.VisionPickupOnGround(OBJECT_TYPE.CUBE));
+      operatorController.R2().whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH));
 
-      //operatorController.L2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CONE));
+      //operatorController.L2().onTrue(vision.updateCurrentGameObjects(OBJECT_TYPE.CONE));
       //operatorController.R2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
 
       //upButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.HIGH));
       //rightButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.MID));
       //downButtonDriver.onTrue(vision.updateCurrentHeight(SCORE_POS.LOW));
 
-      upButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.HIGH))
-      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-      leftButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID))
-        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+
+
+      // upButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.HIGH))
+      // .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // leftButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CONE, SCORE_POS.MID))
+      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
       
-      rightButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH))
-        .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
-      downButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.MID))
-      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // rightButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH))
+      //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+      // downButtonDriver.whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.MID))
+      // .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
     //}
   }
@@ -311,6 +331,9 @@ public class RobotContainer {
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
     SmartDashboard.putBoolean("Dummy Auto", false);
 
+    autoChooser.addOption("Vision Auto", () -> VisionAutos.visionAutoChoose(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos));
+    autoChooser.addOption("Vision Preload Pickup Charge No Score", () -> VisionAutos.visionPreloadPickupChargeAuto(swerveDrive, vision, arm, elevator, motorClaw, startPos, scorePos, alliance));
+    autoChooser.addOption("April Tag Debug Auto", () -> VisionAutos.debugVisionAprilTagAuto(vision));
     autoChooser.addOption("Charge only", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, alliance, 0, false));
     autoChooser.addOption("Backward Auto", () -> SwerveAutos.driveBackwardAuto(swerveDrive));
     autoChooser.addOption("Preload Auto", () -> SwerveAutos.preloadAuto(arm, elevator, motorClaw, scorePos));
@@ -349,39 +372,41 @@ public class RobotContainer {
   }
   
   public void initShuffleboard() {
-    imu.initShuffleboard();
-    // claw.initShuffleboard();
-    arm.initShuffleboard();
-    elevator.initShuffleboard();
-    // coneRunner.initShuffleboard();
+    imu.initShuffleboard(loggingLevel);
+    // claw.initShuffleboard(loggingLevel);
+    arm.initShuffleboard(loggingLevel);
+    elevator.initShuffleboard(loggingLevel);
+    motorClaw.initShuffleboard(loggingLevel);
+    // coneRunner.initShuffleboard(loggingLevel);
     //if (IsSwerveDrive) {
-      // swerveDrive.initShuffleboard();
-      // swerveDrive.initModuleShuffleboard();
+      swerveDrive.initShuffleboard(loggingLevel);
+      swerveDrive.initModuleShuffleboard(loggingLevel);
     // } else {
-    //   tankDrive.initShuffleboard();
+    //   tankDrive.initShuffleboard(loggingLevel);
     // }
-    // airCompressor.initShuffleboard();
+    // airCompressor.initShuffleboard(loggingLevel);
 
-    vision.initShuffleboard();
+    vision.initShuffleboard(loggingLevel);
   }
 
   public void reportAllToSmartDashboard() {
     SmartDashboard.putNumber("Elevator FF", Math.sin(arm.getArmAngle()) * ElevatorConstants.kArbitraryFF);
     SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
     // SmartDashboard.putNumber("Timestamp", WPIUtilJNI.now());
-    imu.reportToSmartDashboard();
-    // claw.reportToSmartDashboard();
-    arm.reportToSmartDashboard();
-    elevator.reportToSmartDashboard();
-    vision.reportToSmartDashboard();
-    // coneRunner.reportToSmartDashboard();
+    imu.reportToSmartDashboard(loggingLevel);
+    // claw.reportToSmartDashboard(loggingLevel);
+    motorClaw.reportToSmartDashboard(loggingLevel);
+    arm.reportToSmartDashboard(loggingLevel);
+    elevator.reportToSmartDashboard(loggingLevel);
+    vision.reportToSmartDashboard(loggingLevel);
+    // coneRunner.reportToSmartDashboard(loggingLevel);
     // if (IsSwerveDrive) {
-      // swerveDrive.reportToSmartDashboard();
-      // swerveDrive.reportModulesToSmartDashboard();
+      swerveDrive.reportToSmartDashboard(loggingLevel);
+      swerveDrive.reportModulesToSmartDashboard(loggingLevel);
     // } else {
-    //   tankDrive.reportToSmartDashboard();
+    //   tankDrive.reportToSmartDashboard(loggingLevel);
     // }
-    // airCompressor.reportToSmartDashboard();
+    // airCompressor.reportToSmartDashboard(loggingLevel);
   }
   
   /**
@@ -415,8 +440,9 @@ public class RobotContainer {
 
     // }
     
-    arm.resetEncoderStow();
-    elevator.resetEncoder();
+    // COME BACK TO THIS BEFORE LAR THIS IS VERY IMPORTANT TO THINK ABOUT
+    // arm.resetEncoderStow();
+    // elevator.resetEncoder();
 
     // if (IsSwerveDrive) {
     //   swerveDrive.resetEncoders();
