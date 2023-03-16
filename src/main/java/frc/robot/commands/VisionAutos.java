@@ -539,7 +539,7 @@ public class VisionAutos {
             trajectory = TrajectoryGenerator.generateTrajectory(
                 List.of(
                     new Pose2d(-0.5, yOvershoot * 0.2, Rotation2d.fromDegrees(0)),
-                    new Pose2d(-0.25, yOvershoot, Rotation2d.fromDegrees(0)),
+                    new Pose2d(-0.5, yOvershoot, Rotation2d.fromDegrees(0)),
                     new Pose2d(-2.7, yTranslation - 0.01, Rotation2d.fromDegrees(0))
                 ), // -2
                 trajectoryConfig);
