@@ -120,7 +120,7 @@ public class MagSwerveModule implements SwerveModule {
     public void resetEncoder() {
         double startPos = (absoluteTurningEncoder.getSelectedSensorPosition(1) - absoluteEncoderOffset) % 4096;
         double startAngle = startPos / 4096;
-        SmartDashboard.putNumber("Reset Angle Encoder #" + absoluteEncoderId, startAngle);
+        // SmartDashboard.putNumber("Reset Angle Encoder #" + absoluteEncoderId, startAngle);
         absoluteTurningEncoder.setSelectedSensorPosition(startPos, 0, 100);
     }
 

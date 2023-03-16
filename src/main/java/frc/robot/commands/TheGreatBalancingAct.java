@@ -49,9 +49,9 @@ public class TheGreatBalancingAct extends CommandBase {
         addRequirements(swerveDrive);
 
         // this.period = period;
-        SmartDashboard.putNumber("kPBalancing", kP);
-        SmartDashboard.putNumber("kIBalancing", kI);
-        SmartDashboard.putNumber("kDBalancing", kD);
+        // SmartDashboard.putNumber("kPBalancing", kP);
+        // SmartDashboard.putNumber("kIBalancing", kI);
+        // SmartDashboard.putNumber("kDBalancing", kD);
     }
 
     /**
@@ -92,15 +92,15 @@ public class TheGreatBalancingAct extends CommandBase {
         Rotation3d currentRotation = swerveDrive.getImu().getRotation3d();
 
         // temporary debugging code
-        kP = SmartDashboard.getNumber("kPBalancing", kP);
-        kI = SmartDashboard.getNumber("kIBalancing", kI);
-        kD = SmartDashboard.getNumber("kDBalancing", kD);
-        pitchPidController.setP(kP);
-        pitchPidController.setI(kI);
-        pitchPidController.setD(kD);
-        rollPidController.setP(kP);
-        rollPidController.setI(kI);
-        rollPidController.setD(kD);
+        // kP = SmartDashboard.getNumber("kPBalancing", kP);
+        // kI = SmartDashboard.getNumber("kIBalancing", kI);
+        // kD = SmartDashboard.getNumber("kDBalancing", kD);
+        // pitchPidController.setP(kP);
+        // pitchPidController.setI(kI);
+        // pitchPidController.setD(kD);
+        // rollPidController.setP(kP);
+        // rollPidController.setI(kI);
+        // rollPidController.setD(kD);
 
         // Calculate turning speed with PID
         double xSpeed = pitchPidController.calculate(
@@ -110,11 +110,11 @@ public class TheGreatBalancingAct extends CommandBase {
             currentRotation.getY(), 0
         );
 
-        SmartDashboard.putNumber("xSpeed", xSpeed);
-        SmartDashboard.putNumber("ySpeed", ySpeed);
-        SmartDashboard.putNumber("pitch", currentRotation.getY());
-        SmartDashboard.putNumber("roll", currentRotation.getX());
-        SmartDashboard.putNumber("yaw", currentRotation.getZ());
+        // SmartDashboard.putNumber("xSpeed", xSpeed);
+        // SmartDashboard.putNumber("ySpeed", ySpeed);
+        // SmartDashboard.putNumber("pitch", currentRotation.getY());
+        // SmartDashboard.putNumber("roll", currentRotation.getX());
+        // SmartDashboard.putNumber("yaw", currentRotation.getZ());
 
         // Tow the swerve
         // if (currentRotation.getX() < SwerveAutoConstants.kBalancingDeadbandDegrees
