@@ -423,15 +423,15 @@ public class SwerveAutos {
                 List.of(
                     new Translation2d(-0.25, 0),
                     new Translation2d(-0.25, yOvershoot)), 
-                new Pose2d(-2.7, yTranslation - 0.01, Rotation2d.fromDegrees(0)), // -2
+                new Pose2d(-2.3, yTranslation - 0.01, Rotation2d.fromDegrees(0)), // -2
                 trajectoryConfig);
         } else {
             trajectory = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(0, 0, new Rotation2d(0)), 
                 List.of(
-                    new Translation2d(-3.5, yTranslation / 4),
-                    new Translation2d(-3.5, yTranslation + 0.01)), 
-                new Pose2d(-2, yTranslation - 0.01, Rotation2d.fromDegrees(0)), 
+                    new Translation2d(-4.5, yTranslation / 4),
+                    new Translation2d(-4, yTranslation + 0.01)), 
+                new Pose2d(-1.5, yTranslation - 0.01, Rotation2d.fromDegrees(0)), 
                 trajectoryConfig);
         }
 
@@ -494,7 +494,7 @@ public class SwerveAutos {
                 waitSeconds(3),
                 autoCommand
             ),
-            new TheGreatBalancingAct(swerveDrive)
+            new TheGreatBalancingAct(swerveDrive, SwerveAutoConstants.kPBalancing + 0.05, SwerveAutoConstants.kIBalancing, SwerveAutoConstants.kDBalancing)
             // new TowSwerve(swerveDrive)
         );
     }
