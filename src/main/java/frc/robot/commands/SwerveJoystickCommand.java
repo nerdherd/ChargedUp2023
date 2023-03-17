@@ -169,8 +169,8 @@ public class SwerveJoystickCommand extends CommandBase {
 
         double scale = filteredMagnitude / magnitude;
 
-        double filteredXSpeed = xLimiter.calculate(xSpeed * scale);
-        double filteredYSpeed = yLimiter.calculate(ySpeed * scale);
+        double filteredXSpeed = Math.signum(xSpeed) * xLimiter.calculate(Math.abs(xSpeed * scale));
+        double filteredYSpeed = Math.signum(ySpeed) * yLimiter.calculate(Math.abs(ySpeed * scale));
         double filteredTurningSpeed;
 
         // Turn to angle
