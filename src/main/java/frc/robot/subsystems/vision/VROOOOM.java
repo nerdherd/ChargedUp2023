@@ -335,22 +335,22 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
                     Commands.race(
                         new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier),
-                        Commands.waitSeconds(2)
-                    ),
-    
-                    // Drop arm and elevator so the game piece can be intook
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(-196000)),
-                            Commands.sequence(
-                                Commands.waitSeconds(0.25),
-                                Commands.runOnce(() -> elevator.setTargetTicks(-160000))
+                        Commands.waitSeconds(2),
+                        // Drop arm and elevator so the game piece can be intook
+                        Commands.race(
+                            Commands.waitSeconds(5),
+                            Commands.parallel( // End command once both arm and elevator have reached their target position
+                                Commands.waitUntil(arm.atTargetPosition),
+                                Commands.waitUntil(elevator.atTargetPosition),
+                                Commands.runOnce(() -> arm.setTargetTicks(-196000)),
+                                Commands.sequence(
+                                    Commands.waitSeconds(0.25),
+                                    Commands.runOnce(() -> elevator.setTargetTicks(-160000))
+                                )
                             )
                         )
                     ),
+    
 
                     // Open claw/Start claw intake rollers
                     claw.setPower(-0.3),

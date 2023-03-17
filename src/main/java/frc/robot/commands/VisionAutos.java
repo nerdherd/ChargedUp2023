@@ -397,22 +397,22 @@ public class VisionAutos {
                     )
                 ),
 
-                // Commands.deadline(
-                scoreToPickupCommand,
+                Commands.deadline(
+                    scoreToPickupCommand,
+                // Move arm to ready-to-pickup position
+                    Commands.sequence(
+                        Commands.deadline(
+                            Commands.waitSeconds(2),
+                            Commands.parallel( // End command once both arm and elevator have reached their target position
+                                Commands.waitUntil(arm.atTargetPosition),
+                                // Commands.waitUntil(elevator.atTargetPosition),
+                                Commands.runOnce(() -> arm.setTargetTicks(-328500 + 7950))
+                                // Commands.runOnce(() -> elevator.setTargetTicks(-160000))
+                            )
+                        )
+                    )
+                ),
 
-                    // Move arm to ready-to-pickup position
-                    // Commands.sequence(
-                        // Commands.deadline(
-                        //     Commands.waitSeconds(2),
-                        //     Commands.parallel( // End command once both arm and elevator have reached their target position
-                        //         Commands.waitUntil(arm.atTargetPosition),
-                        //         Commands.waitUntil(elevator.atTargetPosition),
-                        //         Commands.runOnce(() -> arm.setTargetTicks(-328500 + 7950)),
-                        //         Commands.runOnce(() -> elevator.setTargetTicks(-160000))
-                        //     )
-                        // )
-                    // )
-                // ),
                 runOnce(() -> swerveDrive.stopModules()),
 
                 // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
@@ -421,7 +421,7 @@ public class VisionAutos {
                 Commands.deadline(
                     Commands.waitSeconds(2),
                     Commands.parallel( // End command once both arm and elevator have reached their target position
-                        Commands.waitUntil(arm.atTargetPosition),
+                        // Commands.waitUntil(arm.atTargetPosition),
                         Commands.waitUntil(elevator.atTargetPosition),
                         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
@@ -597,16 +597,16 @@ public class VisionAutos {
                 // Parallel driving to pickup position and moving arm/elev to ready-to-pickup position
                 // Commands.deadline(
                 Commands.deadline(
-                    Commands.waitSeconds(2),
+                    scoreToPickupCommand,
+                    // Commands.waitSeconds(2),
                     Commands.parallel( // End command once both arm and elevator have reached their target position
                         Commands.waitUntil(arm.atTargetPosition),
-                        Commands.waitUntil(elevator.atTargetPosition),
-                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                        Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                        // Commands.waitUntil(elevator.atTargetPosition),
+                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow))
+                        // Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
                     )
                 ),
 
-                scoreToPickupCommand,
 
                     // Move arm to ready-to-pickup position
                     // Commands.sequence(
@@ -631,7 +631,7 @@ public class VisionAutos {
                 Commands.deadline(
                     Commands.waitSeconds(2),
                     Commands.parallel( // End command once both arm and elevator have reached their target position
-                        Commands.waitUntil(arm.atTargetPosition),
+                        // Commands.waitUntil(arm.atTargetPosition),
                         Commands.waitUntil(elevator.atTargetPosition),
                         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
