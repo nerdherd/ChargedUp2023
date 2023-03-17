@@ -74,7 +74,7 @@ public class RobotContainer {
   private final BadPS4 badPS4 = operatorController.getHID();
   // private final Joystick joystick = new Joystick(2);
 
-  private final LOG_LEVEL loggingLevel = LOG_LEVEL.MINIMAL;
+  private final LOG_LEVEL loggingLevel = LOG_LEVEL.MEDIUM;
 
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);
@@ -261,15 +261,15 @@ public class RobotContainer {
     SmartDashboard.putBoolean("Dummy Auto", false);
 
     autoChooser.addOption("Vision Preload Pickup Score", () -> VisionAutos.visionPreloadPickupScore(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos, scorePos));
-    autoChooser.addOption("Vision Auto", () -> VisionAutos.visionAutoChoose(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos));
+    // autoChooser.addOption("Vision Auto", () -> VisionAutos.visionAutoChoose(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos));
     autoChooser.addOption("Vision Preload Pickup Charge No Score", () -> VisionAutos.visionPreloadPickupChargeAuto(swerveDrive, vision, arm, elevator, motorClaw, startPos, scorePos, alliance));
-    autoChooser.addOption("April Tag Debug Auto", () -> VisionAutos.debugVisionAprilTagAuto(vision));
-    autoChooser.addOption("Charge only", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, alliance, 0, false));
-    autoChooser.addOption("Backward Auto", () -> SwerveAutos.driveBackwardAuto(swerveDrive));
-    autoChooser.addOption("Preload Auto", () -> SwerveAutos.preloadAuto(arm, elevator, motorClaw, scorePos));
-    autoChooser.addOption("Preload Charge Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
+    // autoChooser.addOption("April Tag Debug Auto", () -> VisionAutos.debugVisionAprilTagAuto(vision));
+    // autoChooser.addOption("Charge only", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, alliance, 0, false));
+    // autoChooser.addOption("Backward Auto", () -> SwerveAutos.driveBackwardAuto(swerveDrive));
+    // autoChooser.addOption("Preload Auto", () -> SwerveAutos.preloadAuto(arm, elevator, motorClaw, scorePos));
+    // autoChooser.addOption("Preload Charge Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
     autoChooser.addOption("Preload Charge Go Around Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
-    autoChooser.addOption("Preload Backward Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
+    // autoChooser.addOption("Preload Backward Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     // autoChooser.addOption("Preload Pickup Auto", () -> SwerveAutos.twoPieceAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     // autoChooser.addOption("Preload Pickup Charge Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
     // autoChooser.addOption("Preload Pickup Charge Go Around Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));

@@ -344,7 +344,7 @@ public class SwerveAutos {
                 run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
                 run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
             )
-        );
+        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
     }
 
     public static CommandBase preloadBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {

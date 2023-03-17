@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Imu extends SubsystemBase implements Reportable {
     public AHRS ahrs;
     private int numResets = 0;
+    private double offset = 0;
     
     /**
      * Attempt to instantiate a new NavX IMU.
@@ -45,12 +46,21 @@ public class Imu extends SubsystemBase implements Reportable {
         numResets += 1;
     }
 
+    public void setHeading(double angle) {
+        zeroHeading();
+        offset = -angle;
+    }
+
+    public void setOffset(double offset) {
+        this.offset = offset;
+    }
+
     /**
      * Gets angle robot is facing
      * @return Angle of the robot (degrees)
      */
     public double getHeading() {
-        double heading = Math.IEEEremainder(ahrs.getYaw(), 360);
+        double heading = Math.IEEEremainder(ahrs.getYaw() - offset, 360);
         return heading;
     }
 
@@ -66,7 +76,7 @@ public class Imu extends SubsystemBase implements Reportable {
         return new Rotation3d(
             ahrs.getRoll() * Math.PI / 180, 
             ahrs.getPitch()* Math.PI / 180, 
-            ahrs.getYaw() * Math.PI / 180) ;
+            getHeading() * Math.PI / 180) ;
     }
 
     public Rotation3d getRotation3dRaw() {
