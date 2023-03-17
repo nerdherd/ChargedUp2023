@@ -39,6 +39,7 @@ public class NewRotationFilter extends FilterSeries {
 
         super.setFilters(
             new DeadbandFilter(deadband),
+            new ReverseDeadbandFilter(deadband, 1, -1),
             new WrapperFilter(
                 (x) -> {
                     if (x == 0) {
@@ -64,7 +65,6 @@ public class NewRotationFilter extends FilterSeries {
                     }
                 }
             ),
-            new ReverseDeadbandFilter(deadband, 1, -1),
             new ScaleFilter(scale),
             new ClampFilter(scale),
             new WrapperFilter(

@@ -25,6 +25,7 @@ public class NewDriverFilter extends FilterSeries {
         deadbandScaler = (1 - motorDeadband) * (1 - motorDeadband);
         super.setFilters(
             new DeadbandFilter(deadband),
+            new ReverseDeadbandFilter(deadband, 1, -1),
             new WrapperFilter(
                 (x) -> {
                     if (x == 0) {
@@ -50,7 +51,6 @@ public class NewDriverFilter extends FilterSeries {
                     }
                 }
             ),
-            new ReverseDeadbandFilter(deadband, 1, -1),
             new ScaleFilter(scale),
             new ClampFilter(scale)
         );
