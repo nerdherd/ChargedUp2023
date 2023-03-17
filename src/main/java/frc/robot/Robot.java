@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -31,8 +32,8 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.initShuffleboard();
 	
-    // DataLogManager.start("/home/lvuser/logs/");
-    // DataLogManager.logNetworkTables(true);
+    DataLogManager.start("/home/lvuser/logs/");
+    DataLogManager.logNetworkTables(true);
   }
 
   /**
@@ -71,8 +72,8 @@ public class Robot extends TimedRobot {
     m_robotContainer.imu.zeroHeading();
     
     // TODO: COME BACK TO THIS BEFORE LAR THIS IS VERY IMPORTANT TO THINK ABOUT
-    // m_robotContainer.arm.resetEncoderStow();
-    // m_robotContainer.elevator.resetEncoder();
+    m_robotContainer.arm.resetEncoderStow();
+    m_robotContainer.elevator.resetEncoder();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)

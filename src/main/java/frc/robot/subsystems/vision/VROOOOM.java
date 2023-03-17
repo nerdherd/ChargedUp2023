@@ -523,7 +523,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 
                 PIDArea.setPID(SmartDashboard.getNumber("Ta P", 0), SmartDashboard.getNumber("Ta I", 0), SmartDashboard.getNumber("Ta D", 0));
                 PIDTX.setPID(SmartDashboard.getNumber("Tx P", 0), SmartDashboard.getNumber("Tx I", 0), SmartDashboard.getNumber("Tx D", 0));
-                PIDYaw.setPID(10, 0, 0.2);
+                // PIDYaw.setPID(10, 0, 0.2);
+                PIDYaw.setPID(0, 0, 0);
 
                 goalArea = 7.2; // April tag target area, unsure if correct, updated 2/23/2023
 
@@ -643,7 +644,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     Commands.parallel(
                         new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain)
                             .until(cameraStatusSupplier)
-                            .withTimeout(2),
+                            .withTimeout(0.5),
                             
                         // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
                         Commands.race(

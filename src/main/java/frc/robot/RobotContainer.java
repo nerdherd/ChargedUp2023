@@ -260,6 +260,7 @@ public class RobotContainer {
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
     SmartDashboard.putBoolean("Dummy Auto", false);
 
+    autoChooser.addOption("Vision Preload Pickup Score", () -> VisionAutos.visionPreloadPickupScore(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos, scorePos));
     autoChooser.addOption("Vision Auto", () -> VisionAutos.visionAutoChoose(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos));
     autoChooser.addOption("Vision Preload Pickup Charge No Score", () -> VisionAutos.visionPreloadPickupChargeAuto(swerveDrive, vision, arm, elevator, motorClaw, startPos, scorePos, alliance));
     autoChooser.addOption("April Tag Debug Auto", () -> VisionAutos.debugVisionAprilTagAuto(vision));
