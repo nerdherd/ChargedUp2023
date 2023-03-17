@@ -150,9 +150,9 @@ public class SwerveAutos {
                 break;
         }
         
-        if (alliance == Alliance.Red) {
-            pickupYDistance *= -1;
-        }
+        // if (alliance == Alliance.Red) {
+        //     pickupYDistance *= -1;
+        // }
         
         Trajectory scoreToPickup = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
@@ -410,10 +410,10 @@ public class SwerveAutos {
                 break;
         }
 
-        if (alliance == Alliance.Red) {
-            yTranslation *= -1;
-            yOvershoot *= -1;
-        }
+        // if (alliance == Alliance.Red) {
+        //     yTranslation *= -1;
+        //     yOvershoot *= -1;
+        // }
 
         Trajectory trajectory;
         
