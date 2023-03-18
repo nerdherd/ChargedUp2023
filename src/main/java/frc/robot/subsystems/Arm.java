@@ -27,10 +27,12 @@ public class Arm extends SubsystemBase implements Reportable {
     private TalonFX rotatingArm;
     private int targetTicks = ArmConstants.kArmStow;
     public BooleanSupplier atTargetPosition;
-    // private DigitalInput talonTachTop, talonTachBottom;
+    private DigitalInput talonTachTop;
+    private boolean inTalonTachZone;
+    // private DigitalInput talonTachBottom;
 
     public Arm() {
-        // talonTachTop = new DigitalInput(ArmConstants.kTalonTachTopID);
+        talonTachTop = new DigitalInput(ArmConstants.kTalonTachTopID);
         // talonTachBottom = new DigitalInput(ArmConstants.kTalonTachBottomID);
         
         // gear ratio 27:1
@@ -76,10 +78,11 @@ public class Arm extends SubsystemBase implements Reportable {
             // rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) { // Up
-            // if (talonTachTop.get() || rotatingArm.getStatorCurrent() >= 45) {
-            if (rotatingArm.getStatorCurrent() >= 45)
+            if (talonTachTop.get() && rotatingArm.getStatorCurrent() >= 45) 
             {
                 rotatingArm.set(ControlMode.PercentOutput, 0);
+            } else if (talonTachTop.get()) {
+                rotatingArm.set(ControlMode.PercentOutput, -0.1);
             } else {
                 rotatingArm.set(ControlMode.PercentOutput, -0.3);
             }
@@ -126,10 +129,22 @@ public class Arm extends SubsystemBase implements Reportable {
         // rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
+
+        if (talonTachTop.get() && !inTalonTachZone) {
+            if (rotatingArm.getSelectedSensorPosition() > ArmConstants.kArmTalonTach)
+            {
+                rotatingArm.setSelectedSensorPosition(ArmConstants.kArmTalonTach);
+            }
+            inTalonTachZone = true;
         
-        // if (talonTachTop.get()) {
-        //     rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
-        // }
+        } else if (talonTachTop.get() && rotatingArm.getSelectedSensorPosition() > ArmConstants.kArmTalonTach) {
+            rotatingArm.setSelectedSensorPosition(ArmConstants.kArmTalonTach);
+
+        } else if (!talonTachTop.get()){
+            inTalonTachZone = false;
+            
+        }
+        
 
         if (targetTicks <= ArmConstants.kArmStow) {
             targetTicks = ArmConstants.kArmStow;
@@ -243,6 +258,10 @@ public class Arm extends SubsystemBase implements Reportable {
     
     public void armResetEncoder(int ticks) {
         rotatingArm.setSelectedSensorPosition(ticks);
+    }
+
+    public void isInTalonTachZone() {
+        inTalonTachZone = true;
     }
 
     public void initShuffleboard(LOG_LEVEL level) {

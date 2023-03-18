@@ -74,6 +74,7 @@ public class Robot extends TimedRobot {
     // TODO: COME BACK TO THIS BEFORE LAR THIS IS VERY IMPORTANT TO THINK ABOUT
     m_robotContainer.arm.resetEncoderStow();
     m_robotContainer.elevator.resetEncoder();
+    m_robotContainer.arm.isInTalonTachZone();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -95,7 +96,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-
+    
     m_robotContainer.initDefaultCommands();
   }
 
