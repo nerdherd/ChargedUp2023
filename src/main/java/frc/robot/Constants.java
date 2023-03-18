@@ -325,7 +325,7 @@ public final class Constants {
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
     public static final double kPBalancingInitial = 4.8;
-    public static final double kPBalancing = 2.37; // 0.4
+    public static final double kPBalancing = 3; //2.7 worked once //2.37; // 0.4
     public static final double kIBalancing = 0;
     public static final double kDBalancing = 0;
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
