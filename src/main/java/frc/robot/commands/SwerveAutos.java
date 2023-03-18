@@ -392,19 +392,19 @@ public class SwerveAutos {
      */
     public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
+            kMaxSpeedMetersPerSecond * 0.75, kMaxAccelerationMetersPerSecondSquared);
         
         double yTranslation = 0;
         double yOvershoot = 0;
 
         switch (startPos) {
             case LEFT:
-                yTranslation = -1.75;
-                yOvershoot = -1.75;
+                yTranslation = -2.75;
+                yOvershoot = -2.75;
                 break;
             case RIGHT:
-                yTranslation = 1.75;
-                yOvershoot = 1.75;
+                yTranslation = 2.75;
+                yOvershoot = 2.75;
                 break;
             case MIDDLE:
                 break;
@@ -417,21 +417,31 @@ public class SwerveAutos {
 
         Trajectory trajectory;
         
-        if (!goAround) {
+        if (goAround && startPos == StartPosition.MIDDLE) {
+            trajectory = TrajectoryGenerator.generateTrajectory(
+                new Pose2d(0, 0, new Rotation2d(0)), 
+                List.of(
+                    new Translation2d(-4, 0.01),
+                    new Translation2d(-5, yTranslation / 4),
+                    new Translation2d(-4, yTranslation + 0.01)), 
+                new Pose2d(-0.5, yTranslation - 0.01, Rotation2d.fromDegrees(0)), 
+                trajectoryConfig);
+        } else if (!goAround) {
             trajectory = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(-0.125, 0, new Rotation2d(0)), 
                 List.of(
                     new Translation2d(-0.25, 0),
                     new Translation2d(-0.25, yOvershoot)), 
-                new Pose2d(-2.3, yTranslation - 0.01, Rotation2d.fromDegrees(0)), // -2
+                new Pose2d(-3, yTranslation - 0.01, Rotation2d.fromDegrees(0)), // -2
                 trajectoryConfig);
         } else {
             trajectory = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(0, 0, new Rotation2d(0)), 
                 List.of(
+                    new Translation2d(-4, 0.01),
                     new Translation2d(-4.5, yTranslation / 4),
                     new Translation2d(-4, yTranslation + 0.01)), 
-                new Pose2d(-1.5, yTranslation - 0.01, Rotation2d.fromDegrees(0)), 
+                new Pose2d(-0.5, yTranslation - 0.01, Rotation2d.fromDegrees(0)), 
                 trajectoryConfig);
         }
 
