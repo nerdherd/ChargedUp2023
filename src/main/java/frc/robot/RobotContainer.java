@@ -117,6 +117,7 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
+    arm.isInTalonTachZone();
     arm.setDefaultCommand(
       new RunCommand(
         () -> {

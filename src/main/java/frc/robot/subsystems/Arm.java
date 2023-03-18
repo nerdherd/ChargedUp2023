@@ -78,7 +78,7 @@ public class Arm extends SubsystemBase implements Reportable {
             // rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) { // Up
-            if (talonTachTop.get() && rotatingArm.getStatorCurrent() >= 45) 
+            if (talonTachTop.get() && rotatingArm.getStatorCurrent() >= 7) 
             {
                 rotatingArm.set(ControlMode.PercentOutput, 0);
             } else if (talonTachTop.get()) {
@@ -284,9 +284,9 @@ public class Arm extends SubsystemBase implements Reportable {
                 tab.addNumber("velocity", rotatingArm::getSelectedSensorVelocity);
                 tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
                 tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
-                tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
                 tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
             case MEDIUM:
+                tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
                 tab.addNumber("Angle", () -> (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
             case MINIMAL:
                 tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
