@@ -392,7 +392,7 @@ public class SwerveAutos {
      */
     public static CommandBase chargeAuto(SwerveDrivetrain swerveDrive, StartPosition startPos, Alliance alliance, double waitTime, boolean goAround) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond * 0.75, kMaxAccelerationMetersPerSecondSquared);
+            kChargeSpeedMetersPerSecond, kChargeAccelerationMetersPerSecondSquared);
         
         double yTranslation = 0;
         double yOvershoot = 0;
