@@ -351,7 +351,7 @@ public class SwerveAutos {
         return sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             driveBackwardAuto(swerveDrive)
-        );
+        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
     }
 
     
