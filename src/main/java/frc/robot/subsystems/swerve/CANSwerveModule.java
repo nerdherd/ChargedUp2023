@@ -246,7 +246,7 @@ public class CANSwerveModule implements SwerveModule {
             case MEDIUM:
                 tab.addNumber("Module velocity", () -> driveMotor.getSelectedSensorVelocity());
                 tab.addNumber("Drive percent", () -> currentPercent);
-                tab.addNumber("Turn angle", () -> currentAngle);
+                tab.addNumber("Turn angle", this::getTurningPositionDegrees);
                 tab.addNumber("Desired Angle", () -> desiredAngle);
                 tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
             case MINIMAL:
