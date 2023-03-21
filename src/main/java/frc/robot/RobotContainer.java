@@ -10,7 +10,6 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Imu;
 import frc.robot.subsystems.Reportable.LOG_LEVEL;
 import frc.robot.subsystems.claw.ConeRunner;
 import frc.robot.subsystems.claw.MotorClaw;
@@ -36,6 +35,8 @@ import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
+import frc.robot.subsystems.imu.Gyro;
+import frc.robot.subsystems.imu.NavX;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
@@ -45,7 +46,6 @@ import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -61,7 +61,7 @@ public class RobotContainer {
   public Arm arm = new Arm();
   public Elevator elevator = new Elevator();
   public MotorClaw motorClaw = new MotorClaw();
-  public Imu imu = new Imu();
+  public Gyro imu = new NavX();
   public SwerveDrivetrain swerveDrive;
   public VROOOOM vision;
 
