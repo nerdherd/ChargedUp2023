@@ -176,7 +176,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     //****************************** GETTERS ******************************/
 
-    public Gyro getGyro() {
+    public Gyro getImu() {
         return this.gyro;
     }
 

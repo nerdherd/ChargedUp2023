@@ -154,7 +154,7 @@ public class SwerveJoystickCommand extends CommandBase {
             SmartDashboard.putString("Mode", "Field Oriented");
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 filteredXSpeed, filteredYSpeed, filteredTurningSpeed, 
-                swerveDrive.getGyro().getRotation2d());
+                swerveDrive.getImu().getRotation2d());
             } else {
             SmartDashboard.putString("Mode", "Robot Oriented");
             chassisSpeeds = new ChassisSpeeds(
@@ -178,7 +178,7 @@ public class SwerveJoystickCommand extends CommandBase {
                     new Rotation2d(ySpeed, xSpeed)
                         .rotateBy(Rotation2d.fromDegrees(
                             // imu is measured clockwise from forward vector
-                            swerveDrive.getGyro().getHeading()))
+                            swerveDrive.getImu().getHeading()))
                         );
                 // Might need to swap x and y on rotation center depending on how it gets interpreted
                 // robotOrientedJoystickDirection = new Translation2d(robotOrientedJoystickDirection.getY(), robotOrientedJoystickDirection.getX());
