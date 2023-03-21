@@ -28,6 +28,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     private final Gyro gyro;
     private final SwerveDriveOdometry odometer;
+    private DRIVE_MODE driveMode = DRIVE_MODE.FIELD_ORIENTED;
 
     private Field2d field;
 
@@ -36,6 +37,12 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     public enum SwerveModuleType {
         MAG_ENCODER,
         CANCODER
+    }
+
+    public enum DRIVE_MODE {
+        FIELD_ORIENTED,
+        ROBOT_ORIENTED,
+        AUTONOMOUS
     }
 
     /**
@@ -116,7 +123,6 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         }
 
         numEncoderResets = 0;
-        SmartDashboard.putNumber("Encoder resets", 0);
         resetEncoders();
         this.gyro = gyro;
         this.odometer = new SwerveDriveOdometry(
@@ -156,8 +162,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     public void resetEncoders() {
         numEncoderResets += 1;
-        SmartDashboard.putNumber("Encoder resets", numEncoderResets);
-        // SmartDashboard.putNumber("Encoder resets", SmartDashboard.getNumber("Encoder resets", 0)+1);
+        // SmartDashboard.putNumber("Encoder resets", numEncoderResets);
         frontLeft.resetEncoder();
         frontRight.resetEncoder();
         backLeft.resetEncoder();
@@ -202,6 +207,14 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     }
 
     //****************************** SETTERS ******************************/
+
+    /**
+     * Set the drive mode (only for telemetry purposes)
+     * @param driveMode
+     */
+    public void setDriveMode(DRIVE_MODE driveMode) {
+        this.driveMode = driveMode;
+    }
 
     public void drive(double xSpeed, double ySpeed, double turnSpeed) {
         setModuleStates(
@@ -262,21 +275,28 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     }
 
     public void initShuffleboard(LOG_LEVEL level) {
-        if (level == LOG_LEVEL.OFF || level == LOG_LEVEL.MINIMAL || level == LOG_LEVEL.MEDIUM)  {
+        if (level == LOG_LEVEL.OFF)  {
             return;
         }
-        ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
+        ShuffleboardTab tab;
+        if (level == LOG_LEVEL.MINIMAL) {
+            tab = Shuffleboard.getTab("Main");
+        } else {
+            tab = Shuffleboard.getTab("Swerve");
+        }
 
         switch (level) {
             case OFF:
                 break;
             case ALL:
                 tab.add("Field Position", field).withSize(6, 3);
-                tab.addNumber("X Position", odometer.getPoseMeters()::getX);
                 // Might be negative because our swerveDriveKinematics is flipped across the Y axis
-                tab.addNumber("Y Position", odometer.getPoseMeters()::getY);
             case MEDIUM:
+                tab.addNumber("Encoder Resets", () -> this.numEncoderResets);
             case MINIMAL:
+                tab.addNumber("X Position", () -> odometer.getPoseMeters().getX());
+                tab.addNumber("Y Position", () -> odometer.getPoseMeters().getY());
+                tab.addString("Drive Mode", () -> this.driveMode.toString());
                 break;
         }
     }
@@ -296,10 +316,12 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
             case OFF:
                 break;
             case ALL:
+            case MEDIUM:
+                SmartDashboard.putNumber("Encoder Resets", numEncoderResets);
+            case MINIMAL:
                 SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
                 SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
-            case MEDIUM:
-            case MINIMAL:
+                SmartDashboard.putString("Drive Mode", this.driveMode.toString());
                 break;
         }
     }

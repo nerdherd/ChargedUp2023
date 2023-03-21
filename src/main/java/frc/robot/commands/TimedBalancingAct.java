@@ -14,14 +14,15 @@ public class TimedBalancingAct extends SequentialCommandGroup {
      * @param kP1           higher p value for pid controller
      * @param kP2           lower p value for pid controller
      */
+    @Deprecated
     public TimedBalancingAct(SwerveDrivetrain swerveDrive, double period1, 
                                 double kP1, double kP2) {
         super(
             new ParallelRaceGroup(
                 new WaitCommand(period1),
-                new TheGreatBalancingAct(swerveDrive, kP1)
+                new TheGreatBalancingAct(swerveDrive, kP1, 0, 0)
             ),
-            new TheGreatBalancingAct(swerveDrive, kP2)
+            new TheGreatBalancingAct(swerveDrive, kP2, 0, 0)
         );
     }
 }

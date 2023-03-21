@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Pigeon extends SubsystemBase implements Gyro {
+    private double offset;
     private PigeonIMU pigeon;
 
     public Pigeon(int id) {
@@ -20,6 +21,7 @@ public class Pigeon extends SubsystemBase implements Gyro {
         } catch (RuntimeException ex) {
             DriverStation.reportError("Error instantiating Pigeon over CAN: " + ex.getMessage(), true);
         }
+        offset = 0;
     }
 
     public Pigeon(TalonSRX srx) {
@@ -28,18 +30,25 @@ public class Pigeon extends SubsystemBase implements Gyro {
         } catch (RuntimeException ex) {
             DriverStation.reportError("Error instantiating Pigeon connected to TalonSRX: " + ex.getMessage(), true);
         }
+        offset = 0;
     }
     
     public void zeroHeading() {
         pigeon.setYaw(0);
+        offset = 0;
+    }
+
+    public void setOffset(double offset) {
+        this.offset = offset;
     }
 
     public void resetHeading(double headingDegrees) {
-        pigeon.setYaw(-headingDegrees % 360);
+        zeroHeading();
+        offset = -headingDegrees;
     }
 
     public double getHeading() {
-        return -pigeon.getCompassHeading() % 360;
+        return (-pigeon.getCompassHeading() - offset) % 360;
     }
 
     public Rotation2d getRotation2d() {

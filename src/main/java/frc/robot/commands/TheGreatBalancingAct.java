@@ -15,6 +15,10 @@ public class TheGreatBalancingAct extends CommandBase {
     private PIDController rollPidController;
     private PIDController pitchPidController;
 
+    private double kP;
+    private double kI;
+    private double kD;
+
     // private double towTime = 0;
     // private double period = 0.02;
 
@@ -22,32 +26,44 @@ public class TheGreatBalancingAct extends CommandBase {
      * Construct a new BalancingAct Command
      * @param swerveDrive   Swerve drivetrain to balance
      * @param period        Time intervals for pid controller calculations (default 20ms)
-     * @param pBalancing    Constant P for roll and pitch pid controllers
+     * @param kP            Constant P for roll and pitch pid controllers
+     * @param kI            Constant I for roll and pitch pid controllers
+     * @param kD            Constant D for roll and pitch pid controllers
      */
-    public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double period, double pBalancing) {
+    public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double period, double kP, double kI, double kD) {
         this.swerveDrive = swerveDrive;
 
+        this.kP = kP;
+        this.kI = kI;
+        this.kD = kD;
+
         this.rollPidController = new PIDController(
-            pBalancing, 0, 0, period);
+            kP, kI, kD, period);
         
         this.rollPidController.enableContinuousInput(0, 360);
         
         this.pitchPidController = new PIDController(
-            pBalancing, 0, 0, period);
+            kP, kI, kD, period);
         
         this.pitchPidController.enableContinuousInput(0, 360);
         addRequirements(swerveDrive);
 
         // this.period = period;
+        // SmartDashboard.putNumber("kPBalancing", kP);
+        // SmartDashboard.putNumber("kIBalancing", kI);
+        // SmartDashboard.putNumber("kDBalancing", kD);
     }
 
     /**
      * Construct a new BalancingAct Command and assume period is the default (20ms)
      * @param swerveDrive   Swerve drivetrain to balance
      * @param pBalancing    Constant P for roll and pitch pid controllers
+     * @param kP            Constant P for roll and pitch pid controllers
+     * @param kI            Constant I for roll and pitch pid controllers
+     * @param kD            Constant D for roll and pitch pid controllers
      */
-    public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double pBalancing) {
-        this(swerveDrive, 0.02, pBalancing);
+    public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double kP, double kI, double kD) {
+        this(swerveDrive, 0.02, kP, kI, kD);
     }
 
     /**
@@ -58,13 +74,14 @@ public class TheGreatBalancingAct extends CommandBase {
      */
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive) {
         // Default period is 20 ms
-        this(swerveDrive, 0.02, SwerveAutoConstants.kPBalancing);
+        this(swerveDrive, 0.02, 
+            SwerveAutoConstants.kPBalancing, 
+            SwerveAutoConstants.kIBalancing, 
+            SwerveAutoConstants.kDBalancing);
     }
 
     @Override
-    public void initialize() {
-
-    }
+    public void initialize() {}
 
     /**
      * Balances robot by using its pitch and roll as inputs for pid controllers
@@ -74,19 +91,30 @@ public class TheGreatBalancingAct extends CommandBase {
     public void execute() {
         Rotation3d currentRotation = swerveDrive.getImu().getRotation3d();
 
+        // temporary debugging code
+        // kP = SmartDashboard.getNumber("kPBalancing", kP);
+        // kI = SmartDashboard.getNumber("kIBalancing", kI);
+        // kD = SmartDashboard.getNumber("kDBalancing", kD);
+        // pitchPidController.setP(kP);
+        // pitchPidController.setI(kI);
+        // pitchPidController.setD(kD);
+        // rollPidController.setP(kP);
+        // rollPidController.setI(kI);
+        // rollPidController.setD(kD);
+
         // Calculate turning speed with PID
-        double xSpeed = 8 * pitchPidController.calculate(
+        double xSpeed = pitchPidController.calculate(
             currentRotation.getX(), 0
         );
-        double ySpeed = -8 * rollPidController.calculate(
+        double ySpeed = -rollPidController.calculate(
             currentRotation.getY(), 0
         );
 
-        SmartDashboard.putNumber("xSpeed", xSpeed);
-        SmartDashboard.putNumber("ySpeed", ySpeed);
-        SmartDashboard.putNumber("pitch", currentRotation.getY());
-        SmartDashboard.putNumber("roll", currentRotation.getX());
-        SmartDashboard.putNumber("yaw", currentRotation.getZ());
+        // SmartDashboard.putNumber("xSpeed", xSpeed);
+        // SmartDashboard.putNumber("ySpeed", ySpeed);
+        // SmartDashboard.putNumber("pitch", currentRotation.getY());
+        // SmartDashboard.putNumber("roll", currentRotation.getX());
+        // SmartDashboard.putNumber("yaw", currentRotation.getZ());
 
         // Tow the swerve
         // if (currentRotation.getX() < SwerveAutoConstants.kBalancingDeadbandDegrees

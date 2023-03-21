@@ -119,7 +119,7 @@ public class CANSwerveModule implements SwerveModule {
      */
     public void resetEncoder() {
         double startAngle = (canCoder.getAbsolutePosition() - this.CANCoderOffsetDegrees) % 360;
-        SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
+        // SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
         canCoder.setPosition(startAngle);
     }
 
@@ -246,7 +246,7 @@ public class CANSwerveModule implements SwerveModule {
             case MEDIUM:
                 tab.addNumber("Module velocity", () -> driveMotor.getSelectedSensorVelocity());
                 tab.addNumber("Drive percent", () -> currentPercent);
-                tab.addNumber("Turn angle", () -> currentAngle);
+                tab.addNumber("Turn angle", this::getTurningPositionDegrees);
                 tab.addNumber("Desired Angle", () -> desiredAngle);
                 tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
             case MINIMAL:

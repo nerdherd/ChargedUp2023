@@ -84,21 +84,22 @@ public final class Constants {
     public static final int kTopMotorID = 61;
     public static final int kBottomMotorID = 62;
     public static final double kIntakePower = -0.35;
-    public static final double kOuttakePower = 1;
+    public static final double kOuttakePower = 0.5;
     public static final double kIntakeNeutralPower = -0.25;
   }
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
-    public static final int kArmStow = -622485;//-630435;//144278;
-    public static final int kArmScore = -377161; //-432700;//-408850;//596443; // 89744;
+    public static final int kArmStow = -570828;//-622485;//-630435;//144278;
+    public static final int kArmTalonTach = -550169;
+    public static final int kArmScore = -379616;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
     public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
     public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
-    public static final int kArmGroundPickup = -238900;//-215050;//-242170;//767054;// 34352;
-    public static final int kArmSubstation = -522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
-    public static final int kArmMotionAcceleration = 40000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 22000;//18000;//21777;
+    public static final int kArmGroundPickup = -212000 + 7950;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
+    public static final int kArmSubstation = -470000; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmMotionAcceleration = 60000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 40000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
@@ -127,7 +128,7 @@ public final class Constants {
     public static final int kElevatorScoreMid = -98123; //-143634;
     public static final int kElevatorScoreHighCube = -198657;//-240000;
     public static final int kElevatorScoreHigh = -240000;
-    public static final int kElevatorSubstation = -69400;//-68100;//-116680; // Height for substation i think
+    public static final int kElevatorSubstation = -67160;//-68100;//-116680; // Height for substation i think
     public static final int kElevatorMotionAcceleration = 60000;
     public static final int kElevatorCruiseVelocity = 30000;
     public static final double kElevatorP = 0.1;
@@ -273,10 +274,10 @@ public final class Constants {
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;
-    public static final double kTeleMaxAcceleration = 3;
+    public static final double kTeleMaxAcceleration = 5;
     // THIS CONSTANT HAS TO BE NEGATIVE OTHERWISE THE ROBOT WILL CRASH
     //TODO: Change deceleration with driver feedback, only in small increments (<= -2 is dangerous)
-    public static final double kTeleMaxDeceleration = -3; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
+    public static final double kTeleMaxDeceleration = -5; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
       kPhysicalMaxAngularSpeedRadiansPerSecond * 0.75;
@@ -300,13 +301,15 @@ public final class Constants {
   }
 
   public static final class SwerveAutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 4;
+    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 2;
+    public static final double kChargeSpeedMetersPerSecond = 0.75 * 2.5;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
       SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    public static final double kMaxAccelerationMetersPerSecondSquared = kMaxSpeedMetersPerSecond;
+    public static final double kChargeAccelerationMetersPerSecondSquared = 2.5;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
     public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 1.5);
-    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0);
+    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0.01);
     public static final double kDXController = SmartDashboard.getNumber("kD X Speed", 0);
     public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 1.5);
     public static final double kIYController = SmartDashboard.getNumber("kI Y Speed", 0);
@@ -323,8 +326,10 @@ public final class Constants {
       new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
-    public static final double kPBalancingInitial = 0.6;
-    public static final double kPBalancing = 0.3; // 0.4
+    public static final double kPBalancingInitial = 4.8;
+    public static final double kPBalancing = 2.6; //2.7 worked once //2.37; // 0.4
+    public static final double kIBalancing = 0;
+    public static final double kDBalancing = 0;
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
     public static final double kBalancingTowPeriod = 0.5;
   }

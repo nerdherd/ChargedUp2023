@@ -20,6 +20,7 @@ import frc.robot.subsystems.Reportable;
 public interface Gyro extends Reportable {
     public void zeroHeading();
     public void resetHeading(double headingDegrees);
+    public void setOffset(double offset);
     /**
      * Get the heading in degrees. (CW = positive)
      * @return  IMU Heading in degrees.

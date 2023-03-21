@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class PigeonV2 extends SubsystemBase implements Gyro {
     private Pigeon2 pigeon;
+    private double offset;
 
     public PigeonV2(int id) {
         try {
@@ -19,18 +20,25 @@ public class PigeonV2 extends SubsystemBase implements Gyro {
         } catch (RuntimeException ex) {
             DriverStation.reportError("Error instantiating Pigeon 2 over CAN: " + ex.getMessage(), true);
         }
+        offset = 0;
     }
     
     public void zeroHeading() {
         pigeon.setYaw(0);
+        offset = 0;
+    }
+
+    public void setOffset(double offset) {
+        this.offset = offset;
     }
 
     public void resetHeading(double headingDegrees) {
-        pigeon.setYaw(-headingDegrees % 360);
+        zeroHeading();
+        offset = -headingDegrees;
     }
 
     public double getHeading() {
-        return -pigeon.getCompassHeading() % 360;
+        return (-pigeon.getCompassHeading() - offset) % 360;
     }
 
     public Rotation2d getRotation2d() {
@@ -44,7 +52,7 @@ public class PigeonV2 extends SubsystemBase implements Gyro {
         return new Rotation3d(
             Math.toRadians(-pigeon.getRoll() % 360),
             Math.toRadians(pigeon.getPitch() % 360),
-            Math.toRadians(-pigeon.getYaw() % 360)
+            Math.toRadians(getHeading())
         );
     }
     

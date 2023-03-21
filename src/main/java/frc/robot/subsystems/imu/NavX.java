@@ -11,12 +11,12 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Reportable;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-// TODO: Wrap crucial ahrs methods so that functionality is swappable between the NavX and Pigeon IMU
 
 public class NavX extends SubsystemBase implements Gyro {
     public AHRS ahrs;
@@ -47,7 +47,10 @@ public class NavX extends SubsystemBase implements Gyro {
         ahrs.reset();
         offset = 0;
         numResets += 1;
-        SmartDashboard.putNumber("Gyro resets", numResets);
+    }
+    
+    public void setOffset(double offset) {
+        this.offset = offset;
     }
 
     public void resetHeading(double headingDegrees) {
@@ -61,7 +64,6 @@ public class NavX extends SubsystemBase implements Gyro {
      */
     public double getHeading() {
         double heading = Math.IEEEremainder(ahrs.getYaw() - offset, 360);
-        SmartDashboard.putNumber("Heading degrees", heading);
         return heading;
     }
 
@@ -104,6 +106,7 @@ public class NavX extends SubsystemBase implements Gyro {
             SmartDashboard.putString("NavX Firmware version", ahrs.getFirmwareVersion());
         case MEDIUM:
         case MINIMAL:
+            SmartDashboard.putNumber("IMU Resets", numResets);
             SmartDashboard.putNumber("Robot Heading", getHeading());
             break;
         }
@@ -136,6 +139,7 @@ public class NavX extends SubsystemBase implements Gyro {
                 tab.addNumber("Robot Roll", () -> ahrs.getRoll());
                 tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
             case MINIMAL:
+                tab.addNumber("IMU Resets", () -> numResets);
                 tab.addNumber("Robot Heading", () -> getHeading());
                 break;
         }

@@ -32,16 +32,23 @@ public class Elevator extends SubsystemBase implements Reportable{
   public Elevator() {
     elevator = new TalonFX(ElevatorConstants.kElevatorID);
     elevator.setNeutralMode(NeutralMode.Brake);
-    elevator.setInverted(true);
+    elevator.setInverted(false);
     // hallEffect = new DigitalInput(ElevatorConstants.kHallEffectID);
 
     atTargetPosition = () -> NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 40000, targetTicks + 40000);
-    SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
-    SmartDashboard.putNumber("Elevator kI", ElevatorConstants.kElevatorI);
-    SmartDashboard.putNumber("Elevator kD", ElevatorConstants.kElevatorD);
-    SmartDashboard.putNumber("Elevator kF", ElevatorConstants.kElevatorF);
-    SmartDashboard.putNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration);
-    SmartDashboard.putNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity);
+    // For tuning Elevator PID
+    // SmartDashboard.putNumber("Elevator kP", ElevatorConstants.kElevatorP);
+    // SmartDashboard.putNumber("Elevator kI", ElevatorConstants.kElevatorI);
+    // SmartDashboard.putNumber("Elevator kD", ElevatorConstants.kElevatorD);
+    // SmartDashboard.putNumber("Elevator kF", ElevatorConstants.kElevatorF);
+    // SmartDashboard.putNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration);
+    // SmartDashboard.putNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity);
+    elevator.config_kP(0, ElevatorConstants.kElevatorP);
+    elevator.config_kI(0, ElevatorConstants.kElevatorI);
+    elevator.config_kD(0, ElevatorConstants.kElevatorD);
+    elevator.config_kF(0, ElevatorConstants.kElevatorF);
+    elevator.configMotionAcceleration(ElevatorConstants.kElevatorMotionAcceleration);
+    elevator.configMotionCruiseVelocity(ElevatorConstants.kElevatorCruiseVelocity);
   }
 
 
@@ -78,12 +85,12 @@ public class Elevator extends SubsystemBase implements Reportable{
 
     
   public void moveMotionMagic(double angle) {
-    elevator.config_kP(0, SmartDashboard.getNumber("Elevator kP", ElevatorConstants.kElevatorP));
-    elevator.config_kI(0, SmartDashboard.getNumber("Elevator kI", ElevatorConstants.kElevatorI));
-    elevator.config_kD(0, SmartDashboard.getNumber("Elevator kD", ElevatorConstants.kElevatorD));
-    elevator.config_kF(0, SmartDashboard.getNumber("Elevator kF", ElevatorConstants.kElevatorF));
-    elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
-    elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
+    // elevator.config_kP(0, SmartDashboard.getNumber("Elevator kP", ElevatorConstants.kElevatorP));
+    // elevator.config_kI(0, SmartDashboard.getNumber("Elevator kI", ElevatorConstants.kElevatorI));
+    // elevator.config_kD(0, SmartDashboard.getNumber("Elevator kD", ElevatorConstants.kElevatorD));
+    // elevator.config_kF(0, SmartDashboard.getNumber("Elevator kF", ElevatorConstants.kElevatorF));
+    // elevator.configMotionAcceleration(SmartDashboard.getNumber("Elevator Accel", ElevatorConstants.kElevatorMotionAcceleration));
+    // elevator.configMotionCruiseVelocity(SmartDashboard.getNumber("Elevator Cruise Vel", ElevatorConstants.kElevatorCruiseVelocity));
     double ff = -ElevatorConstants.kArbitraryFF * Math.sin(angle);
 
     // if (!hallEffect.get())
