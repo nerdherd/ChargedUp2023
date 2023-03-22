@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.commands.ChargeAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TheGreatBalancingAct;
@@ -259,13 +260,15 @@ public class RobotContainer {
 
   private void initAutoChoosers() {
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
-    SmartDashboard.putBoolean("Dummy Auto", false);
+
+    autoChooser.addOption("Preload High Center Charge", () -> ChargeAutos.preloadHighChargeMiddle(swerveDrive, arm, elevator, motorClaw));
+    autoChooser.addOption("Preload High Center Charge Taxi", () -> ChargeAutos.preloadHighChargeTaxiMiddle(swerveDrive, arm, elevator, motorClaw));
 
     autoChooser.addOption("Vision Preload Pickup Score", () -> VisionAutos.visionPreloadPickupScore(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos, scorePos));
     // autoChooser.addOption("Vision Auto", () -> VisionAutos.visionAutoChoose(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos));
     autoChooser.addOption("Vision Preload Pickup Charge No Score", () -> VisionAutos.visionPreloadPickupChargeAuto(swerveDrive, vision, arm, elevator, motorClaw, startPos, scorePos, alliance));
     // autoChooser.addOption("April Tag Debug Auto", () -> VisionAutos.debugVisionAprilTagAuto(vision));
-    autoChooser.addOption("Charge only", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, alliance, 0, false).finallyDo((x) -> swerveDrive.getImu().setOffset(180)));
+    // autoChooser.addOption("Charge only", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, alliance, 0, false).finallyDo((x) -> swerveDrive.getImu().setOffset(180)));
     // autoChooser.addOption("Backward Auto", () -> SwerveAutos.driveBackwardAuto(swerveDrive).finallyDo((x) -> swerveDrive.getImu().setOffset(180)));
     // autoChooser.addOption("Preload Auto", () -> SwerveAutos.preloadAuto(arm, elevator, motorClaw, scorePos));
     autoChooser.addOption("Preload Charge Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
@@ -276,7 +279,6 @@ public class RobotContainer {
     // autoChooser.addOption("Preload Pickup Charge Go Around Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
     // autoChooser.addOption("Preload Pickup Backward Auto", () -> SwerveAutos.twoPieceBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     // autoChooser.setDefaultOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
-    // autoChooser.addOption("Test Auto",  () -> Commands.runOnce(() -> SmartDashboard.putBoolean("Dummy Auto", true)));
     // autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
     autosTab.add("Selected Auto", autoChooser);
     
