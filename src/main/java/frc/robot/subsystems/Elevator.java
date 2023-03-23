@@ -196,11 +196,11 @@ public class Elevator extends SubsystemBase implements Reportable{
       case ALL:
         SmartDashboard.putNumber("Elevator Motor Output", elevator.getMotorOutputPercent());
         SmartDashboard.putNumber("Elevator Current", elevator.getStatorCurrent());
-        SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
-        SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
-        SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
-      case MEDIUM:
         SmartDashboard.putNumber("Elevator Percent Extended", percentExtended());
+      case MEDIUM:
+        SmartDashboard.putNumber("Elevator Current Velocity", elevator.getSelectedSensorVelocity());
+        // SmartDashboard.putNumber("Elevator Target Velocity", elevator.getActiveTrajectoryVelocity());
+        SmartDashboard.putNumber("Elevator Voltage", elevator.getMotorOutputVoltage());
       case MINIMAL:
         SmartDashboard.putNumber("Elevator Current Ticks", elevator.getSelectedSensorPosition());
         SmartDashboard.putNumber("Elevator Target Ticks", targetTicks);
@@ -223,12 +223,12 @@ public class Elevator extends SubsystemBase implements Reportable{
       case OFF:
         break;
       case ALL:
-        tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
         tab.addNumber("Current", () -> elevator.getStatorCurrent());
-        tab.addNumber("Velocity", () -> elevator.getSelectedSensorVelocity());
         tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
-        tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
       case MEDIUM:
+        tab.addNumber("Velocity", () -> elevator.getSelectedSensorVelocity());
+        tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
+        tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
         tab.addNumber("Percent Extended", () -> percentExtended());
       case MINIMAL:
         tab.addNumber("Current Elevator Ticks", () -> elevator.getSelectedSensorPosition());

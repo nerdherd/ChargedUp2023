@@ -283,15 +283,16 @@ public class Arm extends SubsystemBase implements Reportable {
                 tab.addNumber("Motor Output", rotatingArm::getMotorOutputPercent);
                 tab.addString("Control Mode", rotatingArm.getControlMode()::toString);
                 tab.addNumber("target velocity", rotatingArm::getActiveTrajectoryVelocity);
-                tab.addNumber("velocity", rotatingArm::getSelectedSensorVelocity);
                 tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
                 tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
-                tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
-            case MEDIUM:
                 tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
+            case MEDIUM:
+                tab.addNumber("Arm Velocity", rotatingArm::getSelectedSensorVelocity);
+                tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
+                tab.addNumber("Arm Percent Output", rotatingArm::getMotorOutputPercent);
                 tab.addNumber("Angle", () -> (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
             case MINIMAL:
-                tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
+                tab.addNumber("Current Arm Ticks", rotatingArm::getSelectedSensorPosition);
                 tab.addNumber("Target Arm Ticks", () -> targetTicks);
                 break;
         }

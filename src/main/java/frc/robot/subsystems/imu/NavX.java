@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Reportable;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -130,13 +131,30 @@ public class NavX extends SubsystemBase implements Gyro {
                 tab.addNumber("Robot Raw Yaw", () -> ahrs.getRawGyroZ());
                 tab.addNumber("Robot Raw Pitch", () -> ahrs.getRawGyroX());
                 tab.addNumber("Robot Raw Roll", () -> ahrs.getRawGyroY());
+                tab.addNumber("Robot Raw X Acceleration", () -> ahrs.getRawAccelX());
+                tab.addNumber("Robot Raw Y Acceleration", () -> ahrs.getRawAccelY());
+                tab.addNumber("Robot Raw Z Acceleration", () -> ahrs.getRawAccelZ());
                 tab.addBoolean("AHRS Calibrating", () -> ahrs.isCalibrating());
                 tab.addBoolean("AHRS Connected", () -> ahrs.isConnected());
                 tab.addString("NavX Firmware version", () -> ahrs.getFirmwareVersion());
+                tab.addNumber("Gyro Temperature (C)", () -> ahrs.getTempC());
             case MEDIUM:
-                tab.addNumber("Robot Yaw", () -> ahrs.getYaw());
-                tab.addNumber("Robot Pitch", () -> ahrs.getPitch());
-                tab.addNumber("Robot Roll", () -> ahrs.getRoll());
+                tab.addNumber("Gyro Yaw", () -> ahrs.getYaw());
+                tab.addNumber("Gyro Pitch", () -> ahrs.getPitch());
+                tab.addNumber("Gyro Roll", () -> ahrs.getRoll());
+                tab.addNumber("Gyro X Acceleration (G)", () -> ahrs.getWorldLinearAccelX());
+                tab.addNumber("Gyro Y Acceleration (G)", () -> ahrs.getWorldLinearAccelY());
+                tab.addNumber("Gyro Z Acceleration (G)", () -> ahrs.getWorldLinearAccelZ());
+                tab.addNumber("Total Acceleration (m/s2)", () -> {
+                    return SwerveDriveConstants.kGravityMPS
+                        * (ahrs.getWorldLinearAccelX()
+                        + ahrs.getWorldLinearAccelY()
+                        + ahrs.getWorldLinearAccelZ());
+                });
+                tab.addNumber("Gyro X Displacement (m)", () -> ahrs.getDisplacementX());
+                tab.addNumber("Gyro Y Displacement (m)", () -> ahrs.getDisplacementY());
+                tab.addNumber("Gyro Z Displacement (m)", () -> ahrs.getDisplacementZ());
+                tab.addNumber("Gyro Full Range Acceleration (G)", () -> ahrs.getAccelFullScaleRangeG());
                 tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
             case MINIMAL:
                 tab.addNumber("IMU Resets", () -> numResets);

@@ -298,6 +298,8 @@ public final class Constants {
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
     };
+
+    public static final double kGravityMPS = 9.80665; 
   }
 
   public static final class SwerveAutoConstants {
