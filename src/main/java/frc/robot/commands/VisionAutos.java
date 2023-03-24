@@ -373,7 +373,7 @@ public class VisionAutos {
                 , swerveDrive),
 
                 cubeToZoooomCommand,
-
+                Commands.runOnce(() -> vision.initVisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH)),
                 Commands.run(() -> vision.driveRotateToTarget(visionDistanceController, visionTXController, visionThetaController), swerveDrive),
 
                 Commands.deadline(

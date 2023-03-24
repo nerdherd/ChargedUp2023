@@ -46,6 +46,7 @@
       "/Shuffleboard/Autos/Score Position": "String Chooser",
       "/Shuffleboard/Autos/Selected Auto": "String Chooser",
       "/Shuffleboard/Autos/Start Position": "String Chooser",
+      "/Shuffleboard/Imu/Reset Gyro": "Command",
       "/SmartDashboard/Encoder reset": "Command",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/SendableChooser[0]": "String Chooser"
