@@ -290,4 +290,45 @@ public class ChargeAutos {
         );
         // .finallyDo((x) -> swerveDrive.resetOdometry(new Pose2d(3.88, 3.48, new Rotation2d(180))));
     }
+
+    public static CommandBase gyroCharge(SwerveDrivetrain swerveDrive, boolean facingForward) {
+        return sequence(
+            race(
+                waitSeconds(2),
+                run(() -> {
+                    swerveDrive.setModuleStates(
+                        SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                (facingForward ? -1.875 : 1.875), 0, 0,
+                                swerveDrive.getImu().getRotation2d())
+                        )
+                    );
+                }),
+                sequence(
+                    waitUntil(
+                        () -> {
+                            return NerdyMath.inRange(
+                                swerveDrive.getImu().getRotation3d().getX(),
+                                (facingForward ? 11 : -11), 0
+                            );
+                        }
+                    ),
+                    waitSeconds(0.25)
+                )
+            ),
+            race(
+                waitSeconds(0.5),
+                run(() -> {
+                    swerveDrive.setModuleStates(
+                        SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                (facingForward ? -1.875 : 1.875), 0, 0,
+                                swerveDrive.getImu().getRotation2d())
+                        )
+                    );
+                })
+            ),
+            new TheGreatBalancingAct(swerveDrive)
+        );
+    }
 }
