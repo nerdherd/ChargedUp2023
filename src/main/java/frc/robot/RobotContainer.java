@@ -260,10 +260,10 @@ public class RobotContainer {
 
   private void initAutoChoosers() {
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
-
+    
     autoChooser.addOption("Preload High Center Charge", () -> ChargeAutos.preloadHighChargeMiddle(swerveDrive, arm, elevator, motorClaw));
     autoChooser.addOption("Preload High Center Charge Taxi", () -> ChargeAutos.preloadHighChargeTaxiMiddle(swerveDrive, arm, elevator, motorClaw));
-    autoChooser.addOption("Zwo Piece Auto", () -> VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    autoChooser.setDefaultOption("Zwo Piece Auto", () -> VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
     autoChooser.addOption("Vision Preload Pickup Score", () -> VisionAutos.visionPreloadPickupScore(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos, scorePos));
     // autoChooser.addOption("Vision Auto", () -> VisionAutos.visionAutoChoose(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos));
     // autoChooser.addOption("April Tag Debug Auto", () -> VisionAutos.debugVisionAprilTagAuto(vision));
@@ -296,7 +296,7 @@ public class RobotContainer {
     autosTab.add("Score Position", scoreChooser);
 
     allianceChooser.setDefaultOption("Red", Alliance.Red);
-    allianceChooser.addOption("Red", Alliance.Red);
+    allianceChooser.setDefaultOption("Red", Alliance.Red);
     allianceChooser.addOption("Blue", Alliance.Blue);
     autosTab.add("Alliance", allianceChooser);
 

@@ -326,8 +326,8 @@ public final class Constants {
     public static final double kTurnToAngleVelocityToleranceAnglesPerSec = 2;
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = //
       new TrapezoidProfile.Constraints(
-        kMaxAngularSpeedRadiansPerSecond,
-        kMaxAngularAccelerationRadiansPerSecondSquared);
+        kMaxAngularSpeedRadiansPerSecond * 2,
+        kMaxAngularAccelerationRadiansPerSecondSquared * 3);
     public static final double kPBalancingInitial = 4.8;
     public static final double kPBalancing = 2.6; //2.7 worked once //2.37; // 0.4
     public static final double kIBalancing = 0;
