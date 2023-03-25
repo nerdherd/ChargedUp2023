@@ -268,10 +268,6 @@ public class VisionAutos {
     
     public static CommandBase zoomTwoPieceAuto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, 
     Alliance alliance){
-        final PIDController visionDistanceController = new PIDController(0, kIXController, kDXController);
-        final PIDController visionTXController = new PIDController(kPYController, kIYController, kDYController);
-        final PIDController visionThetaController = new PIDController(0, 0, 0);
-
         PIDController trajectoryXController = new PIDController(kPBalancing, kIBalancing, kDBalancing);
         PIDController trajectoryYController = new PIDController(kPBalancing, kIBalancing, kDBalancing);
         ProfiledPIDController trajectoryThetaController = new ProfiledPIDController(kPBalancing, kIBalancing, kDBalancing, kThetaControllerConstraints);
