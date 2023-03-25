@@ -268,7 +268,7 @@ public class VisionAutos {
     
     public static CommandBase zoomTwoPieceAuto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, 
     Alliance alliance){
-        final PIDController visionDistanceController = new PIDController(kPXController, kIXController, kDXController);
+        final PIDController visionDistanceController = new PIDController(0, kIXController, kDXController);
         final PIDController visionTXController = new PIDController(kPYController, kIYController, kDYController);
         final PIDController visionThetaController = new PIDController(0, 0, 0);
 
@@ -279,16 +279,6 @@ public class VisionAutos {
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
-        
-        double pickupXDistance = 0;
-        double pickupYDistance = 0;
-        double pickupRotation = 0;
-
-        double avoidCollisionYOffset = 0; // So we don't bump into the charging station
-
-        // Position when scoring the object we picked up
-        double scoreXDistance = 0;
-        double scoreYDistance = 0;
 
         double zoooomAllianceThingy = 1.0;;
         if (alliance == Alliance.Red) {
@@ -315,21 +305,22 @@ public class VisionAutos {
             trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
 
         SwerveControllerCommand cubeToZoooomCommand = new SwerveControllerCommand(
-            zoooomToCube, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            cubeToZoooom, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
 
         final int armPosFinal = ArmConstants.kArmScore;
         final int elevatorPosFinal = ElevatorConstants.kElevatorScoreHigh;
 
         return Commands.race(
+            //init
             Commands.sequence(
                 parallel(
                     runOnce(() -> SmartDashboard.putString("Stage", "Start")),
                     runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
-                    runOnce(() -> swerveDrive.stopModules()),
-                    runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
+                    runOnce(() -> swerveDrive.stopModules())
                 ),
 
+                //preload
                 claw.intake(),
                 Commands.deadline(
                     Commands.waitSeconds(2),
@@ -352,6 +343,7 @@ public class VisionAutos {
                 Commands.waitSeconds(0.5),
                 claw.setPowerZero(),
                 
+                //stow
                 Commands.deadline(
                     Commands.waitSeconds(0.5),
                     Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
@@ -367,18 +359,36 @@ public class VisionAutos {
                     )
                 ),
 
+                //trajectory to cube
                 zoooomToCubeCommand,
+                runOnce(() -> swerveDrive.stopModules()),
 
-                Commands.run(() -> vision.driveRotateToTarget(visionDistanceController, visionTXController, visionThetaController)
-                , swerveDrive),
+                //vision pickup
+                // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
+                vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE),
 
+                //stow
+                Commands.deadline(
+                    Commands.waitSeconds(2),
+                    Commands.parallel( // End command once both arm and elevator have reached their target position
+                        Commands.waitUntil(arm.atTargetPosition),
+                        Commands.waitUntil(elevator.atTargetPosition),
+                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                    )
+                ),
+
+                //trajectory to grid
                 cubeToZoooomCommand,
-                Commands.runOnce(() -> vision.initVisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH)),
-                Commands.run(() -> vision.driveRotateToTarget(visionDistanceController, visionTXController, visionThetaController), swerveDrive),
+                runOnce(() -> swerveDrive.stopModules()),
 
+                //vision score
+                vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH),
+
+                //score
                 Commands.deadline(
                     Commands.waitSeconds(0.5),
-                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
+                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                     Commands.sequence(
                         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
                         Commands.waitSeconds(0.5),
@@ -391,9 +401,26 @@ public class VisionAutos {
                     )
                 ),
 
+                //outtake
                 claw.setPower(0.3),
                 Commands.waitSeconds(0.5),
-                claw.setPower(0)
+                claw.setPower(0),
+
+                //stow
+                Commands.deadline(
+                    Commands.waitSeconds(0.5),
+                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
+                    Commands.sequence(
+                        Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
+                        Commands.waitSeconds(0.5),
+                        Commands.waitUntil(elevator.atTargetPosition)
+                    ),
+                    Commands.sequence(
+                        Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        Commands.waitSeconds(0.5),
+                        Commands.waitUntil(arm.atTargetPosition)
+                    )
+                )
             ),
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle()))

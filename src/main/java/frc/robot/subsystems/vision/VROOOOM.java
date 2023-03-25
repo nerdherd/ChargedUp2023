@@ -285,7 +285,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         Commands.parallel( // End command once both arm and elevator have reached their target position
                             Commands.waitUntil(arm.atTargetPosition),
                             Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(-196000)),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
                             Commands.runOnce(() -> elevator.setTargetTicks(-160000))
                         )
                     ),
@@ -344,7 +344,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                         Commands.parallel( // End command once both arm and elevator have reached their target position
                             Commands.waitUntil(arm.atTargetPosition),
                             Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(-196000)),
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
                             Commands.sequence(
                                 Commands.waitSeconds(0.25),
                                 Commands.runOnce(() -> elevator.setTargetTicks(-160000))
