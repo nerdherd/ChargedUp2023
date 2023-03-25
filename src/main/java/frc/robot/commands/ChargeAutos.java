@@ -7,9 +7,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
@@ -52,6 +54,21 @@ public class ChargeAutos {
         ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
 
         auto.setName("Preload High Charge Taxi Middle");
+        
+        return auto;
+    }
+
+    public static CommandBase customPreloadHighChargeTaxiMiddle(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
+        CommandBase auto = sequence(
+            preloadHigh(arm, elevator, claw),
+            deadline(
+                customChargeTaxiMiddle(swerveDrive),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+            )
+        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
+
+        auto.setName("Custom Preload High Charge Taxi Middle");
         
         return auto;
     }
@@ -202,5 +219,75 @@ public class ChargeAutos {
             returnToChargeCommand,
             new TheGreatBalancingAct(swerveDrive)
         );
+    }
+
+    public static CommandBase customChargeTaxiMiddle(SwerveDrivetrain swerveDrive) {
+        SlewRateLimiter speedLimiter = new SlewRateLimiter(kChargeAccelerationMetersPerSecondSquared);
+
+        return sequence(
+            runOnce(() -> swerveDrive.resetOdometry(new Pose2d())),
+            race(
+                waitSeconds(6),
+                run(() -> {
+                    swerveDrive.setModuleStates(
+                        SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                speedLimiter.calculate(-kChargeSpeedMetersPerSecond), 0, 0,
+                                swerveDrive.getImu().getRotation2d())
+                        )
+                    );
+                }),
+                // Wait until it's within 10 degrees (going downwards)
+                sequence(
+                    waitSeconds(2),
+                    waitUntil(
+                        () -> {
+                            boolean success = NerdyMath.inRange(
+                                swerveDrive.getImu().getRotation3d().getX(),
+                                -10, 0
+                            );
+                            SmartDashboard.putBoolean("Stop charge", success);
+                            return success;
+                        }
+                    )
+                )
+            ),
+            // Slow down
+            deadline(
+                waitSeconds(0.1),
+                run(() -> {
+                    swerveDrive.setModuleStates(
+                        SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                speedLimiter.calculate(0), 0, 0,
+                                swerveDrive.getImu().getRotation2d())
+                        )
+                    );
+                })
+            ),
+            parallel(
+                runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
+                runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-3.5, 0, new Rotation2d()))),
+                runOnce(() -> speedLimiter.reset(0))
+            ),
+            runOnce(() -> swerveDrive.stopModules()),
+            // Wait for charge station to flatten out
+            waitSeconds(1.5),
+            race(
+                waitSeconds(4),
+                run(() -> {
+                    swerveDrive.setModuleStates(
+                        SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                speedLimiter.calculate(kChargeSpeedMetersPerSecond), 0, 0,
+                                swerveDrive.getImu().getRotation2d())
+                        )
+                    );
+                }),
+                waitUntil(() -> swerveDrive.getPose().getX() > -1)
+            ),
+            new TheGreatBalancingAct(swerveDrive)
+        );
+        // .finallyDo((x) -> swerveDrive.resetOdometry(new Pose2d(3.88, 3.48, new Rotation2d(180))));
     }
 }
