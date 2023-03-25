@@ -148,7 +148,7 @@ public class Arm extends SubsystemBase implements Reportable {
         // }
         
 
-        if (targetTicks <= ArmConstants.kArmStow) {
+        if (targetTicks <= ArmConstants.kArmStow - 50) {
             targetTicks = ArmConstants.kArmStow;
         }
         
@@ -285,12 +285,12 @@ public class Arm extends SubsystemBase implements Reportable {
                 tab.addNumber("target velocity", rotatingArm::getActiveTrajectoryVelocity);
                 tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
                 tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
-                tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
             case MEDIUM:
+                tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
                 tab.addNumber("Arm Velocity", rotatingArm::getSelectedSensorVelocity);
                 tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
                 tab.addNumber("Arm Percent Output", rotatingArm::getMotorOutputPercent);
-                tab.addNumber("Angle", () -> (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
+                tab.addNumber("Angle", () -> (rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
             case MINIMAL:
                 tab.addNumber("Current Arm Ticks", rotatingArm::getSelectedSensorPosition);
                 tab.addNumber("Target Arm Ticks", () -> targetTicks);

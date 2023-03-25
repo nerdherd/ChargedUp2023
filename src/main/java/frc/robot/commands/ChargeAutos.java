@@ -20,6 +20,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.claw.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.util.NerdyMath;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.Constants.SwerveAutoConstants.*;
@@ -59,28 +60,30 @@ public class ChargeAutos {
         return race(
             waitSeconds(5),
             sequence(
-                sequence(
-                    claw.setPower(-0.35),
-                    waitSeconds(0.25),
-                    claw.setPower(-0.25)
-                ),
-                deadline(
-                    waitSeconds(2),
-                    runOnce(() -> SmartDashboard.putString("Stage", "Score")),
+                parallel(
                     sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
-                        waitSeconds(0.5),
-                        waitUntil(arm.atTargetPosition)
+                        claw.setPower(-0.35),
+                        waitSeconds(0.25),
+                        claw.setPower(-0.25)
                     ),
-                    sequence(
-                        waitSeconds(0.5),
-                        runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
-                        waitSeconds(0.5),
-                        waitUntil(elevator.atTargetPosition)
+                    deadline(
+                        waitSeconds(2),
+                        runOnce(() -> SmartDashboard.putString("Stage", "Score")),
+                        sequence(
+                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                            waitSeconds(0.5),
+                            waitUntil(arm.atTargetPosition)
+                        ),
+                        sequence(
+                            waitSeconds(0.5),
+                            runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                            waitSeconds(0.5),
+                            waitUntil(elevator.atTargetPosition)
+                        )
                     )
                 ),
 
-                waitSeconds(0.5),
+                waitSeconds(0.25),
                 claw.setPower(0.3),
                 waitSeconds(0.5),
                 claw.setPowerZero(),
@@ -150,8 +153,8 @@ public class ChargeAutos {
         
         Trajectory returnToCharge = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(-4, 0.01, Rotation2d.fromDegrees(0)),
-                new Pose2d(-3, -0.01, Rotation2d.fromDegrees(0))
+                new Pose2d(-5, 0.01, Rotation2d.fromDegrees(0)),
+                new Pose2d(-2, -0.01, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
         
@@ -171,8 +174,31 @@ public class ChargeAutos {
         
         return sequence(
             runOnce(() -> swerveDrive.resetOdometry(goPastCharge.getInitialPose())),
-            goPastChargeCommand,
-            waitSeconds(1),
+            race(
+                waitSeconds(6),
+                goPastChargeCommand,
+                // Wait until it's within 5 degrees
+                sequence(
+                    waitSeconds(2),
+                    waitUntil(
+                        () -> {
+                            boolean success = NerdyMath.inRange(
+                                swerveDrive.getImu().getRotation3d().getX(),
+                                -10,
+                                0
+                            );
+                            SmartDashboard.putBoolean("Stop charge", success);
+                            return success;
+                        }
+                    )
+                )
+            ),
+            waitSeconds(0.1),
+            parallel(
+                runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
+                runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-4.5, 0, new Rotation2d())))
+            ),
+            waitSeconds(1.5),
             returnToChargeCommand,
             new TheGreatBalancingAct(swerveDrive)
         );

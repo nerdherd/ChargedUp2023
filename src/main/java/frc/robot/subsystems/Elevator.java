@@ -223,9 +223,9 @@ public class Elevator extends SubsystemBase implements Reportable{
       case OFF:
         break;
       case ALL:
-        tab.addNumber("Current", () -> elevator.getStatorCurrent());
         tab.addNumber("Target Velocity", () -> elevator.getActiveTrajectoryVelocity());
       case MEDIUM:
+        tab.addNumber("Current", () -> elevator.getStatorCurrent());
         tab.addNumber("Velocity", () -> elevator.getSelectedSensorVelocity());
         tab.addNumber("Motor Output", () -> elevator.getMotorOutputPercent());
         tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
