@@ -282,19 +282,20 @@ public class VisionAutos {
         }
         
         //trajectory stuff
+
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(-0.4, 0.4),
-                new Translation2d(-1.8, 0.4)
+                new Translation2d(-0.2, -0.2)
+                //new Translation2d(-1.8, -0.4)
             ),
-            new Pose2d(-3.6, 0.4, Rotation2d.fromDegrees(179)),
+            new Pose2d(-3.6, -0.2, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(-3.6, 0.4, Rotation2d.fromDegrees(180)),
-                new Pose2d(0, 0.4, Rotation2d.fromDegrees(0))
+                new Pose2d(-3.6, -0.1, Rotation2d.fromDegrees(0)),
+                new Pose2d(0, -0.1, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
 
@@ -363,8 +364,13 @@ public class VisionAutos {
                 zoooomToCubeCommand,
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 runOnce(() -> swerveDrive.stopModules()),
-                // new TurnToAngle(180, swerveDrive),
+                new TurnToAngle(170, swerveDrive),
                 Commands.waitSeconds(2),
+
+                new TurnToAngle(0, swerveDrive),
+                cubeToZoooomCommand,
+                runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                runOnce(() -> swerveDrive.stopModules())
 
                 // //vision pickup
                 // // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
@@ -382,9 +388,9 @@ public class VisionAutos {
                 // ),
 
                 //trajectory to grid
-                cubeToZoooomCommand,
-                runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                runOnce(() -> swerveDrive.stopModules())
+                //cubeToZoooomCommand,
+                //runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                //runOnce(() -> swerveDrive.stopModules())
 
                 // //vision score
                 // vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH),
