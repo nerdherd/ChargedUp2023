@@ -91,15 +91,15 @@ public final class Constants {
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
-    public static final int kArmStow = -276670;//-622485;//-630435;//144278;
+    public static final int kArmStow = -144321;//-276670;//-622485;//-630435;//144278;
     public static final int kArmTalonTach = -550169 / 3;
-    public static final int kArmScore = -151174;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
+    public static final int kArmScore = -78858;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
     public static final int kArmScoreCubeMid = -394900 / 3;//-371050;//596443; // 89744;
     public static final int kArmScoreCubeHigh = -406900 / 3;//-383050;//596443; // 89744;
-    public static final int kArmGroundPickup = -32194;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
-    public static final int kArmSubstation = -214403; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
-    public static final int kArmMotionAcceleration = 60000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 17777;//18000;//21777;
+    public static final int kArmGroundPickup = -16793;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
+    public static final int kArmSubstation = -113862; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmMotionAcceleration = 15000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 10000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
@@ -111,7 +111,7 @@ public final class Constants {
     public static final int kPistonForwardID = 5;
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kTicksPerAngle = 3790;
+    public static final double kTicksPerAngle = 1977;
     public static final int kTalonTachTopID = 0;
     public static final int kTalonTachBottomID = 1;
 

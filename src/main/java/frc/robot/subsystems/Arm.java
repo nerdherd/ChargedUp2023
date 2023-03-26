@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -38,10 +39,10 @@ public class Arm extends SubsystemBase implements Reportable {
         // gear ratio 27:1
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
         rotatingArm.setNeutralMode(NeutralMode.Brake);
+        // rotatingArm.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, 35, 0, 0));
         // CommandScheduler.getInstance().registerSubsystem(this);
 
         rotatingArm.setInverted(false);
-        
         atTargetPosition = () -> NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500);
         
         // For tuning PID and Motion Magic
@@ -78,7 +79,7 @@ public class Arm extends SubsystemBase implements Reportable {
             // rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) { // Up
-            if (rotatingArm.getStatorCurrent() > 70) {
+            if (rotatingArm.getStatorCurrent() > 45) {
                 rotatingArm.set(ControlMode.PercentOutput, 0);
             // if (talonTachTop.get() && rotatingArm.getStatorCurrent() >= 7) 
             // {
@@ -91,7 +92,7 @@ public class Arm extends SubsystemBase implements Reportable {
             // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
-            rotatingArm.set(ControlMode.PercentOutput, 0);
+            rotatingArm.set(ControlMode.PercentOutput, -0.075);
             rotatingArm.setNeutralMode(NeutralMode.Brake);
         }
         // SmartDashboard.putNumber("Arm Joystick Input", currentJoystickOutput);
@@ -152,7 +153,7 @@ public class Arm extends SubsystemBase implements Reportable {
             targetTicks = ArmConstants.kArmStow;
         }
         
-        if (rotatingArm.getStatorCurrent() >= 70 && rotatingArm.getSelectedSensorPosition() > targetTicks)
+        if (rotatingArm.getStatorCurrent() >= 45 && rotatingArm.getSelectedSensorPosition() > targetTicks)
         {
             rotatingArm.set(ControlMode.PercentOutput, 0);
         } else 
