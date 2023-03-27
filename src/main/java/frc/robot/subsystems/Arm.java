@@ -42,7 +42,7 @@ public class Arm extends SubsystemBase implements Reportable {
         // rotatingArm.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, 35, 0, 0));
         // CommandScheduler.getInstance().registerSubsystem(this);
 
-        rotatingArm.setInverted(false);
+        rotatingArm.setInverted(true);
         atTargetPosition = () -> NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500);
         
         // For tuning PID and Motion Magic
@@ -92,7 +92,7 @@ public class Arm extends SubsystemBase implements Reportable {
             // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
-            rotatingArm.set(ControlMode.PercentOutput, -0.075);
+            rotatingArm.set(ControlMode.PercentOutput, 0);
             rotatingArm.setNeutralMode(NeutralMode.Brake);
         }
         // SmartDashboard.putNumber("Arm Joystick Input", currentJoystickOutput);
