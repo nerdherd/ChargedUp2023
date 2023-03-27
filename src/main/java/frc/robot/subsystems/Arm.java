@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -27,7 +28,9 @@ public class Arm extends SubsystemBase implements Reportable {
     private TalonFX rotatingArm;
     private int targetTicks = ArmConstants.kArmStow;
     public BooleanSupplier atTargetPosition;
-    // private DigitalInput talonTachTop, talonTachBottom;
+    // private DigitalInput talonTachTop;
+    private boolean inTalonTachZone;
+    // private DigitalInput talonTachBottom;
 
     public Arm() {
         // talonTachTop = new DigitalInput(ArmConstants.kTalonTachTopID);
@@ -36,10 +39,10 @@ public class Arm extends SubsystemBase implements Reportable {
         // gear ratio 27:1
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
         rotatingArm.setNeutralMode(NeutralMode.Brake);
+        // rotatingArm.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, 35, 0, 0));
         // CommandScheduler.getInstance().registerSubsystem(this);
 
         rotatingArm.setInverted(false);
-        
         atTargetPosition = () -> NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500);
         
         // For tuning PID and Motion Magic
@@ -76,17 +79,20 @@ public class Arm extends SubsystemBase implements Reportable {
             // rotatingArm.set(ControlMode.PercentOutput, 0.60);
             //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else if (currentJoystickOutput < -ArmConstants.kArmDeadband) { // Up
-            // if (talonTachTop.get() || rotatingArm.getStatorCurrent() >= 45) {
-            if (rotatingArm.getStatorCurrent() >= 45)
-            {
+            if (rotatingArm.getStatorCurrent() > 45) {
                 rotatingArm.set(ControlMode.PercentOutput, 0);
+            // if (talonTachTop.get() && rotatingArm.getStatorCurrent() >= 7) 
+            // {
+            //     rotatingArm.set(ControlMode.PercentOutput, 0);
+            // } else if (talonTachTop.get()) {
+            //     rotatingArm.set(ControlMode.PercentOutput, -0.1);
             } else {
                 rotatingArm.set(ControlMode.PercentOutput, -0.3);
             }
             // rotatingArm.setNeutralMode(NeutralMode.Coast);
                 //((currentJoystickOutput * ArmConstants.kJoystickMultiplier)));
         } else {
-            rotatingArm.set(ControlMode.PercentOutput, 0);
+            rotatingArm.set(ControlMode.PercentOutput, -0.075);
             rotatingArm.setNeutralMode(NeutralMode.Brake);
         }
         // SmartDashboard.putNumber("Arm Joystick Input", currentJoystickOutput);
@@ -126,12 +132,24 @@ public class Arm extends SubsystemBase implements Reportable {
         // rotatingArm.configMotionAcceleration(SmartDashboard.getNumber("Arm Accel", ArmConstants.kArmMotionAcceleration));
         // config tuning params in slot 0
         double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
-        
-        // if (talonTachTop.get()) {
-        //     rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
-        // }
 
-        if (targetTicks <= ArmConstants.kArmStow) {
+        // if (talonTachTop.get() && !inTalonTachZone) {
+        //     if (rotatingArm.getSelectedSensorPosition() > ArmConstants.kArmTalonTach)
+        //     {
+        //         rotatingArm.setSelectedSensorPosition(ArmConstants.kArmTalonTach);
+        //     }
+        //     inTalonTachZone = true;
+        
+        // } else if (talonTachTop.get() && rotatingArm.getSelectedSensorPosition() > ArmConstants.kArmTalonTach) {
+        //     rotatingArm.setSelectedSensorPosition(ArmConstants.kArmTalonTach);
+
+        // } else if (!talonTachTop.get()){
+        //     inTalonTachZone = false;
+            
+        // }
+        
+
+        if (targetTicks <= ArmConstants.kArmStow - 50) {
             targetTicks = ArmConstants.kArmStow;
         }
         
@@ -245,6 +263,10 @@ public class Arm extends SubsystemBase implements Reportable {
         rotatingArm.setSelectedSensorPosition(ticks);
     }
 
+    public void isInTalonTachZone() {
+        inTalonTachZone = true;
+    }
+
     public void initShuffleboard(LOG_LEVEL level) {
         if (level == LOG_LEVEL.OFF)  {
             return;
@@ -262,15 +284,16 @@ public class Arm extends SubsystemBase implements Reportable {
                 tab.addNumber("Motor Output", rotatingArm::getMotorOutputPercent);
                 tab.addString("Control Mode", rotatingArm.getControlMode()::toString);
                 tab.addNumber("target velocity", rotatingArm::getActiveTrajectoryVelocity);
-                tab.addNumber("velocity", rotatingArm::getSelectedSensorVelocity);
                 tab.addNumber("arm target velocity", rotatingArm::getActiveTrajectoryVelocity);
                 tab.addNumber("Closed loop error", rotatingArm::getClosedLoopError);
-                tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
-                tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
             case MEDIUM:
-                tab.addNumber("Angle", () -> (ArmConstants.kArmStow * 2 - rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
+                tab.addNumber("Arm Current", rotatingArm::getStatorCurrent);
+                tab.addNumber("Arm Velocity", rotatingArm::getSelectedSensorVelocity);
+                tab.addNumber("Arm Voltage", rotatingArm::getMotorOutputVoltage);
+                tab.addNumber("Arm Percent Output", rotatingArm::getMotorOutputPercent);
+                tab.addNumber("Angle", () -> (rotatingArm.getSelectedSensorPosition()) / ArmConstants.kTicksPerAngle);
             case MINIMAL:
-                tab.addNumber("Current Arm Ticks", () -> rotatingArm.getSelectedSensorPosition());
+                tab.addNumber("Current Arm Ticks", rotatingArm::getSelectedSensorPosition);
                 tab.addNumber("Target Arm Ticks", () -> targetTicks);
                 break;
         }

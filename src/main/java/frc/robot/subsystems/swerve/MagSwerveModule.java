@@ -161,7 +161,9 @@ public class MagSwerveModule implements SwerveModule {
      * @return Velocity of the drive motor (in meters / sec)
      */
     public double getDriveVelocity() {
-        return driveMotor.getSelectedSensorVelocity(0) * ModuleConstants.kDriveTicksPer100MsToMetersPerSec;
+        return driveMotor.getSelectedSensorVelocity(0) 
+            * ModuleConstants.kDriveTicksPer100MsToMetersPerSec
+            * ModuleConstants.kDriveMotorGearRatio;
     }
 
     /**
@@ -237,11 +239,11 @@ public class MagSwerveModule implements SwerveModule {
             case ALL:
                 tab.addNumber("Drive Motor Current", driveMotor::getStatorCurrent);
                 tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
+            case MEDIUM:
                 tab.addNumber("Drive Motor Voltage", driveMotor::getMotorOutputVoltage);
                 tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
-            case MEDIUM:
-                tab.addNumber("Module velocity", () -> driveMotor.getSelectedSensorVelocity());
-                tab.addNumber("Drive percent", () -> currentPercent);
+                tab.addNumber("Module velocity", this::getDriveVelocity);
+                tab.addNumber("Drive percent", driveMotor::getMotorOutputPercent);
                 tab.addNumber("Turn angle", () -> currentAngle);
                 tab.addNumber("Desired Angle", () -> desiredAngle);
                 tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
@@ -262,7 +264,7 @@ public class MagSwerveModule implements SwerveModule {
                 SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Voltage", driveMotor.getMotorOutputVoltage());
                 SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Voltage", turnMotor.getMotorOutputVoltage());
             case MEDIUM:
-                SmartDashboard.putNumber("Module velocity #" + driveMotorID, driveMotor.getSelectedSensorVelocity());
+                SmartDashboard.putNumber("Module velocity #" + driveMotorID, getDriveVelocity());
                 SmartDashboard.putNumber("Drive percent #" + driveMotorID, currentPercent);
                 SmartDashboard.putNumber("Turn angle #" + turnMotorID, currentAngle);
                 SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, desiredAngle);

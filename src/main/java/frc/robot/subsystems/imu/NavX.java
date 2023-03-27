@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.imu;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -11,12 +11,15 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.subsystems.Reportable;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Imu extends SubsystemBase implements Reportable {
+
+public class NavX extends SubsystemBase implements Gyro {
     public AHRS ahrs;
     private int numResets = 0;
     private double offset = 0;
@@ -26,7 +29,7 @@ public class Imu extends SubsystemBase implements Reportable {
      * 
      * If an exception is thrown, it is caught and reported to the drivetrain.
      */
-    public Imu() {
+    public NavX() {
         this.numResets = 0;
         
         try { 
@@ -43,16 +46,17 @@ public class Imu extends SubsystemBase implements Reportable {
      */
     public void zeroHeading() {
         ahrs.reset();
+        offset = 0;
         numResets += 1;
     }
-
-    public void setHeading(double angle) {
-        zeroHeading();
-        offset = -angle;
-    }
-
+    
     public void setOffset(double offset) {
         this.offset = offset;
+    }
+
+    public void resetHeading(double headingDegrees) {
+        zeroHeading();
+        offset = -headingDegrees;
     }
 
     /**
@@ -74,13 +78,12 @@ public class Imu extends SubsystemBase implements Reportable {
 
     public Rotation3d getRotation3d() {
         return new Rotation3d(
-            ahrs.getRoll() * Math.PI / 180, 
-            ahrs.getPitch()* Math.PI / 180, 
-            getHeading() * Math.PI / 180) ;
+            Math.toRadians(ahrs.getRoll()),
+            Math.toRadians(ahrs.getPitch()),
+            Math.toRadians(getHeading()));
     }
 
     public Rotation3d getRotation3dRaw() {
-        
         return new Rotation3d(
             Math.toRadians(ahrs.getRawGyroX()),
             Math.toRadians(ahrs.getRawGyroY()),
@@ -128,13 +131,30 @@ public class Imu extends SubsystemBase implements Reportable {
                 tab.addNumber("Robot Raw Yaw", () -> ahrs.getRawGyroZ());
                 tab.addNumber("Robot Raw Pitch", () -> ahrs.getRawGyroX());
                 tab.addNumber("Robot Raw Roll", () -> ahrs.getRawGyroY());
+                tab.addNumber("Robot Raw X Acceleration", () -> ahrs.getRawAccelX());
+                tab.addNumber("Robot Raw Y Acceleration", () -> ahrs.getRawAccelY());
+                tab.addNumber("Robot Raw Z Acceleration", () -> ahrs.getRawAccelZ());
                 tab.addBoolean("AHRS Calibrating", () -> ahrs.isCalibrating());
                 tab.addBoolean("AHRS Connected", () -> ahrs.isConnected());
                 tab.addString("NavX Firmware version", () -> ahrs.getFirmwareVersion());
+                tab.addNumber("Gyro Temperature (C)", () -> ahrs.getTempC());
             case MEDIUM:
-                tab.addNumber("Robot Yaw", () -> ahrs.getYaw());
-                tab.addNumber("Robot Pitch", () -> ahrs.getPitch());
-                tab.addNumber("Robot Roll", () -> ahrs.getRoll());
+                tab.addNumber("Gyro Yaw", () -> ahrs.getYaw());
+                tab.addNumber("Gyro Pitch", () -> ahrs.getPitch());
+                tab.addNumber("Gyro Roll", () -> ahrs.getRoll());
+                tab.addNumber("Gyro X Acceleration (G)", () -> ahrs.getWorldLinearAccelX());
+                tab.addNumber("Gyro Y Acceleration (G)", () -> ahrs.getWorldLinearAccelY());
+                tab.addNumber("Gyro Z Acceleration (G)", () -> ahrs.getWorldLinearAccelZ());
+                tab.addNumber("Total Acceleration (m/s2)", () -> {
+                    return SwerveDriveConstants.kGravityMPS
+                        * (ahrs.getWorldLinearAccelX()
+                        + ahrs.getWorldLinearAccelY()
+                        + ahrs.getWorldLinearAccelZ());
+                });
+                tab.addNumber("Gyro X Displacement (m)", () -> ahrs.getDisplacementX());
+                tab.addNumber("Gyro Y Displacement (m)", () -> ahrs.getDisplacementY());
+                tab.addNumber("Gyro Z Displacement (m)", () -> ahrs.getDisplacementZ());
+                tab.addNumber("Gyro Full Range Acceleration (G)", () -> ahrs.getAccelFullScaleRangeG());
                 tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
             case MINIMAL:
                 tab.addNumber("IMU Resets", () -> numResets);

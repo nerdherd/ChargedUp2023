@@ -371,7 +371,7 @@ public class VisionAutos {
                         Commands.parallel( // End when target positions reached
                             Commands.waitUntil(elevator.atTargetPosition),
                             Commands.waitUntil(arm.atTargetPosition),
-                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreMid))
+                            Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh))
                         )
                     )
                 ),

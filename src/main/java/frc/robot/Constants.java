@@ -91,14 +91,15 @@ public final class Constants {
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
-    public static final int kArmStow = -570828;//-622485;//-630435;//144278;
-    public static final int kArmScore = -379616;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
-    public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
-    public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
-    public static final int kArmGroundPickup = -212000 + 7950;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
-    public static final int kArmSubstation = -479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
-    public static final int kArmMotionAcceleration = 60000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 40000;//18000;//21777;
+    public static final int kArmStow = -144321;//-276670;//-622485;//-630435;//144278;
+    public static final int kArmTalonTach = -550169 / 3;
+    public static final int kArmScore = -78858;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
+    public static final int kArmScoreCubeMid = -394900 / 3;//-371050;//596443; // 89744;
+    public static final int kArmScoreCubeHigh = -406900 / 3;//-383050;//596443; // 89744;
+    public static final int kArmGroundPickup = -16793;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
+    public static final int kArmSubstation = -113862; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmMotionAcceleration = 15000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 10000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
@@ -110,7 +111,7 @@ public final class Constants {
     public static final int kPistonForwardID = 5;
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kTicksPerAngle = 7950;
+    public static final double kTicksPerAngle = 1977;
     public static final int kTalonTachTopID = 0;
     public static final int kTalonTachBottomID = 1;
 
@@ -297,13 +298,17 @@ public final class Constants {
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
     };
+
+    public static final double kGravityMPS = 9.80665; 
   }
 
   public static final class SwerveAutoConstants {
     public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 2;
+    public static final double kChargeSpeedMetersPerSecond = 0.75 * 2.5;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
       SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
     public static final double kMaxAccelerationMetersPerSecondSquared = kMaxSpeedMetersPerSecond;
+    public static final double kChargeAccelerationMetersPerSecondSquared = 2.5;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
     public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 1.5);
     public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0.01);
@@ -324,7 +329,7 @@ public final class Constants {
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
     public static final double kPBalancingInitial = 4.8;
-    public static final double kPBalancing = 2.37; // 0.4
+    public static final double kPBalancing = 2.6; //2.7 worked once //2.37; // 0.4
     public static final double kIBalancing = 0;
     public static final double kDBalancing = 0;
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
