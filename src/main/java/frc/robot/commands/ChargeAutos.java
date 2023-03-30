@@ -54,7 +54,7 @@ public class ChargeAutos {
                     run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
                 )
             ),
-            runOnce((x) -> swerveDrive.getImu().setOffset(180)),
+            runOnce(() -> swerveDrive.getImu().setOffset(180)),
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
             waitSeconds(0.125),
             runOnce(() -> swerveDrive.stopModules())
