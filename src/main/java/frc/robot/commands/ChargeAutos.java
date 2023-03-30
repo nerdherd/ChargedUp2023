@@ -45,13 +45,20 @@ public class ChargeAutos {
 
     public static CommandBase preloadHighChargeTaxiMiddle(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
         CommandBase auto = sequence(
-            preloadHigh(arm, elevator, claw),
             deadline(
-                chargeTaxiMiddle(swerveDrive),
-                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
-            )
-        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
+                waitSeconds(14.5),
+                preloadHigh(arm, elevator, claw),
+                deadline(
+                    chargeTaxiMiddle(swerveDrive),
+                    run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                    run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+                )
+            ),
+            runOnce((x) -> swerveDrive.getImu().setOffset(180)),
+            runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
+            waitSeconds(0.125),
+            runOnce(() -> swerveDrive.stopModules())
+        );
 
         auto.setName("Preload High Charge Taxi Middle");
         
@@ -226,9 +233,11 @@ public class ChargeAutos {
             waitSeconds(0.1),
             parallel(
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
-                runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-4.75, 0, new Rotation2d())))
+                runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-4.85, 0, new Rotation2d())))
             ),
-            waitSeconds(1.5),
+            runOnce(() -> swerveDrive.stopModules()),
+            waitSeconds(1),
+            new TurnToAngle(0, swerveDrive),
             returnToChargeCommand,
             new TheGreatBalancingAct(swerveDrive)
         );
