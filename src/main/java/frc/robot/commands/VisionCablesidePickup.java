@@ -87,8 +87,8 @@ public class VisionCablesidePickup {
             sequence(
                 Commands.parallel(
                     //runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                    runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose())),
-                    runOnce(() -> swerveDrive.stopModules())
+                    runOnce(() -> swerveDrive.resetOdometry(scoreToPickup.getInitialPose()))
+                    //runOnce(() -> swerveDrive.stopModules())
                 ),
 
                 // Move arm and elevator, arm is moved 0.5 seconds after the elevator to prevent power chain from getting caught
