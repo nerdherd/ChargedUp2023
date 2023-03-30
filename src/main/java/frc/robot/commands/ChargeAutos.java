@@ -203,7 +203,7 @@ public class ChargeAutos {
             race(
                 waitSeconds(6),
                 goPastChargeCommand,
-                // Wait until it's within 5 degrees
+                // Wait until it's going downwards
                 sequence(
                     waitSeconds(2),
                     waitUntil(
@@ -219,6 +219,7 @@ public class ChargeAutos {
                     )
                 )
             ),
+            // Slow down to half speed after crossing the charge station
             deadline(
                 waitSeconds(0.25),
                 run(() -> {
@@ -231,14 +232,16 @@ public class ChargeAutos {
                     );
                 })
             ),
+            // Slide for a little bit before stopping
             runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(0.1),
+            waitSeconds(0.3),
+            // Stop completely (tow the modules)
             parallel(
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
-                runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-4.85, 0, new Rotation2d())))
+                runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-5, 0, new Rotation2d())))
             ),
             runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(1),
+            waitSeconds(0.8),
             new TurnToAngle(0, swerveDrive),
             returnToChargeCommand,
             new TheGreatBalancingAct(swerveDrive)
