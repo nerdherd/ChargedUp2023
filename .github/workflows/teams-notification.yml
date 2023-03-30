@@ -4,6 +4,7 @@ on:
   push: {main, dev}
   release: {}
 
+
 jobs:
   without_optional_params:
     name: Minimal notification
