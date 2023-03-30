@@ -19,6 +19,7 @@ import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Reportable;
+import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.vision.Limelight.LightMode;
@@ -230,7 +231,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // PIDTX.setPID(0.05, 0, 0.0125);
             // PIDYaw.setPID(0, 0, 0);
         } else {
-            goalArea = 5.6; // Goal area for cube ground pickup
+            goalArea = 3.3; // Goal area for cube ground pickup
             currentLimelight.setPipeline(2);
             currentLimelight.setLightState(LightMode.OFF);
 
@@ -318,13 +319,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         }
     }
 
-    public CommandBase VisionPickupGroundNoArm(OBJECT_TYPE objType) {
+    public CommandBase VisionPickupGroundNoArm(OBJECT_TYPE objType, MotorClaw claw) {
         final PIDController pidAreaFinal = PIDArea;
         final PIDController pidTXFinal = PIDTX;
         final PIDController pidYawFinal = PIDYaw;
 
-        if(limelightLow != null) {
-            return Commands.race(
+       // if(limelightLow != null)
+         {
+            return
                 // Constantly run elevator and arm motion magic
                 // Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
                 // Commands.run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
@@ -360,13 +362,13 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     claw.setPower(-0.15),
                     
                     Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
-                )
+                
             );
             
         }
-        else {
-            return runOnce(() -> SmartDashboard.putString("Limelight command status:", "Sequence cancelled"));
-        }
+        // else {
+        //     return runOnce(() -> SmartDashboard.putString("Limelight command status:", "Sequence cancelled"));
+        // }
     }
 
     public void initVisionPickupOnSubstation(OBJECT_TYPE objType) {
@@ -730,6 +732,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ARRIVED; 
+                currentLimelight.setLightState(LightMode.ON);
                 return;
                 }
             }
@@ -744,7 +747,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
-                currentCameraMode = CAMERA_MODE.ARRIVED; 
+                currentCameraMode = CAMERA_MODE.ARRIVED;
+                currentLimelight.setLightState(LightMode.ON); 
             }
             else{
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
@@ -797,6 +801,86 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             }
             else{
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ACTION;
+            }
+        }
+        
+        SmartDashboard.putString("Vision status", currentCameraMode.toString());
+        SmartDashboard.putNumber("Vision X speed", xSpeed);
+        SmartDashboard.putNumber("Vision Y speed", ySpeed);
+    }
+
+    public void driveToCubeOnGround()
+    {
+        //PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
+        // Initialize all variables to 0
+        double xSpeed = 0;
+        double ySpeed = 0;
+        double rotationSpeed = 0;
+
+        if (limelightLow == null)
+            return;
+
+        ChassisSpeeds chassisSpeeds;
+
+        SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
+
+        if(!limelightLow.hasValidTarget()) {
+            chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+            SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+            drivetrain.setModuleStates(moduleStates);
+            currentCameraMode = CAMERA_MODE.WAIT;
+        }
+        else {
+            // NOTE (3/11/2023): This should be commented out, BUT if the PID is still 0,
+            // you can use this but we still need to find a permenant solution
+
+            // Score cone (low tape, max distance is the charging station)
+            // pidArea.setP(2);
+            // pidArea.setD(0);
+            // pidTX.setP(0.08);
+            // pidTX.setD(0.02);
+
+            // Cone ground
+            // pidArea.setP(0.4);
+            // pidArea.setD(0.01);
+            // pidTX.setP(0.04);
+            // pidTX.setD(0.01);
+
+            double calculatedX = getAvgArea(currentLimelight.getArea_avg());
+            double calculatedY = getAvgTX(currentLimelight.getXAngle_avg());
+            SmartDashboard.putNumber("Vision average X", calculatedX);
+            SmartDashboard.putNumber("Vision average Y", calculatedY);
+
+            if(currentLimelight.getPipeIndex()==4){
+                if (NerdyMath.inRange(calculatedY, -2.2, 1) 
+                    && calculatedX > 7) {
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ARRIVED; 
+                currentLimelight.setLightState(LightMode.ON);
+                return;
+                }
+            }
+            xSpeed = pidArea.calculate(calculatedX, goalArea) * (5/4);
+            ySpeed = -pidTX.calculate(calculatedY, goalTX) * (5/4);
+            rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
+            
+            if (NerdyMath.inRange(xSpeed, -.1, .1) &&
+            NerdyMath.inRange(ySpeed, -.1, .1) &&
+            NerdyMath.inRange(rotationSpeed, -.1, .1))
+            {
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ARRIVED;
+                currentLimelight.setLightState(LightMode.ON); 
+            }
+            else{
+                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ACTION;

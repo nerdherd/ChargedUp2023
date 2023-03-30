@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveAutoConstants;
@@ -206,7 +208,7 @@ public class VisionAutos {
                 runOnce(() -> swerveDrive.stopModules()),
 
                 // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
-                vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE),
+                vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE, claw), // Added claw parameter to get rid of error
 
                 Commands.deadline(
                     Commands.waitSeconds(2),
@@ -286,16 +288,27 @@ public class VisionAutos {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(-0.2, -0.2)
+                new Translation2d(0.2, 0.2)
                 //new Translation2d(-1.8, -0.4)
             ),
-            new Pose2d(-3.6, -0.2, Rotation2d.fromDegrees(0)),
+            new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(-3.6, -0.1, Rotation2d.fromDegrees(0)),
-                new Pose2d(0, -0.1, Rotation2d.fromDegrees(0))
+                new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(180)),
+                new Pose2d(0.8, 0.2, Rotation2d.fromDegrees(180)),
+                // new Pose2d(-0.8, -1.0, Rotation2d.fromDegrees(0)),
+                new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(180))
+            ),
+            trajectoryConfig);
+
+        Trajectory zoooomPartTwo = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0.8, 0.2, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.6, 2.2, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 
@@ -305,6 +318,10 @@ public class VisionAutos {
 
         SwerveControllerCommand cubeToZoooomCommand = new SwerveControllerCommand(
             cubeToZoooom, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        SwerveControllerCommand zoooomPartTwoCommand = new SwerveControllerCommand(
+            zoooomPartTwo, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
 
         final int armPosFinal = ArmConstants.kArmScore;
@@ -364,13 +381,26 @@ public class VisionAutos {
                 zoooomToCubeCommand,
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 runOnce(() -> swerveDrive.stopModules()),
-                new TurnToAngle(170, swerveDrive),
-                Commands.waitSeconds(2),
 
-                new TurnToAngle(0, swerveDrive),
+                // // new TurnToAngle(170, swerveDrive),
+                // runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                // runOnce(() -> swerveDrive.stopModules()),
+
+                vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE, claw),
+
+                new TurnToAngle(180, swerveDrive),
                 cubeToZoooomCommand,
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                runOnce(() -> swerveDrive.stopModules())
+                runOnce(() -> swerveDrive.stopModules()),
+
+                Commands.waitSeconds(0.5),
+
+                // new TurnToAngle(180, swerveDrive),
+                zoooomPartTwoCommand,
+                runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                runOnce(() -> swerveDrive.stopModules()),
+
+                new TurnToAngle(0, swerveDrive)
 
                 // //vision pickup
                 // // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
