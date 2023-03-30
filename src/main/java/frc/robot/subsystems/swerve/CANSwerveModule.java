@@ -143,6 +143,11 @@ public class CANSwerveModule implements SwerveModule {
             * ModuleConstants.kDriveMotorGearRatio;
     }
 
+    public double getDrivePositionTicks() {
+        return driveMotor.getSelectedSensorPosition(0);
+    }
+
+
     /**
      * Get the angle of the turning motor's integrated sensor
      * @return Angle in radians
@@ -248,6 +253,7 @@ public class CANSwerveModule implements SwerveModule {
                 tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
                 tab.addNumber("Module velocity", this::getDriveVelocity);
                 tab.addNumber("Drive percent", driveMotor::getMotorOutputPercent);
+                tab.addNumber("Drive ticks", this::getDrivePositionTicks);
                 tab.addNumber("Turn angle", this::getTurningPositionDegrees);
                 tab.addNumber("Desired Angle", () -> desiredAngle);
                 tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
