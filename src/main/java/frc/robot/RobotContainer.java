@@ -88,8 +88,8 @@ public class RobotContainer {
   private final POVButton leftButtonDriver = new POVButton(badPS5, 270);
 
   private SendableChooser<Supplier<CommandBase>> autoChooser = new SendableChooser<Supplier<CommandBase>>();
-  private SendableChooser<StartPosition> positionChooser = new SendableChooser<StartPosition>();
-  private SendableChooser<SCORE_POS> scoreChooser = new SendableChooser<SCORE_POS>();
+  // private SendableChooser<StartPosition> positionChooser = new SendableChooser<StartPosition>();
+  // private SendableChooser<SCORE_POS> scoreChooser = new SendableChooser<SCORE_POS>();
   private SendableChooser<Alliance> allianceChooser = new SendableChooser<Alliance>();
 
   private SCORE_POS scorePos = SCORE_POS.MID;
@@ -261,14 +261,21 @@ public class RobotContainer {
   private void initAutoChoosers() {
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
 
+    // No alliance parameter.
     autoChooser.addOption("Preload High Center Charge", () -> ChargeAutos.preloadHighChargeMiddle(swerveDrive, arm, elevator, motorClaw));
     autoChooser.addOption("Preload High Center Charge Taxi", () -> ChargeAutos.preloadHighChargeTaxiMiddle(swerveDrive, arm, elevator, motorClaw));
     autoChooser.addOption("Custom Preload High Center Charge Taxi", () -> ChargeAutos.customPreloadHighChargeTaxiMiddle(swerveDrive, arm, elevator, motorClaw));
     autoChooser.addOption("Gyro Charge", () -> ChargeAutos.gyroCharge(swerveDrive, true));
 
-    autoChooser.addOption("Vision Two Piece Auto", () -> VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
-    autoChooser.addOption("Preload Charge Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
-    autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
+    // Has and uses alliance parameter.
+    autoChooser.addOption("Vision Two Piece Auto (Alliance)", () -> VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+
+    // Have alliance parameter but do not use it.
+    autoChooser.addOption("Preload Charge Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
+    autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, SCORE_POS.HIGH, alliance));
+    
+    // Don't think we need.
+    autoChooser.addOption("Preload Charge Go Around Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
     
     // autoChooser.addOption("Vision Preload Pickup Charge No Score", () -> VisionAutos.visionPreloadPickupChargeAuto(swerveDrive, vision, arm, elevator, motorClaw, startPos, scorePos, alliance));
     // autoChooser.addOption("Vision Preload Pickup Score", () -> VisionAutos.visionPreloadPickupScore(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos, scorePos));
@@ -277,7 +284,6 @@ public class RobotContainer {
     // autoChooser.addOption("Charge only", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, alliance, 0, false).finallyDo((x) -> swerveDrive.getImu().setOffset(180)));
     // autoChooser.addOption("Backward Auto", () -> SwerveAutos.driveBackwardAuto(swerveDrive).finallyDo((x) -> swerveDrive.getImu().setOffset(180)));
     // autoChooser.addOption("Preload Auto", () -> SwerveAutos.preloadAuto(arm, elevator, motorClaw, scorePos));
-    autoChooser.addOption("Preload Charge Go Around Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
     // autoChooser.addOption("Preload Pickup Auto", () -> SwerveAutos.twoPieceAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     // autoChooser.addOption("Preload Pickup Charge Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
     // autoChooser.addOption("Preload Pickup Charge Go Around Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
@@ -286,19 +292,19 @@ public class RobotContainer {
     // autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
     autosTab.add("Selected Auto", autoChooser);
     
-    positionChooser.setDefaultOption("Right", StartPosition.RIGHT);
-    positionChooser.addOption("Left", StartPosition.LEFT);
-    positionChooser.addOption("Middle", StartPosition.MIDDLE);
-    positionChooser.addOption("Right", StartPosition.RIGHT);
-    autosTab.add("Start Position", positionChooser);
-    autosTab.addString("Selected Start Position", () -> startPos.toString());
+    // positionChooser.setDefaultOption("Right", StartPosition.RIGHT);
+    // positionChooser.addOption("Left", StartPosition.LEFT);
+    // positionChooser.addOption("Middle", StartPosition.MIDDLE);
+    // positionChooser.addOption("Right", StartPosition.RIGHT);
+    // autosTab.add("Start Position", positionChooser);
+    // autosTab.addString("Selected Start Position", () -> startPos.toString());
 
-    // TODO: Implement changing score position in the autos
-    scoreChooser.setDefaultOption("Mid", SCORE_POS.MID);
-    scoreChooser.addOption("Hybrid", SCORE_POS.LOW);
-    scoreChooser.addOption("Mid", SCORE_POS.MID);
-    scoreChooser.addOption("High", SCORE_POS.HIGH);
-    autosTab.add("Score Position", scoreChooser);
+    // // TODO: Implement changing score position in the autos
+    // scoreChooser.setDefaultOption("Mid", SCORE_POS.MID);
+    // scoreChooser.addOption("Hybrid", SCORE_POS.LOW);
+    // scoreChooser.addOption("Mid", SCORE_POS.MID);
+    // scoreChooser.addOption("High", SCORE_POS.HIGH);
+    // autosTab.add("Score Position", scoreChooser);
 
     allianceChooser.setDefaultOption("Red", Alliance.Red);
     allianceChooser.addOption("Red", Alliance.Red);
@@ -336,8 +342,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    startPos = positionChooser.getSelected();
-    scorePos = scoreChooser.getSelected();
+    // startPos = positionChooser.getSelected();
+    // scorePos = scoreChooser.getSelected();
     alliance = allianceChooser.getSelected();
     Command currentAuto = autoChooser.getSelected().get();
 

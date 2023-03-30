@@ -279,9 +279,9 @@ public class VisionAutos {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
 
-        double zoooomAllianceThingy = 1.0;;
+        double allianceFactor = 1.0;
         if (alliance == Alliance.Red) {
-            zoooomAllianceThingy = -1.0;
+            allianceFactor = -1.0;
         }
         
         //trajectory stuff
@@ -289,27 +289,27 @@ public class VisionAutos {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(0.2, 0.2)
+                new Translation2d(0.2, 0.2 * allianceFactor)
                 //new Translation2d(-1.8, -0.4)
             ),
-            new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(0)),
+            new Pose2d(3.6, 0.2 * allianceFactor, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(180)),
-                new Pose2d(0.8, 0.2, Rotation2d.fromDegrees(180)),
+                new Pose2d(3.6, 0.2 * allianceFactor, Rotation2d.fromDegrees(180)),
+                new Pose2d(0.8, 0.2 * allianceFactor, Rotation2d.fromDegrees(180)),
                 // new Pose2d(-0.8, -1.0, Rotation2d.fromDegrees(0)),
-                new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(180))
+                new Pose2d(0.2, 1.0 * allianceFactor, Rotation2d.fromDegrees(180))
             ),
             trajectoryConfig);
 
         Trajectory zoooomPartTwo = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0.8, 0.2, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(3.6, 2.2, Rotation2d.fromDegrees(179.9))
+                new Pose2d(0.2, 1.0 * allianceFactor, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0.8, 0.2 * allianceFactor, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.6, 0.2 * allianceFactor, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.6, 2.2 * allianceFactor, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 

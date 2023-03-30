@@ -347,7 +347,7 @@ public class SwerveAutos {
         ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
     }
 
-    public static CommandBase preloadBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, Alliance alliance) {
+    public static CommandBase preloadBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, SCORE_POS scorePos, Alliance alliance) {
         return sequence(
             preloadAuto(arm, elevator, claw, scorePos),
             driveBackwardAuto(swerveDrive)
