@@ -210,6 +210,7 @@ public class ChargeAutos {
                     )
                 )
             ),
+            runOnce(() -> swerveDrive.stopModules()),
             waitSeconds(0.1),
             parallel(
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),

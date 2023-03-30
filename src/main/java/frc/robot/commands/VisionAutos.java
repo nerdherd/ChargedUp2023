@@ -384,30 +384,30 @@ public class VisionAutos {
 
                 claw.setPower(ClawConstants.kOuttakePower),
                 Commands.waitSeconds(0.5),
-                claw.setPowerZero()
+                claw.setPowerZero(),
                 
-                // zoooomPartTwoCommand,
-                // claw.setPower(ClawConstants.kIntakePower),
+                zoooomPartTwoCommand,
+                claw.setPower(ClawConstants.kIntakePower),
 
-                // runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                // runOnce(() -> swerveDrive.stopModules()),
+                runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                runOnce(() -> swerveDrive.stopModules()),
 
-                // new TurnToAngle(0, swerveDrive),
-                // Commands.parallel(
-                //     Commands.deadline(
-                //         Commands.waitSeconds(2),
-                //         Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
-                //         Commands.sequence(
-                //             Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
-                //             Commands.waitSeconds(0.5),
-                //             Commands.waitUntil(arm.atTargetPosition)
-                //         )
-                //     )
-                // ),
-                // // //vision pickup
-                // // // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
-                // vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE, claw),
-                // claw.setPower(ClawConstants.kIntakeNeutralPower)
+                new TurnToAngle(0, swerveDrive),
+                Commands.parallel(
+                    Commands.deadline(
+                        Commands.waitSeconds(2),
+                        Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
+                        Commands.sequence(
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
+                            Commands.waitSeconds(0.5),
+                            Commands.waitUntil(arm.atTargetPosition)
+                        )
+                    )
+                ),
+                // //vision pickup
+                // // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
+                vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE, claw),
+                claw.setPower(ClawConstants.kIntakeNeutralPower)
             ),
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
             run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
