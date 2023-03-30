@@ -231,7 +231,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // PIDTX.setPID(0.05, 0, 0.0125);
             // PIDYaw.setPID(0, 0, 0);
         } else {
-            goalArea = 3.3; // Goal area for cube ground pickup
+            goalArea = 4; // Goal area for cube ground pickup
             currentLimelight.setPipeline(2);
             currentLimelight.setLightState(LightMode.OFF);
 
@@ -732,7 +732,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ARRIVED; 
-                currentLimelight.setLightState(LightMode.ON);
+                // currentLimelight.setLightState(LightMode.ON);
                 return;
                 }
             }
