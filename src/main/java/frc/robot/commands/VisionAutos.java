@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
@@ -337,48 +338,21 @@ public class VisionAutos {
                     runOnce(() -> swerveDrive.stopModules())
                 ),
 
-                //preload
-                // claw.intake(),
-                // Commands.deadline(
-                //     Commands.waitSeconds(2),
-                //     Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
-                //     Commands.sequence(
-                //         Commands.runOnce(() -> arm.setTargetTicks(armPosFinal)),
-                //         Commands.waitSeconds(0.5),
-                //         Commands.waitUntil(arm.atTargetPosition)
-                //     ),
-                //     Commands.sequence(
-                //         Commands.waitSeconds(0.5),
-                //         Commands.runOnce(() -> elevator.setTargetTicks(elevatorPosFinal)),
-                //         Commands.waitSeconds(0.5),
-                //         Commands.waitUntil(elevator.atTargetPosition)
-                //     )
-                // // ),
-                // Commands.waitSeconds(0.5),
-                // // claw.outtake(),
-                // claw.setPower(.3),
-                // Commands.waitSeconds(0.5),
-                // claw.setPowerZero(),
-                
-                // //stow
-                // Commands.deadline(
-                //     Commands.waitSeconds(0.5),
-                //     Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
-                //     Commands.sequence(
-                //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
-                //         Commands.waitSeconds(0.5),
-                //         Commands.waitUntil(elevator.atTargetPosition)
-                //     ),
-                //     Commands.sequence(
-                //         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmSubstation)),
-                //         Commands.waitSeconds(0.5),
-                //         Commands.waitUntil(arm.atTargetPosition)
-                //     )
-                // ),
-
                 //trajectory to cube
                 Commands.runOnce(() -> SmartDashboard.putString("Moved On", "zoomin")),
-                zoooomToCubeCommand,
+                Commands.parallel(
+                    claw.setPower(ClawConstants.kIntakePower),
+                    zoooomToCubeCommand,
+                    Commands.deadline(
+                        Commands.waitSeconds(2),
+                        Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
+                        Commands.sequence(
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
+                            Commands.waitSeconds(0.5),
+                            Commands.waitUntil(arm.atTargetPosition)
+                        )
+                    )
+                ),
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 runOnce(() -> swerveDrive.stopModules()),
 
@@ -387,83 +361,56 @@ public class VisionAutos {
                 // runOnce(() -> swerveDrive.stopModules()),
 
                 vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE, claw),
+                // Cube should be in the claw at this point
 
-                new TurnToAngle(180, swerveDrive),
+                Commands.parallel(
+                    new TurnToAngle(180, swerveDrive),
+                    claw.setPower(ClawConstants.kIntakeNeutralPower),
+
+                    // Drop arm and elevator so the game piece can be intook
+                    Commands.deadline(
+                        Commands.waitSeconds(2),
+                        Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
+                        Commands.sequence(
+                            Commands.runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickup) / 2)), // Halfway between scoring and ground pickup
+                            Commands.waitSeconds(0.5),
+                            Commands.waitUntil(arm.atTargetPosition)
+                        )
+                    )
+                ),
                 cubeToZoooomCommand,
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 runOnce(() -> swerveDrive.stopModules()),
 
+                claw.setPower(ClawConstants.kOuttakePower),
                 Commands.waitSeconds(0.5),
+                claw.setPowerZero()
+                
+                // zoooomPartTwoCommand,
+                // claw.setPower(ClawConstants.kIntakePower),
 
-                // new TurnToAngle(180, swerveDrive),
-                zoooomPartTwoCommand,
-                runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                runOnce(() -> swerveDrive.stopModules()),
+                // runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                // runOnce(() -> swerveDrive.stopModules()),
 
-                new TurnToAngle(0, swerveDrive)
-
-                // //vision pickup
-                // // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
-                // vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE)
-
-                // //stow
-                // Commands.deadline(
-                //     Commands.waitSeconds(2),
-                //     Commands.parallel( // End command once both arm and elevator have reached their target position
-                //         Commands.waitUntil(arm.atTargetPosition),
-                //         Commands.waitUntil(elevator.atTargetPosition),
-                //         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
+                // new TurnToAngle(0, swerveDrive),
+                // Commands.parallel(
+                //     Commands.deadline(
+                //         Commands.waitSeconds(2),
+                //         Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
+                //         Commands.sequence(
+                //             Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
+                //             Commands.waitSeconds(0.5),
+                //             Commands.waitUntil(arm.atTargetPosition)
+                //         )
                 //     )
                 // ),
-
-                //trajectory to grid
-                //cubeToZoooomCommand,
-                //runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                //runOnce(() -> swerveDrive.stopModules())
-
-                // //vision score
-                // vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH),
-
-                // //score
-                // Commands.deadline(
-                //     Commands.waitSeconds(0.5),
-                //     Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
-                //     Commands.sequence(
-                //         Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
-                //         Commands.waitSeconds(0.5),
-                //         Commands.waitUntil(elevator.atTargetPosition)
-                //     ),
-                //     Commands.sequence(
-                //         Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScoreCubeHigh)),
-                //         Commands.waitSeconds(0.5),
-                //         Commands.waitUntil(arm.atTargetPosition)
-                //     )
-                // ),
-
-            //     //outtake
-            //     claw.setPower(0.3),
-            //     Commands.waitSeconds(0.5),
-            //     claw.setPower(0),
-
-            //     //stow
-            //     Commands.deadline(
-            //         Commands.waitSeconds(0.5),
-            //         Commands.runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
-            //         Commands.sequence(
-            //             Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
-            //             Commands.waitSeconds(0.5),
-            //             Commands.waitUntil(elevator.atTargetPosition)
-            //         ),
-            //         Commands.sequence(
-            //             Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-            //             Commands.waitSeconds(0.5),
-            //             Commands.waitUntil(arm.atTargetPosition)
-            //         )
-            //     )
-            )
-            // run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            // run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+                // // //vision pickup
+                // // // Arm is moved to pick up cube, ends with arm/elev extended and cube in the claw
+                // vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE, claw),
+                // claw.setPower(ClawConstants.kIntakeNeutralPower)
+            ),
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+            run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
         );
     }
 }
