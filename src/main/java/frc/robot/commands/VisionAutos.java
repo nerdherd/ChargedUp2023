@@ -277,7 +277,7 @@ public class VisionAutos {
 
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
+            SwerveAutoConstants.kTwoPieceSpeedMetersPerSecond, SwerveAutoConstants.kTwoPieceAccelerationMetersPerSecondSquared);
 
         double allianceFactor = 1.0;
         if (alliance == Alliance.Red) {
@@ -292,12 +292,12 @@ public class VisionAutos {
                 new Translation2d(0.2, 0.2 * allianceFactor)
                 //new Translation2d(-1.8, -0.4)
             ),
-            new Pose2d(3.6, 0.2 * allianceFactor, Rotation2d.fromDegrees(0)),
+            new Pose2d(3.9, 0.2 * allianceFactor, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(3.6, 0.2 * allianceFactor, Rotation2d.fromDegrees(180)),
+                new Pose2d(3.9, 0.2 * allianceFactor, Rotation2d.fromDegrees(180)),
                 new Pose2d(0.8, 0.2 * allianceFactor, Rotation2d.fromDegrees(180)),
                 // new Pose2d(-0.8, -1.0, Rotation2d.fromDegrees(0)),
                 new Pose2d(0.2, 1.0 * allianceFactor, Rotation2d.fromDegrees(180))
@@ -308,8 +308,8 @@ public class VisionAutos {
             List.of(
                 new Pose2d(0.2, 1.0 * allianceFactor, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(0.8, 0.2 * allianceFactor, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(3.6, 0.2 * allianceFactor, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(3.6, 2.2 * allianceFactor, Rotation2d.fromDegrees(179.9))
+                new Pose2d(3.8, 0.2 * allianceFactor, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(4, 2.2 * allianceFactor, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 
@@ -361,6 +361,10 @@ public class VisionAutos {
                 // runOnce(() -> swerveDrive.stopModules()),
 
                 vision.VisionPickupGroundNoArm(OBJECT_TYPE.CUBE, claw),
+
+                runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                runOnce(() -> swerveDrive.stopModules()),
+
                 // Cube should be in the claw at this point
 
                 Commands.parallel(
