@@ -210,11 +210,23 @@ public class ChargeAutos {
                     )
                 )
             ),
+            deadline(
+                waitSeconds(0.25),
+                run(() -> {
+                    swerveDrive.setModuleStates(
+                        SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                -kChargeSpeedMetersPerSecond / 2, 0, 0,
+                                swerveDrive.getImu().getRotation2d())
+                        )
+                    );
+                })
+            ),
             runOnce(() -> swerveDrive.stopModules()),
             waitSeconds(0.1),
             parallel(
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
-                runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-4.5, 0, new Rotation2d())))
+                runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-4.75, 0, new Rotation2d())))
             ),
             waitSeconds(1.5),
             returnToChargeCommand,
