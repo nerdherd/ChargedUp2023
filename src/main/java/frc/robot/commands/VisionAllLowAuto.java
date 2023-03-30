@@ -49,11 +49,6 @@ public class VisionAllLowAuto {
         ProfiledPIDController trajectoryThetaController = 
             new ProfiledPIDController(kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
 
-        PIDController pidArea = new PIDController(0.1, 0, 0);
-        PIDController pidTX = new PIDController(0.1, 0, 0);
-        PIDController pidYaw = new PIDController(0.1, 0, 0);
-
-
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
@@ -68,7 +63,7 @@ public class VisionAllLowAuto {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(0.2, 0.2)
+                new Translation2d(0.2, 0.2) // only for blue side right now
                 //new Translation2d(-1.8, -0.4)
             ),
             new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(0)),
@@ -172,7 +167,7 @@ public class VisionAllLowAuto {
                     Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE)),
 
                     Commands.race(
-                        new RunCommand(() -> vision.driveToCubeOnGround(pidArea, pidTX, pidYaw), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                        new RunCommand(() -> vision.driveToCubeOnGround(), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
                         Commands.waitSeconds(3) // TODO DEBUG
                     ),
     

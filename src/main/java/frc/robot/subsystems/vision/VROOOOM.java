@@ -812,7 +812,12 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
 
-    public void driveToCubeOnGround(PIDController pidArea, PIDController pidTX, PIDController pidYaw)
+
+    PIDController pidTX_driveToCubeOnGround = new PIDController(0.1, 0, 0);
+    PIDController pidYaw_driveToCubeOnGround = new PIDController(0.1, 0, 0);
+    PIDController pidArea_driveToCubeOnGround = new PIDController(0.1, 0, 0);
+
+    public void driveToCubeOnGround()
     {
         //PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
         // Initialize all variables to 0
@@ -865,8 +870,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 return;
                 }
             }
-            xSpeed = pidArea.calculate(calculatedX, goalArea);
-            ySpeed = -pidTX.calculate(calculatedY, goalTX);
+            xSpeed = pidArea_driveToCubeOnGround.calculate(calculatedX, goalArea);
+            ySpeed = -pidTX_driveToCubeOnGround.calculate(calculatedY, goalTX);
             //rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
             
             if (NerdyMath.inRange(xSpeed, -.1, .1) &&
