@@ -812,7 +812,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
 
-    public void driveToCubeOnGround()
+    public void driveToCubeOnGround(PIDController pidArea, PIDController pidTX, PIDController pidYaw)
     {
         //PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
         // Initialize all variables to 0
