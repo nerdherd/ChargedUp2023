@@ -266,16 +266,18 @@ public class RobotContainer {
     autoChooser.addOption("Custom Preload High Center Charge Taxi", () -> ChargeAutos.customPreloadHighChargeTaxiMiddle(swerveDrive, arm, elevator, motorClaw));
     autoChooser.addOption("Gyro Charge", () -> ChargeAutos.gyroCharge(swerveDrive, true));
 
-    autoChooser.addOption("Vision Preload Pickup Score", () -> VisionAutos.visionPreloadPickupScore(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos, scorePos));
+    autoChooser.addOption("Vision Two Piece Auto", () -> VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    autoChooser.addOption("Preload Charge Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
+    autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
+    
+    // autoChooser.addOption("Vision Preload Pickup Charge No Score", () -> VisionAutos.visionPreloadPickupChargeAuto(swerveDrive, vision, arm, elevator, motorClaw, startPos, scorePos, alliance));
+    // autoChooser.addOption("Vision Preload Pickup Score", () -> VisionAutos.visionPreloadPickupScore(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos, scorePos));
     // autoChooser.addOption("Vision Auto", () -> VisionAutos.visionAutoChoose(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos));
-    autoChooser.addOption("Vision Preload Pickup Charge No Score", () -> VisionAutos.visionPreloadPickupChargeAuto(swerveDrive, vision, arm, elevator, motorClaw, startPos, scorePos, alliance));
     // autoChooser.addOption("April Tag Debug Auto", () -> VisionAutos.debugVisionAprilTagAuto(vision));
     // autoChooser.addOption("Charge only", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, alliance, 0, false).finallyDo((x) -> swerveDrive.getImu().setOffset(180)));
     // autoChooser.addOption("Backward Auto", () -> SwerveAutos.driveBackwardAuto(swerveDrive).finallyDo((x) -> swerveDrive.getImu().setOffset(180)));
     // autoChooser.addOption("Preload Auto", () -> SwerveAutos.preloadAuto(arm, elevator, motorClaw, scorePos));
-    autoChooser.addOption("Preload Charge Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
     autoChooser.addOption("Preload Charge Go Around Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
-    autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     // autoChooser.addOption("Preload Pickup Auto", () -> SwerveAutos.twoPieceAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
     // autoChooser.addOption("Preload Pickup Charge Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
     // autoChooser.addOption("Preload Pickup Charge Go Around Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
