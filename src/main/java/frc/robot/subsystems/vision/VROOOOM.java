@@ -854,20 +854,20 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             SmartDashboard.putNumber("Vision average X", calculatedX);
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
-            if(currentLimelight.getPipeIndex()==4){
+            if(limelightLow.getPipeIndex()==4){ // TODO change it to cube-2
                 if (NerdyMath.inRange(calculatedY, -2.2, 1) 
                     && calculatedX > 7) {
                 chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ARRIVED; 
-                currentLimelight.setLightState(LightMode.ON);
+                limelightLow.setLightState(LightMode.ON); // TODO DEBUG
                 return;
                 }
             }
-            xSpeed = pidArea.calculate(calculatedX, goalArea) * (5/4);
-            ySpeed = -pidTX.calculate(calculatedY, goalTX) * (5/4);
-            rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
+            xSpeed = pidArea.calculate(calculatedX, goalArea);
+            ySpeed = -pidTX.calculate(calculatedY, goalTX);
+            //rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
             
             if (NerdyMath.inRange(xSpeed, -.1, .1) &&
             NerdyMath.inRange(ySpeed, -.1, .1) &&
@@ -877,7 +877,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ARRIVED;
-                currentLimelight.setLightState(LightMode.ON); 
+                limelightLow.setLightState(LightMode.ON); 
             }
             else{
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);

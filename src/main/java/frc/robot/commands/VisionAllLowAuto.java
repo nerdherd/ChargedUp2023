@@ -158,7 +158,7 @@ public class VisionAllLowAuto {
                 // ),
 
                 //trajectory to cube
-                Commands.runOnce(() -> SmartDashboard.putString("Moved On", "zoomin")),
+                //Commands.runOnce(() -> SmartDashboard.putString("Moved On", "zoomin")),
                 zoooomToCubeCommand,
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 runOnce(() -> swerveDrive.stopModules()),
