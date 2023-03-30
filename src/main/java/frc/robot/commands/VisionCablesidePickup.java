@@ -7,6 +7,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
@@ -125,6 +126,13 @@ public class VisionCablesidePickup {
                             Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow))
                         )
                     ),*/
+                    Commands.deadline(
+                        Commands.waitSeconds(0.5),
+                        run(() -> {
+                            ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(-1, 0, 0, swerveDrive.getImu().getRotation2d());
+                            swerveDrive.setModuleStates(SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(speeds));
+                        })
+                    ),
 
                     // travel to pick up spot
                     Commands.deadline( // TODO: need to add protection here!!!!!!
