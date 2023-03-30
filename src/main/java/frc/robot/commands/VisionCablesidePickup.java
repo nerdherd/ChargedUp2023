@@ -127,9 +127,12 @@ public class VisionCablesidePickup {
                     ),*/
 
                     // travel to pick up spot
-                    scoreToPickupCommand
+                    Commands.deadline( // TODO: need to add protection here!!!!!!
+                        Commands.waitSeconds(6) ,
+                        scoreToPickupCommand
+                    )
                 ),
-                
+
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 runOnce(() -> swerveDrive.stopModules()),
                 new TurnToAngle(179.9, swerveDrive),
