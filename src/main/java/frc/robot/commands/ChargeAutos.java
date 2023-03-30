@@ -47,11 +47,13 @@ public class ChargeAutos {
         CommandBase auto = sequence(
             deadline(
                 waitSeconds(14.5),
-                preloadHigh(arm, elevator, claw),
-                deadline(
-                    chargeTaxiMiddle(swerveDrive),
-                    run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                    run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+                sequence(
+                    preloadHigh(arm, elevator, claw),
+                    deadline(
+                        chargeTaxiMiddle(swerveDrive),
+                        run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                        run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+                    )
                 )
             ),
             runOnce(() -> swerveDrive.getImu().setOffset(180)),
@@ -121,7 +123,7 @@ public class ChargeAutos {
                         waitUntil(elevator.atTargetPosition)
                     ),
                     sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmSubstation)),
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                         waitSeconds(0.5),
                         waitUntil(arm.atTargetPosition)
                     )
@@ -178,7 +180,7 @@ public class ChargeAutos {
         Trajectory returnToCharge = TrajectoryGenerator.generateTrajectory(
             List.of(
                 new Pose2d(-5, 0.01, Rotation2d.fromDegrees(0)),
-                new Pose2d(-2, -0.01, Rotation2d.fromDegrees(0))
+                new Pose2d(-2.2, -0.01, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
         
