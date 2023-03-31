@@ -337,8 +337,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
                     Commands.race(
                         new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier),
-                        Commands.waitSeconds(2)
+                        Commands.waitSeconds(4)
                     ),
+
+                    Commands.runOnce(() -> drivetrain.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                    Commands.runOnce(() -> drivetrain.stopModules()),
     
                     // Drop arm and elevator so the game piece can be intook
                     // Commands.race(
@@ -728,6 +731,18 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             if(currentLimelight.getPipeIndex()==4){
                 if (NerdyMath.inRange(calculatedY, -2.2, 1) 
                     && calculatedX > 7) {
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ARRIVED; 
+                // currentLimelight.setLightState(LightMode.ON);
+                return;
+                }
+            }
+            if(currentLimelight.getPipeIndex()==2){
+                if (NerdyMath.inRange(calculatedY, -15, 15) // tX
+                    && NerdyMath.inRange(calculatedX, 3.5, 4.3) // tA
+                ) {
                 chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
