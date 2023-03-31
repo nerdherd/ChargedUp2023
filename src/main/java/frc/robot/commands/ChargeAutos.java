@@ -236,13 +236,11 @@ public class ChargeAutos {
             runOnce(() -> swerveDrive.stopModules()),
             waitSeconds(0.3),
             // Stop completely (tow the modules)
-            parallel(
-                runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
-                runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-5, 0, new Rotation2d())))
-            ),
+            runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
             runOnce(() -> swerveDrive.stopModules()),
             waitSeconds(0.8),
             new TurnToAngle(0, swerveDrive),
+            runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-5, -0.2, new Rotation2d()))),
             returnToChargeCommand,
             new TheGreatBalancingAct(swerveDrive)
         );
