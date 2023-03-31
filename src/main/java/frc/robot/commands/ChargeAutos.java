@@ -172,15 +172,15 @@ public class ChargeAutos {
         Trajectory goPastCharge = TrajectoryGenerator.generateTrajectory(
             new Pose2d(-0.125, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(-0.25, 0),
-                new Translation2d(-0.25, 0)), 
-            new Pose2d(-5, -0.01, Rotation2d.fromDegrees(0)),
+                new Translation2d(-0.25, -0.2),
+                new Translation2d(-0.25, -0.2)), 
+            new Pose2d(-5, -0.21, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
         
         Trajectory returnToCharge = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(-5, 0.01, Rotation2d.fromDegrees(0)),
-                new Pose2d(-2.2, -0.01, Rotation2d.fromDegrees(0))
+                new Pose2d(-5, -0.19, Rotation2d.fromDegrees(0)),
+                new Pose2d(-2.2, -0.21, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
         
