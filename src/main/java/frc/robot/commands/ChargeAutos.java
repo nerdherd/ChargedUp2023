@@ -464,7 +464,7 @@ public class ChargeAutos {
                     swerveDrive.setModuleStates(
                         SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
                             ChassisSpeeds.fromFieldRelativeSpeeds(
-                                -0.7, 0, 0,
+                                -0.75, 0, 0,
                                 swerveDrive.getImu().getRotation2d())
                         )
                     );
@@ -476,7 +476,7 @@ public class ChargeAutos {
             // Stop completely (tow the modules)
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
             runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(0.8),
+            waitSeconds(0.2),
             new TurnToAngle(0, swerveDrive),
             runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-5, -0.2, new Rotation2d()))),
             returnToChargeCommand,
