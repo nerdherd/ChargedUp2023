@@ -459,20 +459,20 @@ public class ChargeAutos {
                 )
             ),
             deadline(
-                waitSeconds(0.2),
+                waitSeconds(2.6),
                 run(() -> {
                     swerveDrive.setModuleStates(
                         SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
                             ChassisSpeeds.fromFieldRelativeSpeeds(
-                                -0.1, 0, 0,
+                                -0.7, 0, 0,
                                 swerveDrive.getImu().getRotation2d())
                         )
                     );
                 })
             ),
-            // Slide for a little bit before stopping
-            runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(0.5),
+            // // Slide for a little bit before stopping
+            // runOnce(() -> swerveDrive.stopModules()),
+            // waitSeconds(0.5),
             // Stop completely (tow the modules)
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
             runOnce(() -> swerveDrive.stopModules()),

@@ -133,7 +133,7 @@ public class OneWayBalancing extends CommandBase {
         //     return;
         // }
 
-        if (xSpeed < 0.1) {
+        if (xSpeed < 0.05) {
             swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates);
             swerveDrive.stopModules();
         } else {
