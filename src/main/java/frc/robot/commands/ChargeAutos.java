@@ -1,10 +1,28 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.wpilibj2.command.Commands.deadline;
+import static edu.wpi.first.wpilibj2.command.Commands.parallel;
+import static edu.wpi.first.wpilibj2.command.Commands.race;
+import static edu.wpi.first.wpilibj2.command.Commands.run;
+import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static edu.wpi.first.wpilibj2.command.Commands.sequence;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
+import static frc.robot.Constants.SwerveAutoConstants.kChargeAccelerationMetersPerSecondSquared;
+import static frc.robot.Constants.SwerveAutoConstants.kChargeSpeedMetersPerSecond;
+import static frc.robot.Constants.SwerveAutoConstants.kDThetaController;
+import static frc.robot.Constants.SwerveAutoConstants.kDXController;
+import static frc.robot.Constants.SwerveAutoConstants.kDYController;
+import static frc.robot.Constants.SwerveAutoConstants.kIThetaController;
+import static frc.robot.Constants.SwerveAutoConstants.kIXController;
+import static frc.robot.Constants.SwerveAutoConstants.kIYController;
+import static frc.robot.Constants.SwerveAutoConstants.kPThetaController;
+import static frc.robot.Constants.SwerveAutoConstants.kPXController;
+import static frc.robot.Constants.SwerveAutoConstants.kPYController;
+import static frc.robot.Constants.SwerveAutoConstants.kThetaControllerConstraints;
+
 import java.util.List;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -15,6 +33,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveDriveConstants;
@@ -23,9 +44,6 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.claw.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.util.NerdyMath;
-
-import static edu.wpi.first.wpilibj2.command.Commands.*;
-import static frc.robot.Constants.SwerveAutoConstants.*;
 
 public class ChargeAutos {
     public static CommandBase preloadHighChargeMiddle(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
@@ -39,53 +57,6 @@ public class ChargeAutos {
         ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
 
         auto.setName("Preload High Charge Middle");
-        
-        return auto;
-    }
-
-    public static CommandBase preloadHighChargeTaxiMiddle(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
-        CommandBase auto = sequence(
-            deadline(
-                waitSeconds(14.5),
-                sequence(
-                    preloadHigh(arm, elevator, claw),
-                    deadline(
-                        chargeTaxiMiddle(swerveDrive),
-                        run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                        run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
-                    )
-                )
-            ),
-            runOnce(() -> swerveDrive.getImu().setOffset(180)),
-            runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
-            waitSeconds(0.125),
-            runOnce(() -> swerveDrive.stopModules())
-        );
-
-        auto.setName("Preload High Charge Taxi Middle");
-        
-        return auto;
-    }
-    public static CommandBase preloadHighChargeTaxiMiddleV2(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
-        CommandBase auto = sequence(
-            deadline(
-                waitSeconds(14.5),
-                sequence(
-                    preloadHigh(arm, elevator, claw),
-                    deadline(
-                        chargeTaxiMiddleV2(swerveDrive),
-                        run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                        run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
-                    )
-                )
-            ),
-            runOnce(() -> swerveDrive.getImu().setOffset(180)),
-            runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
-            waitSeconds(0.125),
-            runOnce(() -> swerveDrive.stopModules())
-        );
-
-        auto.setName("Preload High Charge Taxi Middle");
         
         return auto;
     }
@@ -110,45 +81,6 @@ public class ChargeAutos {
         );
 
         auto.setName("Preload High Charge Taxi Middle");
-        
-        return auto;
-    }
-
-    public static CommandBase preloadHighChargeTaxiMiddleSafer2(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
-        CommandBase auto = sequence(
-            deadline(
-                waitSeconds(14.5),
-                sequence(
-                    preloadHigh(arm, elevator, claw),
-                    deadline(
-                        chargeTaxiMiddleWithBalancingSlide(swerveDrive),
-                        run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                        run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
-                    )
-                )
-            ),
-            runOnce(() -> swerveDrive.getImu().setOffset(180)),
-            runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
-            waitSeconds(0.125),
-            runOnce(() -> swerveDrive.stopModules())
-        );
-
-        auto.setName("Preload High Charge Taxi Middle");
-        
-        return auto;
-    }
-
-    public static CommandBase customPreloadHighChargeTaxiMiddle(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
-        CommandBase auto = sequence(
-            preloadHigh(arm, elevator, claw),
-            deadline(
-                customChargeTaxiMiddle(swerveDrive),
-                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
-            )
-        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
-
-        auto.setName("Custom Preload High Charge Taxi Middle");
         
         return auto;
     }
@@ -317,89 +249,6 @@ public class ChargeAutos {
         );
     }
 
-    public static CommandBase chargeTaxiMiddleV2(SwerveDrivetrain swerveDrive) {
-        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kChargeSpeedMetersPerSecond, 
-            kChargeAccelerationMetersPerSecondSquared);
-
-        Trajectory goPastCharge = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(-0.125, 0, new Rotation2d(0)), 
-            List.of(
-                new Translation2d(-0.25, -0.2),
-                new Translation2d(-0.25, -0.2)), 
-            new Pose2d(-5, -0.21, Rotation2d.fromDegrees(0)),
-            trajectoryConfig);
-        
-        Trajectory returnToCharge = TrajectoryGenerator.generateTrajectory(
-            List.of(
-                new Pose2d(-5, -0.19, Rotation2d.fromDegrees(0)),
-                new Pose2d(-2.2, -0.21, Rotation2d.fromDegrees(0))
-            ),
-            trajectoryConfig);
-        
-        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
-        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
-        ProfiledPIDController thetaController = new ProfiledPIDController(
-            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        SwerveControllerCommand goPastChargeCommand = new SwerveControllerCommand(
-            goPastCharge, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
-            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
-        
-        SwerveControllerCommand returnToChargeCommand = new SwerveControllerCommand(
-            returnToCharge, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
-            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
-        
-        return sequence(
-            runOnce(() -> swerveDrive.resetOdometry(goPastCharge.getInitialPose())),
-            race(
-                waitSeconds(6),
-                goPastChargeCommand,
-                // Wait until it's going downwards
-                sequence(
-                    waitSeconds(SmartDashboard.getNumber("Gyro ignore time", 2)),//sb
-                    waitUntil(
-                        () -> {
-                            boolean success = NerdyMath.inRange(
-                                swerveDrive.getImu().getRotation3d().getX(),
-                                -5,
-                                5
-                            );
-                            SmartDashboard.putBoolean("Stop charge", success);
-                            return success;
-                        }
-                    )
-                )
-            ),
-            // Slow down to half speed after crossing the charge station
-            deadline(
-                waitSeconds(0.25),
-                run(() -> {
-                    swerveDrive.setModuleStates(
-                        SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
-                            ChassisSpeeds.fromFieldRelativeSpeeds(
-                                SmartDashboard.getNumber("Charge down speed", -kChargeSpeedMetersPerSecond / 2),
-                                0, 0,
-                                swerveDrive.getImu().getRotation2d())
-                        )
-                    );
-                })
-            ),
-            // Slide for a little bit before stopping
-            runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(0.3),
-            // Stop completely (tow the modules)
-            runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
-            runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(0.8),
-            new TurnToAngle(0, swerveDrive),
-            runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-5, -0.2, new Rotation2d()))),
-            returnToChargeCommand,
-            new TheGreatBalancingAct(swerveDrive)
-        );
-    }
-
     public static CommandBase chargeTaxiMiddleWithBalancing(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kChargeSpeedMetersPerSecond, 
@@ -416,7 +265,7 @@ public class ChargeAutos {
         Trajectory returnToCharge = TrajectoryGenerator.generateTrajectory(
             List.of(
                 new Pose2d(-5, -0.19, Rotation2d.fromDegrees(0)),
-                new Pose2d(-2.2, -0.21, Rotation2d.fromDegrees(0))
+                new Pose2d(SmartDashboard.getNumber("Charge traj end", -2.2), -0.21, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
         
@@ -449,8 +298,8 @@ public class ChargeAutos {
                         () -> {
                             boolean success = NerdyMath.inRange(
                                 swerveDrive.getImu().getRotation3d().getX(),
-                                -10,
-                                0
+                                SmartDashboard.getNumber("Climb done low bound", -10),
+                                SmartDashboard.getNumber("Climb done high bound", 0)
                             );
                             SmartDashboard.putBoolean("Stop charge", success);
                             return success;
@@ -459,12 +308,12 @@ public class ChargeAutos {
                 )
             ),
             deadline(
-                waitSeconds(2.6),
+                waitSeconds(SmartDashboard.getNumber("Leave charge time", 2.6)),
                 run(() -> {
                     swerveDrive.setModuleStates(
                         SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
                             ChassisSpeeds.fromFieldRelativeSpeeds(
-                                -0.7, 0, 0,
+                                SmartDashboard.getNumber("Leave charge speed", -0.75), 0, 0,
                                 swerveDrive.getImu().getRotation2d())
                         )
                     );
@@ -476,15 +325,15 @@ public class ChargeAutos {
             // Stop completely (tow the modules)
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
             runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(0.8),
+            waitSeconds(SmartDashboard.getNumber("Wait after time", 0.2)),
             new TurnToAngle(0, swerveDrive),
-            runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-5, -0.2, new Rotation2d()))),
+            runOnce(() -> swerveDrive.resetOdometry(new Pose2d(SmartDashboard.getNumber("Charge end location", -5), -0.2, new Rotation2d()))),
             returnToChargeCommand,
             new TheGreatBalancingAct(swerveDrive)
         );
     }
 
-    public static CommandBase chargeTaxiMiddleWithBalancingSlide(SwerveDrivetrain swerveDrive) {
+    public static CommandBase chargeTaxiMiddleWithBalancingV2(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kChargeSpeedMetersPerSecond, 
             kChargeAccelerationMetersPerSecondSquared);
@@ -500,7 +349,7 @@ public class ChargeAutos {
         Trajectory returnToCharge = TrajectoryGenerator.generateTrajectory(
             List.of(
                 new Pose2d(-5, -0.19, Rotation2d.fromDegrees(0)),
-                new Pose2d(-2.2, -0.21, Rotation2d.fromDegrees(0))
+                new Pose2d(SmartDashboard.getNumber("Charge traj end", -2.2), -0.21, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
         
@@ -533,8 +382,8 @@ public class ChargeAutos {
                         () -> {
                             boolean success = NerdyMath.inRange(
                                 swerveDrive.getImu().getRotation3d().getX(),
-                                -10,
-                                0
+                                SmartDashboard.getNumber("Climb done low bound", -10),
+                                SmartDashboard.getNumber("Climb done high bound", 0)
                             );
                             SmartDashboard.putBoolean("Stop charge", success);
                             return success;
@@ -542,18 +391,84 @@ public class ChargeAutos {
                     )
                 )
             ),
-            // Slide for a little bit before stopping
-            runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(0.5),
-            // Stop completely (tow the modules)
+            // Get off the charging station
+            race(
+                waitSeconds(SmartDashboard.getNumber("Leave charge time", 2.6)),
+                run(() -> {
+                    swerveDrive.setModuleStates(
+                        SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                SmartDashboard.getNumber("Leave charge speed", -0.75), 0, 0,
+                                swerveDrive.getImu().getRotation2d())
+                        )
+                    );
+                }),
+                // Wait until it's flat
+                waitUntil(
+                    () -> {
+                        return NerdyMath.inRange(
+                            swerveDrive.getImu().getRotation3d().getX(),
+                            SmartDashboard.getNumber("Charge finished low bound", -0.5),
+                            SmartDashboard.getNumber("Charge finished high bound", 0.5)
+                        );
+                    }
+                )
+            ),
+            // Stop completely
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
             runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(0.8),
+            waitSeconds(SmartDashboard.getNumber("Wait after time", 0.2)),
             new TurnToAngle(0, swerveDrive),
-            runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-5, -0.2, new Rotation2d()))),
+            runOnce(() -> swerveDrive.resetOdometry(
+                new Pose2d(
+                    SmartDashboard.getNumber("Charge end location", -5), 
+                    -0.2, 
+                    new Rotation2d()
+                )
+            )),
             returnToChargeCommand,
             new TheGreatBalancingAct(swerveDrive)
         );
+    }
+
+
+    public static CommandBase preloadHighChargeTaxiMiddle(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
+        CommandBase auto = sequence(
+            deadline(
+                waitSeconds(14.5),
+                sequence(
+                    preloadHigh(arm, elevator, claw),
+                    deadline(
+                        chargeTaxiMiddle(swerveDrive),
+                        run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                        run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+                    )
+                )
+            ),
+            runOnce(() -> swerveDrive.getImu().setOffset(180)),
+            runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
+            waitSeconds(0.125),
+            runOnce(() -> swerveDrive.stopModules())
+        );
+
+        auto.setName("Preload High Charge Taxi Middle");
+        
+        return auto;
+    }
+
+    public static CommandBase customPreloadHighChargeTaxiMiddle(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw) {
+        CommandBase auto = sequence(
+            preloadHigh(arm, elevator, claw),
+            deadline(
+                customChargeTaxiMiddle(swerveDrive),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+            )
+        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
+
+        auto.setName("Custom Preload High Charge Taxi Middle");
+        
+        return auto;
     }
 
     public static CommandBase customChargeTaxiMiddle(SwerveDrivetrain swerveDrive) {
