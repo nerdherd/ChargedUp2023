@@ -347,7 +347,7 @@ public class VisionAutos {
                         Commands.waitSeconds(2),
                         Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                         Commands.sequence(
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickupVision)),
+                            Commands.runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickupVision) /2)),
                             Commands.waitSeconds(0.5),
                             Commands.waitUntil(arm.atTargetPosition)
                         )
@@ -402,7 +402,7 @@ public class VisionAutos {
                         Commands.waitSeconds(2),
                         Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                         Commands.sequence(
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickupVision)),
+                            Commands.runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickupVision) /2)),
                             Commands.waitSeconds(0.5),
                             Commands.waitUntil(arm.atTargetPosition)
                         )
@@ -497,7 +497,7 @@ public class VisionAutos {
                         Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                         Commands.sequence(
                             Commands.waitSeconds(1),
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickupVision)),
+                            Commands.runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickupVision) /2)),
                             Commands.waitSeconds(0.5),
                             Commands.waitUntil(arm.atTargetPosition)
                         )
@@ -552,7 +552,7 @@ public class VisionAutos {
                         Commands.waitSeconds(2),
                         Commands.runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                         Commands.sequence(
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickupVision)),
+                            Commands.runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickupVision) /2)),
                             Commands.waitSeconds(0.5),
                             Commands.waitUntil(arm.atTargetPosition)
                         )

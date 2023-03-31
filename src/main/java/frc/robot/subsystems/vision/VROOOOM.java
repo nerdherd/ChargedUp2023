@@ -358,6 +358,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     // ),
 
                     // Open claw/Start claw intake rollers
+                    Commands.deadline(
+                        Commands.waitSeconds(1),
+                        Commands.runOnce(() -> SmartDashboard.putString("Stage", "Pickup")),
+                        Commands.sequence(
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
+                            Commands.waitUntil(arm.atTargetPosition)
+                        )
+                    ),
                     claw.setPower(-0.3),
                     new WaitCommand(.5),
     
