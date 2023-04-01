@@ -265,7 +265,7 @@ public class ChargeAutos {
         Trajectory returnToCharge = TrajectoryGenerator.generateTrajectory(
             List.of(
                 new Pose2d(-5, -0.19, Rotation2d.fromDegrees(0)),
-                new Pose2d(SmartDashboard.getNumber("Charge traj end", -2.2), -0.21, Rotation2d.fromDegrees(0))
+                new Pose2d(SmartDashboard.getNumber("Charge traj end", -2), -0.21, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
         

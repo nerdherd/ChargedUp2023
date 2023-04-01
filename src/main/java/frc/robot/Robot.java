@@ -44,7 +44,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Climb done low bound", -10);
     SmartDashboard.putNumber("Climb done high bound", 0);
     SmartDashboard.putNumber("Leave charge time", 2.6);
-    SmartDashboard.putNumber("Leave charge speed", -0.8);
+    SmartDashboard.putNumber("Leave charge speed", -0.7);
     SmartDashboard.putNumber("Charge finished low bound", -4);
     SmartDashboard.putNumber("Charge finished high bound", 4);
     SmartDashboard.putNumber("Wait after time", 0.3);
