@@ -408,8 +408,8 @@ public class ChargeAutos {
                     () -> {
                         return NerdyMath.inRange(
                             swerveDrive.getImu().getRotation3d().getX(),
-                            SmartDashboard.getNumber("Charge finished low bound", -0.5),
-                            SmartDashboard.getNumber("Charge finished high bound", 0.5)
+                            SmartDashboard.getNumber("Charge finished low bound", -4),
+                            SmartDashboard.getNumber("Charge finished high bound", 4)
                         );
                     }
                 )
