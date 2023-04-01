@@ -459,12 +459,12 @@ public class ChargeAutos {
                 )
             ),
             deadline(
-                waitSeconds(2.6),
+                waitSeconds(SmartDashboard.getNumber("Go down time", 2.6)),
                 run(() -> {
                     swerveDrive.setModuleStates(
                         SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
                             ChassisSpeeds.fromFieldRelativeSpeeds(
-                                -0.75, 0, 0,
+                                SmartDashboard.getNumber("Go down speed", -0.75), 0, 0,
                                 swerveDrive.getImu().getRotation2d())
                         )
                     );
@@ -476,7 +476,7 @@ public class ChargeAutos {
             // Stop completely (tow the modules)
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
             runOnce(() -> swerveDrive.stopModules()),
-            // waitSeconds(0.2),
+            waitSeconds(SmartDashboard.getNumber("Precharge wait time", 0)),
             new TurnToAngle(0, swerveDrive),
             runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-5, -0.2, new Rotation2d()))),
             returnToChargeCommand,
