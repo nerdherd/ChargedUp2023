@@ -107,7 +107,7 @@ public class VisionAllLowAuto {
             //init
             Commands.sequence(
                 parallel(
-                    //runOnce(() -> SmartDashboard.putString("Stage", "Start")),
+                    runOnce(() -> SmartDashboard.putString("Stage", "Start")),
                     runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose()))
                     //runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)), // TBD
                     //runOnce(() -> swerveDrive.stopModules())
@@ -146,8 +146,12 @@ public class VisionAllLowAuto {
 
                         Commands.race(
                             new RunCommand(() -> vision.driveToCubeOnGround(), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                            Commands.waitSeconds(3) // TODO DEBUG
-                        )
+                            Commands.waitSeconds(5) // TODO DEBUG
+                            // TODO need add protection here!!!!!!
+                        ),
+
+                        runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                        runOnce(() -> swerveDrive.stopModules())
                     )/* ,
     
                     //Drop arm and pick cube up
@@ -168,12 +172,13 @@ public class VisionAllLowAuto {
                 // Open claw/Start claw intake rollers
                 claw.setPower(-0.3),
                 new WaitCommand(.5),
-                // // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-                claw.setPower(-0.15),
                     
                     //Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
                 
                 Commands.parallel(
+                    // // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+                    claw.setPower(-0.15),
+
                     Commands.sequence(
                         new TurnToAngle(179.9, swerveDrive),
 
@@ -230,8 +235,12 @@ public class VisionAllLowAuto {
 
                         Commands.race(
                             new RunCommand(() -> vision.driveToCubeOnGround(), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                            Commands.waitSeconds(3) // TODO DEBUG
-                        )
+                            Commands.waitSeconds(5) // TODO DEBUG
+                            // TODO need add protection here!!!!!!
+                        ),
+
+                        runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                        runOnce(() -> swerveDrive.stopModules())
                     )/* ,
     
                     //Drop arm and pick cube up

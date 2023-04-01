@@ -859,14 +859,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             SmartDashboard.putNumber("Vision average X", calculatedX);
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
-            if(limelightLow.getPipeIndex()==4){ // TODO change it to cube-2
-                if (NerdyMath.inRange(calculatedY, -2.2, 1) 
-                    && calculatedX > 7) {
-                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-                drivetrain.setModuleStates(moduleStates);
-                currentCameraMode = CAMERA_MODE.ARRIVED; 
-                limelightLow.setLightState(LightMode.ON); // TODO DEBUG
+            if(limelightLow.getPipeIndex()==2){ // TODO change it to cube-2
+                if (NerdyMath.inRange(calculatedY, -15, 15) 
+                    && NerdyMath.inRange(calculatedX, 3.7, 4.2)) {
+                    chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                    SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                    drivetrain.setModuleStates(moduleStates);
+                    currentCameraMode = CAMERA_MODE.ARRIVED; 
+                    limelightLow.setLightState(LightMode.ON); // TODO DEBUG
                 return;
                 }
             }
