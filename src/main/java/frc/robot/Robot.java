@@ -41,15 +41,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("kPOneWayBalancing", SwerveAutoConstants.kPOneWayBalancing);
     SmartDashboard.putNumber("kIOneWayBalancing", SwerveAutoConstants.kIOneWayBalancing);
     SmartDashboard.putNumber("kDOneWayBalancing", SwerveAutoConstants.kDOneWayBalancing);
-    SmartDashboard.putNumber("kPBalancing", SwerveAutoConstants.kPBalancing);
-    SmartDashboard.putNumber("kIBalancing", SwerveAutoConstants.kIBalancing);
-    SmartDashboard.putNumber("kDBalancing", SwerveAutoConstants.kDBalancing);
     // SmartDashboard.putNumber("Gyro ignore time", 2);
     // SmartDashboard.putNumber("Charge down speed", -0.9375);
-
-    SmartDashboard.putNumber("Go down time", 2.6);
-    SmartDashboard.putNumber("Go down speed", -0.75);
-    SmartDashboard.putNumber("Precharge wait time", 0);
   }
 
   /**
