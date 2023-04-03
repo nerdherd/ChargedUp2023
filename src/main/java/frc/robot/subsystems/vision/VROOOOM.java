@@ -230,7 +230,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // PIDArea.setPID(0.5, 0, 0.0125);
             // PIDTX.setPID(0.05, 0, 0.0125);
             // PIDYaw.setPID(0, 0, 0);
-        } else {
+        } else if (currentGameObject == OBJECT_TYPE.CUBE) {
             goalArea = 3.3; // Goal area for cube ground pickup
             currentLimelight.setPipeline(2);
             currentLimelight.setLightState(LightMode.OFF);
@@ -248,6 +248,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
             PIDArea.setPID(0.75, 0, 0.02);
             PIDTX.setPID(0.05, 0, 0.008);
+            PIDYaw.setPID(0, 0, 0);
+        }
+        else {
+            PIDArea.setPID(0, 0, 0);
+            PIDTX.setPID(0, 0, 0);
             PIDYaw.setPID(0, 0, 0);
         }
     }

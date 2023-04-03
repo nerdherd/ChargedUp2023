@@ -53,7 +53,7 @@ public class VisionAllLowAuto {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
 
-        double zoooomAllianceThingy = 1.0;;
+        double zoooomAllianceThingy = 1.0;
         if (alliance == Alliance.Red) {
             zoooomAllianceThingy = -1.0;
         }
@@ -131,6 +131,8 @@ public class VisionAllLowAuto {
                             )
                         )
                     )*/
+
+                    // TODO to test which one will fast!!!!
                 ),
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 runOnce(() -> swerveDrive.stopModules()),
@@ -150,6 +152,7 @@ public class VisionAllLowAuto {
                             // TODO need add protection here!!!!!!
                         ),
 
+                        // TODO: low prio.... return the command if exception?
                         runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                         runOnce(() -> swerveDrive.stopModules())
                     )/* ,
@@ -167,6 +170,7 @@ public class VisionAllLowAuto {
                             )
                         )
                     )*/
+                    // TODO to test which one will be fast!!!!
                 ),
                 
                 // Open claw/Start claw intake rollers
@@ -184,6 +188,8 @@ public class VisionAllLowAuto {
 
                         cubeToZoooomCommand
                     )/* ,
+
+                    // TODO a lot tuning
     
                     //up arm to score position
                     Commands.race(
@@ -199,11 +205,14 @@ public class VisionAllLowAuto {
                         )
                     )*/
                 ),
+
+                // TODO: apriltag?
                 runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 runOnce(() -> swerveDrive.stopModules()),
 
                 claw.setPower(0.3),
                 Commands.waitSeconds(0.5),
+                claw.setPower(0),
 
                 Commands.parallel(
                     zoooomPartTwoCommand/* ,
@@ -248,12 +257,7 @@ public class VisionAllLowAuto {
                         Commands.waitSeconds(5),
                         Commands.parallel( // End command once both arm and elevator have reached their target position
                             Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
-                            Commands.sequence(
-                                Commands.waitSeconds(0.25),
-                                Commands.runOnce(() -> elevator.setTargetTicks(-160000))
-                            )
+                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup))
                         )
                     )*/
                 ),
