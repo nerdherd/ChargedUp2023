@@ -91,28 +91,28 @@ public final class Constants {
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
-    public static final int kArmStow = -143226;//-166987; //73 deg //-361131;//-144321 * 3;//-276670;//-622485;//-630435;//144278;
+    public static final int kArmStow = -310079;//-144652;//-166987; //73 deg //-361131;//-144321 * 3;//-276670;//-622485;//-630435;//144278;
     public static final int kArmTalonTach = -550169 / 3;
-    public static final int kArmScore = -70298;//-81958; //35.83 deg //-177246;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
+    public static final int kArmScore = -152194;//-70998;//-81958; //35.83 deg //-177246;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
     public static final int kArmScoreCubeMid = -394900 / 3;//-371050;//596443; // 89744;
     public static final int kArmScoreCubeHigh = -406900 / 3;//-383050;//596443; // 89744;
-    public static final int kArmGroundPickup = -12361;//-11002; //4.8 deg //-23794;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
+    public static final int kArmGroundPickup = -26760;//-12484;//-11002; //4.8 deg //-23794;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
     public static final int kArmGroundPickupVision = -19430;//-42020;
-    public static final int kArmSubstation = -106909;//-124643; //54.49 deg//-269557; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
-    public static final int kArmMotionAcceleration = 36765;//20000;//45000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 24500;//13500;//30000;//18000;//21777;
+    public static final int kArmSubstation = -231474;//-107974;//-124643; //54.49 deg//-269557; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmMotionAcceleration = 32666;//20000;//45000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 16333;//13500;//30000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
     public static final double kArmD = 0.0;
     public static final double kArmF = 0.047;
-    public static final double kStowedFF = 0.069;
-    public static final double kExtendedFF = 0.089;
+    public static final double kStowedFF = 0.08;
+    public static final double kExtendedFF = 0.1;
     public static final double kDiffFF = kExtendedFF - kStowedFF;
     public static final int kPistonForwardID = 5;
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kTicksPerAngle = 1962;//1603;//4947;//5931;
+    public static final double kTicksPerAngle = 4248;//1981;//1603;//4947;//5931;
     public static final int kTalonTachTopID = 0;
     public static final int kTalonTachBottomID = 1;
 

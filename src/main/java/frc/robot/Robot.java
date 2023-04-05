@@ -35,8 +35,8 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.initShuffleboard();
 	
-    // DataLogManager.start("/home/lvuser/logs/");
-    // DataLogManager.logNetworkTables(true);
+    DataLogManager.start("/media/sda1/logs");
+    DataLogManager.logNetworkTables(true);
 
     SmartDashboard.putNumber("kPOneWayBalancing", SwerveAutoConstants.kPOneWayBalancing);
     SmartDashboard.putNumber("kIOneWayBalancing", SwerveAutoConstants.kIOneWayBalancing);
