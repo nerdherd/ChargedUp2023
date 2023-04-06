@@ -194,7 +194,9 @@ public class NavX extends SubsystemBase implements Gyro {
                 tab.addNumber("Gyro Y Displacement (m)", () -> ahrs.getDisplacementY());
                 tab.addNumber("Gyro Z Displacement (m)", () -> ahrs.getDisplacementZ());
                 tab.addNumber("Gyro Full Range Acceleration (G)", () -> ahrs.getAccelFullScaleRangeG());
-                tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
+                tab.add("Reset Yaw", new InstantCommand(this::zeroHeading));
+                tab.add("Reset Roll", new InstantCommand(this::zeroRoll));
+                tab.add("Reset Pitch", new InstantCommand(this::zeroPitch));
             case MINIMAL:
                 tab.addNumber("IMU Resets", () -> numResets);
                 tab.addNumber("Robot Heading", () -> getHeading());
