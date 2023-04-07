@@ -107,6 +107,18 @@ public class NavX extends SubsystemBase implements Gyro {
         return (ahrs.getRoll() - this.rollOffset) % 360;
     }
 
+    public double getHeadingOffset() {
+        return this.offset;
+    }
+
+    public double getRollOffset() {
+        return this.rollOffset;
+    }
+
+    public double getPitchOffset() {
+        return this.pitchOffset;
+    }
+
     /**
      * Gets a rotation2d representing rotation of the drivetrain
      * @return A rotation2d representing rotation of the drivetrain
@@ -179,8 +191,8 @@ public class NavX extends SubsystemBase implements Gyro {
                 tab.addNumber("Gyro Temperature (C)", () -> ahrs.getTempC());
             case MEDIUM:
                 tab.addNumber("Gyro Yaw", () -> ahrs.getYaw());
-                tab.addNumber("Gyro Pitch", () -> ahrs.getPitch());
-                tab.addNumber("Gyro Roll", () -> ahrs.getRoll());
+                tab.addNumber("Gyro Pitch", () -> getPitch());
+                tab.addNumber("Gyro Roll", () -> getRoll());
                 tab.addNumber("Gyro X Acceleration (G)", () -> ahrs.getWorldLinearAccelX());
                 tab.addNumber("Gyro Y Acceleration (G)", () -> ahrs.getWorldLinearAccelY());
                 tab.addNumber("Gyro Z Acceleration (G)", () -> ahrs.getWorldLinearAccelZ());

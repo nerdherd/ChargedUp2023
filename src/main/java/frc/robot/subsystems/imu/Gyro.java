@@ -52,6 +52,9 @@ public interface Gyro extends Reportable {
      * @return  IMU Heading in degrees.
      */
     public double getRoll();
+    public double getHeadingOffset();
+    public double getRollOffset();
+    public double getPitchOffset();
     public Rotation2d getRotation2d();
     public Rotation3d getRotation3d();
 }

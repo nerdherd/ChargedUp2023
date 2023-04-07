@@ -75,7 +75,7 @@ public class RobotContainer {
   private final BadPS4 badPS4 = operatorController.getHID();
   // private final Joystick joystick = new Joystick(2);
 
-  private final LOG_LEVEL loggingLevel = LOG_LEVEL.MINIMAL;
+  private final LOG_LEVEL loggingLevel = LOG_LEVEL.MEDIUM;
 
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);

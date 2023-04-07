@@ -81,6 +81,18 @@ public class PigeonV2 extends SubsystemBase implements Gyro {
         return (-pigeon.getRoll() - rollOffset) % 360;
     }
 
+    public double getHeadingOffset() {
+        return this.offset;
+    }
+
+    public double getRollOffset() {
+        return this.rollOffset;
+    }
+
+    public double getPitchOffset() {
+        return this.pitchOffset;
+    }
+
     public Rotation2d getRotation2d() {
         return Rotation2d.fromDegrees(getHeading());
     }
