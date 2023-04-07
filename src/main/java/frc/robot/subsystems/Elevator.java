@@ -98,7 +98,7 @@ public class Elevator extends SubsystemBase implements Reportable{
     //   elevator.setSelectedSensorPosition(ElevatorConstants.kElevatorStow);
     // }
 
-    if ((elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 30000 || elevator.getStatorCurrent() >= 45) && targetTicks == 0) { // TODO: Measure elevator lower limit
+    if ((elevator.getSelectedSensorPosition() >= ElevatorConstants.kElevatorStow - 16666 || elevator.getStatorCurrent() >= 45) && targetTicks == 0) { // TODO: Measure elevator lower limit
       elevator.set(ControlMode.PercentOutput, 0);
     } else {
       elevator.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);

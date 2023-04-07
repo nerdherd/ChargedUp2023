@@ -207,15 +207,15 @@ public class ChargeAutos {
 
     public static CommandBase chargeMiddle(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kChargeSpeedMetersPerSecond, 
-            kChargeAccelerationMetersPerSecondSquared);
+            kChargeSpeedMetersPerSecond / 2, 
+            kChargeAccelerationMetersPerSecondSquared / 2);
         
         Trajectory chargeTrajectory = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(-0.125, 0, new Rotation2d(0)), 
+            new Pose2d(0.125, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(-0.25, 0),
-                new Translation2d(-0.25, 0)), 
-            new Pose2d(-3, -0.01, Rotation2d.fromDegrees(0)),
+                new Translation2d(0.25, 0),
+                new Translation2d(0.25, 0)), 
+            new Pose2d(2.5, -0.01, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
         
         PIDController xController = new PIDController(kPXController, kIXController, kDXController);
@@ -229,6 +229,7 @@ public class ChargeAutos {
             xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
         
         return sequence(
+            runOnce(() -> swerveDrive.getImu().setOffset(0)),
             runOnce(() -> swerveDrive.resetOdometry(chargeTrajectory.getInitialPose())),
             chargeCommand,
             new TheGreatBalancingAct(swerveDrive)
@@ -416,7 +417,7 @@ public class ChargeAutos {
         Trajectory returnToCharge = TrajectoryGenerator.generateTrajectory(
             List.of(
                 new Pose2d(-5, -0.19, Rotation2d.fromDegrees(0)),
-                new Pose2d(-2.2, -0.21, Rotation2d.fromDegrees(0))
+                new Pose2d(-2, -0.21, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
         
@@ -476,7 +477,7 @@ public class ChargeAutos {
             // Stop completely (tow the modules)
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates), swerveDrive),
             runOnce(() -> swerveDrive.stopModules()),
-            waitSeconds(0.2),
+            // waitSeconds(0.2),
             new TurnToAngle(0, swerveDrive),
             runOnce(() -> swerveDrive.resetOdometry(new Pose2d(-5, -0.2, new Rotation2d()))),
             returnToChargeCommand,

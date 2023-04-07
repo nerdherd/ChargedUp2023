@@ -28,6 +28,8 @@ public class Arm extends SubsystemBase implements Reportable {
     private TalonFX rotatingArm;
     private int targetTicks = ArmConstants.kArmStow;
     public BooleanSupplier atTargetPosition;
+    private int prevTickChange = 0;
+    private int tickChange = 0;
     // private DigitalInput talonTachTop;
     private boolean inTalonTachZone;
     // private DigitalInput talonTachBottom;
@@ -37,14 +39,10 @@ public class Arm extends SubsystemBase implements Reportable {
         // talonTachBottom = new DigitalInput(ArmConstants.kTalonTachBottomID);
         
         // gear ratio 27:1
-        rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
-        rotatingArm.setNeutralMode(NeutralMode.Brake);
+        init();
         // rotatingArm.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, 35, 0, 0));
         // CommandScheduler.getInstance().registerSubsystem(this);
 
-        rotatingArm.setInverted(true);
-        atTargetPosition = () -> NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500);
-        
         // For tuning PID and Motion Magic
         // SmartDashboard.putNumber("Arm kP", ArmConstants.kArmP);
         // SmartDashboard.putNumber("Arm kI", ArmConstants.kArmI);
@@ -54,6 +52,24 @@ public class Arm extends SubsystemBase implements Reportable {
         // SmartDashboard.putNumber("Arm Cruise Velocity", ArmConstants.kArmCruiseVelocity);
         // SmartDashboard.putNumber("Arm Accel", ArmConstants.kArmMotionAcceleration);
 
+}
+
+    public void initTargetTicks() {
+        setTargetTicks((int) rotatingArm.getSelectedSensorPosition());
+        // rotatingArm.clearMotionProfileTrajectories();
+        // double ff = -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * percentExtended) * Math.cos(getArmAngle());
+        // rotatingArm.set(ControlMode.MotionMagic, rotatingArm.getSelectedSensorPosition(), DemandType.ArbitraryFeedForward, ff);
+        // moveArmMotionMagic((int) rotatingArm.getSelectedSensorPosition(), percentExtended);
+    }
+
+    public void init() {
+        rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
+        rotatingArm.setNeutralMode(NeutralMode.Brake);
+
+        rotatingArm.setInverted(true);
+        atTargetPosition = () -> NerdyMath.inRange(rotatingArm.getSelectedSensorPosition(), targetTicks - 1500, targetTicks + 1500);
+        targetTicks = (int) rotatingArm.getSelectedSensorPosition();
+
         rotatingArm.config_kP(0, ArmConstants.kArmP);
         rotatingArm.config_kI(0, ArmConstants.kArmI);
         rotatingArm.config_kD(0, ArmConstants.kArmD);
@@ -61,7 +77,8 @@ public class Arm extends SubsystemBase implements Reportable {
 
         rotatingArm.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
         rotatingArm.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
-}
+
+    }
 
     public void moveArmJoystick(double currentJoystickOutput, double percentExtended) {
         // double armTicks = currentPosition.getAsDouble();
@@ -99,14 +116,36 @@ public class Arm extends SubsystemBase implements Reportable {
 
     }
 
-    public void moveArmMotionMagicJoystick(double joystickInput, double perentExtended) {
-        targetTicks += joystickInput * ArmConstants.kArmCruiseVelocity / 5;
-        
-        if (targetTicks < ArmConstants.kArmStow) {
-            targetTicks = ArmConstants.kArmStow;
+    public void moveArmMotionMagicJoystick(double joystickInput, double percentExtended) {
+        tickChange = 0;
+        double alpha = 15000;
+        double beta = 1 - alpha;
+        if (joystickInput > 0) {
+            rotatingArm.configMotionAcceleration(16333);
+            rotatingArm.configMotionCruiseVelocity(16333);
+        } else if (joystickInput <= 0) {
+            rotatingArm.configMotionAcceleration(16333);
+            rotatingArm.configMotionCruiseVelocity(16333);
         }
+        if (joystickInput < -0.1 || joystickInput > 0.1) {
+            // tickChange = 100;
+            tickChange = (int) ((alpha * joystickInput));
+            int currentTicks = (int) rotatingArm.getSelectedSensorPosition();
+            prevTickChange = tickChange;
+            targetTicks = currentTicks + tickChange;
+            targetTicks = (int) NerdyMath.clamp(targetTicks, ArmConstants.kArmStow + 4500, ArmConstants.kArmGroundPickup - 4500);
+        }
+        // } else if (joystickInput > 0.25) {
+        //     tickChange = (int) (alpha * joystickInput + beta * prevTickChange);
+        // } else {
+        //     tickChange = 0;
+        // }
+        
+        // if (targetTicks < ArmConstants.kArmStow) {
+        //     targetTicks = ArmConstants.kArmStow;
+        // }
 
-        moveArmMotionMagic(targetTicks, perentExtended);
+        moveArmMotionMagic(targetTicks, percentExtended);
     }
 
     
@@ -149,18 +188,18 @@ public class Arm extends SubsystemBase implements Reportable {
         // }
         
 
-        if (targetTicks <= ArmConstants.kArmStow - 50) {
-            targetTicks = ArmConstants.kArmStow;
-        }
+        // if (targetTicks <= ArmConstants.kArmStow - 50) {
+        //     targetTicks = ArmConstants.kArmStow;
+        // }
         
-        if (rotatingArm.getStatorCurrent() >= 45 && rotatingArm.getSelectedSensorPosition() > targetTicks)
-        {
-            rotatingArm.set(ControlMode.PercentOutput, 0);
-        } else 
-        {
+        // if (rotatingArm.getStatorCurrent() >= 45 && rotatingArm.getSelectedSensorPosition() > targetTicks)
+        // {
+        //     rotatingArm.set(ControlMode.PercentOutput, 0);
+        // } else 
+        // {
             rotatingArm.set(ControlMode.MotionMagic, targetTicks, DemandType.ArbitraryFeedForward, ff);
             
-        }
+        // }
         // SmartDashboard.putNumber("Arm FF", ff);
 
         // SmartDashboard.putBoolean("arm motion magic :(", true);
@@ -194,6 +233,8 @@ public class Arm extends SubsystemBase implements Reportable {
     }
 
     public CommandBase moveArm(int ticks, Supplier<Double> percentExtendedSupplier) {
+        rotatingArm.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
+        rotatingArm.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
         return Commands.run(
             () -> moveArmMotionMagic(ticks, percentExtendedSupplier.get()), this
         );
@@ -256,6 +297,7 @@ public class Arm extends SubsystemBase implements Reportable {
 
     public void resetEncoderStow() {
         rotatingArm.setSelectedSensorPosition(ArmConstants.kArmStow);
+        targetTicks = ArmConstants.kArmStow;
     }
 
     
@@ -295,6 +337,7 @@ public class Arm extends SubsystemBase implements Reportable {
             case MINIMAL:
                 tab.addNumber("Current Arm Ticks", rotatingArm::getSelectedSensorPosition);
                 tab.addNumber("Target Arm Ticks", () -> targetTicks);
+                tab.addNumber("Tick Change", () -> tickChange);
                 break;
         }
 
