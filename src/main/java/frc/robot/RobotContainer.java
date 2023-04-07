@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.ChargeAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.commands.TestAutos;
 import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionAutos;
@@ -353,9 +354,10 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // startPos = positionChooser.getSelected();
     // scorePos = scoreChooser.getSelected();
-    alliance = allianceChooser.getSelected();
-    Command currentAuto = autoChooser.getSelected().get();
-
+    // alliance = allianceChooser.getSelected();
+    // Command currentAuto = autoChooser.getSelected().get();
+    Command currentAuto = TestAutos.testAuto1(swerveDrive);
+    
     swerveDrive.setDriveMode(DRIVE_MODE.AUTONOMOUS);
     return currentAuto;
   }
