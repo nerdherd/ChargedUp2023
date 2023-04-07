@@ -118,11 +118,12 @@ public class RobotContainer {
   }
 
   public void initDefaultCommands() {
-    arm.isInTalonTachZone();
+    arm.init();
+    arm.initTargetTicks();
     arm.setDefaultCommand(
       new RunCommand(
         () -> {
-          arm.moveArmJoystick(operatorController.getLeftY(), elevator.percentExtended());
+          arm.moveArmMotionMagicJoystick(operatorController.getLeftY(), elevator.percentExtended());
           // SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
         }, 
         arm
@@ -193,14 +194,14 @@ public class RobotContainer {
     // These button bindings are chosen for testing, and may be changed based on
     // driver preference
     
-    upButton.whileTrue(arm.moveArmStow(elevator::percentExtended)) 
-      .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    leftButton.whileTrue(arm.moveArmScore(elevator::percentExtended)) 
-      .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    rightButton.whileTrue(arm.moveArm(ArmConstants.kArmSubstation, elevator::percentExtended))
-      .onFalse(Commands.runOnce(arm::setArmPowerZero));
-    downButton.whileTrue(arm.moveArmGround(elevator::percentExtended)) 
-      .onFalse(Commands.runOnce(arm::setArmPowerZero));
+    upButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)));
+      //.onFalse(Commands.runOnce(arm::initTargetTicks));
+    leftButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmScore)));
+    // .onFalse(Commands.runOnce(arm::initTargetTicks));
+    rightButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmSubstation)));
+    // .onFalse(Commands.runOnce(arm::initTargetTicks));
+    downButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)));
+    // .onFalse(Commands.runOnce(arm::initTargetTicks));
     
     operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm::getArmAngle))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
