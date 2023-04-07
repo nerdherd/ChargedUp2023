@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 
 /**
@@ -35,8 +36,13 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.initShuffleboard();
 	
-    DataLogManager.start("/home/lvuser/logs/");
+    DataLogManager.start("/media/sda1/logs");
     DataLogManager.logNetworkTables(true);
+
+    SmartDashboard.putNumber("kPDrive", ModuleConstants.kPDrive);
+    SmartDashboard.putNumber("kIDrive", ModuleConstants.kIDrive);
+    SmartDashboard.putNumber("kDDrive", ModuleConstants.kDDrive);
+    SmartDashboard.putNumber("kFDrive", ModuleConstants.kFDrive);
 
     // SmartDashboard.putNumber("kPOneWayBalancing", SwerveAutoConstants.kPOneWayBalancing);
     // SmartDashboard.putNumber("kIOneWayBalancing", SwerveAutoConstants.kIOneWayBalancing);

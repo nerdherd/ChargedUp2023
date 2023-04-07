@@ -178,9 +178,10 @@ public final class Constants {
     public static final double kDTurning = 0.02; 
     
     // TODO: tune PID for drive motor velocity control
-    public static final double kPDrive = 0;
+    public static final double kPDrive = 0.5;
     public static final double kIDrive = 0;
     public static final double kDDrive = 0;
+    public static final double kFDrive = 0.0469;
   } 
 
   public static final class SwerveDriveConstants {

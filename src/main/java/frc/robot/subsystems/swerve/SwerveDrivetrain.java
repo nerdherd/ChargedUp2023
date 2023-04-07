@@ -216,6 +216,13 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         this.driveMode = driveMode;
     }
 
+    public void setVelocityControl(boolean withVelocityControl) {
+        frontLeft.toggleVelocityControl(withVelocityControl);
+        frontRight.toggleVelocityControl(withVelocityControl);
+        backLeft.toggleVelocityControl(withVelocityControl);
+        backRight.toggleVelocityControl(withVelocityControl);
+    }
+
     public void drive(double xSpeed, double ySpeed, double turnSpeed) {
         setModuleStates(
             SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
