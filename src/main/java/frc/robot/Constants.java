@@ -178,7 +178,7 @@ public final class Constants {
     public static final double kDTurning = 0.02; 
     
     // TODO: tune PID for drive motor velocity control
-    public static final double kPDrive = 0.5;
+    public static final double kPDrive = 0.25;
     public static final double kIDrive = 0;
     public static final double kDDrive = 0;
     public static final double kFDrive = 0.0469;
@@ -309,15 +309,15 @@ public final class Constants {
     public static final double kChargeSpeedMetersPerSecond = 0.75 * 2.5;
     public static final double kTwoPieceSpeedMetersPerSecond = 2.8;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
-      SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
+      SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 3;
     public static final double kMaxAccelerationMetersPerSecondSquared = kMaxSpeedMetersPerSecond;
     public static final double kChargeAccelerationMetersPerSecondSquared = 2.5;
     public static final double kTwoPieceAccelerationMetersPerSecondSquared = 2.8;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
-    public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 1.5);
-    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0.01);
+    public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 0.25);
+    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0);
     public static final double kDXController = SmartDashboard.getNumber("kD X Speed", 0);
-    public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 1.5);
+    public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 0.25);
     public static final double kIYController = SmartDashboard.getNumber("kI Y Speed", 0);
     public static final double kDYController = SmartDashboard.getNumber("kD Y Speed", 0);
     public static final double kPThetaController = SmartDashboard.getNumber("kP Theta Auto", 3.0);
