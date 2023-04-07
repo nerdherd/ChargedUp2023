@@ -38,11 +38,11 @@ public class Robot extends TimedRobot {
     DataLogManager.start("/home/lvuser/logs/");
     DataLogManager.logNetworkTables(true);
 
-    SmartDashboard.putNumber("kPOneWayBalancing", SwerveAutoConstants.kPOneWayBalancing);
-    SmartDashboard.putNumber("kIOneWayBalancing", SwerveAutoConstants.kIOneWayBalancing);
-    SmartDashboard.putNumber("kDOneWayBalancing", SwerveAutoConstants.kDOneWayBalancing);
-    SmartDashboard.putNumber("Gyro ignore time", 2);
-    SmartDashboard.putNumber("Charge down speed", -0.9375);
+    // SmartDashboard.putNumber("kPOneWayBalancing", SwerveAutoConstants.kPOneWayBalancing);
+    // SmartDashboard.putNumber("kIOneWayBalancing", SwerveAutoConstants.kIOneWayBalancing);
+    // SmartDashboard.putNumber("kDOneWayBalancing", SwerveAutoConstants.kDOneWayBalancing);
+    // SmartDashboard.putNumber("Gyro ignore time", 2);
+    // SmartDashboard.putNumber("Charge down speed", -0.9375);
   }
 
   /**
@@ -81,10 +81,10 @@ public class Robot extends TimedRobot {
     m_robotContainer.imu.zeroHeading();
     
     // TODO: COME BACK TO THIS BEFORE LAR THIS IS VERY IMPORTANT TO THINK ABOUT
-    m_robotContainer.arm.resetEncoderStow();
-    m_robotContainer.elevator.resetEncoder();
-    m_robotContainer.arm.isInTalonTachZone();
-    m_robotContainer.arm.setTargetTicks(ArmConstants.kArmStow);
+    // m_robotContainer.arm.resetEncoderStow();
+    // m_robotContainer.elevator.resetEncoder();
+    // m_robotContainer.arm.isInTalonTachZone();
+    // m_robotContainer.arm.setTargetTicks(ArmConstants.kArmStow);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
