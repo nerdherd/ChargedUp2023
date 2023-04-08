@@ -34,6 +34,7 @@ import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
+import frc.robot.commands.VisionAllLowAuto;
 import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.imu.Gyro;
@@ -275,8 +276,9 @@ public class RobotContainer {
     // autoChooser.addOption("Gyro Charge", () -> ChargeAutos.gyroCharge(swerveDrive, true));
 
     // Has and uses alliance parameter.
-    autoChooser.addOption("Vision Two Piece Smooth (Alliance)", () -> VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
-    autoChooser.addOption("Vision Two Piece Cable (Alliance)", () -> VisionAutos.cableZoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    // autoChooser.addOption("Vision Two Piece Smooth (Alliance)", () -> VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    // autoChooser.addOption("Vision Two Piece Cable (Alliance)", () -> VisionAutos.cableZoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    autoChooser.addOption("All Low Cube Auto", () -> VisionAllLowAuto.ThreeCubesAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
 
     // Have alliance parameter but do not use it.
     autoChooser.addOption("Preload Charge Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
