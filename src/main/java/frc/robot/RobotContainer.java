@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.ChargeAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.commands.TestAutos;
 import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionAllLowAuto;
@@ -274,6 +275,9 @@ public class RobotContainer {
     autoChooser.addOption("Preload High Center Charge Taxi V2", () -> ChargeAutos.preloadHighChargeTaxiMiddleV2(swerveDrive, arm, elevator, motorClaw));
     autoChooser.addOption("Preload High Center Charge Taxi With Balancing", () -> ChargeAutos.preloadHighChargeTaxiMiddleSafer(swerveDrive, arm, elevator, motorClaw));
     autoChooser.addOption("Preload High Center Charge Taxi With Balancing Sliding", () -> ChargeAutos.preloadHighChargeTaxiMiddleSafer2(swerveDrive, arm, elevator, motorClaw));
+
+    autoChooser.addOption("Slow taxi charge", () -> TestAutos.taxiChargeBackwardsSLOW(swerveDrive));
+    autoChooser.addOption("Slow charge", () -> TestAutos.chargeBackwardsSLOW(swerveDrive));
     
     autoChooser.addOption("Center Charge", () -> ChargeAutos.chargeMiddle(swerveDrive)); // Same as preload charge auto
     
