@@ -190,7 +190,12 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      * @return A pose2d representing the position of the drivetrain
      */
     public Pose2d getPose() {
-        return odometer.getPoseMeters();
+        Pose2d odometrypose = odometer.getPoseMeters();
+        return new Pose2d(
+            odometrypose.getX(),
+            -odometrypose.getY(),
+            odometrypose.getRotation()
+        );
     }
 
     /**

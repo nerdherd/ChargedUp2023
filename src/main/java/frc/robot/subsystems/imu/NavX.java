@@ -65,7 +65,7 @@ public class NavX extends SubsystemBase implements Gyro {
      */
     public double getHeading() {
         double heading = Math.IEEEremainder(ahrs.getYaw() - offset, 360);
-        return heading;
+        return -heading;
     }
 
     /**

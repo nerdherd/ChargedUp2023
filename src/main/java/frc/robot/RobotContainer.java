@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.ChargeAutos;
+import frc.robot.commands.PathPlannerAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TestAutos;
@@ -356,7 +357,7 @@ public class RobotContainer {
     // scorePos = scoreChooser.getSelected();
     // alliance = allianceChooser.getSelected();
     // Command currentAuto = autoChooser.getSelected().get();
-    Command currentAuto = TestAutos.testAuto1(swerveDrive);
+    Command currentAuto = PathPlannerAutos.pathplannerAuto("TaxiMIDDLE", swerveDrive, null, null);
     
     swerveDrive.setDriveMode(DRIVE_MODE.AUTONOMOUS);
     return currentAuto;

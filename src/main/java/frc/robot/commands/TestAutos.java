@@ -73,4 +73,36 @@ public class TestAutos {
             runOnce(() -> swerveDrive.stopModules())
         );
     }
+
+    public static CommandBase testAuto2(SwerveDrivetrain swerveDrive) {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            kChargeSpeedMetersPerSecond / 2, 
+            kChargeAccelerationMetersPerSecondSquared / 2);
+
+        Trajectory goForward = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+                new Pose2d(2, 0, Rotation2d.fromDegrees(0))
+            ),
+            trajectoryConfig);
+
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand goForwardCommand = new SwerveControllerCommand(
+            goForward, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return sequence(
+            runOnce(() -> swerveDrive.resetOdometry(goForward.getInitialPose())),
+            runOnce(() -> swerveDrive.setVelocityControl(true)),
+            runOnce(() -> SmartDashboard.putString("Stage", "Going forward")),
+            goForwardCommand,
+            runOnce(() -> SmartDashboard.putString("Stage", "Finished")),
+            runOnce(() -> swerveDrive.stopModules())
+        );
+    }
 }
