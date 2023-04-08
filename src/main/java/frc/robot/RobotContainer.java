@@ -239,6 +239,7 @@ public class RobotContainer {
     // driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
     
     driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
+    // driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive, 2, 0, 0.1, 0, 0, 0));
     driverController.circle()
       .whileTrue(Commands.run(() -> swerveDrive.setVelocityControl(true)))
       .whileFalse(Commands.run(() -> swerveDrive.setVelocityControl(false)));
@@ -368,7 +369,7 @@ public class RobotContainer {
     // scorePos = scoreChooser.getSelected();
     // alliance = allianceChooser.getSelected();
     // Command currentAuto = autoChooser.getSelected().get();
-    Command currentAuto = TestAutos.moveForwardBack(swerveDrive);
+    Command currentAuto = TestAutos.taxiChargeBackwards(swerveDrive);
     
     swerveDrive.setDriveMode(DRIVE_MODE.AUTONOMOUS);
     return currentAuto;

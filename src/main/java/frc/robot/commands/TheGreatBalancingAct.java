@@ -128,15 +128,18 @@ public class TheGreatBalancingAct extends CommandBase {
         Rotation3d currentRotation = swerveDrive.getImu().getRotation3d();
 
         // temporary debugging code
-        // kP = SmartDashboard.getNumber("kPBalancing", kP);
-        // kI = SmartDashboard.getNumber("kIBalancing", kI);
-        // kD = SmartDashboard.getNumber("kDBalancing", kD);
-        // pitchPidController.setP(kP);
-        // pitchPidController.setI(kI);
-        // pitchPidController.setD(kD);
-        // rollPidController.setP(kP);
-        // rollPidController.setI(kI);
-        // rollPidController.setD(kD);
+        // kPx = SmartDashboard.getNumber("kPBalancingX", kPx);
+        // kIx = SmartDashboard.getNumber("kIBalancingX", kIx);
+        // kDx = SmartDashboard.getNumber("kDBalancingX", kDx);
+        // kPy = SmartDashboard.getNumber("kPBalancingY", kPy);
+        // kIy = SmartDashboard.getNumber("kIBalancingY", kIy);
+        // kDy = SmartDashboard.getNumber("kDBalancingY", kDy);
+        // pitchPidController.setP(kPx);
+        // pitchPidController.setI(kIx);
+        // pitchPidController.setD(kDx);
+        // rollPidController.setP(kPy);
+        // rollPidController.setI(kIy);
+        // rollPidController.setD(kDy);
 
         // Calculate turning speed with PID
         double xSpeed = pitchPidController.calculate(
