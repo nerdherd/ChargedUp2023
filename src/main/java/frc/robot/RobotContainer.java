@@ -174,21 +174,22 @@ public class RobotContainer {
         badPS5::getL2Button,
 
         // Dodge
-        badPS5::getR3Button,
+        () -> {return badPS5.getL1Button() || badPS5.getR1Button();},
         // Dodging
         () -> {
-          // if (badPS5.getL2Button()) {
-          //   return DodgeDirection.LEFT;
-          // } 
-          // if (badPS5.getR2Button()) {
-          //   return DodgeDirection.RIGHT;
-          // }
+          if (badPS5.getL1Button()) {
+            return DodgeDirection.LEFT;
+          } 
+          if (badPS5.getR1Button()) {
+            return DodgeDirection.RIGHT;
+          }
           return DodgeDirection.NONE;
         },
         // Precision/"Sniper Button"
         badPS5::getR2Button,
         // Turn to angle
-        () -> badPS5.getR1Button() || badPS5.getL1Button(),
+        () -> false,
+        // () -> badPS5.getR1Button() || badPS5.getL1Button(),
         // Turn To angle Direction
         () -> {
           if (badPS5.getR1Button()) {

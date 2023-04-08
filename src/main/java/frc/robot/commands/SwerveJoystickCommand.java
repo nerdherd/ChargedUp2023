@@ -1,5 +1,17 @@
 package frc.robot.commands;
 
+import static frc.robot.Constants.SwerveDriveConstants.kDriveAlpha;
+import static frc.robot.Constants.SwerveDriveConstants.kDriveKinematics;
+import static frc.robot.Constants.SwerveDriveConstants.kLeftRotationCenters;
+import static frc.robot.Constants.SwerveDriveConstants.kMinimumMotorOutput;
+import static frc.robot.Constants.SwerveDriveConstants.kRightRotationCenters;
+import static frc.robot.Constants.SwerveDriveConstants.kRotationCenters;
+import static frc.robot.Constants.SwerveDriveConstants.kRotationOffset;
+import static frc.robot.Constants.SwerveDriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
+import static frc.robot.Constants.SwerveDriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
+import static frc.robot.Constants.SwerveDriveConstants.kTeleMaxAcceleration;
+import static frc.robot.Constants.SwerveDriveConstants.kTeleMaxDeceleration;
+
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -8,18 +20,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import static frc.robot.Constants.SwerveDriveConstants.*;
-
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.filters.Filter;
+import frc.robot.filters.NewDriverFilter;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
-import frc.robot.filters.NewDriverFilter;
 
 public class SwerveJoystickCommand extends CommandBase {
     private final SwerveDrivetrain swerveDrive;
@@ -245,12 +254,22 @@ public class SwerveJoystickCommand extends CommandBase {
             Translation2d rotationCenter;
 
             DodgeDirection dodgeDirection = dodgeDirectionSupplier.get();
+
             if (dodgeDirection == DodgeDirection.LEFT) {
-                rotationCenter = kRotationCenters[kLeftRotationCenters[quadrant]];
-            } else {
+                filteredTurningSpeed = 3;
                 rotationCenter = kRotationCenters[kRightRotationCenters[quadrant]];
+            } else {
+                filteredTurningSpeed = -3;
+                rotationCenter = kRotationCenters[kLeftRotationCenters[quadrant]];
             }
 
+            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                0, 0, filteredTurningSpeed, 
+                swerveDrive.getImu().getRotation2d());
+
+            SmartDashboard.putNumber("Rotation Center X", rotationCenter.getX());
+            SmartDashboard.putNumber("Rotation Center Y", rotationCenter.getY());
+            SmartDashboard.putNumber("Dodge Quadrant", quadrant);
             moduleStates = kDriveKinematics.toSwerveModuleStates(chassisSpeeds, rotationCenter);
         } else {
             robotOrientedJoystickDirection = null;
