@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Pigeon extends SubsystemBase implements Gyro {
-    private double offset;
+    private double offset, pitchOffset, rollOffset = 0;
     private PigeonIMU pigeon;
 
     public Pigeon(int id) {
@@ -22,6 +22,8 @@ public class Pigeon extends SubsystemBase implements Gyro {
             DriverStation.reportError("Error instantiating Pigeon over CAN: " + ex.getMessage(), true);
         }
         offset = 0;
+        pitchOffset = 0;
+        rollOffset = 0;
     }
 
     public Pigeon(TalonSRX srx) {
@@ -31,6 +33,14 @@ public class Pigeon extends SubsystemBase implements Gyro {
             DriverStation.reportError("Error instantiating Pigeon connected to TalonSRX: " + ex.getMessage(), true);
         }
         offset = 0;
+        pitchOffset = 0;
+        rollOffset = 0;
+    }
+
+    public void zeroAll() {
+        zeroHeading();
+        zeroPitch();
+        zeroRoll();
     }
     
     public void zeroHeading() {
@@ -38,8 +48,24 @@ public class Pigeon extends SubsystemBase implements Gyro {
         offset = 0;
     }
 
+    public void zeroPitch() {
+        this.pitchOffset = pigeon.getPitch();
+    }
+    
+    public void zeroRoll() {
+        this.rollOffset = -pigeon.getRoll();
+    }
+
     public void setOffset(double offset) {
         this.offset = offset;
+    }
+
+    public void setPitchOffset(double offset) {
+        this.pitchOffset = offset;
+    }
+
+    public void setRollOffset(double offset) {
+        this.rollOffset = offset;
     }
 
     public void resetHeading(double headingDegrees) {
@@ -47,8 +73,36 @@ public class Pigeon extends SubsystemBase implements Gyro {
         offset = -headingDegrees;
     }
 
+    public void resetPitch(double pitchDegrees) {
+        this.pitchOffset = pigeon.getPitch() - pitchDegrees;
+    }
+
+    public void resetRoll(double rollDegrees) {
+        this.rollOffset = -pigeon.getRoll() - rollDegrees;
+    }
+
     public double getHeading() {
         return (-pigeon.getCompassHeading() - offset) % 360;
+    }
+
+    public double getPitch() {
+        return (pigeon.getPitch() - pitchOffset) % 360;
+    }
+
+    public double getRoll() {
+        return (-pigeon.getRoll() - rollOffset) % 360;
+    }
+
+    public double getHeadingOffset() {
+        return this.offset;
+    }
+
+    public double getRollOffset() {
+        return this.rollOffset;
+    }
+
+    public double getPitchOffset() {
+        return this.pitchOffset;
     }
 
     public Rotation2d getRotation2d() {
@@ -60,9 +114,9 @@ public class Pigeon extends SubsystemBase implements Gyro {
      */
     public Rotation3d getRotation3d() {
         return new Rotation3d(
-            Math.toRadians(-pigeon.getRoll() % 360),
-            Math.toRadians(pigeon.getPitch() % 360),
-            Math.toRadians(-pigeon.getYaw() % 360)
+            Math.toRadians(getRoll()),
+            Math.toRadians(getPitch()),
+            Math.toRadians(getHeading())
         );
     }
     

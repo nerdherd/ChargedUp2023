@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
-import frc.robot.subsystems.Reportable;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -23,6 +22,8 @@ public class NavX extends SubsystemBase implements Gyro {
     public AHRS ahrs;
     private int numResets = 0;
     private double offset = 0;
+    private double pitchOffset = 0;
+    private double rollOffset = 0;
     
     /**
      * Attempt to instantiate a new NavX IMU.
@@ -40,6 +41,12 @@ public class NavX extends SubsystemBase implements Gyro {
             DriverStation.reportError("Error instantiating navX2 MXP:  " + ex.getMessage(), true);
         }
     }
+
+    public void zeroAll() {
+        zeroHeading();
+        zeroPitch();
+        zeroRoll();
+    }
     
     /**
      * Set the current gyro direction to north
@@ -49,14 +56,38 @@ public class NavX extends SubsystemBase implements Gyro {
         offset = 0;
         numResets += 1;
     }
+
+    public void zeroPitch() {
+        this.pitchOffset = ahrs.getPitch();
+    }
+
+    public void zeroRoll() {
+        this.rollOffset = ahrs.getRoll();
+    }
     
     public void setOffset(double offset) {
         this.offset = offset;
     }
 
+    public void setRollOffset(double offset) {
+        this.rollOffset = offset;
+    }
+
+    public void setPitchOffset(double offset) {
+        this.pitchOffset = offset;
+    }
+
     public void resetHeading(double headingDegrees) {
         zeroHeading();
         offset = -headingDegrees;
+    }
+
+    public void resetPitch(double pitchDegrees) {
+        pitchOffset = ahrs.getPitch() - pitchDegrees;
+    }
+
+    public void resetRoll(double rollDegrees) {
+        rollOffset = ahrs.getRoll() - rollDegrees;
     }
 
     /**
@@ -66,6 +97,26 @@ public class NavX extends SubsystemBase implements Gyro {
     public double getHeading() {
         double heading = Math.IEEEremainder(ahrs.getYaw() - offset, 360);
         return heading;
+    }
+
+    public double getPitch() {
+        return (ahrs.getPitch() - this.pitchOffset) % 360;
+    }
+
+    public double getRoll() {
+        return (ahrs.getRoll() - this.rollOffset) % 360;
+    }
+
+    public double getHeadingOffset() {
+        return this.offset;
+    }
+
+    public double getRollOffset() {
+        return this.rollOffset;
+    }
+
+    public double getPitchOffset() {
+        return this.pitchOffset;
     }
 
     /**
@@ -78,8 +129,8 @@ public class NavX extends SubsystemBase implements Gyro {
 
     public Rotation3d getRotation3d() {
         return new Rotation3d(
-            Math.toRadians(ahrs.getRoll()),
-            Math.toRadians(ahrs.getPitch()),
+            Math.toRadians(getRoll()),
+            Math.toRadians(getPitch()),
             Math.toRadians(getHeading()));
     }
 
@@ -140,8 +191,8 @@ public class NavX extends SubsystemBase implements Gyro {
                 tab.addNumber("Gyro Temperature (C)", () -> ahrs.getTempC());
             case MEDIUM:
                 tab.addNumber("Gyro Yaw", () -> ahrs.getYaw());
-                tab.addNumber("Gyro Pitch", () -> ahrs.getPitch());
-                tab.addNumber("Gyro Roll", () -> ahrs.getRoll());
+                tab.addNumber("Gyro Pitch", () -> getPitch());
+                tab.addNumber("Gyro Roll", () -> getRoll());
                 tab.addNumber("Gyro X Acceleration (G)", () -> ahrs.getWorldLinearAccelX());
                 tab.addNumber("Gyro Y Acceleration (G)", () -> ahrs.getWorldLinearAccelY());
                 tab.addNumber("Gyro Z Acceleration (G)", () -> ahrs.getWorldLinearAccelZ());
@@ -155,7 +206,9 @@ public class NavX extends SubsystemBase implements Gyro {
                 tab.addNumber("Gyro Y Displacement (m)", () -> ahrs.getDisplacementY());
                 tab.addNumber("Gyro Z Displacement (m)", () -> ahrs.getDisplacementZ());
                 tab.addNumber("Gyro Full Range Acceleration (G)", () -> ahrs.getAccelFullScaleRangeG());
-                tab.add("Reset Gyro", new InstantCommand(() -> ahrs.reset()));
+                tab.add("Reset Yaw", new InstantCommand(this::zeroHeading));
+                tab.add("Reset Roll", new InstantCommand(this::zeroRoll));
+                tab.add("Reset Pitch", new InstantCommand(this::zeroPitch));
             case MINIMAL:
                 tab.addNumber("IMU Resets", () -> numResets);
                 tab.addNumber("Robot Heading", () -> getHeading());
