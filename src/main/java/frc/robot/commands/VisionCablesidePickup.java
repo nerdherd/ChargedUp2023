@@ -151,7 +151,7 @@ public class VisionCablesidePickup {
                         Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE)),
 
                         Commands.race(
-                            new RunCommand(() -> vision.driveToCubeOnGround(claw), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                            new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
                             Commands.waitSeconds(3) // TODO DEBUG
                         )
                     )/* ,

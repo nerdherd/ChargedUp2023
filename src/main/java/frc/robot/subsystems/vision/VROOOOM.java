@@ -27,6 +27,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.util.NerdyMath;
 
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj.Timer;
+
 
 public class VROOOOM extends SubsystemBase implements Reportable{
 
@@ -65,6 +67,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     private double goalYaw;
     private boolean rotationIsNeeded;
     public BooleanSupplier cameraStatusSupplier;
+
 
     // Current PID Controllers
     private PIDController PIDArea = new PIDController(0, 0, 0);
@@ -208,8 +211,13 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         areaIndex = 0;
     }
 
+    Timer timer = new Timer();
+
     public void initVisionPickupOnGround(OBJECT_TYPE objType) {
         initVisionCommands();
+
+        timer.reset();
+        timer.start();
 
         currentGameObject = objType;
         currentHeightPos = SCORE_POS.LOW;
@@ -822,8 +830,13 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     PIDController pidYaw_driveToCubeOnGround = new PIDController(0, 0, 0);
     PIDController pidArea_driveToCubeOnGround = new PIDController(0.8, 0.01, 0.02); //0.75 P OG
 
-    public void driveToCubeOnGround(MotorClaw claw)
+    public void driveToCubeOnGround(MotorClaw claw, int timeoutSec)
     {
+        double elapsedTime = timer.get();
+        if(elapsedTime >= timeoutSec){
+            return;
+        }
+        
         //PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
         // Initialize all variables to 0
         double xSpeed = 0;
@@ -836,6 +849,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         ChassisSpeeds chassisSpeeds;
 
         SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
+
+
 
         if(!limelightLow.hasValidTarget()) {
             chassisSpeeds = new ChassisSpeeds(0, 0, 0);
