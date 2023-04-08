@@ -843,9 +843,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         double elapsedTime = timer.get();
         if(elapsedTime >= timeoutSec){
-            chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-            SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-            drivetrain.setModuleStates(moduleStates);
+            drivetrain.setModuleStates(SwerveDriveConstants.towModuleStates);
+            drivetrain.stopModules();
             
             limelightLow.setLightState(LightMode.BLINK); 
             return;

@@ -149,7 +149,7 @@ public class VisionAllLowAuto {
 
                         Commands.race(
                             new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                            Commands.waitSeconds(15) // TODO DEBUG: kill this auto if not able to find a cube....?
+                            Commands.waitSeconds(20) // TODO DEBUG: kill this auto if not able to find a cube....?
                             // TODO need add protection here!!!!!!
                         ),
                 
