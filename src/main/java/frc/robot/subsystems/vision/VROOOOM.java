@@ -215,6 +215,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         currentHeightPos = SCORE_POS.LOW;
         rotationIsNeeded = false; // Reset rotation variable
         currentLimelight = limelightLow;
+        currentLimelight.setLightState(LightMode.OFF);
 
         // This doesn't work for some reason, so we might need to pass the currentGameObject into the drive command directly. (3/11/2023)
         if (currentGameObject == OBJECT_TYPE.CONE) {
@@ -231,7 +232,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // PIDTX.setPID(0.05, 0, 0.0125);
             // PIDYaw.setPID(0, 0, 0);
         } else if (currentGameObject == OBJECT_TYPE.CUBE) {
-            goalArea = 3.3; // Goal area for cube ground pickup
+            goalArea = 4.2; // Goal area for cube ground pickup // 3.3 OG
             currentLimelight.setPipeline(2);
             currentLimelight.setLightState(LightMode.OFF);
 
@@ -817,12 +818,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
 
+    PIDController pidTX_driveToCubeOnGround = new PIDController(0.05, 0, 0.008);
+    PIDController pidYaw_driveToCubeOnGround = new PIDController(0, 0, 0);
+    PIDController pidArea_driveToCubeOnGround = new PIDController(0.8, 0.01, 0.02); //0.75 P OG
 
-    PIDController pidTX_driveToCubeOnGround = new PIDController(0.1, 0, 0);
-    PIDController pidYaw_driveToCubeOnGround = new PIDController(0.1, 0, 0);
-    PIDController pidArea_driveToCubeOnGround = new PIDController(0.1, 0, 0);
-
-    public void driveToCubeOnGround()
+    public void driveToCubeOnGround(MotorClaw claw)
     {
         //PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
         // Initialize all variables to 0
@@ -866,12 +866,13 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
             if(limelightLow.getPipeIndex()==2){ // TODO change it to cube-2
                 if (NerdyMath.inRange(calculatedY, -15, 15) 
-                    && NerdyMath.inRange(calculatedX, 3.7, 4.2)) {
+                    && NerdyMath.inRange(calculatedX, 4.2, 5.0)) { // OG 3.7 to 4.2 , 39 inches
                     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                     SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                     drivetrain.setModuleStates(moduleStates);
                     currentCameraMode = CAMERA_MODE.ARRIVED; 
-                    limelightLow.setLightState(LightMode.ON); // TODO DEBUG
+                    claw.setPower(0.3);
+                    // limelightLow.setLightState(LightMode.ON); // TODO DEBUG
                 return;
                 }
             }

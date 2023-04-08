@@ -338,7 +338,7 @@ public class RobotContainer {
     startPos = positionChooser.getSelected();
     scorePos = scoreChooser.getSelected();
     alliance = allianceChooser.getSelected();
-    Command currentAuto = VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, Alliance.Blue);//autoChooser.getSelected().get();
+    Command currentAuto = VisionAllLowAuto.ThreeCubesAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance);//autoChooser.getSelected().get();
 
     swerveDrive.setDriveMode(DRIVE_MODE.AUTONOMOUS);
     return currentAuto;
