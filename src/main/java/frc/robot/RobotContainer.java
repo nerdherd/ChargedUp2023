@@ -20,12 +20,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -67,13 +69,23 @@ public class RobotContainer {
   public SwerveDrivetrain swerveDrive;
   // public VROOOOM vision;
 
-  private final CommandBadPS4 driverController = new CommandBadPS4(
+  private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);
-  private final BadPS4 badPS5 = driverController.getHID();
+  private final PS4Controller badPS5 = driverController.getHID();
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandBadPS4 operatorController = new CommandBadPS4(
+  private final CommandPS4Controller operatorController = new CommandPS4Controller(
       ControllerConstants.kOperatorControllerPort);
-  private final BadPS4 badPS4 = operatorController.getHID();
+  private final PS4Controller badPS4 = operatorController.getHID();
+  
+
+
+  // private final CommandBadPS4 driverController = new CommandBadPS4(
+  //     ControllerConstants.kDriverControllerPort);
+  // private final BadPS4 badPS5 = driverController.getHID();
+  // // Replace with CommandPS4Controller or CommandJoystick if needed
+  // private final CommandBadPS4 operatorController = new CommandBadPS4(
+  //     ControllerConstants.kOperatorControllerPort);
+  // private final BadPS4 badPS4 = operatorController.getHID();
   // private final Joystick joystick = new Joystick(2);
 
   private final LOG_LEVEL loggingLevel = LOG_LEVEL.MEDIUM;
@@ -356,7 +368,7 @@ public class RobotContainer {
     // scorePos = scoreChooser.getSelected();
     // alliance = allianceChooser.getSelected();
     // Command currentAuto = autoChooser.getSelected().get();
-    Command currentAuto = TestAutos.testAuto1(swerveDrive);
+    Command currentAuto = TestAutos.moveForwardBack(swerveDrive);
     
     swerveDrive.setDriveMode(DRIVE_MODE.AUTONOMOUS);
     return currentAuto;

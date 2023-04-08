@@ -73,4 +73,68 @@ public class TestAutos {
             runOnce(() -> swerveDrive.stopModules())
         );
     }
+
+    public static CommandBase moveForwardBack(SwerveDrivetrain swerveDrive) {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            1, 
+            1);
+
+        Trajectory goForward = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+                // new Pose2d(3.5, 0, Rotation2d.fromDegrees(0)),
+                new Pose2d(5, 0, Rotation2d.fromDegrees(0))
+                // new Pose2d(2.5, 0.01, Rotation2d.fromDegrees(180))
+            ),
+            trajectoryConfig);
+            Trajectory goBackward = TrajectoryGenerator.generateTrajectory(
+                List.of(
+                    new Pose2d(5, 0, Rotation2d.fromDegrees(0)),
+                new Pose2d(2, 0.01, Rotation2d.fromDegrees(0))
+                ),
+                trajectoryConfig);
+        // Trajectory comeBack = TrajectoryGenerator.generateTrajectory(
+        //     List.of(
+        //         new Pose2d(4, 0, Rotation2d.fromDegrees(0)),
+        //         new Pose2d(2, 0.01, Rotation2d.fromDegrees(0))
+        //     ),
+        //     trajectoryConfig);
+        
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand goForwardCommand = new SwerveControllerCommand(
+            goForward, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        SwerveControllerCommand comeBackCommand = new SwerveControllerCommand(
+            goBackward, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return sequence(
+            parallel(
+                runOnce(() -> swerveDrive.resetOdometry(goForward.getInitialPose())),
+                runOnce(() -> swerveDrive.setVelocityControl(true)),
+                runOnce(() -> SmartDashboard.putString("Stage", "Going forward")),
+            )
+            goForwardCommand,
+            // runOnce(() -> {
+            //     xController.reset();
+            //     yController.reset();
+            // }),
+            // runOnce(() -> SmartDashboard.putString("Stage", "Went forward")),
+            // runOnce(() -> swerveDrive.stopModules()),
+            // waitSeconds(1),
+            // runOnce(() -> SmartDashboard.putString("Stage", "Coming back")),
+            // new TurnToAngle(180, swerveDrive),
+            comeBackCommand,
+            runOnce(() -> SmartDashboard.putString("Stage", "Balancing")),
+            new TheGreatBalancingAct(swerveDrive, 1.3, 0.0, 0.1, 0.0, 0.0, 0.0),
+            runOnce(() -> swerveDrive.stopModules())
+        );
+    }
+
 }
