@@ -832,10 +832,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
     public void driveToCubeOnGround(MotorClaw claw, int timeoutSec)
     {
-        double elapsedTime = timer.get();
-        if(elapsedTime >= timeoutSec){
-            return;
-        }
+        
         
         //PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
         // Initialize all variables to 0
@@ -850,7 +847,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
         SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
 
+        double elapsedTime = timer.get();
 
+        if(elapsedTime >= timeoutSec){
+            drivetrain.setModuleStates(SwerveDriveConstants.towModuleStates);
+            drivetrain.stopModules();
+            limelightLow.setLightState(LightMode.BLINK);
+            return;
+        }
 
         if(!limelightLow.hasValidTarget()) {
             chassisSpeeds = new ChassisSpeeds(0, 0, 0);
@@ -885,8 +889,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                     SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                     drivetrain.setModuleStates(moduleStates);
-                    currentCameraMode = CAMERA_MODE.ARRIVED; 
-                    claw.setPower(0.3);
+                    currentCameraMode = CAMERA_MODE.ARRIVED;
+                    limelightLow.setLightState(LightMode.ON);
                     // limelightLow.setLightState(LightMode.ON); // TODO DEBUG
                 return;
                 }

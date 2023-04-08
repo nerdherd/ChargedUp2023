@@ -149,7 +149,7 @@ public class VisionAllLowAuto {
 
                         Commands.race(
                             new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                            Commands.waitSeconds(5) // TODO DEBUG
+                            Commands.waitSeconds(20) // TODO DEBUG
                             // TODO need add protection here!!!!!!
                         ),
                 
