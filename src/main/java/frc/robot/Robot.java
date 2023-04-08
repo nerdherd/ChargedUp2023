@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 
 /**
@@ -43,6 +44,10 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("kDOneWayBalancing", SwerveAutoConstants.kDOneWayBalancing);
     SmartDashboard.putNumber("Gyro ignore time", 2);
     SmartDashboard.putNumber("Charge down speed", -0.9375);
+    SmartDashboard.putNumber("kPDrive", ModuleConstants.kPDrive);
+    SmartDashboard.putNumber("kIDrive", ModuleConstants.kIDrive);
+    SmartDashboard.putNumber("kDDrive", ModuleConstants.kDDrive);
+    SmartDashboard.putNumber("kFDrive", ModuleConstants.kFDrive);
   }
 
   /**

@@ -15,9 +15,12 @@ public class TheGreatBalancingAct extends CommandBase {
     private PIDController rollPidController;
     private PIDController pitchPidController;
 
-    private double kP;
-    private double kI;
-    private double kD;
+    private double kPx;
+    private double kIx;
+    private double kDx;
+    private double kPy;
+    private double kIy;
+    private double kDy;
 
     // private double towTime = 0;
     // private double period = 0.02;
@@ -33,17 +36,20 @@ public class TheGreatBalancingAct extends CommandBase {
     public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double period, double kP, double kI, double kD) {
         this.swerveDrive = swerveDrive;
 
-        this.kP = kP;
-        this.kI = kI;
-        this.kD = kD;
+        this.kPx = kP;
+        this.kPy = kP;
+        this.kIx = kI;
+        this.kIy = kI;
+        this.kDx = kD;
+        this.kDy = kD;
 
         this.rollPidController = new PIDController(
-            kP, kI, kD, period);
+            kPy, kIy, kDy, period);
         
         this.rollPidController.enableContinuousInput(0, 360);
         
         this.pitchPidController = new PIDController(
-            kP, kI, kD, period);
+            kPx, kIx, kDx, period);
         
         this.pitchPidController.enableContinuousInput(0, 360);
         addRequirements(swerveDrive);
@@ -54,6 +60,36 @@ public class TheGreatBalancingAct extends CommandBase {
         // SmartDashboard.putNumber("kDBalancing", kD);
     }
 
+    public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double period, double kPX, double kIX, double kDX, double kPY, double kIY, double kDY) {
+        this.swerveDrive = swerveDrive;
+
+        this.kPx = kPX;
+        this.kIx = kIX;
+        this.kDx = kDX;
+        this.kPy = kPY;
+        this.kIy = kIY;
+        this.kDy = kDY;
+
+        this.rollPidController = new PIDController(
+            kPy, kIy, kDy, period);
+        
+        this.rollPidController.enableContinuousInput(0, 360);
+        
+        this.pitchPidController = new PIDController(
+            kPx, kIx, kDx, period);
+        
+        this.pitchPidController.enableContinuousInput(0, 360);
+        addRequirements(swerveDrive);
+
+        // this.period = period;
+        // SmartDashboard.putNumber("kPBalancing", kP);
+        // SmartDashboard.putNumber("kIBalancing", kI);
+        // SmartDashboard.putNumber("kDBalancing", kD);
+    }
+
+    public TheGreatBalancingAct(SwerveDrivetrain swerveDrive, double kPX, double kIX, double kDX, double kPY, double kIY, double kDY) {
+        this(swerveDrive, 0.02, kPX, kIX, kDX, kPY, kIY, kDY);
+    }
     /**
      * Construct a new BalancingAct Command and assume period is the default (20ms)
      * @param swerveDrive   Swerve drivetrain to balance
@@ -92,15 +128,18 @@ public class TheGreatBalancingAct extends CommandBase {
         Rotation3d currentRotation = swerveDrive.getImu().getRotation3d();
 
         // temporary debugging code
-        // kP = SmartDashboard.getNumber("kPBalancing", kP);
-        // kI = SmartDashboard.getNumber("kIBalancing", kI);
-        // kD = SmartDashboard.getNumber("kDBalancing", kD);
-        // pitchPidController.setP(kP);
-        // pitchPidController.setI(kI);
-        // pitchPidController.setD(kD);
-        // rollPidController.setP(kP);
-        // rollPidController.setI(kI);
-        // rollPidController.setD(kD);
+        // kPx = SmartDashboard.getNumber("kPBalancingX", kPx);
+        // kIx = SmartDashboard.getNumber("kIBalancingX", kIx);
+        // kDx = SmartDashboard.getNumber("kDBalancingX", kDx);
+        // kPy = SmartDashboard.getNumber("kPBalancingY", kPy);
+        // kIy = SmartDashboard.getNumber("kIBalancingY", kIy);
+        // kDy = SmartDashboard.getNumber("kDBalancingY", kDy);
+        // pitchPidController.setP(kPx);
+        // pitchPidController.setI(kIx);
+        // pitchPidController.setD(kDx);
+        // rollPidController.setP(kPy);
+        // rollPidController.setI(kIy);
+        // rollPidController.setD(kDy);
 
         // Calculate turning speed with PID
         double xSpeed = pitchPidController.calculate(
