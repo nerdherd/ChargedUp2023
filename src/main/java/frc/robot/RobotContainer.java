@@ -369,7 +369,7 @@ public class RobotContainer {
     // scorePos = scoreChooser.getSelected();
     // alliance = allianceChooser.getSelected();
     // Command currentAuto = autoChooser.getSelected().get();
-    Command currentAuto = TestAutos.taxiChargeBackwards(swerveDrive);
+    Command currentAuto = TestAutos.taxiSLOW(swerveDrive);
     
     swerveDrive.setDriveMode(DRIVE_MODE.AUTONOMOUS);
     return currentAuto;

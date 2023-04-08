@@ -74,6 +74,70 @@ public class TestAutos {
         );
     }
 
+    public static CommandBase taxiSLOW(SwerveDrivetrain swerveDrive) {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            2, 
+            3);
+
+        Trajectory goForward = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+                new Pose2d(5.25, 0.5, Rotation2d.fromDegrees(0))
+            ),
+            trajectoryConfig);
+        
+        Trajectory comeBack = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(5.25, 0.5, Rotation2d.fromDegrees(0)),
+                new Pose2d(2, 0, Rotation2d.fromDegrees(0)),
+                new Pose2d(0, 0.75, Rotation2d.fromDegrees(180))
+            ),
+            trajectoryConfig);
+        
+        Trajectory goBack = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(0, 0.75, Rotation2d.fromDegrees(180)),
+                new Pose2d(2, 0, Rotation2d.fromDegrees(180)),
+                new Pose2d(5.25, 1.75, Rotation2d.fromDegrees(180))
+            ),
+            trajectoryConfig);
+
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand goForwardCommand = new SwerveControllerCommand(
+            goForward, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        SwerveControllerCommand comeBackCommand = new SwerveControllerCommand(
+            comeBack, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        SwerveControllerCommand goBackCommand = new SwerveControllerCommand(
+            goBack, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return sequence(
+            runOnce(() -> swerveDrive.resetOdometry(goForward.getInitialPose())),
+            runOnce(() -> swerveDrive.setVelocityControl(true)),
+            runOnce(() -> SmartDashboard.putString("Stage", "Taxiing")),
+            goForwardCommand,
+            runOnce(() -> SmartDashboard.putString("Stage", "Coming Back")),
+            runOnce(() -> swerveDrive.stopModules()),
+            waitSeconds(2),
+            // new TurnToAngle(180, swerveDrive),
+            comeBackCommand,
+            runOnce(() -> swerveDrive.stopModules()),
+            waitSeconds(1),
+            goBackCommand,
+            runOnce(() -> SmartDashboard.putString("Stage", "Done")),
+            runOnce(() -> swerveDrive.stopModules())
+        );
+    }
+
     public static CommandBase taxiChargeBackwards(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             1, 
