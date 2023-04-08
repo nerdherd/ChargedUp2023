@@ -27,6 +27,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.util.NerdyMath;
 
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj.Timer;
+
 
 public class VROOOOM extends SubsystemBase implements Reportable{
 
@@ -65,6 +67,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     private double goalYaw;
     private boolean rotationIsNeeded;
     public BooleanSupplier cameraStatusSupplier;
+
 
     // Current PID Controllers
     private PIDController PIDArea = new PIDController(0, 0, 0);
@@ -208,13 +211,19 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         areaIndex = 0;
     }
 
+    Timer timer = new Timer();
+
     public void initVisionPickupOnGround(OBJECT_TYPE objType) {
         initVisionCommands();
+
+        timer.reset();
+        timer.start();
 
         currentGameObject = objType;
         currentHeightPos = SCORE_POS.LOW;
         rotationIsNeeded = false; // Reset rotation variable
         currentLimelight = limelightLow;
+        currentLimelight.setLightState(LightMode.OFF);
 
         // This doesn't work for some reason, so we might need to pass the currentGameObject into the drive command directly. (3/11/2023)
         if (currentGameObject == OBJECT_TYPE.CONE) {
@@ -230,8 +239,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // PIDArea.setPID(0.5, 0, 0.0125);
             // PIDTX.setPID(0.05, 0, 0.0125);
             // PIDYaw.setPID(0, 0, 0);
-        } else {
-            goalArea = 4; // Goal area for cube ground pickup
+        } else if (currentGameObject == OBJECT_TYPE.CUBE) {
+            goalArea = 4.2; // Goal area for cube ground pickup // 3.3 OG
             currentLimelight.setPipeline(2);
             currentLimelight.setLightState(LightMode.OFF);
 
@@ -248,6 +257,11 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
             PIDArea.setPID(0.75, 0, 0.02);
             PIDTX.setPID(0.05, 0, 0.008);
+            PIDYaw.setPID(0, 0, 0);
+        }
+        else {
+            PIDArea.setPID(0, 0, 0);
+            PIDTX.setPID(0, 0, 0);
             PIDYaw.setPID(0, 0, 0);
         }
     }
@@ -337,11 +351,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
                     Commands.race(
                         new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier),
-                        Commands.waitSeconds(4)
+                        Commands.waitSeconds(2)
                     ),
-
-                    Commands.runOnce(() -> drivetrain.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                    Commands.runOnce(() -> drivetrain.stopModules()),
     
                     // Drop arm and elevator so the game piece can be intook
                     // Commands.race(
@@ -358,14 +369,6 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     // ),
 
                     // Open claw/Start claw intake rollers
-                    Commands.deadline(
-                        Commands.waitSeconds(1),
-                        Commands.runOnce(() -> SmartDashboard.putString("Stage", "Pickup")),
-                        Commands.sequence(
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
-                            Commands.waitUntil(arm.atTargetPosition)
-                        )
-                    ),
                     claw.setPower(-0.3),
                     new WaitCommand(.5),
     
@@ -743,19 +746,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ARRIVED; 
-                // currentLimelight.setLightState(LightMode.ON);
-                return;
-                }
-            }
-            if(currentLimelight.getPipeIndex()==2){
-                if (NerdyMath.inRange(calculatedY, -15, 15) // tX
-                    && NerdyMath.inRange(calculatedX, 3.5, 4.3) // tA
-                ) {
-                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-                drivetrain.setModuleStates(moduleStates);
-                currentCameraMode = CAMERA_MODE.ARRIVED; 
-                // currentLimelight.setLightState(LightMode.ON);
+                currentLimelight.setLightState(LightMode.ON);
                 return;
                 }
             }
@@ -835,8 +826,17 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
 
-    public void driveToCubeOnGround(PIDController pidArea, PIDController pidTX, PIDController pidYaw)
+    PIDController pidTX_driveToCubeOnGround = new PIDController(0.05, 0, 0.008);
+    PIDController pidYaw_driveToCubeOnGround = new PIDController(0, 0, 0);
+    PIDController pidArea_driveToCubeOnGround = new PIDController(0.8, 0.01, 0.02); //0.75 P OG
+
+    public void driveToCubeOnGround(MotorClaw claw, int timeoutSec)
     {
+        double elapsedTime = timer.get();
+        if(elapsedTime >= timeoutSec){
+            return;
+        }
+        
         //PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
         // Initialize all variables to 0
         double xSpeed = 0;
@@ -849,6 +849,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         ChassisSpeeds chassisSpeeds;
 
         SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
+
+
 
         if(!limelightLow.hasValidTarget()) {
             chassisSpeeds = new ChassisSpeeds(0, 0, 0);
@@ -877,20 +879,21 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             SmartDashboard.putNumber("Vision average X", calculatedX);
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
-            if(currentLimelight.getPipeIndex()==4){
-                if (NerdyMath.inRange(calculatedY, -2.2, 1) 
-                    && calculatedX > 7) {
-                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-                drivetrain.setModuleStates(moduleStates);
-                currentCameraMode = CAMERA_MODE.ARRIVED; 
-                currentLimelight.setLightState(LightMode.ON);
+            if(limelightLow.getPipeIndex()==2){ // TODO change it to cube-2
+                if (NerdyMath.inRange(calculatedY, -15, 15) 
+                    && NerdyMath.inRange(calculatedX, 4.2, 5.0)) { // OG 3.7 to 4.2 , 39 inches
+                    chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                    SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                    drivetrain.setModuleStates(moduleStates);
+                    currentCameraMode = CAMERA_MODE.ARRIVED; 
+                    claw.setPower(0.3);
+                    // limelightLow.setLightState(LightMode.ON); // TODO DEBUG
                 return;
                 }
             }
-            xSpeed = pidArea.calculate(calculatedX, goalArea) * (5/4);
-            ySpeed = -pidTX.calculate(calculatedY, goalTX) * (5/4);
-            rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
+            xSpeed = pidArea_driveToCubeOnGround.calculate(calculatedX, goalArea);
+            ySpeed = -pidTX_driveToCubeOnGround.calculate(calculatedY, goalTX);
+            //rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
             
             if (NerdyMath.inRange(xSpeed, -.1, .1) &&
             NerdyMath.inRange(ySpeed, -.1, .1) &&
@@ -900,7 +903,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ARRIVED;
-                currentLimelight.setLightState(LightMode.ON); 
+                limelightLow.setLightState(LightMode.ON); 
             }
             else{
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
