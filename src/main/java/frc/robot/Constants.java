@@ -93,12 +93,12 @@ public final class Constants {
     public static final int kArmLowerLimit = -220000;
     public static final int kArmStow = -144652;//-310079;//-144652;//-166987; //73 deg //-361131;//-144321 * 3;//-276670;//-622485;//-630435;//144278;
     public static final int kArmTalonTach = -550169 / 3;
-    public static final int kArmScore = -70998;//-152194;//-70998;//-81958; //35.83 deg //-177246;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
+    public static final int kArmScore = -75933;//-152194;//-70998;//-81958; //35.83 deg //-177246;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
     public static final int kArmScoreCubeMid = -394900 / 3;//-371050;//596443; // 89744;
     public static final int kArmScoreCubeHigh = -406900 / 3;//-383050;//596443; // 89744;
-    public static final int kArmGroundPickup = -13000;//-12484;//-26760;//-12484;//-11002; //4.8 deg //-23794;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
+    public static final int kArmGroundPickup = -22763;//-12484;//-26760;//-12484;//-11002; //4.8 deg //-23794;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
     public static final int kArmGroundPickupVision = -19430;//-42020;
-    public static final int kArmSubstation = -107974;//-231474;//-107974;//-124643; //54.49 deg//-269557; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmSubstation = -110410;//-231474;//-107974;//-124643; //54.49 deg//-269557; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
     public static final int kArmMotionAcceleration = 100000;//20000;//45000;//800000; //160000;
     public static final int kArmCruiseVelocity = 16333;//13500;//30000;//18000;//21777;
     public static final double kArmDeadband = 0.05;

@@ -118,7 +118,7 @@ public class Arm extends SubsystemBase implements Reportable {
 
     public void moveArmMotionMagicJoystick(double joystickInput, double percentExtended) {
         tickChange = 0;
-        double alpha = 15000;
+        double alpha = 7500;
         double beta = 1 - alpha;
         if (joystickInput > 0) {
             rotatingArm.configMotionAcceleration(16333);

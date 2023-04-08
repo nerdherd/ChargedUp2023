@@ -20,12 +20,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -67,13 +69,13 @@ public class RobotContainer {
   public SwerveDrivetrain swerveDrive;
   public VROOOOM vision;
 
-  private final CommandBadPS4 driverController = new CommandBadPS4(
+  private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);
-  private final BadPS4 badPS5 = driverController.getHID();
+  private final PS4Controller badPS5 = driverController.getHID();
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandBadPS4 operatorController = new CommandBadPS4(
+  private final CommandPS4Controller operatorController = new CommandPS4Controller(
       ControllerConstants.kOperatorControllerPort);
-  private final BadPS4 badPS4 = operatorController.getHID();
+  private final PS4Controller badPS4 = operatorController.getHID();
   // private final Joystick joystick = new Joystick(2);
 
   private final LOG_LEVEL loggingLevel = LOG_LEVEL.MEDIUM;
@@ -195,14 +197,14 @@ public class RobotContainer {
     // These button bindings are chosen for testing, and may be changed based on
     // driver preference
     
-    upButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)));
-      //.onFalse(Commands.runOnce(arm::initTargetTicks));
-    leftButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmScore)));
-    // .onFalse(Commands.runOnce(arm::initTargetTicks));
-    rightButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmSubstation)));
-    // .onFalse(Commands.runOnce(arm::initTargetTicks));
-    downButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)));
-    // .onFalse(Commands.runOnce(arm::initTargetTicks));
+    upButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)))
+      .onFalse(Commands.runOnce(arm::initTargetTicks));
+    leftButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmScore)))
+      .onFalse(Commands.runOnce(arm::initTargetTicks));
+    rightButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmSubstation)))
+      .onFalse(Commands.runOnce(arm::initTargetTicks));
+    downButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)))
+      .onFalse(Commands.runOnce(arm::initTargetTicks));
     
     operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm::getArmAngle))
       .onFalse(Commands.runOnce(elevator::setPowerZero));
@@ -218,7 +220,7 @@ public class RobotContainer {
     
     operatorController.L1().whileTrue(motorClaw.setPower(1, 1))
         .onFalse(motorClaw.setPowerZero());
-    operatorController.R1().whileTrue(motorClaw.setPower(-0.30))
+    operatorController.R1().whileTrue(motorClaw.setPower(-0.35))
         .onFalse(motorClaw.setPower(-0.2));
 
     driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
