@@ -230,6 +230,9 @@ public class RobotContainer {
     // driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
     
     driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
+    driverController.circle()
+      .whileTrue(Commands.run(() -> swerveDrive.setVelocityControl(true)))
+      .whileFalse(Commands.run(() -> swerveDrive.setVelocityControl(false)));
 
     // driverController.L2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), true));
     // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
