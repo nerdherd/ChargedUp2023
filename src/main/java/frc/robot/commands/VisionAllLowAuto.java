@@ -63,27 +63,27 @@ public class VisionAllLowAuto {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(0.2, 0.2) // only for blue side right now
+                new Translation2d(0.18, 0.18 * zoooomAllianceThingy) // only for blue side right now
                 //new Translation2d(-1.8, -0.4)
             ),
-            new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(0)),
+            new Pose2d(4.4, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0.8, 0.2, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.6, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0.8, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 // new Pose2d(-0.8, -1.0, Rotation2d.fromDegrees(0)),
-                new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9))
+                new Pose2d(0.18, 1.0 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 
         Trajectory zoooomPartTwo = TrajectoryGenerator.generateTrajectory(
             List.of(
                 //new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0.8, 0.2, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(3.6, 0.2, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(3.6, 2.2, Rotation2d.fromDegrees(179.9))
+                new Pose2d(0.8, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.6, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.6, 2.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 
@@ -138,6 +138,8 @@ public class VisionAllLowAuto {
                 Commands.runOnce(() -> swerveDrive.stopModules()),
 
 
+
+
                 // // new TurnToAngle(170, swerveDrive),
                 // runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 // runOnce(() -> swerveDrive.stopModules()),
@@ -158,7 +160,10 @@ public class VisionAllLowAuto {
                         Commands.runOnce(() -> swerveDrive.stopModules())
 
                     ) // TODO: GET RID OF TEMPORARy
-                    ),/* ,
+                    ),
+                    
+                    
+                    /* ,
                     
     
             //         //Drop arm and pick cube up
@@ -180,7 +185,8 @@ public class VisionAllLowAuto {
                 // Open claw/Start claw intake rollers
                 // claw.setPower(-0.3),
                 // new WaitCommand(.5),
-                    
+                
+
                 Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false)),
                 
                 Commands.parallel(
@@ -189,6 +195,8 @@ public class VisionAllLowAuto {
 
                     Commands.sequence(
                         new TurnToAngle(179.9, swerveDrive),
+
+                        Commands.waitSeconds(1000),
 
                         cubeToZoooomCommand
                     )
@@ -243,9 +251,8 @@ public class VisionAllLowAuto {
                 Commands.runOnce(() -> swerveDrive.stopModules()),
 
 
-                new TurnToAngle(0, swerveDrive),
+                new TurnToAngle(0, swerveDrive)
 
-                Commands.waitSeconds(1000)
 
 
             //     // vision pickup
