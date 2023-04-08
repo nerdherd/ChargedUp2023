@@ -209,6 +209,47 @@ public class TestAutos {
         );
     }
 
+    public static CommandBase chargeBackwardsSLOW(SwerveDrivetrain swerveDrive) {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            1, 
+            1);
+
+        Trajectory goForward = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(0, 0, Rotation2d.fromDegrees(180)),
+                new Pose2d(2, 0.01, Rotation2d.fromDegrees(180))
+            ),
+            trajectoryConfig);
+        
+        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand goForwardCommand = new SwerveControllerCommand(
+            goForward, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            xController, yController, thetaController, swerveDrive::setModuleStates, swerveDrive);
+        
+        return sequence(
+            parallel(
+                runOnce(() -> swerveDrive.resetOdometry(goForward.getInitialPose())),
+                runOnce(() -> swerveDrive.setVelocityControl(true)),
+                runOnce(() -> SmartDashboard.putString("Stage", "Going forward")),
+                runOnce(() -> swerveDrive.getImu().zeroRoll()),
+                runOnce(() -> swerveDrive.getImu().zeroPitch())
+            ),
+            goForwardCommand,
+            runOnce(() -> SmartDashboard.putString("Stage", "Balancing")),
+            race(
+                waitSeconds(2),
+                new TheGreatBalancingAct(swerveDrive, 2, 0.0, 0.1, 0.0, 0.0, 0.0)
+            ),
+            runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+            runOnce(() -> swerveDrive.stopModules())
+        );
+    }
+
     public static CommandBase taxiChargeForwards(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             1, 
