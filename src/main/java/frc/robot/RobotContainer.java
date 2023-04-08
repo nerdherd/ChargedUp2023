@@ -220,7 +220,7 @@ public class RobotContainer {
     
     operatorController.L1().whileTrue(motorClaw.setPower(1, 1))
         .onFalse(motorClaw.setPowerZero());
-    operatorController.R1().whileTrue(motorClaw.setPower(-0.35))
+    operatorController.R1().whileTrue(motorClaw.setPower(-.35))
         .onFalse(motorClaw.setPower(-0.2));
 
     driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
