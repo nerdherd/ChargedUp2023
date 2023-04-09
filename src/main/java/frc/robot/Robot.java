@@ -92,6 +92,7 @@ public class Robot extends TimedRobot {
     m_robotContainer.elevator.resetEncoder();
     m_robotContainer.arm.isInTalonTachZone();
     m_robotContainer.arm.init();
+    m_robotContainer.elevator.init();
     // m_robotContainer.arm.setTargetTicks(ArmConstants.kArmStow);
     m_robotContainer.imu.zeroAll();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();

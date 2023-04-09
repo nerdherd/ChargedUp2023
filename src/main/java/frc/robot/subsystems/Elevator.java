@@ -51,6 +51,20 @@ public class Elevator extends SubsystemBase implements Reportable{
     elevator.configMotionCruiseVelocity(ElevatorConstants.kElevatorCruiseVelocity);
   }
 
+  public void init() {
+    elevator = new TalonFX(ElevatorConstants.kElevatorID);
+    elevator.setNeutralMode(NeutralMode.Brake);
+    elevator.setInverted(false);
+    atTargetPosition = () -> NerdyMath.inRange(elevator.getSelectedSensorPosition(), targetTicks - 40000, targetTicks + 40000);
+    elevator.config_kP(0, ElevatorConstants.kElevatorP);
+    elevator.config_kI(0, ElevatorConstants.kElevatorI);
+    elevator.config_kD(0, ElevatorConstants.kElevatorD);
+    elevator.config_kF(0, ElevatorConstants.kElevatorF);
+    elevator.configMotionAcceleration(ElevatorConstants.kElevatorMotionAcceleration);
+    elevator.configMotionCruiseVelocity(ElevatorConstants.kElevatorCruiseVelocity);
+  
+  }
+
 
   public void moveElevatorJoystick(double currentJoystickOutput, double angle) {
     setBrakeMode();
