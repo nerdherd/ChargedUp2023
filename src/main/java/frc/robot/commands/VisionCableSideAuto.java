@@ -42,7 +42,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class VisionCableSideAuto {
     
-    public static CommandBase ThreeCubesAuto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, 
+    public static CommandBase Auto(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, 
     Alliance alliance){
         PIDController trajectoryXController = new PIDController(kPXController, kIXController, kDXController);
         PIDController trajectoryYController = new PIDController(kPYController, kIYController, kDYController);
