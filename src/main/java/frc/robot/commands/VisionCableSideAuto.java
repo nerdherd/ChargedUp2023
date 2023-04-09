@@ -368,17 +368,18 @@ public class VisionCableSideAuto {
                 // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
                 claw.setPower(-0.20),
 
-                Commands.deadline(
-                    Commands.waitSeconds(0.5),
-                    sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                        waitSeconds(0.5),
-                        waitUntil(arm.atTargetPosition)
-                    )
+                Commands.parallel(
+                    Commands.deadline(
+                        Commands.waitSeconds(0.5),
+                        sequence(
+                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                            waitSeconds(0.5),
+                            waitUntil(arm.atTargetPosition)
+                        )
+                    ), // to be safe, arm needs stow very fast to avoid possible hit
+                    
+                    new TurnToAngle(0, swerveDrive)
                 ),
-                
-                //trajectory to grid
-                new TurnToAngle(0, swerveDrive),
 
                 Commands.parallel(
                     cubeToZoooomCommand_A,
