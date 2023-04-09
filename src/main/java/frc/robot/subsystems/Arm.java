@@ -145,6 +145,10 @@ public class Arm extends SubsystemBase implements Reportable {
         //     targetTicks = ArmConstants.kArmStow;
         // }
 
+        if (!rotatingArm.isMotionProfileFinished()) {
+            rotatingArm.set(ControlMode.PercentOutput, 0);
+        }
+        
         moveArmMotionMagic(targetTicks, percentExtended);
     }
 
