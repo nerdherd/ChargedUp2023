@@ -233,45 +233,34 @@ public class VisionCableSideAuto {
         //trajectory stuff
 
         Trajectory zoooomToCube_A = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(0, 0, new Rotation2d(0)), 
+            new Pose2d(-0.125, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(0.18, -0.18 * zoooomAllianceThingy) 
-                //new Translation2d(-1.8, -0.4)
-            ),
-            new Pose2d(2.4, -0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
-            trajectoryConfig);
-
-        Trajectory zoooomToCube_B = TrajectoryGenerator.generateTrajectory(
-            List.of(
-                new Pose2d(2.5, -0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
-                new Pose2d(4.4, -0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0))
-            ),
+                new Translation2d(-0.18, 0 * zoooomAllianceThingy), 
+                new Translation2d(-2.5, 0 * zoooomAllianceThingy), 
+                new Translation2d(-4.3, 0 * zoooomAllianceThingy)), 
+            new Pose2d(-4.5, -0.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         Trajectory cubeToZoooom_A = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(3.6, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(2.0, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(-4.5, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+                new Pose2d(-2.0, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
 
         Trajectory cubeToZoooom_B = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(1.9, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), 
-                new Pose2d(1.5, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, -0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(-0.5, -0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(-1.9, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)), 
+                new Pose2d(-1.5, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+                new Pose2d(0, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+                new Pose2d(0, -0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+                new Pose2d(-0.5, -0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(0))
             ),
             trajectoryConfig);
         
 
         SwerveControllerCommand zoooomToCubeCommand_A = new SwerveControllerCommand(
             zoooomToCube_A, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
-            trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
-
-        SwerveControllerCommand zoooomToCubeCommand_B = new SwerveControllerCommand(
-            zoooomToCube_B, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
 
         SwerveControllerCommand cubeToZoooomCommand_A = new SwerveControllerCommand(
@@ -337,7 +326,6 @@ public class VisionCableSideAuto {
                 ),
 
                 //trajectory to cube
-                //Commands.runOnce(() -> SmartDashboard.putString("Moved On", "zoomin")),
                 Commands.parallel(
                     zoooomToCubeCommand_A,
     
@@ -389,6 +377,7 @@ public class VisionCableSideAuto {
                     )
                 ),
                 
+                //trajectory to grid
                 new TurnToAngle(0, swerveDrive),
 
                 Commands.parallel(
@@ -399,11 +388,12 @@ public class VisionCableSideAuto {
                 Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 Commands.runOnce(() -> swerveDrive.stopModules()),
 
+                new TurnToAngle(0, swerveDrive),
+
                 parallel (
                     Commands.race(
-                        new RunCommand(() -> vision.driveToGridAtag(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                        new RunCommand(() -> vision.driveToGridTag(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
                         Commands.waitSeconds(20) // kill this auto
-                        // TODO need add protection here!!!!!!
                     )/* ,
 
                     //Drop arm high drop off
@@ -416,8 +406,6 @@ public class VisionCableSideAuto {
                         )
                     )*/
                 ),
-                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.runOnce(() -> swerveDrive.stopModules()),
 
                 claw.setPower(0.3)
                 
