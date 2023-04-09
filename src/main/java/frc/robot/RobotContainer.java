@@ -276,8 +276,8 @@ public class RobotContainer {
     autoChooser.addOption("Preload High Center Charge Taxi With Balancing", () -> ChargeAutos.preloadHighChargeTaxiMiddleSafer(swerveDrive, arm, elevator, motorClaw));
     autoChooser.addOption("Preload High Center Charge Taxi With Balancing Sliding", () -> ChargeAutos.preloadHighChargeTaxiMiddleSafer2(swerveDrive, arm, elevator, motorClaw));
 
-    autoChooser.addOption("Slow taxi charge", () -> TestAutos.taxiChargeBackwardsSLOW(swerveDrive));
-    autoChooser.addOption("Slow charge", () -> TestAutos.chargeBackwardsSLOW(swerveDrive));
+    autoChooser.addOption("Preload Slow taxi charge", () -> TestAutos.preloadTaxiChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
+    autoChooser.addOption("Preload Slow charge", () -> TestAutos.preloadChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
     
     autoChooser.addOption("Center Charge", () -> ChargeAutos.chargeMiddle(swerveDrive)); // Same as preload charge auto
     

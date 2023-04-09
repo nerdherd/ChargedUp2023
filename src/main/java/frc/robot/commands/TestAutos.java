@@ -13,12 +13,37 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.claw.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 import static frc.robot.Constants.SwerveAutoConstants.*;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class TestAutos {
+    public static CommandBase preloadTaxiChargeBackwardsSLOW(SwerveDrivetrain swerveDrive, MotorClaw claw, Arm arm, Elevator elevator) {
+        return sequence(
+            ChargeAutos.preloadHigh(arm, elevator, claw),
+            deadline(
+                taxiChargeBackwardsSLOW(swerveDrive),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+            )
+        );
+    }
+
+    public static CommandBase preloadChargeBackwardsSLOW(SwerveDrivetrain swerveDrive, MotorClaw claw, Arm arm, Elevator elevator) {
+        return sequence(
+            ChargeAutos.preloadHigh(arm, elevator, claw),
+            deadline(
+                chargeBackwardsSLOW(swerveDrive),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+            )
+        );
+    }
+
     public static CommandBase taxiChargeBackwardsSLOW(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             1, 
