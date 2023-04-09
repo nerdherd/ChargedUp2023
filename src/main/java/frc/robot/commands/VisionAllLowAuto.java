@@ -71,18 +71,20 @@ public class VisionAllLowAuto {
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(3.6, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0.8, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.6, 0.27 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // TODO: Run with and without this line
+                new Pose2d(1.5, 0.27 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, 0.27 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 // new Pose2d(-0.8, -1.0, Rotation2d.fromDegrees(0)),
-                new Pose2d(0.18, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(-0.5, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 
         Trajectory zoooomPartTwo = TrajectoryGenerator.generateTrajectory(
             List.of(
                 //new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0.8, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(3.8, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(0, 0 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(4.2, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
                 // new Pose2d(3.6, 2.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
@@ -112,16 +114,18 @@ public class VisionAllLowAuto {
             Commands.sequence(
                 Commands.parallel(
                     Commands.runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                    Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose()))
+                    Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
                     //runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)), // TBD
                     //runOnce(() -> swerveDrive.stopModules())
-                    // Commands.runOnce(() -> claw.setPower(-1))
+                    claw.setPower(-0.5)
                 ),
+                Commands.waitSeconds(0.1),
 
                 //trajectory to cube
                 //Commands.runOnce(() -> SmartDashboard.putString("Moved On", "zoomin")),
                 Commands.parallel(
-                    // zoooomToCubeCommand,
+                    zoooomToCubeCommand,
+                    claw.setPower(0),
 
                     // Commands.sequence(
                     //     Commands.waitSeconds(1),
@@ -129,10 +133,10 @@ public class VisionAllLowAuto {
                     // ),
     
                     //Drop arm to half way
-                    Commands.race(
-                        Commands.waitSeconds(5),
+                    Commands.deadline(
+                        Commands.waitSeconds(0.5),
                         sequence(
-                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                            runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickup) / 2)),
                             waitSeconds(0.5),
                             waitUntil(arm.atTargetPosition)
                         )
@@ -143,7 +147,7 @@ public class VisionAllLowAuto {
                 Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 Commands.runOnce(() -> swerveDrive.stopModules()),
 
-                Commands.waitSeconds(1000),
+                
 
 
                 // // new TurnToAngle(170, swerveDrive),
@@ -166,7 +170,18 @@ public class VisionAllLowAuto {
                         Commands.runOnce(() -> swerveDrive.stopModules())
 
                     ) // TODO: GET RID OF TEMPORARy
-                    ),
+                ),
+
+                claw.setPower(-0.35),
+                Commands.deadline(
+                    Commands.waitSeconds(0.5),
+                    sequence(
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
+                        waitSeconds(0.5),
+                        waitUntil(arm.atTargetPosition)
+                    )
+                ),
+                claw.setPower(-0.20),
                     
                     
                     /* ,
@@ -189,24 +204,34 @@ public class VisionAllLowAuto {
             //     ),
 
                 // Open claw/Start claw intake rollers
-                // claw.setPower(-0.3),
+                
                 // new WaitCommand(.5),
+
+                Commands.deadline(
+                    Commands.waitSeconds(0.5),
+                    sequence(
+                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                        waitSeconds(0.5),
+                        waitUntil(arm.atTargetPosition)
+                    )
+                ),
                 
 
                 Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false)),
                 
                 Commands.parallel(
                     // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-                // claw.setPower(-0.15),
-
                     Commands.sequence(
                         new TurnToAngle(-179.9, swerveDrive),
-
-
 
                         cubeToZoooomCommand
                     )
                 ),
+
+                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                Commands.runOnce(() -> swerveDrive.stopModules()),
+
+                claw.setPower(0.3),
                     /* ,
 
                 
@@ -229,8 +254,7 @@ public class VisionAllLowAuto {
             //     ),
 
             //     // TODO: apriltag?
-                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.runOnce(() -> swerveDrive.stopModules()),
+                
 
 
             //     claw.setPower(0.3),
@@ -254,6 +278,7 @@ public class VisionAllLowAuto {
                         )
                     )*/
                 ),
+                claw.setPower(0),
                 Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 Commands.runOnce(() -> swerveDrive.stopModules()),
 
@@ -275,10 +300,7 @@ public class VisionAllLowAuto {
                         Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                         Commands.runOnce(() -> swerveDrive.stopModules())
 
-                ),
-
-
-                Commands.waitSeconds(1000),
+                )
 
 
 
@@ -318,12 +340,11 @@ public class VisionAllLowAuto {
                 
             //     //Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
                 
-            // )
+            ),
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
             // run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
 
             
-        ))
-        ;
+        );
     }
 }
