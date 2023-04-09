@@ -12,6 +12,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
@@ -27,6 +28,29 @@ public class TestAutos {
             ChargeAutos.preloadHigh(arm, elevator, claw),
             deadline(
                 taxiChargeBackwardsSLOW(swerveDrive),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+            )
+        );
+    }
+
+    public static CommandBase taxiChargeBackwardsSLOW(SwerveDrivetrain swerveDrive, MotorClaw claw, Arm arm, Elevator elevator) {
+        return sequence(
+            // ChargeAutos.preloadHigh(arm, elevator, claw),
+            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+            deadline(
+                taxiChargeBackwardsSLOW(swerveDrive),
+                run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
+                run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+            )
+        );
+    }
+
+    public static CommandBase chargeBackwardsSLOW(SwerveDrivetrain swerveDrive, MotorClaw claw, Arm arm, Elevator elevator) {
+        return sequence(
+            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+            deadline(
+                chargeBackwardsSLOW(swerveDrive),
                 run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
                 run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
             )
@@ -111,6 +135,7 @@ public class TestAutos {
                 new TheGreatBalancingAct(swerveDrive, 2, 0.0, 0.1, 0.0, 0.0, 0.0)
             ),
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+            waitSeconds(0.1),
             runOnce(() -> swerveDrive.stopModules())
         );
     }
@@ -118,7 +143,7 @@ public class TestAutos {
     public static CommandBase chargeBackwardsSLOW(SwerveDrivetrain swerveDrive) {
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             1, 
-            1);
+            2);
 
         Trajectory goForward = TrajectoryGenerator.generateTrajectory(
             List.of(
@@ -152,6 +177,7 @@ public class TestAutos {
                 new TheGreatBalancingAct(swerveDrive, 2, 0.0, 0.1, 0.0, 0.0, 0.0)
             ),
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+            waitSeconds(0.1),
             runOnce(() -> swerveDrive.stopModules())
         );
     }

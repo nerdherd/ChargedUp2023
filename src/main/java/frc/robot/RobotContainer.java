@@ -278,6 +278,8 @@ public class RobotContainer {
 
     autoChooser.addOption("Preload Slow taxi charge", () -> TestAutos.preloadTaxiChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
     autoChooser.addOption("Preload Slow charge", () -> TestAutos.preloadChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
+    autoChooser.addOption("Slow charge", () -> TestAutos.chargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
+    autoChooser.addOption("Slow taxi charge", () -> TestAutos.taxiChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
     
     autoChooser.addOption("Center Charge", () -> ChargeAutos.chargeMiddle(swerveDrive)); // Same as preload charge auto
     
@@ -364,7 +366,8 @@ public class RobotContainer {
     // startPos = positionChooser.getSelected();
     // scorePos = scoreChooser.getSelected();
     alliance = allianceChooser.getSelected();
-    Command currentAuto = VisionAllLowAuto.ThreeCubesAuto(swerveDrive, vision, arm, elevator, motorClaw, Alliance.Red);
+    // Command currentAuto = VisionAllLowAuto.ThreeCubesAuto(swerveDrive, vision, arm, elevator, motorClaw, Alliance.Red);
+    Command currentAuto = autoChooser.getSelected().get();
 
     swerveDrive.setDriveMode(DRIVE_MODE.AUTONOMOUS);
     return currentAuto;
