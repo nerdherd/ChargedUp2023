@@ -953,7 +953,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         }
         else {
             int aid = limelightLow.getAprilTagID();
-            if(targetId == -1) {
+            if(targetId != -1) {
                 if(targetId != aid) {
                     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                     SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
