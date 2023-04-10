@@ -201,4 +201,166 @@ public class VisionAllLowAuto {
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
         );
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static CommandBase ThreeCubesAutoFast(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, 
+    Alliance alliance){
+        PIDController trajectoryXController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController trajectoryYController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController trajectoryThetaController = 
+            new ProfiledPIDController(kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+
+        // Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
+
+        double zoooomAllianceThingy = 1.0;
+        if (alliance == Alliance.Red) {
+            zoooomAllianceThingy = -1.0;
+        }
+        
+        //trajectory stuff
+
+        Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)), 
+            List.of(
+                new Translation2d(0.1, 0 * zoooomAllianceThingy),
+                new Translation2d(-0.1, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
+                new Translation2d(0.18, 0.18 * zoooomAllianceThingy) 
+                //new Translation2d(-1.8, -0.4)
+            ),
+            new Pose2d(4.4, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+            trajectoryConfig);
+
+        Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(3.6, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // TODO: Run with and without this line
+                new Pose2d(1.5, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.5, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+            ),
+            trajectoryConfig);
+
+        Trajectory zoooomPartTwo = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                //new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // tested, somehow the trajectory 0,0 was shifted
+                new Pose2d(0, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(4.2, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                // new Pose2d(3.6, 2.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+            ),
+            trajectoryConfig);
+
+        
+
+        SwerveControllerCommand zoooomToCubeCommand = new SwerveControllerCommand(
+            zoooomToCube, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        SwerveControllerCommand cubeToZoooomCommand = new SwerveControllerCommand(
+            cubeToZoooom, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        SwerveControllerCommand zoooomPartTwoCommand = new SwerveControllerCommand(
+            zoooomPartTwo, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
+
+
+        return Commands.race(
+            Commands.waitSeconds(15), // TODO DEL
+            //init
+            Commands.sequence(
+
+                Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
+
+                //trajectory to cube
+                Commands.parallel(
+                    zoooomToCubeCommand,
+                    runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickup) / 2)),
+                    Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
+                ),
+
+                Commands.race(
+                    new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                    Commands.waitSeconds(20) // kill this auto
+                    // TODO need add protection here!!!!!!
+                ),
+
+                Commands.parallel(
+                    claw.setPower(-0.36),
+                    Commands.deadline(
+                        Commands.waitSeconds(0.6),
+                        sequence(
+                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
+                            waitUntil(arm.atTargetPosition)
+                        )
+                    )
+                ),
+
+                Commands.parallel(
+                    // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+                    claw.setPower(-0.20),
+                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                    Commands.sequence(
+                        waitSeconds(0.2),
+                        new TurnToAngle(-179.9, swerveDrive)
+                    )
+                ),
+
+                cubeToZoooomCommand,
+
+                claw.setPower(0.3),
+
+                Commands.parallel(
+                    Commands.sequence(
+                        waitSeconds(0.2),
+                        claw.setPower(0)
+                    ),
+                    zoooomPartTwoCommand,
+                    Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
+                ),
+
+                new TurnToAngle(-45, swerveDrive),
+                
+                Commands.race(
+                    new RunCommand(() -> vision.driveToCubeOnGround(claw, 2), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                    Commands.waitSeconds(20)
+                    // TODO need add protection here!!!!!!
+                ),
+
+                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                Commands.runOnce(() -> swerveDrive.stopModules())
+            ),
+
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
+        );
+    }
 }
