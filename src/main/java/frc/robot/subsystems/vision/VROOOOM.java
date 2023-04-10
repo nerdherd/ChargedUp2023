@@ -970,7 +970,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
             if(limelightLow.getPipeIndex()==4){// TAG ID? TODO
                 if (NerdyMath.inRange(calculatedY, -6, 6) 
-                    && NerdyMath.inRange(calculatedX, 4.2, 3.5)) { // TODO: TUNE FOR APRIL TAG
+                    && NerdyMath.inRange(calculatedX, 3.5, 4.2)) { // TODO: TUNE FOR APRIL TAG
                     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                     SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                     drivetrain.setModuleStates(moduleStates);
