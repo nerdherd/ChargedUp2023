@@ -352,12 +352,14 @@ public class VisionAllLowAuto {
                 
                 Commands.race(
                     new RunCommand(() -> vision.driveToCubeOnGround(claw, 2), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                    Commands.waitSeconds(20)
-                    // TODO need add protection here!!!!!!
+                    Commands.waitSeconds(5) // kill this auto
                 ),
 
                 Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.runOnce(() -> swerveDrive.stopModules())
+                Commands.parallel(
+                    Commands.runOnce(() -> swerveDrive.stopModules()),
+                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup))
+                )
             ),
 
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
