@@ -63,7 +63,9 @@ public class VisionAllLowAuto {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(0.18, 0.18 * zoooomAllianceThingy) // only for blue side right now
+                new Translation2d(0.1, 0 * zoooomAllianceThingy),
+                new Translation2d(-0.1, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
+                new Translation2d(0.18, 0.18 * zoooomAllianceThingy) 
                 //new Translation2d(-1.8, -0.4)
             ),
             new Pose2d(4.4, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
@@ -82,7 +84,7 @@ public class VisionAllLowAuto {
         Trajectory zoooomPartTwo = TrajectoryGenerator.generateTrajectory(
             List.of(
                 //new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // tested, somehow the trajectory 0,0 was shifted
                 new Pose2d(0, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(4.2, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
                 // new Pose2d(3.6, 2.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
@@ -103,27 +105,21 @@ public class VisionAllLowAuto {
             zoooomPartTwo, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
 
-        
-
-        final int armPosFinal = ArmConstants.kArmScore;
-        final int elevatorPosFinal = ElevatorConstants.kElevatorScoreHigh;
 
         return Commands.race(
             Commands.waitSeconds(15), // TODO DEL
             //init
             Commands.sequence(
                 Commands.parallel(
-                    //Commands.runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                    Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
-                    claw.setPower(-0.5)
+                    Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose()))
+                    //claw.setPower(-0.5)
                 ),
-                Commands.waitSeconds(0.1),
+                //Commands.waitSeconds(0.1),
 
                 //trajectory to cube
-                //Commands.runOnce(() -> SmartDashboard.putString("Moved On", "zoomin")),
                 Commands.parallel(
                     zoooomToCubeCommand,
-                    claw.setPower(0),
+                    //claw.setPower(0),
     
                     //Drop arm to half way
                     Commands.deadline( // TODO: Fix this and the other two Deadline arm Commands
@@ -192,13 +188,12 @@ public class VisionAllLowAuto {
 
                 new TurnToAngle(-45, swerveDrive),
 
-                //Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
-
+                /* uncommment it if we have time to run, otherwise be safe to stop here
                 Commands.race(
                     new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
                     Commands.waitSeconds(20)
                     // TODO need add protection here!!!!!!
-                ),
+                ),*/
                 Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 Commands.runOnce(() -> swerveDrive.stopModules())
             ),

@@ -80,6 +80,8 @@ public class VisionCableSideAuto {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
+                new Translation2d(0.1, 0 * zoooomAllianceThingy),
+                new Translation2d(-0.1, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
                 new Translation2d(1.5, 0 * zoooomAllianceThingy), 
                 new Translation2d(2.5, 0 * zoooomAllianceThingy),
                 new Translation2d(3.5, 0 * zoooomAllianceThingy),
@@ -140,17 +142,16 @@ public class VisionCableSideAuto {
             //init
             Commands.sequence(
                 Commands.parallel(
-                    //Commands.runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                    Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
-                    claw.setPower(-0.5)
+                    Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose()))
+                    //claw.setPower(-0.5)
                 ),
-                Commands.waitSeconds(0.1),
+                //Commands.waitSeconds(0.1),
 
                 //trajectory to cube
                 //Commands.runOnce(() -> SmartDashboard.putString("Moved On", "zoomin")),
                 Commands.parallel(
                     zoooomToCubeCommand,
-                    claw.setPower(0),
+                    //claw.setPower(0),
     
                     //Drop arm to half way
                     Commands.deadline( // TODO: Fix this and the other two Deadline arm Commands
@@ -356,6 +357,9 @@ public class VisionCableSideAuto {
                         )
                     )
                 ),
+
+                //TODO confirm if we need it!!!!!!
+                //Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose()))
 
                 //trajectory to cube
                 Commands.parallel(
