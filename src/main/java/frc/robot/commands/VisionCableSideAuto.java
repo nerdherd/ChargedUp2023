@@ -54,8 +54,10 @@ public class VisionCableSideAuto {
             SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
 
         double zoooomAllianceThingy = 1.0;
+        int atagId = 8;
         if (alliance == Alliance.Red) {
             zoooomAllianceThingy = -1.0;
+            atagId = 1;
         }
         
         //trajectory stuff
@@ -131,6 +133,7 @@ public class VisionCableSideAuto {
             cubeToZoooom_B, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);*/
 
+        final int atagIdFinal = atagId;
 
         return Commands.race(
             Commands.waitSeconds(15), // TODO DEL
@@ -203,8 +206,8 @@ public class VisionCableSideAuto {
 
                 parallel (
                     Commands.race(
-                        new RunCommand(() -> vision.driveToGridTag(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                        Commands.waitSeconds(20) // kill this auto
+                        new RunCommand(() -> vision.driveToGridTag(claw, atagIdFinal), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                        Commands.waitSeconds(3) 
                     ),
 
                     //Drop arm High drop off
@@ -262,8 +265,10 @@ public class VisionCableSideAuto {
             SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
 
         double zoooomAllianceThingy = 1.0;
+        int atagId = 8;
         if (alliance == Alliance.Red) {
             zoooomAllianceThingy = -1.0;
+            atagId = 1;
         }
         
         //trajectory stuff
@@ -297,6 +302,7 @@ public class VisionCableSideAuto {
             cubeToZoooom, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
 
+        final int atagIdFinal = atagId;
 
         return Commands.race(
             Commands.waitSeconds(15), // TODO DEL
@@ -419,8 +425,8 @@ public class VisionCableSideAuto {
 
                 parallel (
                     Commands.race(
-                        new RunCommand(() -> vision.driveToGridTag(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                        Commands.waitSeconds(20) // kill this auto
+                        new RunCommand(() -> vision.driveToGridTag(claw, atagIdFinal), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                        Commands.waitSeconds(3) 
                     ),
 
                     //Drop arm high drop off

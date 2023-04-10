@@ -243,7 +243,6 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         } else if (currentGameObject == OBJECT_TYPE.CUBE) {
             goalArea = 4.2; // Goal area for cube ground pickup // 3.3 OG
             currentLimelight.setPipeline(2);
-            currentLimelight.setLightState(LightMode.OFF);
 
             // PIDArea.setPID(
             //         SmartDashboard.getNumber("Ta P", 0.75),
@@ -261,9 +260,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             PIDYaw.setPID(0, 0, 0);
         }
         else if (currentGameObject == OBJECT_TYPE.ATAG) {
-            goalArea = 4.2; 
+            goalArea = 3.8; 
             currentLimelight.setPipeline(4);
-            currentLimelight.setLightState(LightMode.OFF);
         }
         else {
             PIDArea.setPID(0, 0, 0);
@@ -931,7 +929,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     PIDController pidYaw_driveToGridTag = new PIDController(0, 0, 0);
     PIDController pidArea_driveToGridTag = new PIDController(0, 0, 0); //TODO: TUNE
 
-    public void driveToGridTag(MotorClaw claw, int timeoutSec)
+    public void driveToGridTag(MotorClaw claw, int targetId) // if id == -1, don't care
     {
         
         //PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
@@ -943,16 +941,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         if (limelightLow == null)
             return;
 
-        ChassisSpeeds chassisSpeeds;
-
-        double elapsedTime = timer.get();
-        if(elapsedTime >= timeoutSec){
-            drivetrain.setModuleStates(SwerveDriveConstants.towModuleStates);
-            drivetrain.stopModules();
-            
-            limelightLow.setLightState(LightMode.BLINK); 
-            return;
-        }
+        ChassisSpeeds chassisSpeeds;        
 
         SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
 
@@ -963,20 +952,16 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             currentCameraMode = CAMERA_MODE.WAIT;
         }
         else {
-            // NOTE (3/11/2023): This should be commented out, BUT if the PID is still 0,
-            // you can use this but we still need to find a permenant solution
-
-            // Score cone (low tape, max distance is the charging station)
-            // pidArea.setP(2);
-            // pidArea.setD(0);
-            // pidTX.setP(0.08);
-            // pidTX.setD(0.02);
-
-            // Cone ground
-            // pidArea.setP(0.4);
-            // pidArea.setD(0.01);
-            // pidTX.setP(0.04);
-            // pidTX.setD(0.01);
+            int aid = limelightLow.getAprilTagID();
+            if(targetId == -1) {
+                if(targetId != aid) {
+                    chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                    SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                    drivetrain.setModuleStates(moduleStates);
+                    currentCameraMode = CAMERA_MODE.WAIT;
+                    return;
+                }
+            }
 
             double calculatedX = getAvgArea(currentLimelight.getArea_avg());
             double calculatedY = getAvgTX(currentLimelight.getXAngle_avg());
@@ -984,14 +969,14 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
             if(limelightLow.getPipeIndex()==4){// TAG ID? TODO
-                if (NerdyMath.inRange(calculatedY, -15, 15) 
-                    && NerdyMath.inRange(calculatedX, 4.2, 5.0)) { // TODO: TUNE FOR APRIL TAG
+                if (NerdyMath.inRange(calculatedY, -6, 6) 
+                    && NerdyMath.inRange(calculatedX, 4.2, 3.5)) { // TODO: TUNE FOR APRIL TAG
                     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                     SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                     drivetrain.setModuleStates(moduleStates);
                     currentCameraMode = CAMERA_MODE.ARRIVED; 
                     limelightLow.setLightState(LightMode.ON); 
-                return;
+                    return;
                 }
             }
             xSpeed = pidArea_driveToCubeOnGround.calculate(calculatedX, goalArea);
