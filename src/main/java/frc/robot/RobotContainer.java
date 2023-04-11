@@ -41,6 +41,7 @@ import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.imu.NavX;
+import frc.robot.subsystems.imu.Pigeon;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
@@ -65,7 +66,7 @@ public class RobotContainer {
   // public Arm arm = new Arm();
   // public Elevator elevator = new Elevator();
   // public MotorClaw motorClaw = new MotorClaw();
-  public Gyro imu = new NavX();
+  public Gyro imu = new Pigeon(60);
   public SwerveDrivetrain swerveDrive;
   // public VROOOOM vision;
 

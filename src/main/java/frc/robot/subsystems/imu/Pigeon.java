@@ -82,15 +82,19 @@ public class Pigeon extends SubsystemBase implements Gyro {
     }
 
     public double getHeading() {
-        return (-pigeon.getCompassHeading() - offset) % 360;
+        return (-pigeon.getAbsoluteCompassHeading() - offset);
+    }
+
+    public double getYaw() {
+        return (pigeon.getYaw() - offset) % 2048 + 180;
     }
 
     public double getPitch() {
-        return (pigeon.getPitch() - pitchOffset) % 360;
+        return (pigeon.getPitch() / 10 - pitchOffset) % 360;
     }
 
     public double getRoll() {
-        return (-pigeon.getRoll() - rollOffset) % 360;
+        return (-pigeon.getRoll() / 10 - rollOffset) % 360;
     }
 
     public double getHeadingOffset() {
@@ -106,7 +110,7 @@ public class Pigeon extends SubsystemBase implements Gyro {
     }
 
     public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
+        return Rotation2d.fromDegrees(getYaw());
     }
     
     /**
@@ -151,9 +155,9 @@ public class Pigeon extends SubsystemBase implements Gyro {
             case ALL:
                 tab.addNumber("Pigeon Firmware Version", () -> pigeon.getFirmwareVersion());
             case MEDIUM:
-                tab.addNumber("Robot Yaw", () -> -pigeon.getYaw());
-                tab.addNumber("Robot Pitch", () -> pigeon.getPitch());
-                tab.addNumber("Robot Roll", () -> -pigeon.getRoll());
+                tab.addNumber("Robot Yaw", this::getYaw);
+                tab.addNumber("Robot Pitch", this::getPitch);
+                tab.addNumber("Robot Roll", this::getRoll);
             case MINIMAL:
                 tab.addNumber("Robot Heading", this::getHeading);
         }
