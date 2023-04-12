@@ -148,7 +148,7 @@ public class TestAutos {
         Trajectory goForward = TrajectoryGenerator.generateTrajectory(
             List.of(
                 new Pose2d(0, 0, Rotation2d.fromDegrees(180)),
-                new Pose2d(2, 0.01, Rotation2d.fromDegrees(180))
+                new Pose2d(2.25, 0.01, Rotation2d.fromDegrees(180))
             ),
             trajectoryConfig);
         
@@ -173,12 +173,12 @@ public class TestAutos {
             goForwardCommand,
             runOnce(() -> SmartDashboard.putString("Stage", "Balancing")),
             race(
-                waitSeconds(2),
-                new TheGreatBalancingAct(swerveDrive, 2, 0.0, 0.1, 0.0, 0.0, 0.0)
+                waitSeconds(3),
+                new TheGreatBalancingAct(swerveDrive, 2.37, 0.0, 0, 0.0, 0.0, 0.0)
             ),
             runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-            waitSeconds(0.1),
-            runOnce(() -> swerveDrive.stopModules())
+            waitSeconds(0.1)
+            // runOnce(() -> swerveDrive.stopModules())
         );
     }
 }

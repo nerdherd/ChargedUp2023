@@ -42,6 +42,7 @@ import frc.robot.commands.VisionAutos;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.imu.NavX;
+import frc.robot.subsystems.imu.Pigeon;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
@@ -67,6 +68,7 @@ public class RobotContainer {
   public Elevator elevator = new Elevator();
   public MotorClaw motorClaw = new MotorClaw();
   public Gyro imu = new NavX();
+  // public Gyro imu = new Pigeon(60);
   public SwerveDrivetrain swerveDrive;
   public VROOOOM vision;
 
@@ -198,14 +200,14 @@ public class RobotContainer {
     // These button bindings are chosen for testing, and may be changed based on
     // driver preference
     
-    upButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmStow)))
-      .onFalse(Commands.runOnce(arm::initTargetTicks));
-    leftButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmScore)))
-      .onFalse(Commands.runOnce(arm::initTargetTicks));
-    rightButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmSubstation)))
-      .onFalse(Commands.runOnce(arm::initTargetTicks));
-    downButton.whileTrue(new InstantCommand(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)))
-      .onFalse(Commands.runOnce(arm::initTargetTicks));
+    upButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmStow)))
+      .onFalse(Commands.runOnce(arm::stopArm));
+    leftButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmScore)))
+      .onFalse(Commands.runOnce(arm::stopArm));
+    rightButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmSubstation)))
+      .onFalse(Commands.runOnce(arm::stopArm));
+    downButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmGroundPickup)))
+      .onFalse(Commands.runOnce(arm::stopArm));
     
     operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm::getArmAngle))
       .onFalse(Commands.runOnce(elevator::setPowerZero));

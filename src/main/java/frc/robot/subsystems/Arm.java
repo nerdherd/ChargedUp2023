@@ -62,6 +62,11 @@ public class Arm extends SubsystemBase implements Reportable {
         // moveArmMotionMagic((int) rotatingArm.getSelectedSensorPosition(), percentExtended);
     }
 
+    public void stopArm() {
+        rotatingArm.set(ControlMode.PercentOutput, 0);
+        initTargetTicks();
+    }
+
     public void init() {
         rotatingArm = new TalonFX(ArmConstants.kRotatingArmID);
         rotatingArm.setNeutralMode(NeutralMode.Brake);
@@ -116,9 +121,15 @@ public class Arm extends SubsystemBase implements Reportable {
 
     }
 
+    public void moveArmMotionMagicButton(int position) {
+        rotatingArm.configMotionCruiseVelocity(ArmConstants.kArmCruiseVelocity);
+        rotatingArm.configMotionAcceleration(ArmConstants.kArmMotionAcceleration);
+        setTargetTicks(position);
+    }
+
     public void moveArmMotionMagicJoystick(double joystickInput, double percentExtended) {
         tickChange = 0;
-        double alpha = 7500;
+        double alpha = 2500;
         double beta = 1 - alpha;
         if (joystickInput > 0) {
             rotatingArm.configMotionAcceleration(16333);
