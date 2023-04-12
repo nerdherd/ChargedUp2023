@@ -253,6 +253,7 @@ public class VisionAllLowAuto {
             List.of(
                 new Translation2d(0.1, 0 * zoooomAllianceThingy),
                 new Translation2d(-0.1, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
+                new Translation2d(0, 0 * zoooomAllianceThingy),
                 new Translation2d(0.18, 0.18 * zoooomAllianceThingy) 
                 //new Translation2d(-1.8, -0.4)
             ),
@@ -263,8 +264,8 @@ public class VisionAllLowAuto {
             List.of(
                 new Pose2d(3.6, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // TODO: Run with and without this line
                 new Pose2d(1.5, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0.1, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0.1, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(-0.5, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
@@ -358,7 +359,14 @@ public class VisionAllLowAuto {
                 Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 Commands.parallel(
                     Commands.runOnce(() -> swerveDrive.stopModules()),
+                    claw.setPower(-0.36),
                     runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup))
+                ),
+
+                Commands.parallel(
+                    // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+                    claw.setPower(-0.20),
+                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow))
                 )
             ),
 

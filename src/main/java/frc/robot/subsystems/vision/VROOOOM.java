@@ -925,9 +925,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
 
-    PIDController pidTX_driveToGridTag = new PIDController(0, 0, 0);
+    PIDController pidTX_driveToGridTag = new PIDController(0.05, 0, 0.008);
     PIDController pidYaw_driveToGridTag = new PIDController(0, 0, 0);
-    PIDController pidArea_driveToGridTag = new PIDController(0, 0, 0); //TODO: TUNE
+    PIDController pidArea_driveToGridTag = new PIDController(0.8, 0.01, 0.02); //TODO: TUNE
 
     public void driveToGridTag(MotorClaw claw, int targetId) // if id == -1, don't care
     {
