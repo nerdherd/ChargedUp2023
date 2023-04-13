@@ -80,14 +80,14 @@ public class VisionCableSideAuto {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(0.1, 0 * zoooomAllianceThingy),
-                new Translation2d(-0.1, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
-                new Translation2d(1.5, 0 * zoooomAllianceThingy), 
-                new Translation2d(2.5, 0 * zoooomAllianceThingy),
-                new Translation2d(3.5, 0 * zoooomAllianceThingy),
-                new Translation2d(3.8, -0.2 * zoooomAllianceThingy)
+                new Translation2d(0.2, 0 * zoooomAllianceThingy),
+                new Translation2d(-0.2, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
+                //new Translation2d(0, 0 * zoooomAllianceThingy), // comment it out, grid holds previous -0.2
+                new Translation2d(0.2, -0.2 * zoooomAllianceThingy), 
+                new Translation2d(2.5, -0.2 * zoooomAllianceThingy),
+                new Translation2d(4.0, -0.2 * zoooomAllianceThingy)
             ),
-            new Pose2d(4.0, -0.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+            new Pose2d(4.4, -0.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         /*Trajectory cubeToZoooom_A = TrajectoryGenerator.generateTrajectory(
@@ -141,72 +141,55 @@ public class VisionCableSideAuto {
             Commands.waitSeconds(15), // TODO DEL
             //init
             Commands.sequence(
-                Commands.parallel(
-                    Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose()))
-                    //claw.setPower(-0.5)
-                ),
-                //Commands.waitSeconds(0.1),
+
+                Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
 
                 //trajectory to cube
-                //Commands.runOnce(() -> SmartDashboard.putString("Moved On", "zoomin")),
                 Commands.parallel(
                     zoooomToCubeCommand,
-                    //claw.setPower(0),
-    
-                    //Drop arm to half way
-                    Commands.deadline( // TODO: Fix this and the other two Deadline arm Commands
-                        Commands.waitSeconds(0.5),
-                        sequence(
-                            runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickup) / 2)),
-                            waitSeconds(0.5),
-                            waitUntil(arm.atTargetPosition)
-                        )
+                    Commands.sequence(
+                        Commands.waitSeconds(1.5),
+                        runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScoreCubeHigh) )) // to be safe
                     ),
-                    
                     Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
                 ),
-                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.runOnce(() -> swerveDrive.stopModules()),
 
                 Commands.race(
                     new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
                     Commands.waitSeconds(20) // kill this auto
                     // TODO need add protection here!!!!!!
                 ),
-                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.runOnce(() -> swerveDrive.stopModules()),
 
-                claw.setPower(-0.35),
-                Commands.deadline(
-                    Commands.waitSeconds(0.5),
-                    sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
-                        waitSeconds(0.5),
-                        waitUntil(arm.atTargetPosition)
+                Commands.parallel(
+                    claw.setPower(-0.36),
+                    Commands.deadline(
+                        Commands.waitSeconds(1.2),
+                        sequence(
+                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
+                            waitUntil(arm.atTargetPosition)
+                        )
+                    )
+                ),
+
+                Commands.waitSeconds(0.1),
+
+                Commands.parallel(
+                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                    Commands.sequence(
+                        waitSeconds(0.2),
+                        new TurnToAngle(-179.9, swerveDrive)
                     )
                 ),
                 // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
                 claw.setPower(-0.20),
 
-                Commands.deadline(
-                    Commands.waitSeconds(0.5),
-                    sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                        waitSeconds(0.5),
-                        waitUntil(arm.atTargetPosition)
-                    )
+                Commands.parallel(
+                    cubeToZoooomCommand,
+                    Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.ATAG))
                 ),
+
+                new TurnToAngle(-179.9, swerveDrive),
                 
-                new TurnToAngle(-179.9, swerveDrive),
-
-                cubeToZoooomCommand,
-                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.runOnce(() -> swerveDrive.stopModules()),
-
-                new TurnToAngle(-179.9, swerveDrive),
-                Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.ATAG)),
-
-
                 parallel (
                     Commands.race(
                         new RunCommand(() -> vision.driveToGridTag(claw, atagIdFinal), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
@@ -265,7 +248,7 @@ public class VisionCableSideAuto {
 
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
+            SwerveAutoConstants.kMaxSpeedMetersPerSecond * 0.75, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
 
         double zoooomAllianceThingy = 1.0;
         int atagId = 8;
@@ -279,9 +262,9 @@ public class VisionCableSideAuto {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(-0.125, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(-0.3, 0 * zoooomAllianceThingy), 
-                new Translation2d(-2.5, 0 * zoooomAllianceThingy), 
-                new Translation2d(-4.3, 0 * zoooomAllianceThingy)), 
+                new Translation2d(-0.3, -0.2 * zoooomAllianceThingy), 
+                new Translation2d(-2.5, -0.2 * zoooomAllianceThingy), 
+                new Translation2d(-4.3, -0.2 * zoooomAllianceThingy)), 
             new Pose2d(-4.5, -0.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
@@ -366,66 +349,47 @@ public class VisionCableSideAuto {
                 //trajectory to cube
                 Commands.parallel(
                     zoooomToCubeCommand,
-    
+                    Commands.sequence(
+                        Commands.waitSeconds(1.5),
+                        runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScoreCubeHigh) )) // to be safe
+                    ),
                     Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
                 ),
-                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.runOnce(() -> swerveDrive.stopModules()),
-
                 new TurnToAngle(179.9, swerveDrive),
 
-                parallel (
-                    Commands.race(
-                        new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                        Commands.waitSeconds(20) // kill this auto
-                        // TODO need add protection here!!!!!!
-                    ),
+                Commands.race(
+                    new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                    Commands.waitSeconds(20) // kill this auto
+                    // TODO need add protection here!!!!!!
+                ),
 
-                    //Drop arm to half way
-                    Commands.deadline( // TODO: Fix this and the other two Deadline arm Commands
-                        Commands.waitSeconds(0.5),
+                Commands.parallel(
+                    claw.setPower(-0.36),
+                    Commands.deadline(
+                        Commands.waitSeconds(1.2),
                         sequence(
-                            runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickup) / 2)),
-                            waitSeconds(0.5),
+                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
                             waitUntil(arm.atTargetPosition)
                         )
                     )
                 ),
-                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.runOnce(() -> swerveDrive.stopModules()),
 
-                claw.setPower(-0.35),
-                Commands.deadline(
-                    Commands.waitSeconds(0.5),
-                    sequence(
-                        runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
-                        waitSeconds(0.5),
-                        waitUntil(arm.atTargetPosition)
+                Commands.waitSeconds(0.1),
+
+                Commands.parallel(
+                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                    Commands.sequence(
+                        waitSeconds(0.2),
+                        new TurnToAngle(0, swerveDrive)
                     )
                 ),
                 // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
                 claw.setPower(-0.20),
 
                 Commands.parallel(
-                    Commands.deadline(
-                        Commands.waitSeconds(0.5),
-                        sequence(
-                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                            waitSeconds(0.5),
-                            waitUntil(arm.atTargetPosition)
-                        )
-                    ), // to be safe, arm needs stow very fast to avoid possible hit
-                    
-                    new TurnToAngle(0, swerveDrive)
-                ),
-
-                Commands.parallel(
                     cubeToZoooomCommand,
-    
                     Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.ATAG))
                 ),
-                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.runOnce(() -> swerveDrive.stopModules()),
 
                 new TurnToAngle(0, swerveDrive),
 
@@ -433,7 +397,7 @@ public class VisionCableSideAuto {
                     Commands.race(
                         new RunCommand(() -> vision.driveToGridTag(claw, atagIdFinal), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
                         Commands.waitSeconds(3) 
-                    ),
+                    )/* ,
 
                     //Drop arm high drop off
                     Commands.deadline( // TODO: Fix this and the other two Deadline arm Commands
@@ -443,7 +407,7 @@ public class VisionCableSideAuto {
                             waitSeconds(0.5),
                             waitUntil(arm.atTargetPosition)
                         )
-                    )
+                    )*/
                 ),
 
                 claw.setPower(0.3)
