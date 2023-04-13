@@ -262,11 +262,11 @@ public class VisionAllLowAuto {
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(3.6, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // TODO: Run with and without this line
-                new Pose2d(1.5, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0.1, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0.1, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(-0.5, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(3.6, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // TODO: Run with and without this line
+                new Pose2d(1.5, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.3, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.3, 0.65 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.6, 0.65 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 
@@ -349,7 +349,7 @@ public class VisionAllLowAuto {
                     Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
                 ),
 
-                new TurnToAngle(-45, swerveDrive),
+                new TurnToAngle(45 * zoooomAllianceThingy, swerveDrive),
                 
                 Commands.race(
                     new RunCommand(() -> vision.driveToCubeOnGround(claw, 2), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),

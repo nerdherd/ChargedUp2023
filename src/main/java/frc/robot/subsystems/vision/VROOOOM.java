@@ -241,7 +241,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // PIDTX.setPID(0.05, 0, 0.0125);
             // PIDYaw.setPID(0, 0, 0);
         } else if (currentGameObject == OBJECT_TYPE.CUBE) {
-            goalArea = 4.2; // Goal area for cube ground pickup // 3.3 OG
+            goalArea = 4.1; // Goal area for cube ground pickup // 4.2 OG TODO: DA VINCI RED SIDE WAS CHANGED TO 4.2
             currentLimelight.setPipeline(2);
 
             // PIDArea.setPID(
@@ -889,7 +889,7 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
             if(limelightLow.getPipeIndex()==2){ // TODO change it to cube-2
                 if (NerdyMath.inRange(calculatedY, -15, 15) 
-                    && NerdyMath.inRange(calculatedX, 4.2, 5.0)) { // OG 3.7 to 4.2 , 39 inches
+                    && NerdyMath.inRange(calculatedX, 4.0, 4.9)) { // OG 3.7 to 4.2 , 39 inches TODO: Da Vinci changed from 4.2, 5.0
                     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                     SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                     drivetrain.setModuleStates(moduleStates);
@@ -925,9 +925,9 @@ public class VROOOOM extends SubsystemBase implements Reportable{
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
     }
 
-    PIDController pidTX_driveToGridTag = new PIDController(0.05, 0, 0.008);
+    PIDController pidTX_driveToGridTag = new PIDController(0.2, 0, 0.008);
     PIDController pidYaw_driveToGridTag = new PIDController(0, 0, 0);
-    PIDController pidArea_driveToGridTag = new PIDController(0.8, 0.01, 0.02); //TODO: TUNE
+    PIDController pidArea_driveToGridTag = new PIDController(0.9, 0.01, 0.02); //TODO: TUNE
 
     public void driveToGridTag(MotorClaw claw, int targetId) // if id == -1, don't care
     {
@@ -979,8 +979,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                     return;
                 }
             }
-            xSpeed = pidArea_driveToCubeOnGround.calculate(calculatedX, goalArea);
-            ySpeed = -pidTX_driveToCubeOnGround.calculate(calculatedY, goalTX);
+            xSpeed = pidArea_driveToGridTag.calculate(calculatedX, goalArea);
+            ySpeed = -pidTX_driveToGridTag.calculate(calculatedY, goalTX);
             //rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
             
             if (NerdyMath.inRange(xSpeed, -.1, .1) &&

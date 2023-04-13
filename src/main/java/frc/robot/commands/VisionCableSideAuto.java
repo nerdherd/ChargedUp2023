@@ -85,9 +85,9 @@ public class VisionCableSideAuto {
                 new Translation2d(1.5, 0 * zoooomAllianceThingy), 
                 new Translation2d(2.5, 0 * zoooomAllianceThingy),
                 new Translation2d(3.5, 0 * zoooomAllianceThingy),
-                new Translation2d(4.2, -0.2 * zoooomAllianceThingy)
+                new Translation2d(3.8, -0.2 * zoooomAllianceThingy)
             ),
-            new Pose2d(4.4, -0.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+            new Pose2d(4.0, -0.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         /*Trajectory cubeToZoooom_A = TrajectoryGenerator.generateTrajectory(
@@ -204,12 +204,14 @@ public class VisionCableSideAuto {
                 Commands.runOnce(() -> swerveDrive.stopModules()),
 
                 new TurnToAngle(-179.9, swerveDrive),
+                Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.ATAG)),
+
 
                 parallel (
                     Commands.race(
                         new RunCommand(() -> vision.driveToGridTag(claw, atagIdFinal), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
                         Commands.waitSeconds(3) 
-                    ),
+                    )/* ,
 
                     //Drop arm High drop off
                     deadline(
@@ -219,17 +221,17 @@ public class VisionCableSideAuto {
                             waitSeconds(0.5),
                             waitUntil(arm.atTargetPosition)
                         )
-                    )
+                    )*/
                 ),
 
-                Commands.deadline(
+                /*Commands.deadline(
                     Commands.waitSeconds(0.5),
                     sequence(
                         runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHighCube)),
                         waitSeconds(0.5),
                         waitUntil(elevator.atTargetPosition)
                     )
-                ),
+                ),*/
 
                 claw.setPower(0.3)
                 

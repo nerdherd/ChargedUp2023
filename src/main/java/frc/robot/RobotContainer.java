@@ -39,6 +39,7 @@ import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionAllLowAuto;
 import frc.robot.commands.VisionAutos;
+import frc.robot.commands.VisionCableSideAuto;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.imu.NavX;
@@ -364,7 +365,7 @@ public class RobotContainer {
     // startPos = positionChooser.getSelected();
     // scorePos = scoreChooser.getSelected();
     alliance = allianceChooser.getSelected();
-    Command currentAuto = VisionAllLowAuto.ThreeCubesAuto(swerveDrive, vision, arm, elevator, motorClaw, Alliance.Red);
+    Command currentAuto = VisionCableSideAuto.LowAuto(swerveDrive, vision, arm, elevator, motorClaw, Alliance.Blue);
 
     swerveDrive.setDriveMode(DRIVE_MODE.AUTONOMOUS);
     return currentAuto;
