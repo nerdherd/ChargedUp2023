@@ -285,7 +285,7 @@ public final class Constants {
       kPhysicalMaxAngularSpeedRadiansPerSecond * 0.75;
     public static final double kTurnToAngleMaxAngularSpeedRadiansPerSecond 
       = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
-    public static final double kTurnToBigAngleMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
+    public static final double kTurnToBigAngleMaxAngularSpeedRadiansPerSecond = 1.5 * Math.PI;
     public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
     public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 3;
 
