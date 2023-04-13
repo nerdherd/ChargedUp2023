@@ -112,14 +112,14 @@ public class VisionAllLowAuto {
             Commands.sequence(
                 Commands.parallel(
                     Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose()))
-                    //claw.setPower(-0.5)
+                    //claw.setPower(-0.5) for shoot out cone
                 ),
-                //Commands.waitSeconds(0.1),
+                //Commands.waitSeconds(0.1),for shoot out cone
 
                 //trajectory to cube
                 Commands.parallel(
                     zoooomToCubeCommand,
-                    //claw.setPower(0),
+                    //claw.setPower(0),for shoot out cone
     
                     //Drop arm to half way
                     Commands.deadline( // TODO: Fix this and the other two Deadline arm Commands
@@ -251,8 +251,8 @@ public class VisionAllLowAuto {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(0.1, 0 * zoooomAllianceThingy),
-                new Translation2d(-0.1, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
+                new Translation2d(0.18, 0 * zoooomAllianceThingy),
+                new Translation2d(-0.18, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
                 new Translation2d(0, 0 * zoooomAllianceThingy),
                 new Translation2d(0.18, 0.18 * zoooomAllianceThingy) 
                 //new Translation2d(-1.8, -0.4)
@@ -262,11 +262,12 @@ public class VisionAllLowAuto {
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(3.6, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // TODO: Run with and without this line
+                new Pose2d(4.4, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.8, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), 
                 new Pose2d(1.5, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(-0.3, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(-0.3, 0.65 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(-0.6, 0.65 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(-0.3, 0.45 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.6, 0.45 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 
