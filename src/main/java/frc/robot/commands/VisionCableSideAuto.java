@@ -51,7 +51,7 @@ public class VisionCableSideAuto {
 
         // Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
+            SwerveAutoConstants.kMaxSpeedMetersPerSecond * 0.75, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
 
         double zoooomAllianceThingy = 1.0;
         int atagId = 8;
