@@ -348,6 +348,7 @@ public class Arm extends SubsystemBase implements Reportable {
             case MINIMAL:
                 tab.addNumber("Current Arm Ticks", rotatingArm::getSelectedSensorPosition);
                 tab.addNumber("Target Arm Ticks", () -> targetTicks);
+                tab.addBoolean("At target position", atTargetPosition);
                 tab.addNumber("Tick Change", () -> tickChange);
                 break;
         }

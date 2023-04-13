@@ -245,6 +245,7 @@ public class Elevator extends SubsystemBase implements Reportable{
         tab.addNumber("Voltage", elevator::getMotorOutputVoltage);
         tab.addNumber("Percent Extended", () -> percentExtended());
       case MINIMAL:
+        tab.addBoolean("At target position", atTargetPosition);
         tab.addNumber("Current Elevator Ticks", () -> elevator.getSelectedSensorPosition());
         tab.addNumber("Target Elevator Ticks", () -> targetTicks);
         break;

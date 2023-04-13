@@ -170,15 +170,15 @@ public final class Constants {
     public static final double kIntegratedTurningTicksPer100MsToRadPerSec = kIntegratedTurningTicksToRad * 10;
 
     
-    public static final double kDriveMotorDeadband = 0.05;
-    public static final double kTurnMotorDeadband = 0.02;
+    public static final double kDriveMotorDeadband = 0.02;
+    public static final double kTurnMotorDeadband = 0.05;
 
     public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
     public static final double kDTurning = 0.02; 
     
     // TODO: tune PID for drive motor velocity control
-    public static final double kPDrive = 0.25;
+    public static final double kPDrive = 0.13;
     public static final double kIDrive = 0;
     public static final double kDDrive = 0;
     public static final double kFDrive = 0.0469;

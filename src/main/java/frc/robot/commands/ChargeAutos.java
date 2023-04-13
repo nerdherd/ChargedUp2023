@@ -168,34 +168,35 @@ public class ChargeAutos {
                         runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                         sequence(
                             runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
-                            waitSeconds(0.5),
+                            waitSeconds(0.1),
                             waitUntil(arm.atTargetPosition)
                         ),
                         sequence(
                             waitSeconds(0.5),
                             runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
-                            waitSeconds(0.5),
+                            waitSeconds(0.1),
                             waitUntil(elevator.atTargetPosition)
                         )
                     )
                 ),
 
-                waitSeconds(0.25),
-                claw.setPower(0.3),
-                waitSeconds(0.5),
+                // waitSeconds(0.25),
+                claw.setPower(0.7),
+                waitSeconds(0.2),
                 claw.setPowerZero(),
                 
                 deadline(
-                    waitSeconds(0.5),
+                    waitSeconds(1.1),
                     runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
                     sequence(
                         runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
-                        waitSeconds(0.5),
+                        waitSeconds(0.1),
                         waitUntil(elevator.atTargetPosition)
                     ),
                     sequence(
+                        waitSeconds(1),
                         runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                        waitSeconds(0.5),
+                        waitSeconds(0.1),
                         waitUntil(arm.atTargetPosition)
                     )
                 )

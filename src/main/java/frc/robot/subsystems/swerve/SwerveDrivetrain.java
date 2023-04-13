@@ -273,6 +273,13 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         backRight.setDesiredState(desiredStates[3]);
     }
 
+    public void towModules() {
+        frontLeft.setDesiredState(towModuleStates[0], false);
+        frontRight.setDesiredState(towModuleStates[1], false);
+        backLeft.setDesiredState(towModuleStates[2], false);
+        backRight.setDesiredState(towModuleStates[3], false);
+    }
+
     /**
      * Reset the odometry to the specified position.
      * @param pose
