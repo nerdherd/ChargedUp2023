@@ -333,7 +333,7 @@ public class VisionAllLowAuto {
                     runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
                     Commands.sequence(
                         waitSeconds(0.2),
-                        new TurnToAngle(-179.9, swerveDrive)
+                        new TurnToAngle(-179.9, swerveDrive) // it needs zoooomAllianceThingy? TODO
                     )
                 ),
 
