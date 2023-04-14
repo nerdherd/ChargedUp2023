@@ -327,6 +327,8 @@ public class VisionAllLowAuto {
                     )
                 ),
 
+                Commands.waitSeconds(0.1),
+
                 Commands.parallel(
                     // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
                     claw.setPower(-0.20),
