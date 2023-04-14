@@ -963,8 +963,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
                 }
             }
 
-            double calculatedX = getAvgArea(currentLimelight.getArea_avg());
-            double calculatedY = getAvgTX(currentLimelight.getXAngle_avg());
+            double calculatedX = getAvgArea(currentLimelight.getArea());
+            double calculatedY = getAvgTX(currentLimelight.getXAngle());
             SmartDashboard.putNumber("Vision average X", calculatedX);
             SmartDashboard.putNumber("Vision average Y", calculatedY);
 
