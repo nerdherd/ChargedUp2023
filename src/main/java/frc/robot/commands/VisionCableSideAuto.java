@@ -260,17 +260,17 @@ public class VisionCableSideAuto {
         //trajectory stuff
 
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(-0.125, 0, new Rotation2d(0)), 
+            new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(-0.3, -0.2 * zoooomAllianceThingy), 
+                new Translation2d(-0.2, -0.2 * zoooomAllianceThingy), 
                 new Translation2d(-2.5, -0.2 * zoooomAllianceThingy), 
-                new Translation2d(-4.3, -0.2 * zoooomAllianceThingy)), 
-            new Pose2d(-4.5, -0.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+                new Translation2d(-4, -0.2 * zoooomAllianceThingy)), 
+            new Pose2d(-4.4, -0.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(-4.4, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+                new Pose2d(-4, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
                 new Pose2d(-2.0, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
                 new Pose2d(-1.5, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
                 new Pose2d(0, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
@@ -344,7 +344,7 @@ public class VisionCableSideAuto {
                 ),
 
                 //TODO confirm if we need it!!!!!!
-                //Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose()))
+                Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
 
                 //trajectory to cube
                 Commands.parallel(
