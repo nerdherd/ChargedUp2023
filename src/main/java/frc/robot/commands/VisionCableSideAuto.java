@@ -112,9 +112,9 @@ public class VisionCableSideAuto {
                 new Pose2d(3.5, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(2.0, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(1.5, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, -0.62 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(-0.5, -0.62 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(-0.2, -0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.2, -0.62 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.7, -0.62 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
         
@@ -149,7 +149,7 @@ public class VisionCableSideAuto {
                     zoooomToCubeCommand,
                     Commands.sequence(
                         Commands.waitSeconds(1.5),
-                        runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScoreCubeHigh) )) // to be safe
+                        runOnce(() -> arm.setTargetTicks((ArmConstants.kArmStow) )) // to be safe
                     ),
                     Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
                 ),
@@ -220,8 +220,8 @@ public class VisionCableSideAuto {
                 
             ),
 
-            run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-            run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
+            // run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
         );
     }
 

@@ -267,16 +267,16 @@ public class VisionAllLowAuto {
                 new Pose2d(1.5, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(-0.3, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(-0.3, 0.45 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(-0.6, 0.45 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(-0.45, 0.45 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 
         Trajectory zoooomPartTwo = TrajectoryGenerator.generateTrajectory(
             List.of(
                 //new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // tested, somehow the trajectory 0,0 was shifted
-                new Pose2d(0, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(4.2, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(0, 0 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // tested, somehow the trajectory 0,0 was shifted
+                new Pose2d(0.5, -0.5 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(4.2, -0.5 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
                 // new Pose2d(3.6, 2.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
