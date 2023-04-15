@@ -37,6 +37,8 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     mainMotor.setInverted(false);
 
     setNeutralMode(NeutralMode.Brake);
+    mainMotor.configVoltageCompSaturation(11);
+    mainMotor.enableVoltageCompensation(true);
   }
   
 
