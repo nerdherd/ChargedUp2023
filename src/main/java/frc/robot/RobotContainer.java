@@ -222,10 +222,10 @@ public class RobotContainer {
     operatorController.share().onTrue(Commands.runOnce(arm::resetEncoderStow));
     operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
     
-    operatorController.L1().whileTrue(motorClaw.setPower(1))
+    operatorController.L1().whileTrue(motorClaw.setPower(0.5))
         .onFalse(motorClaw.setPowerZero());
-    operatorController.R1().whileTrue(motorClaw.setPower(-.35))
-        .onFalse(motorClaw.setPower(-0.2));
+    operatorController.R1().whileTrue(motorClaw.setPower(-.3))
+        .onFalse(motorClaw.setPower(-0.07));
 
     driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
     driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));

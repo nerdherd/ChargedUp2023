@@ -122,7 +122,8 @@ public class MotorClaw extends SubsystemBase implements Reportable {
       case ALL:
         // tab.addNumber("Top Motor Current", topMotor::getStatorCurrent);
         // tab.addNumber("Bottom Motor Current", bottomMotor::getStatorCurrent);
-        tab.addNumber("Main Motor Current", mainMotor::getStatorCurrent);
+        tab.addNumber("Main Motor Stator Current", mainMotor::getStatorCurrent);
+        tab.addNumber("Main Motor Supply Current", mainMotor::getSupplyCurrent);
       case MEDIUM:
         // tab.addNumber("Top Motor Voltage", topMotor::getMotorOutputVoltage);
         // tab.addNumber("Top Motor Percent Output", topMotor::getMotorOutputPercent);
