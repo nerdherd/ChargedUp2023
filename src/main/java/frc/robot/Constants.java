@@ -86,6 +86,7 @@ public final class Constants {
     public static final double kIntakePower = -0.3;
     public static final double kOuttakePower = 0.5;
     public static final double kIntakeNeutralPower = -0.25;
+    public static final int kMainMotorID = 63;
   }
 
   public static class ArmConstants{

@@ -6,6 +6,7 @@ package frc.robot.subsystems.claw;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -15,23 +16,25 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.subsystems.Reportable;
-import frc.robot.subsystems.Reportable.LOG_LEVEL;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class MotorClaw extends SubsystemBase implements Reportable {
 
-  private TalonSRX topMotor, bottomMotor;
+  // private TalonSRX topMotor, bottomMotor;
+  private TalonFX mainMotor;
 
   /** Creates a new MotorClaw. */
   public MotorClaw() {
-    topMotor = new TalonSRX(ClawConstants.kTopMotorID);
-    bottomMotor = new TalonSRX(ClawConstants.kBottomMotorID);
+    // topMotor = new TalonSRX(ClawConstants.kTopMotorID);
+    // bottomMotor = new TalonSRX(ClawConstants.kBottomMotorID);
 
-    topMotor.setInverted(false);
-    bottomMotor.setInverted(true);
+    // topMotor.setInverted(false);
+    // bottomMotor.setInverted(true);
+    // bottomMotor.follow(topMotor);
 
-    bottomMotor.follow(topMotor);
+    mainMotor = new TalonFX(ClawConstants.kMainMotorID);
+    mainMotor.setInverted(false);
 
     setNeutralMode(NeutralMode.Brake);
   }
@@ -40,7 +43,8 @@ public class MotorClaw extends SubsystemBase implements Reportable {
   public CommandBase setPower(double power) {
     return runOnce(
       () -> {
-        topMotor.set(ControlMode.PercentOutput, power);
+        mainMotor.set(ControlMode.PercentOutput, power);
+        // topMotor.set(ControlMode.PercentOutput, power);
         // bottomMotor.set(ControlMode.PercentOutput, power);
         setNeutralMode(NeutralMode.Brake);
       }
@@ -48,16 +52,16 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     );
   }
 
-  public CommandBase setPower(double topPower, double bottomPower) {
-    return runOnce(
-      () -> {
-        topMotor.set(ControlMode.PercentOutput, topPower);
-        // bottomMotor.set(ControlMode.PercentOutput, bottomPower);
-        setNeutralMode(NeutralMode.Brake);
-      }
+  // public CommandBase setPower(double topPower, double bottomPower) {
+  //   return runOnce(
+  //     () -> {
+  //       topMotor.set(ControlMode.PercentOutput, topPower);
+  //       // bottomMotor.set(ControlMode.PercentOutput, bottomPower);
+  //       setNeutralMode(NeutralMode.Brake);
+  //     }
       
-    );
-  }
+  //   );
+  // }
 
   public CommandBase setPowerZero() {
     return setPower(0);
@@ -80,8 +84,9 @@ public class MotorClaw extends SubsystemBase implements Reportable {
   }
 
   public void setNeutralMode(NeutralMode mode) {
-    topMotor.setNeutralMode(mode);
-    bottomMotor.setNeutralMode(mode);
+    // topMotor.setNeutralMode(mode);
+    // bottomMotor.setNeutralMode(mode);
+    mainMotor.setNeutralMode(mode);
   }
 
   @Override
@@ -95,8 +100,8 @@ public class MotorClaw extends SubsystemBase implements Reportable {
           break;
       case ALL:
       case MEDIUM:
-        SmartDashboard.putNumber("Motor Claw Velocity", topMotor.getSelectedSensorVelocity());
-        SmartDashboard.putNumber("Motor Claw Current", topMotor.getStatorCurrent());
+        SmartDashboard.putNumber("Motor Claw Velocity", mainMotor.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Motor Claw Current", mainMotor.getStatorCurrent());
       case MINIMAL:
           break;
     }
@@ -113,15 +118,19 @@ public class MotorClaw extends SubsystemBase implements Reportable {
       case OFF:
           break;
       case ALL:
-        tab.addNumber("Top Motor Current", topMotor::getStatorCurrent);
-        tab.addNumber("Bottom Motor Current", bottomMotor::getStatorCurrent);
+        // tab.addNumber("Top Motor Current", topMotor::getStatorCurrent);
+        // tab.addNumber("Bottom Motor Current", bottomMotor::getStatorCurrent);
+        tab.addNumber("Main Motor Current", mainMotor::getStatorCurrent);
       case MEDIUM:
-        tab.addNumber("Top Motor Voltage", topMotor::getMotorOutputVoltage);
-        tab.addNumber("Top Motor Percent Output", topMotor::getMotorOutputPercent);
-        tab.addNumber("Top Motor Velocity (ticks/100ms)", topMotor::getSelectedSensorVelocity);
-        tab.addNumber("Bottom Motor Voltage", bottomMotor::getMotorOutputVoltage);
-        tab.addNumber("Bottom Motor Percent Output", bottomMotor::getMotorOutputPercent);
-        tab.addNumber("Bottom Motor Velocity (ticks/100ms)", bottomMotor::getSelectedSensorVelocity);
+        // tab.addNumber("Top Motor Voltage", topMotor::getMotorOutputVoltage);
+        // tab.addNumber("Top Motor Percent Output", topMotor::getMotorOutputPercent);
+        // tab.addNumber("Top Motor Velocity (ticks/100ms)", topMotor::getSelectedSensorVelocity);
+        // tab.addNumber("Bottom Motor Voltage", bottomMotor::getMotorOutputVoltage);
+        // tab.addNumber("Bottom Motor Percent Output", bottomMotor::getMotorOutputPercent);
+        // tab.addNumber("Bottom Motor Velocity (ticks/100ms)", bottomMotor::getSelectedSensorVelocity);
+        tab.addNumber("Main Motor Voltage", mainMotor::getMotorOutputVoltage);
+        tab.addNumber("Main Motor Percent Output", mainMotor::getMotorOutputPercent);
+        tab.addNumber("Main Motor Velocity (ticks/100ms)", mainMotor::getSelectedSensorVelocity);
       case MINIMAL:
           break;
     }

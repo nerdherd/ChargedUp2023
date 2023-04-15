@@ -221,7 +221,7 @@ public class RobotContainer {
     operatorController.share().onTrue(Commands.runOnce(arm::resetEncoderStow));
     operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
     
-    operatorController.L1().whileTrue(motorClaw.setPower(1, 1))
+    operatorController.L1().whileTrue(motorClaw.setPower(1))
         .onFalse(motorClaw.setPowerZero());
     operatorController.R1().whileTrue(motorClaw.setPower(-.35))
         .onFalse(motorClaw.setPower(-0.2));
