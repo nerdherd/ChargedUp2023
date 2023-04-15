@@ -308,7 +308,7 @@ public class VisionCableSideAuto {
                                 waitSeconds(2),
                                 runOnce(() -> SmartDashboard.putString("Stage", "Score")),
                                 sequence(
-                                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScoreCubeHigh)),
                                     waitSeconds(0.5),
                                     waitUntil(arm.atTargetPosition)
                                 ),
@@ -351,7 +351,7 @@ public class VisionCableSideAuto {
                     zoooomToCubeCommand,
                     Commands.sequence(
                         Commands.waitSeconds(1.5),
-                        runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScoreCubeHigh) )) // to be safe
+                        runOnce(() -> arm.setTargetTicks((ArmConstants.kArmStow) )) // to be safe
                     ),
                     Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
                 ),
