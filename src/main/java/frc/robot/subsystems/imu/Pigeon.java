@@ -86,15 +86,15 @@ public class Pigeon extends SubsystemBase implements Gyro {
     }
 
     public double getYaw() {
-        return (pigeon.getYaw() - offset) % 2048 + 180;
+        return ((pigeon.getYaw() - offset) / 2048 + 180) % 360;
     }
 
     public double getPitch() {
-        return (pigeon.getPitch() / 10 - pitchOffset) % 360;
+        return (pigeon.getPitch() - pitchOffset) % 360;
     }
 
     public double getRoll() {
-        return (-pigeon.getRoll() / 10 - rollOffset) % 360;
+        return (-pigeon.getRoll() - rollOffset) % 360;
     }
 
     public double getHeadingOffset() {
