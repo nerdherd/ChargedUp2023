@@ -34,7 +34,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
     // bottomMotor.follow(topMotor);
 
     mainMotor = new TalonFX(ClawConstants.kMainMotorID);
-    mainMotor.setInverted(false);
+    mainMotor.setInverted(true);
 
     setNeutralMode(NeutralMode.Brake);
     mainMotor.configVoltageCompSaturation(11);
