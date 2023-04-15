@@ -354,23 +354,23 @@ public class VisionAllLowAuto {
 
                 new TurnToAngle(45 * zoooomAllianceThingy, swerveDrive),
                 
-                Commands.race(
-                    new RunCommand(() -> vision.driveToCubeOnGround(claw, 2), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                    Commands.waitSeconds(5) // kill this auto
-                ),
-
-                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                Commands.parallel(
-                    Commands.runOnce(() -> swerveDrive.stopModules()),
-                    claw.setPower(-0.36),
-                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup))
-                ),
+                // Commands.race(
+                //     new RunCommand(() -> vision.driveToCubeOnGround(claw, 2), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                //     Commands.waitSeconds(5) // kill this auto
+                // ),
 
                 Commands.parallel(
-                    // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-                    claw.setPower(-0.20),
-                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow))
-                )
+                    Commands.runOnce(() -> swerveDrive.stopModules())
+                    // claw.setPower(-0.36),
+                    // runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup))
+                ),
+                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates))
+
+                // Commands.parallel(
+                //     // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+                //     claw.setPower(-0.20),
+                //     runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow))
+                // )
             ),
 
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
