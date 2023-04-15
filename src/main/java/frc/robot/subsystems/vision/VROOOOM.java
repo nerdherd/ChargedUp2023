@@ -41,7 +41,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
     public enum OBJECT_TYPE
     {
         CONE,
-        CUBE
+        CUBE,
+        ATAG
     }
     
     public enum CAMERA_MODE
@@ -240,9 +241,8 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             // PIDTX.setPID(0.05, 0, 0.0125);
             // PIDYaw.setPID(0, 0, 0);
         } else if (currentGameObject == OBJECT_TYPE.CUBE) {
-            goalArea = 4.2; // Goal area for cube ground pickup // 3.3 OG
+            goalArea = 4.1; // Goal area for cube ground pickup // 4.2 OG TODO: DA VINCI RED SIDE WAS CHANGED TO 4.2
             currentLimelight.setPipeline(2);
-            currentLimelight.setLightState(LightMode.OFF);
 
             // PIDArea.setPID(
             //         SmartDashboard.getNumber("Ta P", 0.75),
@@ -258,6 +258,10 @@ public class VROOOOM extends SubsystemBase implements Reportable{
             PIDArea.setPID(0.75, 0, 0.02);
             PIDTX.setPID(0.05, 0, 0.008);
             PIDYaw.setPID(0, 0, 0);
+        }
+        else if (currentGameObject == OBJECT_TYPE.ATAG) {
+            goalArea = 3.8; 
+            currentLimelight.setPipeline(4);
         }
         else {
             PIDArea.setPID(0, 0, 0);
@@ -885,18 +889,98 @@ public class VROOOOM extends SubsystemBase implements Reportable{
 
             if(limelightLow.getPipeIndex()==2){ // TODO change it to cube-2
                 if (NerdyMath.inRange(calculatedY, -15, 15) 
-                    && NerdyMath.inRange(calculatedX, 4.2, 5.0)) { // OG 3.7 to 4.2 , 39 inches
+                    && NerdyMath.inRange(calculatedX, 4.0, 4.9)) { // OG 3.7 to 4.2 , 39 inches TODO: Da Vinci changed from 4.2, 5.0
                     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
                     SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
                     drivetrain.setModuleStates(moduleStates);
                     currentCameraMode = CAMERA_MODE.ARRIVED;
                     limelightLow.setLightState(LightMode.ON);
-                    // limelightLow.setLightState(LightMode.ON); // TODO DEBUG
                 return;
                 }
             }
             xSpeed = pidArea_driveToCubeOnGround.calculate(calculatedX, goalArea);
             ySpeed = -pidTX_driveToCubeOnGround.calculate(calculatedY, goalTX);
+            //rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
+            
+            if (NerdyMath.inRange(xSpeed, -.1, .1) &&
+            NerdyMath.inRange(ySpeed, -.1, .1) &&
+            NerdyMath.inRange(rotationSpeed, -.1, .1))
+            {
+                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ARRIVED;
+                limelightLow.setLightState(LightMode.ON); 
+            }
+            else{
+                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
+                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                drivetrain.setModuleStates(moduleStates);
+                currentCameraMode = CAMERA_MODE.ACTION;
+            }
+        }
+        
+        SmartDashboard.putString("Vision status", currentCameraMode.toString());
+        SmartDashboard.putNumber("Vision X speed", xSpeed);
+        SmartDashboard.putNumber("Vision Y speed", ySpeed);
+    }
+
+    PIDController pidTX_driveToGridTag = new PIDController(0.5, 0, 0.5);
+    PIDController pidYaw_driveToGridTag = new PIDController(0, 0, 0);
+    PIDController pidArea_driveToGridTag = new PIDController(0.5, 0.01, 1.5); //TODO: TUNE
+
+    public void driveToGridTag(MotorClaw claw, int targetId) // if id == -1, don't care
+    {
+        
+        //PIDController pidArea, PIDController pidTX, PIDController pidYaw) {
+        // Initialize all variables to 0
+        double xSpeed = 0;
+        double ySpeed = 0;
+        double rotationSpeed = 0;
+
+        if (limelightLow == null)
+            return;
+
+        ChassisSpeeds chassisSpeeds;        
+
+        SmartDashboard.putBoolean("Vision has target", limelightLow.hasValidTarget());
+
+        if(!limelightLow.hasValidTarget()) {
+            chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+            SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+            drivetrain.setModuleStates(moduleStates);
+            currentCameraMode = CAMERA_MODE.WAIT;
+        }
+        else {
+            int aid = limelightLow.getAprilTagID();
+            if(targetId != -1) {
+                if(targetId != aid) {
+                    chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                    SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                    drivetrain.setModuleStates(moduleStates);
+                    currentCameraMode = CAMERA_MODE.WAIT;
+                    return;
+                }
+            }
+
+            double calculatedX = getAvgArea(currentLimelight.getArea());
+            double calculatedY = getAvgTX(currentLimelight.getXAngle());
+            SmartDashboard.putNumber("Vision average X", calculatedX);
+            SmartDashboard.putNumber("Vision average Y", calculatedY);
+
+            if(limelightLow.getPipeIndex()==4){// TAG ID? TODO
+                if (NerdyMath.inRange(calculatedY, -6, 6) 
+                    && NerdyMath.inRange(calculatedX, 3.5, 4.2)) { // TODO: TUNE FOR APRIL TAG
+                    chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                    SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                    drivetrain.setModuleStates(moduleStates);
+                    currentCameraMode = CAMERA_MODE.ARRIVED; 
+                    limelightLow.setLightState(LightMode.ON); 
+                    return;
+                }
+            }
+            xSpeed = pidArea_driveToGridTag.calculate(calculatedX, goalArea);
+            ySpeed = -pidTX_driveToGridTag.calculate(calculatedY, goalTX);
             //rotationSpeed = pidYaw.calculate(drivetrain.getImu().getHeading(), goalYaw);
             
             if (NerdyMath.inRange(xSpeed, -.1, .1) &&
