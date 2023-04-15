@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.NerdyMath;
 
 public class Pigeon extends SubsystemBase implements Gyro {
     private double offset, pitchOffset, rollOffset = 0;
@@ -86,7 +87,12 @@ public class Pigeon extends SubsystemBase implements Gyro {
     }
 
     public double getYaw() {
-        return ((pigeon.getYaw() - offset) / 2048 + 180) % 360;
+        double currentYaw = (pigeon.getYaw() - offset) % 360;
+        if (currentYaw < 0) {
+            return currentYaw + 360;
+        } else {
+            return currentYaw;
+        }
     }
 
     public double getPitch() {
