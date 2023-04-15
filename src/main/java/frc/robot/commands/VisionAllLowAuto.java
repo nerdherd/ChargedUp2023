@@ -63,7 +63,9 @@ public class VisionAllLowAuto {
         Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)), 
             List.of(
-                new Translation2d(0.18, 0.18 * zoooomAllianceThingy) // only for blue side right now
+                new Translation2d(0.1, 0 * zoooomAllianceThingy),
+                new Translation2d(-0.1, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
+                new Translation2d(0.18, 0.18 * zoooomAllianceThingy) 
                 //new Translation2d(-1.8, -0.4)
             ),
             new Pose2d(4.4, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
@@ -71,10 +73,10 @@ public class VisionAllLowAuto {
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(3.6, 0.27 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // TODO: Run with and without this line
-                new Pose2d(1.5, 0.27 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, 0.27 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                // new Pose2d(-0.8, -1.0, Rotation2d.fromDegrees(0)),
+                new Pose2d(3.6, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // TODO: Run with and without this line
+                new Pose2d(1.5, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(-0.5, 0.61 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
@@ -82,7 +84,7 @@ public class VisionAllLowAuto {
         Trajectory zoooomPartTwo = TrajectoryGenerator.generateTrajectory(
             List.of(
                 //new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(0, 0 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, 0.1 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // tested, somehow the trajectory 0,0 was shifted
                 new Pose2d(0, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(4.2, -0.3 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
                 // new Pose2d(3.6, 2.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
@@ -103,74 +105,44 @@ public class VisionAllLowAuto {
             zoooomPartTwo, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
             trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
 
-        
-
-        final int armPosFinal = ArmConstants.kArmScore;
-        final int elevatorPosFinal = ElevatorConstants.kElevatorScoreHigh;
 
         return Commands.race(
             Commands.waitSeconds(15), // TODO DEL
             //init
             Commands.sequence(
                 Commands.parallel(
-                    Commands.runOnce(() -> SmartDashboard.putString("Stage", "Start")),
-                    Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
-                    //runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)), // TBD
-                    //runOnce(() -> swerveDrive.stopModules())
-                    claw.setPower(-0.5)
+                    Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose()))
+                    //claw.setPower(-0.5) for shoot out cone
                 ),
-                Commands.waitSeconds(0.1),
+                //Commands.waitSeconds(0.1),for shoot out cone
 
                 //trajectory to cube
-                //Commands.runOnce(() -> SmartDashboard.putString("Moved On", "zoomin")),
                 Commands.parallel(
                     zoooomToCubeCommand,
-                    claw.setPower(0),
-
-                    // Commands.sequence(
-                    //     Commands.waitSeconds(1),
-                    //     Commands.runOnce(() -> claw.setPower(0))
-                    // ),
+                    //claw.setPower(0),for shoot out cone
     
                     //Drop arm to half way
-                    Commands.deadline(
+                    Commands.deadline( // TODO: Fix this and the other two Deadline arm Commands
                         Commands.waitSeconds(0.5),
                         sequence(
                             runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickup) / 2)),
                             waitSeconds(0.5),
                             waitUntil(arm.atTargetPosition)
                         )
-                    )
-
-                    // TODO to test which one will fast!!!!
+                    ),
+                    
+                    Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
                 ),
                 Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 Commands.runOnce(() -> swerveDrive.stopModules()),
 
-                
-
-
-                // // new TurnToAngle(170, swerveDrive),
-                // runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                // runOnce(() -> swerveDrive.stopModules()),
-
-                Commands.parallel(
-                    Commands.sequence(
-                        Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
-                        Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE)),
-
-                        Commands.race(
-                            new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                            Commands.waitSeconds(20) // TODO DEBUG
-                            // TODO need add protection here!!!!!!
-                        ),
-                
-                        // TODO: low prio.... return the command if exception?
-                        Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                        Commands.runOnce(() -> swerveDrive.stopModules())
-
-                    ) // TODO: GET RID OF TEMPORARy
+                Commands.race(
+                    new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                    Commands.waitSeconds(20) // kill this auto
+                    // TODO need add protection here!!!!!!
                 ),
+                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                Commands.runOnce(() -> swerveDrive.stopModules()),
 
                 claw.setPower(-0.35),
                 Commands.deadline(
@@ -181,31 +153,8 @@ public class VisionAllLowAuto {
                         waitUntil(arm.atTargetPosition)
                     )
                 ),
+                // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
                 claw.setPower(-0.20),
-                    
-                    
-                    /* ,
-                    
-    
-            //         //Drop arm and pick cube up
-            //         Commands.race(
-            //             Commands.waitSeconds(5),
-            //             Commands.parallel( // End command once both arm and elevator have reached their target position
-            //                 Commands.waitUntil(arm.atTargetPosition),
-            //                 Commands.waitUntil(elevator.atTargetPosition),
-            //                 Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
-            //                 Commands.sequence(
-            //                     Commands.waitSeconds(0.25),
-            //                     Commands.runOnce(() -> elevator.setTargetTicks(-160000))
-            //                 )
-            //             )
-            //         )*/
-            //         // TODO to test which one will be fast!!!!
-            //     ),
-
-                // Open claw/Start claw intake rollers
-                
-                // new WaitCommand(.5),
 
                 Commands.deadline(
                     Commands.waitSeconds(0.5),
@@ -216,135 +165,215 @@ public class VisionAllLowAuto {
                     )
                 ),
                 
+                new TurnToAngle(-179.9, swerveDrive),
 
-                Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false)),
-                
-                Commands.parallel(
-                    // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-                    Commands.sequence(
-                        new TurnToAngle(-179.9, swerveDrive),
-
-                        cubeToZoooomCommand
-                    )
-                ),
-
+                cubeToZoooomCommand,
                 Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 Commands.runOnce(() -> swerveDrive.stopModules()),
+
+                // TODO: apriltag?
 
                 claw.setPower(0.3),
-                    /* ,
-
-                
-
-            //         // TODO a lot tuning
-    
-            //         //up arm to score position
-            //         Commands.race(
-            //             Commands.waitSeconds(5),
-            //             Commands.parallel( // End command once both arm and elevator have reached their target position
-            //                 Commands.waitUntil(arm.atTargetPosition),
-            //                 Commands.waitUntil(elevator.atTargetPosition),
-            //                 Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
-            //                 Commands.sequence(
-            //                     Commands.waitSeconds(0.25),
-            //                     Commands.runOnce(() -> elevator.setTargetTicks(-160000))
-            //                 )
-            //             )
-            //         )*/
-            //     ),
-
-            //     // TODO: apriltag?
-                
-
-
-            //     claw.setPower(0.3),
-            //     Commands.waitSeconds(0.5),
-            //     claw.setPower(0),
 
                 Commands.parallel(
-                    zoooomPartTwoCommand/* ,
-    
-                    //Drop arm to half way
-                    Commands.race(
-                        Commands.waitSeconds(5),
-                        Commands.parallel( // End command once both arm and elevator have reached their target position
-                            Commands.waitUntil(arm.atTargetPosition),
-                            Commands.waitUntil(elevator.atTargetPosition),
-                            Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)) // TBD, half way
-                            Commands.sequence(
-                                Commands.waitSeconds(0.25),
-                                Commands.runOnce(() -> elevator.setTargetTicks(-160000))
-                            )
-                        )
-                    )*/
+                    Commands.sequence(
+                        waitSeconds(0.2),
+                        claw.setPower(0)
+                    ),
+                    zoooomPartTwoCommand,
+                    Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
                 ),
-                claw.setPower(0),
                 Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
                 Commands.runOnce(() -> swerveDrive.stopModules()),
-
 
                 new TurnToAngle(-45, swerveDrive),
 
-
-                Commands.sequence(
-                        Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
-                        Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE)),
-
-                        Commands.race(
-                            new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                            Commands.waitSeconds(20) // TODO DEBUG
-                            // TODO need add protection here!!!!!!
-                        ),
-                
-                        // TODO: low prio.... return the command if exception?
-                        Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-                        Commands.runOnce(() -> swerveDrive.stopModules())
-
-                )
-
-
-
-            //     // vision pickup
-            //     Commands.parallel(
-            //         Commands.sequence(
-            //             //Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
-            //             Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE)),
-
-            //             Commands.race(
-            //                 new RunCommand(() -> vision.driveToCubeOnGround(), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-            //                 Commands.waitSeconds(5) // TODO DEBUG
-            //                 // TODO need add protection here!!!!!!
-            //             ),
-
-            //             Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
-            //             Commands.runOnce(() -> swerveDrive.stopModules())
-            //         )/* ,
-    
-            //         //Drop arm and pick cube up
-            //         Commands.race(
-            //             Commands.waitSeconds(5),
-            //             Commands.parallel( // End command once both arm and elevator have reached their target position
-            //                 Commands.waitUntil(arm.atTargetPosition),
-            //                 Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup))
-            //             )
-            //         )*/
-            //     ),
-
-            //     // Open claw/Start claw intake rollers
-            //     claw.setPower(-0.3),
-            //     new WaitCommand(.5),
-            //     // // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-            //     claw.setPower(-0.15),
-
-            //     new TurnToAngle(179.9, swerveDrive)
-                
-            //     //Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
-                
+                /* uncommment it if we have time to run, otherwise be safe to stop here
+                Commands.race(
+                    new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                    Commands.waitSeconds(20)
+                    // TODO need add protection here!!!!!!
+                ),*/
+                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates)),
+                Commands.runOnce(() -> swerveDrive.stopModules())
             ),
-            run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
-            // run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
 
-            
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
+        );
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static CommandBase ThreeCubesAutoFast(SwerveDrivetrain swerveDrive, VROOOOM vision, Arm arm, Elevator elevator, MotorClaw claw, 
+    Alliance alliance){
+        PIDController trajectoryXController = new PIDController(kPXController, kIXController, kDXController);
+        PIDController trajectoryYController = new PIDController(kPYController, kIYController, kDYController);
+        ProfiledPIDController trajectoryThetaController = 
+            new ProfiledPIDController(kPThetaController, kIThetaController, kDThetaController, kThetaControllerConstraints);
+
+        // Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared);
+
+        double zoooomAllianceThingy = 1.0;
+        if (alliance == Alliance.Red) {
+            zoooomAllianceThingy = -1.0;
+        }
+        
+        //trajectory stuff
+
+        Trajectory zoooomToCube = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)), 
+            List.of(
+                new Translation2d(0.18, 0 * zoooomAllianceThingy),
+                new Translation2d(-0.18, 0 * zoooomAllianceThingy), // push the cube to hybrid zone
+                new Translation2d(0, 0 * zoooomAllianceThingy),
+                new Translation2d(0.18, 0.18 * zoooomAllianceThingy) 
+                //new Translation2d(-1.8, -0.4)
+            ),
+            new Pose2d(4.4, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+            trajectoryConfig);
+
+        Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                new Pose2d(4.4, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(3.8, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), 
+                new Pose2d(1.5, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.3, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.3, 0.45 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.45, 0.45 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+            ),
+            trajectoryConfig);
+
+        Trajectory zoooomPartTwo = TrajectoryGenerator.generateTrajectory(
+            List.of(
+                //new Pose2d(0.2, 1.0, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(0, 0 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), // tested, somehow the trajectory 0,0 was shifted
+                new Pose2d(0.5, -0.5 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(4.2, -0.5 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                // new Pose2d(3.6, 2.2 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+            ),
+            trajectoryConfig);
+
+        
+
+        SwerveControllerCommand zoooomToCubeCommand = new SwerveControllerCommand(
+            zoooomToCube, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        SwerveControllerCommand cubeToZoooomCommand = new SwerveControllerCommand(
+            cubeToZoooom, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
+
+        SwerveControllerCommand zoooomPartTwoCommand = new SwerveControllerCommand(
+            zoooomPartTwo, swerveDrive::getPose, SwerveDriveConstants.kDriveKinematics, 
+            trajectoryXController, trajectoryYController, trajectoryThetaController, swerveDrive::setModuleStates, swerveDrive);
+
+
+        return Commands.race(
+            Commands.waitSeconds(15), // TODO DEL
+            //init
+            Commands.sequence(
+
+                Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
+
+                //trajectory to cube
+                Commands.parallel(
+                    zoooomToCubeCommand,
+                    runOnce(() -> arm.setTargetTicks((ArmConstants.kArmScore + ArmConstants.kArmGroundPickup) / 2)),
+                    Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
+                ),
+
+                Commands.race(
+                    new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                    Commands.waitSeconds(20) // kill this auto
+                    // TODO need add protection here!!!!!!
+                ),
+
+                Commands.parallel(
+                    claw.setPower(-0.36),
+                    Commands.deadline(
+                        Commands.waitSeconds(0.6),
+                        sequence(
+                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup)),
+                            waitUntil(arm.atTargetPosition)
+                        )
+                    )
+                ),
+
+                Commands.waitSeconds(0.1),
+
+                Commands.parallel(
+                    // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+                    claw.setPower(-0.20),
+                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                    Commands.sequence(
+                        waitSeconds(0.2),
+                        new TurnToAngle(-179.9, swerveDrive) // it needs zoooomAllianceThingy? TODO
+                    )
+                ),
+
+                cubeToZoooomCommand,
+
+                claw.setPower(0.3),
+
+                Commands.parallel(
+                    Commands.sequence(
+                        waitSeconds(0.2),
+                        claw.setPower(0)
+                    ),
+                    zoooomPartTwoCommand,
+                    Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
+                ),
+
+                new TurnToAngle(45 * zoooomAllianceThingy, swerveDrive),
+                
+                // Commands.race(
+                //     new RunCommand(() -> vision.driveToCubeOnGround(claw, 2), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                //     Commands.waitSeconds(5) // kill this auto
+                // ),
+
+                Commands.parallel(
+                    Commands.runOnce(() -> swerveDrive.stopModules())
+                    // claw.setPower(-0.36),
+                    // runOnce(() -> arm.setTargetTicks(ArmConstants.kArmGroundPickup))
+                ),
+                Commands.runOnce(() -> swerveDrive.setModuleStates(SwerveDriveConstants.towModuleStates))
+
+                // Commands.parallel(
+                //     // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+                //     claw.setPower(-0.20),
+                //     runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow))
+                // )
+            ),
+
+            run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
         );
     }
 }
