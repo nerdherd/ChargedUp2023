@@ -107,9 +107,9 @@ public class TestAutos {
         Trajectory fullTraj = TrajectoryGenerator.generateTrajectory(
             List.of(
                 new Pose2d(0, 0, Rotation2d.fromDegrees(180)),
-                new Pose2d(3.65, 0.01, Rotation2d.fromDegrees(180)),
-                new Pose2d(3.65, 0.1, Rotation2d.fromDegrees(180)),
-                new Pose2d(2, 0.1, Rotation2d.fromDegrees(180))
+                new Pose2d(3.65 + 0.25, 0.01, Rotation2d.fromDegrees(180)),
+                new Pose2d(3.65 + 0.25, 0.1, Rotation2d.fromDegrees(180)),
+                new Pose2d(2 - 0.1, 0.1, Rotation2d.fromDegrees(180))
             ),
             trajectoryConfig2
         );

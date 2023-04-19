@@ -161,7 +161,7 @@ public class ChargeAutos {
                     sequence(
                         claw.setPower(-0.35),
                         waitSeconds(0.25),
-                        claw.setPower(-0.25)
+                        claw.setPower(-0.07)
                     ),
                     deadline(
                         waitSeconds(2),
