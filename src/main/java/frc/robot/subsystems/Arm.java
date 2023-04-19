@@ -30,12 +30,12 @@ public class Arm extends SubsystemBase implements Reportable {
     public BooleanSupplier atTargetPosition;
     private int prevTickChange = 0;
     private int tickChange = 0;
-    // private DigitalInput talonTachTop;
+    private DigitalInput talonTachTop;
     private boolean inTalonTachZone;
     // private DigitalInput talonTachBottom;
 
     public Arm() {
-        // talonTachTop = new DigitalInput(ArmConstants.kTalonTachTopID);
+        talonTachTop = new DigitalInput(ArmConstants.kTalonTachTopID);
         // talonTachBottom = new DigitalInput(ArmConstants.kTalonTachBottomID);
         
         // gear ratio 27:1
@@ -350,6 +350,7 @@ public class Arm extends SubsystemBase implements Reportable {
                 tab.addNumber("Target Arm Ticks", () -> targetTicks);
                 tab.addBoolean("At target position", atTargetPosition);
                 tab.addNumber("Tick Change", () -> tickChange);
+                tab.addBoolean("Talon Tach Detected", () -> talonTachTop.get());
                 break;
         }
 
