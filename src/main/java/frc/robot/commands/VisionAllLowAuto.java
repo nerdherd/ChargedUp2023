@@ -374,6 +374,6 @@ public class VisionAllLowAuto {
             ),
 
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
-        );
+        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
     }
 }

@@ -41,7 +41,7 @@ public class TestAutos {
             runOnce(() -> swerveDrive.towModules()),
             waitSeconds(0.2),
             runOnce(() -> swerveDrive.stopModules())
-        );
+        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
     }
 
     public static CommandBase taxiChargeBackwardsSLOW(SwerveDrivetrain swerveDrive, MotorClaw claw, Arm arm, Elevator elevator) {
@@ -75,7 +75,7 @@ public class TestAutos {
                 run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
                 run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
             )
-        );
+        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
     }
 
     public static CommandBase taxiChargeBackwardsSLOW(SwerveDrivetrain swerveDrive) {
