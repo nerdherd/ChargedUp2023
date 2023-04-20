@@ -341,6 +341,12 @@ public class RobotContainer {
   }
   
   public void initShuffleboard() {
+    ShuffleboardTab joystickTab = Shuffleboard.getTab("OI");
+    joystickTab.addNumber("Driver LX", driverController::getLeftX);
+    joystickTab.addNumber("Driver LY", driverController::getLeftY);
+    joystickTab.addNumber("Driver RX", driverController::getRightX);
+    joystickTab.addNumber("Driver RY", driverController::getRightY);
+
     imu.initShuffleboard(loggingLevel);
     arm.initShuffleboard(loggingLevel);
     elevator.initShuffleboard(loggingLevel);
