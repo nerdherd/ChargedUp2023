@@ -257,12 +257,12 @@ public class VisionAllLowAuto {
                 new Translation2d(0.18, 0.18 * zoooomAllianceThingy) 
                 //new Translation2d(-1.8, -0.4)
             ),
-            new Pose2d(4.4, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
+            new Pose2d(4.3, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(0)),
             trajectoryConfig);
 
         Trajectory cubeToZoooom = TrajectoryGenerator.generateTrajectory(
             List.of(
-                new Pose2d(4.4, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(4.3, 0.18 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(3.8, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), 
                 new Pose2d(1.5, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(-0.3, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
@@ -374,6 +374,6 @@ public class VisionAllLowAuto {
             ),
 
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
-        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
+        );
     }
 }

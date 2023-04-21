@@ -222,7 +222,7 @@ public class VisionCableSideAuto {
 
             run(() -> arm.moveArmMotionMagic(elevator.percentExtended()))
             // run(() -> elevator.moveMotionMagic(arm.getArmAngle()))
-        ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
+        );
     }
 
 
