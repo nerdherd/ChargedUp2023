@@ -99,7 +99,7 @@ public final class Constants {
     public static final int kArmScoreCubeHigh = -406900 / 3;//-383050;//596443; // 89744;
     public static final int kArmGroundPickup = -22763;//-12484;//-26760;//-12484;//-11002; //4.8 deg //-23794;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
     public static final int kArmGroundPickupVision = -19430;//-42020;
-    public static final int kArmSubstation = -107702;//-231474;//-107974;//-124643; //54.49 deg//-269557; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmSubstation = -108137;//-231474;//-107974;//-124643; //54.49 deg//-269557; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
     public static final int kArmMotionAcceleration = 100000;//20000;//45000;//800000; //160000;
     public static final int kArmCruiseVelocity = 16333;//13500;//30000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
