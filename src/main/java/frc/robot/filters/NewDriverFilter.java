@@ -40,7 +40,7 @@ public class NewDriverFilter extends FilterSeries {
         super.setFilters(
             new WrapperFilter(
                 (x) -> {
-                    return 1.63 * x;
+                    return 1.7 * x;
                 }
             ),
             new ClampFilter(1),
