@@ -338,7 +338,7 @@ public class SwerveAutos {
 
     public static CommandBase preloadChargeAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, StartPosition startPos, SCORE_POS scorePos, double waitTime, boolean goAround, Alliance alliance) {
         return sequence(
-            preloadAuto(arm, elevator, claw, scorePos),
+            ChargeAutos.preloadHigh(arm, elevator, claw),
             deadline(
                 chargeAuto(swerveDrive, startPos, alliance, waitTime, goAround),
                 run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
@@ -349,7 +349,7 @@ public class SwerveAutos {
 
     public static CommandBase preloadBackwardAuto(SwerveDrivetrain swerveDrive, Arm arm, Elevator elevator, MotorClaw claw, SCORE_POS scorePos, Alliance alliance) {
         return sequence(
-            preloadAuto(arm, elevator, claw, scorePos),
+            ChargeAutos.preloadHigh(arm, elevator, claw),
             driveBackwardAuto(swerveDrive)
         ).finallyDo((x) -> swerveDrive.getImu().setOffset(180));
     }
