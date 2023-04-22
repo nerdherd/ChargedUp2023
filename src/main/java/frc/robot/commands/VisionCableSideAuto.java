@@ -295,70 +295,26 @@ public class VisionCableSideAuto {
             //init
             Commands.sequence(
 
-                Commands.race(
-                    waitSeconds(5),
-                    Commands.sequence(
-                        parallel(
-                            sequence(
-                                claw.setPower(-0.35),
-                                waitSeconds(0.25),
-                                claw.setPower(-0.25)
-                            ),
-                            deadline(
-                                waitSeconds(2),
-                                runOnce(() -> SmartDashboard.putString("Stage", "Score")),
-                                sequence(
-                                    runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScoreCubeHigh)),
-                                    waitSeconds(0.5),
-                                    waitUntil(arm.atTargetPosition)
-                                ),
-                                sequence(
-                                    waitSeconds(0.5),
-                                    runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
-                                    waitSeconds(0.5),
-                                    waitUntil(elevator.atTargetPosition)
-                                )
-                            )
-                        ),
-
-                        waitSeconds(0.25),
-                        claw.setPower(0.3),
-                        waitSeconds(0.5),
-                        claw.setPowerZero(),
-                
-                        deadline(
-                            waitSeconds(0.5),
-                            runOnce(() -> SmartDashboard.putString("Stage", "Stow")),
-                            sequence(
-                                runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
-                                waitSeconds(0.5),
-                                waitUntil(elevator.atTargetPosition)
-                            ),
-                            sequence(
-                                runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
-                                waitSeconds(0.5),
-                                waitUntil(arm.atTargetPosition)
-                            )
-                        )
-                    )
-                ),
+                ChargeAutos.preloadHigh(arm, elevator, claw),
 
                 //TODO confirm if we need it!!!!!!
                 Commands.runOnce(() -> swerveDrive.resetOdometry(zoooomToCube.getInitialPose())),
 
                 //trajectory to cube
                 Commands.parallel(
-                    zoooomToCubeCommand,
-                    Commands.sequence(
-                        Commands.waitSeconds(1.5),
-                        runOnce(() -> arm.setTargetTicks((ArmConstants.kArmStow) )) // to be safe
-                    ),
-                    Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE))
+                    zoooomToCubeCommand
+                    // Commands.sequence(
+                    //     Commands.waitSeconds(1.5),
+                    //     runOnce(() -> arm.setTargetTicks((ArmConstants.kArmStow) )) // to be safe
+                    // ),
+                    
                 ),
                 new TurnToAngle(179.9, swerveDrive),
+                Commands.runOnce(() -> vision.initVisionPickupOnGround(OBJECT_TYPE.CUBE)),
 
                 Commands.race(
-                    new RunCommand(() -> vision.driveToCubeOnGround(claw, 5), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                    
+                    new RunCommand(() -> vision.driveToCubeOnGround(claw, 4), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
                     Commands.waitSeconds(20) // kill this auto
                     // TODO need add protection here!!!!!!
                 ),
@@ -393,22 +349,22 @@ public class VisionCableSideAuto {
 
                 new TurnToAngle(0, swerveDrive),
 
-                parallel (
-                    Commands.race(
-                        new RunCommand(() -> vision.driveToGridTag(claw, atagIdFinal), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
-                        Commands.waitSeconds(3) 
-                    )/* ,
+                // parallel (
+                //     Commands.race(
+                //         new RunCommand(() -> vision.driveToGridTag(claw, atagIdFinal), arm, elevator, claw, swerveDrive).until(vision.cameraStatusSupplier),
+                //         Commands.waitSeconds(3) 
+                //     )/* ,
 
-                    //Drop arm high drop off
-                    Commands.deadline( // TODO: Fix this and the other two Deadline arm Commands
-                        Commands.waitSeconds(0.5),
-                        sequence(
-                            runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScoreCubeMid)),
-                            waitSeconds(0.5),
-                            waitUntil(arm.atTargetPosition)
-                        )
-                    )*/
-                ),
+                //     //Drop arm high drop off
+                //     Commands.deadline( // TODO: Fix this and the other two Deadline arm Commands
+                //         Commands.waitSeconds(0.5),
+                //         sequence(
+                //             runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScoreCubeMid)),
+                //             waitSeconds(0.5),
+                //             waitUntil(arm.atTargetPosition)
+                //         )
+                //     )*/
+                // ),
 
                 claw.setPower(0.3)
                 

@@ -266,8 +266,8 @@ public class VisionAllLowAuto {
                 new Pose2d(3.8, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)), 
                 new Pose2d(1.5, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
                 new Pose2d(-0.3, -0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(-0.3, 0.45 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
-                new Pose2d(-0.45, 0.45 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
+                new Pose2d(-0.3, 0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9)),
+                new Pose2d(-0.45, 0.4 * zoooomAllianceThingy, Rotation2d.fromDegrees(179.9))
             ),
             trajectoryConfig);
 
