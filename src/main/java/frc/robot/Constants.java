@@ -83,35 +83,39 @@ public final class Constants {
 
     public static final int kTopMotorID = 61;
     public static final int kBottomMotorID = 62;
-    public static final double kIntakePower = -0.35;
-    public static final double kOuttakePower = 1;
+    public static final double kIntakePower = -0.3;
+    public static final double kOuttakePower = 0.5;
     public static final double kIntakeNeutralPower = -0.25;
+    public static final int kMainMotorID = 61;
   }
 
   public static class ArmConstants{
     public static final int kRotatingArmID = 17;
     public static final int kArmLowerLimit = -220000;
-    public static final int kArmStow = -622485;//-630435;//144278;
-    public static final int kArmScore = -432700;//-408850;//596443; // 89744;
-    public static final int kArmScoreCubeMid = -394900;//-371050;//596443; // 89744;
-    public static final int kArmScoreCubeHigh = -406900;//-383050;//596443; // 89744;
-    public static final int kArmGroundPickup = -238900;//-215050;//-242170;//767054;// 34352;
-    public static final int kArmSubstation = -522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
-    public static final int kArmMotionAcceleration = 40000;//800000; //160000;
-    public static final int kArmCruiseVelocity = 22000;//18000;//21777;
+    public static final int kArmStow = -144652;//-310079;//-144652;//-166987; //73 deg //-361131;//-144321 * 3;//-276670;//-622485;//-630435;//144278;
+    public static final int kArmTalonTach = -550169 / 3;
+    public static final int kArmScore = -75933;//-152194;//-70998;//-81958; //35.83 deg //-177246;//-432700;//-377161 - 7950; //-432700;//-408850;//596443; // 89744;
+    public static final int kArmScoreCubeMid = -394900 / 3;//-371050;//596443; // 89744;
+    public static final int kArmScoreCubeHigh = -406900 / 3;//-383050;//596443; // 89744;
+    public static final int kArmGroundPickup = -22763;//-12484;//-26760;//-12484;//-11002; //4.8 deg //-23794;//-198668;//-238900;//-215050;//-242170;//767054;// 34352;
+    public static final int kArmGroundPickupVision = -19430;//-42020;
+    public static final int kArmSubstation = -108137;//-231474;//-107974;//-124643; //54.49 deg//-269557; //-484470;//-479236;//-522850; //-499000;//-480486; // TODO: MEASURE THIS PWEASE
+    public static final int kArmMotionAcceleration = 100000;//20000;//45000;//800000; //160000;
+    public static final int kArmCruiseVelocity = 16333;//13500;//30000;//18000;//21777;
     public static final double kArmDeadband = 0.05;
     public static final double kArmP = 0.1;
     public static final double kArmI = 0;
     public static final double kArmD = 0.0;
-    public static final double kArmF = 0.047;
-    public static final double kStowedFF = 0.069;
-    public static final double kExtendedFF = 0.089;
+    public static final double kArmF = 0.0496;
+    public static final double kStowedFF = 0.11;
+    public static final double kExtendedFF = 0.17;
     public static final double kDiffFF = kExtendedFF - kStowedFF;
     public static final int kPistonForwardID = 5;
     public static final int kPistonReverseID = 4;
     public static final double kJoystickMultiplier = 1; 
-    public static final double kTicksPerAngle = 7950;
-    public static final int kLimitSwitchID = 0;
+    public static final double kTicksPerAngle = 1981;//4248;//1981;//1603;//4947;//5931;
+    public static final int kTalonTachTopID = 0;
+    public static final int kTalonTachBottomID = 1;
 
 
     // public static final double kCruiseVelocity = 0;
@@ -123,12 +127,12 @@ public final class Constants {
     public static final int kElevatorID = 18;
     public static final int kElevatorStow = 0;
     public static final int kElevatorScoreMidCube = -85285;//-143634;
-    public static final int kElevatorScoreMid = -143634;
+    public static final int kElevatorScoreMid = -54512;//-98123; //-143634;
     public static final int kElevatorScoreHighCube = -198657;//-240000;
-    public static final int kElevatorScoreHigh = -240000;
-    public static final int kElevatorSubstation = -69400;//-68100;//-116680; // Height for substation i think
-    public static final int kElevatorMotionAcceleration = 60000;
-    public static final int kElevatorCruiseVelocity = 30000;
+    public static final int kElevatorScoreHigh = -133333;//-240000;
+    public static final int kElevatorSubstation = -40962;//-73732;//-68100;//-116680; // Height for substation i think
+    public static final int kElevatorMotionAcceleration = 32666;
+    public static final int kElevatorCruiseVelocity = 16333;
     public static final double kElevatorP = 0.1;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
@@ -137,7 +141,7 @@ public final class Constants {
     public static final double kElevatorDeadband = 0.05;
     public static final double kJoystickMultiplier = 1;
     public static final double kTicksPerAngle = 0;
-    public static final int kLimitSwitchID = 0;
+    public static final int kHallEffectID = 2;
   }
 
   public static class VisionConstants{
@@ -156,7 +160,7 @@ public final class Constants {
 
   public static final class ModuleConstants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
-    public static final double kDriveMotorGearRatio = 1 / 8.14;
+    public static final double kDriveMotorGearRatio = 1 / 6.75;
     public static final double kTurningMotorGearRatio = 1 / 21.428; // 150 : 7 : 1 MK4i
     public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI;
     public static final double kDriveTicksToMeters = (1 / 2048.0) * kMetersPerRevolution; 
@@ -167,17 +171,18 @@ public final class Constants {
     public static final double kIntegratedTurningTicksPer100MsToRadPerSec = kIntegratedTurningTicksToRad * 10;
 
     
-    public static final double kDriveMotorDeadband = 0.05;
-    public static final double kTurnMotorDeadband = 0.02;
+    public static final double kDriveMotorDeadband = 0.02;
+    public static final double kTurnMotorDeadband = 0.05;
 
     public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
     public static final double kDTurning = 0.02; 
     
     // TODO: tune PID for drive motor velocity control
-    public static final double kPDrive = 0;
+    public static final double kPDrive = 0.13;
     public static final double kIDrive = 0;
     public static final double kDDrive = 0;
+    public static final double kFDrive = 0.0469;
   } 
 
   public static final class SwerveDriveConstants {
@@ -258,29 +263,30 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 71.895 + 180;       
-      public static final double kFLCANCoderOffsetDegrees = 253.125 - 180;         
-      public static final double kBLCANCoderOffsetDegrees = 286.260 - 180;          
-      public static final double kBRCANCoderOffsetDegrees = 7.734; // 1.406
+      public static final double kFRCANCoderOffsetDegrees = 68.379 + 180;       
+      public static final double kFLCANCoderOffsetDegrees = 252.949 - 180;         
+      public static final double kBLCANCoderOffsetDegrees = 105.293;          
+      public static final double kBRCANCoderOffsetDegrees = 180.176 - 180; // 1.406
     }
 
 
 
 
 
-    public static final double kPhysicalMaxSpeedMetersPerSecond = 4;    
+    public static final double kPhysicalMaxSpeedMetersPerSecond = 5;    
     public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
     public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond;
-    public static final double kTeleMaxAcceleration = 3;
+    public static final double kTeleMaxAcceleration = 5;
     // THIS CONSTANT HAS TO BE NEGATIVE OTHERWISE THE ROBOT WILL CRASH
     //TODO: Change deceleration with driver feedback, only in small increments (<= -2 is dangerous)
-    public static final double kTeleMaxDeceleration = -3; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
+    public static final double kTeleMaxDeceleration = -5; // Russell says he likes 2.5 from sims, but keep at 3 until tested on real robot 
 
     public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
-      kPhysicalMaxAngularSpeedRadiansPerSecond / 2;
+      kPhysicalMaxAngularSpeedRadiansPerSecond * 0.75;
     public static final double kTurnToAngleMaxAngularSpeedRadiansPerSecond 
       = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
+    public static final double kTurnToBigAngleMaxAngularSpeedRadiansPerSecond = 1.5 * Math.PI;
     public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
     public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 3;
 
@@ -296,18 +302,24 @@ public final class Constants {
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
         new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
     };
+
+    public static final double kGravityMPS = 9.80665; 
   }
 
   public static final class SwerveAutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 2;
+    public static final double kChargeSpeedMetersPerSecond = 0.75 * 2.5;
+    public static final double kTwoPieceSpeedMetersPerSecond = 2.8;
     public static final double kMaxAngularSpeedRadiansPerSecond = //
-      SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 2;
+      SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 3;
+    public static final double kMaxAccelerationMetersPerSecondSquared = kMaxSpeedMetersPerSecond;
+    public static final double kChargeAccelerationMetersPerSecondSquared = 2.5;
+    public static final double kTwoPieceAccelerationMetersPerSecondSquared = 2.8;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
-    public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 1.5);
+    public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 0.25);
     public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0);
     public static final double kDXController = SmartDashboard.getNumber("kD X Speed", 0);
-    public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 1.5);
+    public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 0.25);
     public static final double kIYController = SmartDashboard.getNumber("kI Y Speed", 0);
     public static final double kDYController = SmartDashboard.getNumber("kD Y Speed", 0);
     public static final double kPThetaController = SmartDashboard.getNumber("kP Theta Auto", 3.0);
@@ -322,8 +334,13 @@ public final class Constants {
       new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond,
         kMaxAngularAccelerationRadiansPerSecondSquared);
-    public static final double kPBalancingInitial = 0.6;
-    public static final double kPBalancing = 0.3; // 0.4
+    public static final double kPBalancingInitial = 4.8;
+    public static final double kPBalancing = 2.6; //2.7 worked once //2.37; // 0.4
+    public static final double kIBalancing = 0;
+    public static final double kDBalancing = 0;
+    public static final double kPOneWayBalancing = 2.6; //2.7 worked once //2.37; // 0.4
+    public static final double kIOneWayBalancing = 0;
+    public static final double kDOneWayBalancing = 0;
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
     public static final double kBalancingTowPeriod = 0.5;
   }
@@ -338,7 +355,9 @@ public final class Constants {
     public static final int kDriverRotAxis = 4;
     public static final int kDriverFieldOrientedButtonIdx = 1;
 
-    public static final double kDeadband = 0.05;    }
+    public static final double kDeadband = 0.05;
+    public static final double kRotationDeadband = 0.1;
+  }
 
   public static class BananaConstants {
     public static final double kPIDControllerP = 0.1;

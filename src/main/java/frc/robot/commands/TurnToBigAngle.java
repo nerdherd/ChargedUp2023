@@ -10,7 +10,7 @@ import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.util.NerdyMath;
 
-public class TurnToAngle extends CommandBase {
+public class TurnToBigAngle extends CommandBase {
     private double targetAngle;
     private SwerveDrivetrain swerveDrive;
     private PIDController pidController;
@@ -22,7 +22,7 @@ public class TurnToAngle extends CommandBase {
      * @param swerveDrive   Swerve drivetrain to rotate
      * @param period        Time between each calculation (default 20ms)
      */
-    public TurnToAngle(double targetAngle, SwerveDrivetrain swerveDrive, double period) {
+    public TurnToBigAngle(double targetAngle, SwerveDrivetrain swerveDrive, double period) {
         this.targetAngle = targetAngle;
         this.swerveDrive = swerveDrive;
 
@@ -43,7 +43,7 @@ public class TurnToAngle extends CommandBase {
         addRequirements(swerveDrive);
     }
 
-    public TurnToAngle(double targetAngle, SwerveDrivetrain swerveDrive) {
+    public TurnToBigAngle(double targetAngle, SwerveDrivetrain swerveDrive) {
         // Default period is 20 ms
         this(targetAngle, swerveDrive, 0.02);
     }
@@ -61,8 +61,8 @@ public class TurnToAngle extends CommandBase {
 
         turningSpeed = NerdyMath.clamp(
             turningSpeed, 
-            -SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond, 
-            SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond);
+            -SwerveDriveConstants.kTurnToBigAngleMaxAngularSpeedRadiansPerSecond, 
+            SwerveDriveConstants.kTurnToBigAngleMaxAngularSpeedRadiansPerSecond);
         // SmartDashboard.putNumber("Turning speed limited", turningSpeed);
         
         // Convert speed into swerve states
@@ -85,8 +85,8 @@ public class TurnToAngle extends CommandBase {
         turningSpeed = Math.toRadians(turningSpeed);
         turningSpeed = NerdyMath.clamp(
             turningSpeed, 
-            -SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond, 
-            SwerveDriveConstants.kTurnToAngleMaxAngularSpeedRadiansPerSecond);
+            -SwerveDriveConstants.kTurnToBigAngleMaxAngularSpeedRadiansPerSecond, 
+            SwerveDriveConstants.kTurnToBigAngleMaxAngularSpeedRadiansPerSecond);
 
         // Convert speed into swerve states
         return ChassisSpeeds.fromFieldRelativeSpeeds(

@@ -38,6 +38,12 @@ public class NewDriverFilter extends FilterSeries {
         slewRateLimiter = new SlewRateLimiter(posRateLimit, negRateLimit, 0);
 
         super.setFilters(
+            new WrapperFilter(
+                (x) -> {
+                    return 1.7 * x;
+                }
+            ),
+            new ClampFilter(1),
             new DeadbandFilter(deadband),
             new WrapperFilter(
                 (x) -> {

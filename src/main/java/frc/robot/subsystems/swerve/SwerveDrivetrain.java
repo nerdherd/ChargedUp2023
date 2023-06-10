@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.SwerveDriveConstants.CANCoderConstants;
 import frc.robot.Constants.SwerveDriveConstants.MagEncoderConstants;
-import frc.robot.subsystems.Imu;
+import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.Reportable;
 
 import static frc.robot.Constants.SwerveDriveConstants.*;
@@ -26,8 +26,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     private final SwerveModule backLeft;
     private final SwerveModule backRight;
 
-    private final Imu gyro;
+    private final Gyro gyro;
     private final SwerveDriveOdometry odometer;
+    private DRIVE_MODE driveMode = DRIVE_MODE.FIELD_ORIENTED;
 
     private Field2d field;
 
@@ -38,10 +39,16 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         CANCODER
     }
 
+    public enum DRIVE_MODE {
+        FIELD_ORIENTED,
+        ROBOT_ORIENTED,
+        AUTONOMOUS
+    }
+
     /**
      * Construct a new {@link SwerveDrivetrain}
      */
-    public SwerveDrivetrain(Imu gyro, SwerveModuleType moduleType) throws IllegalArgumentException {
+    public SwerveDrivetrain(Gyro gyro, SwerveModuleType moduleType) throws IllegalArgumentException {
         switch (moduleType) {
             case MAG_ENCODER:
                 frontLeft = new MagSwerveModule(
@@ -116,7 +123,6 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         }
 
         numEncoderResets = 0;
-        SmartDashboard.putNumber("Encoder resets", 0);
         resetEncoders();
         this.gyro = gyro;
         this.odometer = new SwerveDriveOdometry(
@@ -156,8 +162,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     public void resetEncoders() {
         numEncoderResets += 1;
-        SmartDashboard.putNumber("Encoder resets", numEncoderResets);
-        // SmartDashboard.putNumber("Encoder resets", SmartDashboard.getNumber("Encoder resets", 0)+1);
+        // SmartDashboard.putNumber("Encoder resets", numEncoderResets);
         frontLeft.resetEncoder();
         frontRight.resetEncoder();
         backLeft.resetEncoder();
@@ -176,7 +181,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     //****************************** GETTERS ******************************/
 
-    public Imu getImu() {
+    public Gyro getImu() {
         return this.gyro;
     }
 
@@ -202,6 +207,21 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     }
 
     //****************************** SETTERS ******************************/
+
+    /**
+     * Set the drive mode (only for telemetry purposes)
+     * @param driveMode
+     */
+    public void setDriveMode(DRIVE_MODE driveMode) {
+        this.driveMode = driveMode;
+    }
+
+    public void setVelocityControl(boolean withVelocityControl) {
+        frontLeft.toggleVelocityControl(withVelocityControl);
+        frontRight.toggleVelocityControl(withVelocityControl);
+        backLeft.toggleVelocityControl(withVelocityControl);
+        backRight.toggleVelocityControl(withVelocityControl);
+    }
 
     public void drive(double xSpeed, double ySpeed, double turnSpeed) {
         setModuleStates(
@@ -253,6 +273,13 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         backRight.setDesiredState(desiredStates[3]);
     }
 
+    public void towModules() {
+        frontLeft.setDesiredState(towModuleStates[0], false);
+        frontRight.setDesiredState(towModuleStates[1], false);
+        backLeft.setDesiredState(towModuleStates[2], false);
+        backRight.setDesiredState(towModuleStates[3], false);
+    }
+
     /**
      * Reset the odometry to the specified position.
      * @param pose
@@ -261,34 +288,62 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         odometer.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
     }
 
-    public void initShuffleboard() {
-        ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
+    public void initShuffleboard(LOG_LEVEL level) {
+        if (level == LOG_LEVEL.OFF)  {
+            return;
+        }
+        ShuffleboardTab tab;
+        if (level == LOG_LEVEL.MINIMAL) {
+            tab = Shuffleboard.getTab("Main");
+        } else {
+            tab = Shuffleboard.getTab("Swerve");
+        }
 
-        tab.add("Field Position", field).withSize(6, 3);
-        tab.addNumber("X Position", odometer.getPoseMeters()::getX);
-        // Might be negative because our swerveDriveKinematics is flipped across the Y axis
-        tab.addNumber("Y Position", odometer.getPoseMeters()::getY);
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+                tab.add("Field Position", field).withSize(6, 3);
+                // Might be negative because our swerveDriveKinematics is flipped across the Y axis
+            case MEDIUM:
+                tab.addNumber("Encoder Resets", () -> this.numEncoderResets);
+            case MINIMAL:
+                tab.addNumber("X Position (m)", () -> odometer.getPoseMeters().getX());
+                tab.addNumber("Y Position (m)", () -> odometer.getPoseMeters().getY());
+                tab.addString("Drive Mode", () -> this.driveMode.toString());
+                break;
+        }
     }
 
-    public void initModuleShuffleboard() {
-        frontRight.initShuffleboard();
-        backRight.initShuffleboard();
-        frontLeft.initShuffleboard();
-        backLeft.initShuffleboard();
+    public void initModuleShuffleboard(LOG_LEVEL level) {
+        frontRight.initShuffleboard(level);
+        frontLeft.initShuffleboard(level);
+        backLeft.initShuffleboard(level);
+        backRight.initShuffleboard(level);
     }
 
     /**
      * Report values to smartdashboard.
      */
-    public void reportToSmartDashboard() {
-        SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
-        SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
+    public void reportToSmartDashboard(LOG_LEVEL level) {
+        switch (level) {
+            case OFF:
+                break;
+            case ALL:
+            case MEDIUM:
+                SmartDashboard.putNumber("Encoder Resets", numEncoderResets);
+            case MINIMAL:
+                SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
+                SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
+                SmartDashboard.putString("Drive Mode", this.driveMode.toString());
+                break;
+        }
     }
 
-    public void reportModulesToSmartDashboard() {
-        frontRight.reportToSmartDashboard();
-        backRight.reportToSmartDashboard();
-        frontLeft.reportToSmartDashboard();
-        backLeft.reportToSmartDashboard();
+    public void reportModulesToSmartDashboard(LOG_LEVEL level) {
+        frontRight.reportToSmartDashboard(level);
+        frontLeft.reportToSmartDashboard(level);
+        backLeft.reportToSmartDashboard(level);
+        backRight.reportToSmartDashboard(level);
     }
 }
