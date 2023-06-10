@@ -70,7 +70,16 @@ public class PigeonV2 extends SubsystemBase implements Gyro {
     }
 
     public double getHeading() {
-        return (-pigeon.getCompassHeading() - offset) % 360;
+        return (-pigeon.getAbsoluteCompassHeading() - offset);
+    }
+
+    public double getYaw() {
+        double currentYaw = (pigeon.getYaw() - offset) % 360;
+        if (currentYaw < 0) {
+            return currentYaw + 360;
+        } else {
+            return currentYaw;
+        }
     }
 
     public double getPitch() {
