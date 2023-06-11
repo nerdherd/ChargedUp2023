@@ -66,7 +66,8 @@ public class RobotContainer {
   // public Arm arm = new Arm();
   // public Elevator elevator = new Elevator();
   // public MotorClaw motorClaw = new MotorClaw();
-  public Gyro imu = new Pigeon(60);
+  // public Gyro imu = new Pigeon(60);
+  public Gyro imu = new NavX();
   public SwerveDrivetrain swerveDrive;
   // public VROOOOM vision;
 
