@@ -9,14 +9,13 @@ import frc.robot.subsystems.Reportable;
  * <p>
  * Does NOT include accelerometer functionality.
  * <p>
- * Follows CW = positive conventions.
+ * Follows CCW = positive conventions.
  * See page 20 of {@link https://store.ctr-electronics.com/content/user-manual/Pigeon2%20User%27s%20Guide.pdf}
  * for Pigeon 2 orientations and see 
  * {@link https://pdocs.kauailabs.com/navx-mxp/installation/orientation-2/}
  * for NavX orientations.
  * <p>
  */
-//TODO: Change to CCW = positive to match with WPILib conventions
 public interface Gyro extends Reportable {
     /** Soft reset all axes */
     public void zeroAll();
@@ -38,17 +37,17 @@ public interface Gyro extends Reportable {
     /** Set the roll offset */
     public void setRollOffset(double offset);
     /**
-     * Get the heading in degrees. (CW = positive)
+     * Get the heading in degrees. (CCW = positive)
      * @return  IMU Heading in degrees.
      */
     public double getHeading();
     /**
-     * Get the pitch in degrees. (CW = positive)
+     * Get the pitch in degrees. (CCW = positive)
      * @return  IMU Heading in degrees.
      */
     public double getPitch();
     /**
-     * Get the roll in degrees. (CW = positive)
+     * Get the roll in degrees. (CCW = positive)
      * @return  IMU Heading in degrees.
      */
     public double getRoll();
