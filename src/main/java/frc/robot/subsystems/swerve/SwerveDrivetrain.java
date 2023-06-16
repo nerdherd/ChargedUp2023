@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.SwerveDriveConstants.CANCoderConstants;
-import frc.robot.Constants.SwerveDriveConstants.MagEncoderConstants;
 import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.Reportable;
 
@@ -50,40 +49,6 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     public SwerveDrivetrain(Gyro gyro, SwerveModuleType moduleType) throws IllegalArgumentException {
         switch (moduleType) {
-            case MAG_ENCODER:
-                frontLeft = new MagSwerveModule(
-                    kFLDriveID,
-                    kFLTurningID,
-                    kFLDriveReversed,
-                    kFLTurningReversed,
-                    MagEncoderConstants.kFLAbsoluteID,
-                    MagEncoderConstants.kFLAbsoluteOffsetTicks,
-                    MagEncoderConstants.kFLAbsoluteReversed);
-                frontRight = new MagSwerveModule(
-                    kFRDriveID,
-                    kFRTurningID,
-                    kFRDriveReversed,
-                    kFRTurningReversed,
-                    MagEncoderConstants.kFRAbsoluteID,
-                    MagEncoderConstants.kFRAbsoluteOffsetTicks,
-                    MagEncoderConstants.kFRAbsoluteReversed);
-                backLeft = new MagSwerveModule(
-                    kBLDriveID,
-                    kBLTurningID,
-                    kBLDriveReversed,
-                    kBLTurningReversed,
-                    MagEncoderConstants.kBLAbsoluteID,
-                    MagEncoderConstants.kBLAbsoluteOffsetTicks,
-                    MagEncoderConstants.kBLAbsoluteReversed);
-                backRight = new MagSwerveModule(
-                    kBRDriveID,
-                    kBRTurningID,
-                    kBRDriveReversed,
-                    kBRTurningReversed,
-                    MagEncoderConstants.kBRAbsoluteID,
-                    MagEncoderConstants.kBRAbsoluteOffsetTicks,
-                    MagEncoderConstants.kBRAbsoluteReversed);
-                break;
             case CANCODER:
                 frontLeft = new CANSwerveModule(
                     kFLDriveID,
@@ -119,7 +84,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     CANCoderConstants.kBRCANCoderReversed);
                 break;
             default:
-                throw new IllegalArgumentException("Swerve Module Type not provided");
+                throw new IllegalArgumentException("Invalid Swerve Module Type provided.");
         }
 
         numEncoderResets = 0;
@@ -139,10 +104,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     @Override
     public void periodic() {
-        // reportToSmartDashboard();
-        // SwerveModulePosition[] modules = getModulePositions();
         odometer.update(gyro.getRotation2d(), getModulePositions());
-        // field.setRobotPose(odometer.getPoseMeters());
     }
     
     //****************************** RESETTERS ******************************/

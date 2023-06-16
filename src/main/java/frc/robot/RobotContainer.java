@@ -14,7 +14,6 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.SwerveJoystickCommand;
@@ -33,7 +32,7 @@ import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
  * periodic methods (other than the scheduler calls). Instead, the structure of
  * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
- */// 10.6.87.98:5800
+ */
 public class RobotContainer {
 
   public Gyro imu = new NavX();
@@ -63,7 +62,6 @@ public class RobotContainer {
       DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
     }
 
-    // this.alliance = DriverStation.getAlliance();
     initAutoChoosers();
 
     // Configure the trigger bindings
@@ -137,20 +135,12 @@ public class RobotContainer {
   }
   
   public void initShuffleboard() {
-    ShuffleboardTab joystickTab = Shuffleboard.getTab("OI");
-    joystickTab.addNumber("Driver LX", driverController::getLeftX);
-    joystickTab.addNumber("Driver LY", driverController::getLeftY);
-    joystickTab.addNumber("Driver RX", driverController::getRightX);
-    joystickTab.addNumber("Driver RY", driverController::getRightY);
-
     imu.initShuffleboard(loggingLevel);
     swerveDrive.initShuffleboard(loggingLevel);
     swerveDrive.initModuleShuffleboard(loggingLevel);
   }
 
   public void reportAllToSmartDashboard() {
-    // SmartDashboard.putNumber("Elevator FF", Math.sin(arm.getArmAngle()) * ElevatorConstants.kArbitraryFF);
-    // SmartDashboard.putNumber("Arm FF", -(ArmConstants.kStowedFF + ArmConstants.kDiffFF * elevator.percentExtended()) * Math.cos(arm.getArmAngle()));
     imu.reportToSmartDashboard(loggingLevel);
     swerveDrive.reportToSmartDashboard(loggingLevel);
     swerveDrive.reportModulesToSmartDashboard(loggingLevel);

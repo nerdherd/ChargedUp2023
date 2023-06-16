@@ -77,18 +77,4 @@ public class TurnToBigAngle extends CommandBase {
     public boolean isFinished() {
         return pidController.atSetpoint();
     }
-
-    public ChassisSpeeds getChassisSpeeds() {
-        // Calculate turning speed with PID
-        double turningSpeed = pidController.calculate(swerveDrive.getImu().getHeading(), targetAngle);
-        turningSpeed = Math.toRadians(turningSpeed);
-        turningSpeed = NerdyMath.clamp(
-            turningSpeed, 
-            -SwerveDriveConstants.kTurnToBigAngleMaxAngularSpeedRadiansPerSecond, 
-            SwerveDriveConstants.kTurnToBigAngleMaxAngularSpeedRadiansPerSecond);
-
-        // Convert speed into swerve states
-        return ChassisSpeeds.fromFieldRelativeSpeeds(
-                0, 0, turningSpeed, swerveDrive.getImu().getRotation2d());
-    }
 }

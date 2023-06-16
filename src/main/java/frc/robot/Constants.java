@@ -31,6 +31,8 @@ public final class Constants {
   }
 
   public static class ControllerConstants {
+    public static final double kDeadband = 0.05;
+    public static final double kRotationDeadband = 0.1;
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
   }
@@ -67,18 +69,18 @@ public final class Constants {
     public static final double kWheelBase = Units.inchesToMeters(21);
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-      new Translation2d(kWheelBase / 2, -kTrackWidth / 2), // TODO: This should be front right not front left
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-      new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
-      new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
+      new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+      new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+      new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
     
     public static final double kDodgeDistance = Units.inchesToMeters(12);
     
     public static final Translation2d[] kRotationCenters = new Translation2d[] {
-      new Translation2d(kDodgeDistance, -kDodgeDistance),  // FL
-      new Translation2d(kDodgeDistance, kDodgeDistance),   // FR
-      new Translation2d(-kDodgeDistance, -kDodgeDistance), // BL
-      new Translation2d(-kDodgeDistance, kDodgeDistance)   // BR
+      new Translation2d(kDodgeDistance, kDodgeDistance),  // FL
+      new Translation2d(kDodgeDistance, -kDodgeDistance),   // FR
+      new Translation2d(-kDodgeDistance, kDodgeDistance), // BL
+      new Translation2d(-kDodgeDistance, -kDodgeDistance)   // BR
     };
     
     public static final int[] kLeftRotationCenters = new int[] {0, 1, 3, 2};
@@ -96,32 +98,15 @@ public final class Constants {
     public static final int kBLTurningID = 32;
     public static final int kBRTurningID = 42;
 
-    public static final boolean kFRTurningReversed = false; 
-    public static final boolean kFLTurningReversed = false; 
-    public static final boolean kBLTurningReversed = false; 
-    public static final boolean kBRTurningReversed = false; 
+    public static final boolean kFRTurningReversed = true; 
+    public static final boolean kFLTurningReversed = true; 
+    public static final boolean kBLTurningReversed = true; 
+    public static final boolean kBRTurningReversed = true; 
 
     public static final boolean kFRDriveReversed = false;
     public static final boolean kFLDriveReversed = false;     
     public static final boolean kBLDriveReversed = false;      
     public static final boolean kBRDriveReversed = false;
-
-    public static final class MagEncoderConstants {
-      public static final int kFRAbsoluteID = 13;
-      public static final int kFLAbsoluteID = 23;
-      public static final int kBLAbsoluteID = 33;
-      public static final int kBRAbsoluteID = 43;
-
-      public static final boolean kFRAbsoluteReversed = false;    
-      public static final boolean kFLAbsoluteReversed = false;      
-      public static final boolean kBLAbsoluteReversed = false;       
-      public static final boolean kBRAbsoluteReversed = false; 
-
-      public static final double kFRAbsoluteOffsetTicks = 2794 + 1024;       
-      public static final double kFLAbsoluteOffsetTicks = 2354 + 1024 + 52;         
-      public static final double kBLAbsoluteOffsetTicks = 2048 + 1024 + 46;          
-      public static final double kBRAbsoluteOffsetTicks = 237 + 1024 + 25;
-    }
 
     public static final class CANCoderConstants {
       public static final int kFRCANCoderID = 14;
@@ -134,10 +119,10 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 68.379 + 180;       
-      public static final double kFLCANCoderOffsetDegrees = 252.949 - 180;         
-      public static final double kBLCANCoderOffsetDegrees = 105.293;          
-      public static final double kBRCANCoderOffsetDegrees = 180.176 - 180;
+      public static final double kFRCANCoderOffsetDegrees = 25.75;       
+      public static final double kFLCANCoderOffsetDegrees = -53.174;         
+      public static final double kBLCANCoderOffsetDegrees = 85;          
+      public static final double kBRCANCoderOffsetDegrees = 46.85;
     }
 
     public static final double kPhysicalMaxSpeedMetersPerSecond = 5;    
@@ -174,33 +159,12 @@ public final class Constants {
   }
 
   public static final class SwerveAutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond / 2;
-    public static final double kChargeSpeedMetersPerSecond = 0.75 * 2.5;
-    public static final double kTwoPieceSpeedMetersPerSecond = 2.8;
-    public static final double kMaxAngularSpeedRadiansPerSecond = //
-      SwerveDriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = kMaxSpeedMetersPerSecond;
-    public static final double kChargeAccelerationMetersPerSecondSquared = 2.5;
-    public static final double kTwoPieceAccelerationMetersPerSecondSquared = 2.8;
-    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
-    public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 0.25);
-    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0);
-    public static final double kDXController = SmartDashboard.getNumber("kD X Speed", 0);
-    public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 0.25);
-    public static final double kIYController = SmartDashboard.getNumber("kI Y Speed", 0);
-    public static final double kDYController = SmartDashboard.getNumber("kD Y Speed", 0);
-    public static final double kPThetaController = SmartDashboard.getNumber("kP Theta Auto", 3.0);
-    public static final double kIThetaController = SmartDashboard.getNumber("kI Theta Auto", 0);
-    public static final double kDThetaController = SmartDashboard.getNumber("kD Theta Auto", 0);
     public static final double kPTurnToAngle = SmartDashboard.getNumber("kP Theta Teleop", 10.0);
     public static final double kITurnToAngle = SmartDashboard.getNumber("kI Theta Teleop", 0);
     public static final double kDTurnToAngle = SmartDashboard.getNumber("kD Theta Teleop", 0.2);
     public static final double kTurnToAnglePositionToleranceAngle = 5;
     public static final double kTurnToAngleVelocityToleranceAnglesPerSec = 2;
-    public static final TrapezoidProfile.Constraints kThetaControllerConstraints = //
-      new TrapezoidProfile.Constraints(
-        kMaxAngularSpeedRadiansPerSecond,
-        kMaxAngularAccelerationRadiansPerSecondSquared);
+    
     public static final double kPBalancingInitial = 4.8;
     public static final double kPBalancing = 2.6; //2.7 worked once //2.37; // 0.4
     public static final double kIBalancing = 0;
@@ -210,19 +174,5 @@ public final class Constants {
     public static final double kDOneWayBalancing = 0;
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
     public static final double kBalancingTowPeriod = 0.5;
-  }
-
-  // this needs to get remapped to PS4 controller
-  
-  public static final class OIConstants {
-    public static final int kDriverControllerPort = 0;
-
-    public static final int kDriverYAxis = 1;
-    public static final int kDriverXAxis = 0;
-    public static final int kDriverRotAxis = 4;
-    public static final int kDriverFieldOrientedButtonIdx = 1;
-
-    public static final double kDeadband = 0.05;
-    public static final double kRotationDeadband = 0.1;
   }
 }
