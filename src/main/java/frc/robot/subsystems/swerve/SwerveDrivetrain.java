@@ -100,10 +100,11 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     }
 
     /**
-     * Periodically update the odometry based on the state of each module
+     * Have modules move towards states and update odometry
      */
     @Override
     public void periodic() {
+        runModules();
         odometer.update(gyro.getRotation2d(), getModulePositions());
     }
     
@@ -132,13 +133,23 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     }
 
     /**
-     * Stops all modules. See {@link MagSwerveModule#stop()} for more info.
+     * Stops all modules. See {@link CANSwerveModule#stop()} for more info.
      */
     public void stopModules() {
         frontLeft.stop();
         frontRight.stop();
         backLeft.stop();
         backRight.stop();
+    }
+
+    /**
+     * Have modules move to their desired states. See {@link CANSwerveModule#run()} for more info.
+     */
+    public void runModules() {
+        frontLeft.run();
+        frontRight.run();
+        backLeft.run();
+        backRight.run();
     }
 
     //****************************** GETTERS ******************************/
@@ -168,23 +179,6 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         };
     }
 
-    //****************************** SETTERS ******************************/
-
-    /**
-     * Set the drive mode (only for telemetry purposes)
-     * @param driveMode
-     */
-    public void setDriveMode(DRIVE_MODE driveMode) {
-        this.driveMode = driveMode;
-    }
-
-    public void setVelocityControl(boolean withVelocityControl) {
-        frontLeft.toggleVelocityControl(withVelocityControl);
-        frontRight.toggleVelocityControl(withVelocityControl);
-        backLeft.toggleVelocityControl(withVelocityControl);
-        backRight.toggleVelocityControl(withVelocityControl);
-    }
-
     public void drive(double xSpeed, double ySpeed, double turnSpeed) {
         setModuleStates(
             SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
@@ -207,6 +201,24 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     public void driveFieldOriented(double xSpeed, double ySpeed) {
         driveFieldOriented(xSpeed, ySpeed, 0);
+    }
+
+
+    //****************************** SETTERS ******************************/
+
+    /**
+     * Set the drive mode (only for telemetry purposes)
+     * @param driveMode
+     */
+    public void setDriveMode(DRIVE_MODE driveMode) {
+        this.driveMode = driveMode;
+    }
+
+    public void setVelocityControl(boolean withVelocityControl) {
+        frontLeft.toggleVelocityControl(withVelocityControl);
+        frontRight.toggleVelocityControl(withVelocityControl);
+        backLeft.toggleVelocityControl(withVelocityControl);
+        backRight.toggleVelocityControl(withVelocityControl);
     }
 
     /**

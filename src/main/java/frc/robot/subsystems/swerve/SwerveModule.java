@@ -6,6 +6,7 @@ import frc.robot.subsystems.Reportable;
 
 public interface SwerveModule extends Reportable {
     public void stop();
+    public void run();
     public void resetEncoder();
     
     public double getDrivePosition();
