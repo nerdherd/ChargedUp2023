@@ -164,6 +164,16 @@ public final class Constants {
     public static final double kDTurnToAngle = SmartDashboard.getNumber("kD Theta Teleop", 0.2);
     public static final double kTurnToAnglePositionToleranceAngle = 5;
     public static final double kTurnToAngleVelocityToleranceAnglesPerSec = 2;
+
+    public static final double kPXController = SmartDashboard.getNumber("kP X Speed", 0.25);
+    public static final double kIXController = SmartDashboard.getNumber("kI X Speed", 0);
+    public static final double kDXController = SmartDashboard.getNumber("kD X Speed", 0);
+    public static final double kPYController = SmartDashboard.getNumber("kP Y Speed", 0.25);
+    public static final double kIYController = SmartDashboard.getNumber("kI Y Speed", 0);
+    public static final double kDYController = SmartDashboard.getNumber("kD Y Speed", 0);
+    public static final double kPThetaController = SmartDashboard.getNumber("kP Theta Auto", 3.0);
+    public static final double kIThetaController = SmartDashboard.getNumber("kI Theta Auto", 0);
+    public static final double kDThetaController = SmartDashboard.getNumber("kD Theta Auto", 0);
     
     public static final double kPBalancingInitial = 4.8;
     public static final double kPBalancing = 2.6; //2.7 worked once //2.37; // 0.4
