@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.SwerveDriveConstants.CANCoderConstants;
@@ -56,7 +57,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kFLDriveReversed,
                     kFLTurningReversed,
                     CANCoderConstants.kFLCANCoderID,
-                    CANCoderConstants.kFLCANCoderOffsetDegrees,
+                    CANCoderConstants.kFLOffsetDeg.get(),
                     CANCoderConstants.kFLCANCoderReversed);
                 frontRight = new CANSwerveModule(
                     kFRDriveID,
@@ -64,7 +65,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kFRDriveReversed,
                     kFRTurningReversed,
                     CANCoderConstants.kFRCANCoderID,
-                    CANCoderConstants.kFRCANCoderOffsetDegrees,
+                    CANCoderConstants.kFROffsetDeg.get(),
                     CANCoderConstants.kFRCANCoderReversed);
                 backLeft = new CANSwerveModule(
                     kBLDriveID,
@@ -72,7 +73,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kBLDriveReversed,
                     kBLTurningReversed,
                     CANCoderConstants.kBLCANCoderID,
-                    CANCoderConstants.kBLCANCoderOffsetDegrees,
+                    CANCoderConstants.kBLOffsetDeg.get(),
                     CANCoderConstants.kBLCANCoderReversed);
                 backRight = new CANSwerveModule(
                     kBRDriveID,
@@ -80,7 +81,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kBRDriveReversed,
                     kBRTurningReversed,
                     CANCoderConstants.kBRCANCoderID,
-                    CANCoderConstants.kBRCANCoderOffsetDegrees,
+                    CANCoderConstants.kBROffsetDeg.get(),
                     CANCoderConstants.kBRCANCoderReversed);
                 break;
             default:
@@ -130,6 +131,18 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         frontRight.resetEncoder();
         backLeft.resetEncoder();
         backRight.resetEncoder();
+    }
+
+    public void zeroModules() {
+        CANCoderConstants.kFLOffsetDeg.set(frontLeft.getTurningPosition());
+        CANCoderConstants.kFROffsetDeg.set(frontRight.getTurningPosition());
+        CANCoderConstants.kBLOffsetDeg.set(backLeft.getTurningPosition());
+        CANCoderConstants.kBROffsetDeg.set(backRight.getTurningPosition());
+
+        frontLeft.setTurnOffset(CANCoderConstants.kFLOffsetDeg.get());
+        frontRight.setTurnOffset(CANCoderConstants.kFROffsetDeg.get());
+        backLeft.setTurnOffset(CANCoderConstants.kBLOffsetDeg.get());
+        backRight.setTurnOffset(CANCoderConstants.kBROffsetDeg.get());
     }
 
     /**
@@ -278,6 +291,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                 break;
             case ALL:
                 tab.add("Field Position", field).withSize(6, 3);
+                tab.add("Zero Modules", Commands.runOnce(this::zeroModules));
                 // Might be negative because our swerveDriveKinematics is flipped across the Y axis
             case MEDIUM:
                 tab.addNumber("Encoder Resets", () -> this.numEncoderResets);
@@ -306,6 +320,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
             case ALL:
             case MEDIUM:
                 SmartDashboard.putNumber("Encoder Resets", numEncoderResets);
+                SmartDashboard.putData("Zero Modules", Commands.runOnce(this::zeroModules));
             case MINIMAL:
                 SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
                 SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());

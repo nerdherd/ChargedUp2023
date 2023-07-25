@@ -30,7 +30,7 @@ public class CANSwerveModule implements SwerveModule {
 
     private final PIDController turningController;
     private final boolean invertTurningEncoder;
-    private final double CANCoderOffsetDegrees;
+    private double CANCoderOffsetDegrees;
 
     private double currentPercent = 0;
     private double currentAngle = 0;
@@ -262,6 +262,11 @@ public class CANSwerveModule implements SwerveModule {
         this.desiredState = state;
     }
 
+    public void setTurnOffset(double offset) {
+        this.CANCoderOffsetDegrees = offset;
+        resetEncoder();
+    }
+
     public void toggleVelocityControl(boolean velocityControlOn) {
         this.velocityControl = velocityControlOn;
     }
@@ -279,6 +284,7 @@ public class CANSwerveModule implements SwerveModule {
             case ALL:
                 tab.addNumber("Drive Motor Current", driveMotor::getStatorCurrent);
                 tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
+                tab.addNumber("Turn Offset", () -> this.CANCoderOffsetDegrees);
             case MEDIUM:
                 tab.addNumber("Drive Motor Voltage", driveMotor::getMotorOutputVoltage);
                 tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
@@ -309,6 +315,7 @@ public class CANSwerveModule implements SwerveModule {
                 SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Current", turnMotor.getStatorCurrent());
                 SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Voltage", driveMotor.getMotorOutputVoltage());
                 SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Voltage", turnMotor.getMotorOutputVoltage());
+                SmartDashboard.putNumber("Turn Offset", this.CANCoderOffsetDegrees);
             case MEDIUM:
                 SmartDashboard.putNumber("Module velocity #" + driveMotorID, getDriveVelocity());
                 SmartDashboard.putNumber("Drive percent #" + driveMotorID, driveMotor.getMotorOutputPercent());

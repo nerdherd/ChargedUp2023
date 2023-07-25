@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.util.preferences.PrefDouble;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -119,10 +120,15 @@ public final class Constants {
       public static final boolean kBLCANCoderReversed = false;       
       public static final boolean kBRCANCoderReversed = false; 
 
-      public static final double kFRCANCoderOffsetDegrees = 25.75;       
-      public static final double kFLCANCoderOffsetDegrees = -53.174;         
-      public static final double kBLCANCoderOffsetDegrees = 85;          
-      public static final double kBRCANCoderOffsetDegrees = 46.85;
+      // public static final double kFRCANCoderOffsetDegrees = 25.75;       
+      // public static final double kFLCANCoderOffsetDegrees = -53.174;         
+      // public static final double kBLCANCoderOffsetDegrees = 85;          
+      // public static final double kBRCANCoderOffsetDegrees = 46.85;
+
+      public static final PrefDouble kFROffsetDeg = new PrefDouble("kFROffsetDeg", 25.75);
+      public static final PrefDouble kFLOffsetDeg = new PrefDouble("kFLOffsetDeg", -53.174);
+      public static final PrefDouble kBLOffsetDeg = new PrefDouble("kBLOffsetDeg", 85);
+      public static final PrefDouble kBROffsetDeg = new PrefDouble("kBROffsetDeg", 46.85);
     }
 
     public static final double kPhysicalMaxSpeedMetersPerSecond = 5;    
