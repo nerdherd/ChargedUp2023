@@ -25,17 +25,17 @@ import static frc.robot.Constants.SwerveAutoConstants.*;
 
 public class PathPlannerAutos {
     public static CommandBase pathplannerAuto(String pathName, SwerveDrivetrain swerveDrive) {
-        PathPlannerTrajectory testPath = PathPlanner.loadPath(
+        PathPlannerTrajectory path = PathPlanner.loadPath(
             pathName, 
             new PathConstraints(
-                0.5, 
-                0.5));
+                1, 
+                1));
         
         HashMap<String, Command> events = new HashMap<>() {{
             //put();
         }};
     
-        List<State> states = testPath.getStates();
+        List<State> states = path.getStates();
         for (int i = 0; i<states.size(); i++) {
             SmartDashboard.putString("State #" + i, states.get(i).toString());
         }
@@ -57,7 +57,7 @@ public class PathPlannerAutos {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         
         PPSwerveControllerCommand autoCommand = new PPSwerveControllerCommand(
-            testPath, 
+            path, 
             swerveDrive::getPose, 
             SwerveDriveConstants.kDriveKinematics,
             xController,
@@ -68,6 +68,8 @@ public class PathPlannerAutos {
 
         return Commands.sequence(
             // autoBuilder.followPathWithEvents(testPath)
+            // Get rid of this once we get real odometry
+            Commands.runOnce(() -> swerveDrive.setPoseMeters(path.getInitialPose())),
             autoCommand
         );
     }

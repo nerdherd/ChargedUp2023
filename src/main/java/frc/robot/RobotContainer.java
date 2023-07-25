@@ -9,6 +9,7 @@ import frc.robot.subsystems.Reportable.LOG_LEVEL;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import java.util.function.Supplier;
 
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.commands.PathPlannerAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.imu.NavX;
@@ -129,6 +131,10 @@ public class RobotContainer {
   }
 
   private void initAutoChoosers() {
+    autoChooser.addOption("Do Nothing", Commands::none);
+    autoChooser.addOption("Path Planner Test Auto", () -> PathPlannerAutos.pathplannerAuto("TestPath", swerveDrive));
+    autoChooser.addOption("Path Planner TaxiLEFT", () -> PathPlannerAutos.pathplannerAuto("TaxiLEFT", swerveDrive));
+
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
 
     autosTab.add("Selected Auto", autoChooser);
