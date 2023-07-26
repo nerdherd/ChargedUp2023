@@ -137,7 +137,7 @@ public class SwerveJoystickCommand extends CommandBase {
         // get speeds
         double turningSpeed;
         double xSpeed = xSpdFunction.get();
-        double ySpeed = -ySpdFunction.get();
+        double ySpeed = ySpdFunction.get();
 
         double filteredTurningSpeed;
         double filteredXSpeed = xFilter.calculate(xSpeed);
@@ -158,6 +158,7 @@ public class SwerveJoystickCommand extends CommandBase {
         } else {
             // Manual turning
             turningSpeed = turningSpdFunction.get();
+            turningSpeed *= -1;
             filteredTurningSpeed = turningFilter.calculate(turningSpeed);
         }
 

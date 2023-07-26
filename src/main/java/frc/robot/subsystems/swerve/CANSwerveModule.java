@@ -239,6 +239,10 @@ public class CANSwerveModule implements SwerveModule {
         return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getTurningPosition()));
     }
 
+    public double getTurnOffset() {
+        return this.CANCoderOffsetDegrees;
+    }
+
     //****************************** SETTERS ******************************/
 
     /**

@@ -127,6 +127,15 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     public void resetEncoders() {
         numEncoderResets += 1;
         // SmartDashboard.putNumber("Encoder resets", numEncoderResets);
+        CANCoderConstants.kFLOffsetDeg.loadPreferences();
+        CANCoderConstants.kFROffsetDeg.loadPreferences();
+        CANCoderConstants.kBLOffsetDeg.loadPreferences();
+        CANCoderConstants.kBROffsetDeg.loadPreferences();
+        frontLeft.setTurnOffset(CANCoderConstants.kFLOffsetDeg.get());
+        frontRight.setTurnOffset(CANCoderConstants.kFROffsetDeg.get());
+        backLeft.setTurnOffset(CANCoderConstants.kBLOffsetDeg.get());
+        backRight.setTurnOffset(CANCoderConstants.kBROffsetDeg.get());
+        
         frontLeft.resetEncoder();
         frontRight.resetEncoder();
         backLeft.resetEncoder();
@@ -134,15 +143,12 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     }
 
     public void zeroModules() {
-        CANCoderConstants.kFLOffsetDeg.set(frontLeft.getTurningPosition());
-        CANCoderConstants.kFROffsetDeg.set(frontRight.getTurningPosition());
-        CANCoderConstants.kBLOffsetDeg.set(backLeft.getTurningPosition());
-        CANCoderConstants.kBROffsetDeg.set(backRight.getTurningPosition());
-
-        frontLeft.setTurnOffset(CANCoderConstants.kFLOffsetDeg.get());
-        frontRight.setTurnOffset(CANCoderConstants.kFROffsetDeg.get());
-        backLeft.setTurnOffset(CANCoderConstants.kBLOffsetDeg.get());
-        backRight.setTurnOffset(CANCoderConstants.kBROffsetDeg.get());
+        CANCoderConstants.kFLOffsetDeg.set(frontLeft.getTurnOffset() + frontLeft.getTurningPosition());
+        CANCoderConstants.kFROffsetDeg.set(frontRight.getTurnOffset() + frontRight.getTurningPosition());
+        CANCoderConstants.kBLOffsetDeg.set(backLeft.getTurnOffset() + backLeft.getTurningPosition());
+        CANCoderConstants.kBROffsetDeg.set(backRight.getTurnOffset() + backRight.getTurningPosition());
+        
+        resetEncoders();
     }
 
     /**

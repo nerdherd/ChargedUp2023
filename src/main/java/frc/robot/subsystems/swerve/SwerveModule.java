@@ -18,6 +18,7 @@ public interface SwerveModule extends Reportable {
     public void setDesiredState(SwerveModuleState state);
     public void setDesiredState(SwerveModuleState state, boolean withVelocityControl);
     public void setTurnOffset(double offset);
+    public double getTurnOffset();
     public void toggleVelocityControl(boolean velocityControlOn);
     public void setBreak(boolean breaking);
 }

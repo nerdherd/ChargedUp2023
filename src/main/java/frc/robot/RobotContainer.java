@@ -127,7 +127,8 @@ public class RobotContainer {
     // Note: whileTrue() does not restart the command if it ends while the button is
     // still being held
     // These button bindings are chosen for testing, and may be changed based on
-    
+    driverController.share().onTrue(Commands.runOnce(imu::zeroHeading));
+    driverController.options().onTrue(Commands.runOnce(swerveDrive::resetEncoders));
   }
 
   private void initAutoChoosers() {

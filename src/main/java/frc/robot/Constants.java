@@ -155,10 +155,10 @@ public final class Constants {
 
     public static final SwerveModuleState[] towModuleStates = 
     new SwerveModuleState[] {
-        new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-        new SwerveModuleState(0, Rotation2d.fromDegrees(135)),
         new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-        new SwerveModuleState(0, Rotation2d.fromDegrees(-135))
+        new SwerveModuleState(0, Rotation2d.fromDegrees(-135)),
+        new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+        new SwerveModuleState(0, Rotation2d.fromDegrees(135))
     };
 
     public static final double kGravityMPS = 9.80665; 
