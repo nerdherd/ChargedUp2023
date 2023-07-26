@@ -64,11 +64,13 @@ public class PathPlannerAutos {
             yController,
             thetaController,
             swerveDrive::setModuleStates,
+            true,
             swerveDrive);
 
         return Commands.sequence(
             // autoBuilder.followPathWithEvents(testPath)
             // Get rid of this once we get real odometry
+            Commands.runOnce(() -> swerveDrive.getImu().zeroAll()),
             Commands.runOnce(() -> swerveDrive.setPoseMeters(path.getInitialPose())),
             autoCommand
         );

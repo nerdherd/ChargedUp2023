@@ -67,6 +67,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    m_robotContainer.swerveDrive.resetEncoders();
     m_robotContainer.imu.zeroHeading();
     m_robotContainer.imu.zeroAll();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
