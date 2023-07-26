@@ -47,9 +47,10 @@ import frc.robot.subsystems.imu.Pigeon;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
-import frc.robot.subsystems.vision.VROOOOM;
-import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
-import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
+import frc.robot.subsystems.vision.AHealthyPairOfEyes;
+import frc.robot.subsystems.vision.AHealthyPairOfEyes;
+import frc.robot.subsystems.vision.AHealthyPairOfEyes.OBJECT_TYPE;
+import frc.robot.subsystems.vision.AHealthyPairOfEyes.SCORE_POS;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.util.BadPS4;
 import frc.robot.util.CommandBadPS4;
@@ -71,7 +72,7 @@ public class RobotContainer {
   public Gyro imu = new NavX();
   // public Gyro imu = new Pigeon(60);
   public SwerveDrivetrain swerveDrive;
-  public VROOOOM vision;
+  public AHealthyPairOfEyes vision;
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);
@@ -109,13 +110,13 @@ public class RobotContainer {
   public RobotContainer() {
     try {
       swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
-      vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+      vision = new AHealthyPairOfEyes(arm, elevator, motorClaw, swerveDrive);
     } catch (IllegalArgumentException e) {
       DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
     }
 
     // Initialize vision after swerve has been initialized
-    vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+    vision = new AHealthyPairOfEyes(arm, elevator, motorClaw, swerveDrive);
 
     // this.alliance = DriverStation.getAlliance();
     initAutoChoosers();
@@ -247,7 +248,8 @@ public class RobotContainer {
     // driverController.R2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CUBE))
     //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-    operatorController.L2().whileTrue(vision.VisionPickupOnGround(OBJECT_TYPE.CUBE));
+    // operatorController.L2().whileTrue(vision.VisionPickupOnGround(OBJECT_TYPE.CUBE)); // Original Code
+    operatorController.L2().whileTrue(vision.driveToCubeOnGround(motorClaw, 10));
     operatorController.R2().whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH));
 
     //operatorController.L2().onTrue(vision.updateCurrentGameObjects(OBJECT_TYPE.CONE));
@@ -292,14 +294,14 @@ public class RobotContainer {
     // Has and uses alliance parameter.
     // autoChooser.addOption("Vision Two Piece Smooth (Alliance)", () -> VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
     // autoChooser.addOption("Vision Two Piece Cable (Alliance)", () -> VisionAutos.cableZoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
-    autoChooser.addOption("Smooth Low Cube Auto", () -> VisionAllLowAuto.ThreeCubesAutoFast(swerveDrive, vision, arm, elevator, motorClaw, alliance));
-    autoChooser.addOption("Cable Low Cube Auto", () -> VisionCableSideAuto.LowAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
-    autoChooser.addOption("Cable High Cube Auto", () -> VisionCableSideAuto.HighAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    // autoChooser.addOption("Smooth Low Cube Auto", () -> VisionAllLowAuto.ThreeCubesAutoFast(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    // autoChooser.addOption("Cable Low Cube Auto", () -> VisionCableSideAuto.LowAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    // autoChooser.addOption("Cable High Cube Auto", () -> VisionCableSideAuto.HighAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
 
 
-    // Have alliance parameter but do not use it.
-    autoChooser.addOption("LAR Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
-    autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, SCORE_POS.HIGH, alliance));
+    // // Have alliance parameter but do not use it.
+    // autoChooser.addOption("LAR Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
+    // autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, SCORE_POS.HIGH, alliance));
     
     // Don't think we need.
     // autoChooser.addOption("Preload Charge Go Around Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));

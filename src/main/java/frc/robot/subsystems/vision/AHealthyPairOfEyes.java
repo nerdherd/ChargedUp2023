@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.util.NerdyMath;
 
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj.Timer;
 
 
@@ -276,7 +277,7 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
         final PIDController pidTXFinal = PIDTX;
         final PIDController pidYawFinal = PIDYaw;
 
-        if(limelightRight != null) {
+        if((limelightRight != null)&&(limelightLeft != null)) {
             return Commands.race(
                 // Constantly run elevator and arm motion magic
                 // Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
@@ -650,7 +651,7 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
         final PIDController pidTXFinal = PIDTX;
         final PIDController pidYawFinal = PIDYaw;
 
-        if (limelightRight != null) {
+        if ((limelightRight != null)&&(limelightLeft != null)) {
             return Commands.race(
                 // Constantly run elevator and arm motion magic
                 Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
@@ -714,7 +715,7 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
 
         ChassisSpeeds chassisSpeeds;
 
-        boolean doBothHaveTarget = limelightRight.hasValidTarget()&&limelightRight.hasValidTarget();
+        boolean doBothHaveTarget = limelightRight.hasValidTarget()&&limelightLeft.hasValidTarget();
         SmartDashboard.putBoolean("Limelights have target", doBothHaveTarget);
 
         if(!doBothHaveTarget) {
@@ -789,7 +790,7 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
     PIDController pidYaw_driveToCubeOnGround = new PIDController(0, 0, 0);
     PIDController pidArea_driveToCubeOnGround = new PIDController(0.8, 0.01, 0.02); //0.75 P OG
 
-    public void driveToCubeOnGround(MotorClaw claw, int timeoutSec)
+    public CommandBase driveToCubeOnGround(MotorClaw claw, int timeoutSec) // Commented out all movement
     {
         
         
@@ -799,27 +800,31 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
         double ySpeed = 0;
         double rotationSpeed = 0;
 
-        if (limelightRight == null)
-            return;
+        if ((limelightRight == null)||(limelightLeft == null))
+            return new InstantCommand(() -> SmartDashboard.putString("Status", "Limelight doesn't see anything"));
 
-        ChassisSpeeds chassisSpeeds;
+        // ChassisSpeeds chassisSpeeds;
 
-        SmartDashboard.putBoolean("Vision has target", limelightRight.hasValidTarget());
+        SmartDashboard.putBoolean("Right Vision has target", limelightRight.hasValidTarget());
+        SmartDashboard.putBoolean("Left Vision has target", limelightLeft.hasValidTarget());
+
 
         double elapsedTime = timer.get();
 
         if(elapsedTime >= timeoutSec){
-            drivetrain.setModuleStates(SwerveDriveConstants.towModuleStates);
-            drivetrain.stopModules();
+            // drivetrain.setModuleStates(SwerveDriveConstants.towModuleStates);
+            // drivetrain.stopModules();
             limelightRight.setLightState(LightMode.BLINK);
-            return;
+            limelightLeft.setLightState(LightMode.BLINK);
+            return new InstantCommand(() -> SmartDashboard.putString("Status", "Timeout"));
         }
 
-        if(!limelightRight.hasValidTarget()) {
-            chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-            SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-            drivetrain.setModuleStates(moduleStates);
+        if(!limelightRight.hasValidTarget()&&!limelightLeft.hasValidTarget()) {
+            // chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+            // SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+            // drivetrain.setModuleStates(moduleStates);
             currentCameraMode = CAMERA_MODE.WAIT;
+            return new InstantCommand(() -> SmartDashboard.putString("Status", "No valid Target"));
         }
         else {
             // NOTE (3/11/2023): This should be commented out, BUT if the PID is still 0,
@@ -845,12 +850,13 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
             if(limelightRight.getPipeIndex()==2){ // TODO change it to cube-2
                 if (NerdyMath.inRange(calculatedY, -15, 15) 
                     && NerdyMath.inRange(calculatedX, 4.0, 4.9)) { // OG 3.7 to 4.2 , 39 inches TODO: Da Vinci changed from 4.2, 5.0
-                    chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-                    SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-                    drivetrain.setModuleStates(moduleStates);
+                    // chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                    // SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                    // drivetrain.setModuleStates(moduleStates);
                     currentCameraMode = CAMERA_MODE.ARRIVED;
                     limelightRight.setLightState(LightMode.ON);
-                return;
+                    limelightLeft.setLightState(LightMode.ON);
+                return new InstantCommand(() -> SmartDashboard.putString("Status", "Limelight arrived"));
                 }
             }
             xSpeed = pidArea_driveToCubeOnGround.calculate(calculatedX, goalArea);
@@ -861,23 +867,29 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
             NerdyMath.inRange(ySpeed, -.1, .1) &&
             NerdyMath.inRange(rotationSpeed, -.1, .1))
             {
-                chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-                drivetrain.setModuleStates(moduleStates);
+                // chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+                // SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                // drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ARRIVED;
                 limelightRight.setLightState(LightMode.ON); 
+                limelightLeft.setLightState(LightMode.ON); 
+                return new InstantCommand(() -> SmartDashboard.putString("Status", "Limelight arrived"));
+
             }
             else{
-                chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
-                SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-                drivetrain.setModuleStates(moduleStates);
+                // chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
+                // SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+                // drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ACTION;
             }
         }
-        
+
         SmartDashboard.putString("Vision status", currentCameraMode.toString());
         SmartDashboard.putNumber("Vision X speed", xSpeed);
         SmartDashboard.putNumber("Vision Y speed", ySpeed);
+
+        return new InstantCommand(() -> SmartDashboard.putString("Status", "FInished"));
+
     }
 
     PIDController pidTX_driveToGridTag = new PIDController(0.5, 0, 0.5);
@@ -893,14 +905,14 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
         double ySpeed = 0;
         double rotationSpeed = 0;
 
-        if (limelightRight == null)
+        if ((limelightRight == null)&&(limelightLeft == null))
             return;
 
         ChassisSpeeds chassisSpeeds;        
 
         SmartDashboard.putBoolean("Vision has target", limelightRight.hasValidTarget());
 
-        if(!limelightRight.hasValidTarget()) {
+        if(!limelightRight.hasValidTarget()&&!limelightLeft.hasValidTarget()) {
             chassisSpeeds = new ChassisSpeeds(0, 0, 0);
             SwerveModuleState[] moduleStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
             drivetrain.setModuleStates(moduleStates);
@@ -931,6 +943,8 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
                     drivetrain.setModuleStates(moduleStates);
                     currentCameraMode = CAMERA_MODE.ARRIVED; 
                     limelightRight.setLightState(LightMode.ON); 
+                    limelightLeft.setLightState(LightMode.ON); 
+
                     return;
                 }
             }
@@ -947,6 +961,8 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
                 drivetrain.setModuleStates(moduleStates);
                 currentCameraMode = CAMERA_MODE.ARRIVED;
                 limelightRight.setLightState(LightMode.ON); 
+                limelightLeft.setLightState(LightMode.ON); 
+
             }
             else{
                 chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed);
