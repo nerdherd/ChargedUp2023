@@ -4,27 +4,27 @@
 
 package frc.robot;
 
-import frc.robot.Constants.ControllerConstants;
-import frc.robot.subsystems.Reportable.LOG_LEVEL;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.PathPlannerAutos;
 import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
+import frc.robot.subsystems.Reportable.LOG_LEVEL;
 import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.imu.NavX;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
-import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -74,26 +74,11 @@ public class RobotContainer {
     swerveDrive.setDefaultCommand(
       new SwerveJoystickCommand(
         swerveDrive,
-        // Translation Y
-        // () -> -joystick.getY(),
-        () -> -driverController.getLeftY(),
-
-        // Translation X
-        driverController::getLeftX,
-        // joystick::getX,
-
-        // Rotation
-        // joystick::getTwist,
-        // () -> 0.0,
-        driverController::getRightX,
-        // () -> true,
-
-        // Field oriented
-        badPS5::getSquareButton,
-
-        // Towing
-        badPS5::getL2Button,
-
+        () -> -driverController.getLeftY(), // Horizontal translation
+        driverController::getLeftX, // Vertical Translation
+        driverController::getRightX, // Rotation
+        badPS5::getSquareButton, // Field oriented
+        badPS5::getL2Button, // Towing
         // Dodge
         // () -> {return badPS5.getL1Button() || badPS5.getR1Button();},
         () -> false,
@@ -107,13 +92,9 @@ public class RobotContainer {
           // }
           return DodgeDirection.NONE;
         },
-        // Precision/"Sniper Button"
-        badPS5::getR2Button,
-        // Turn to angle
-        // () -> false,
-        () -> badPS5.getR1Button() || badPS5.getL1Button(),
-        // Turn To angle Direction
-        () -> {
+        badPS5::getR2Button, // Precision/"Sniper Button"
+        () -> badPS5.getR1Button() || badPS5.getL1Button(), // Turn to angle
+        () -> { // Turn To angle Direction
           if (badPS5.getR1Button()) {
             return 180.0;
           } else {
