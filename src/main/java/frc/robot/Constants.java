@@ -4,11 +4,12 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathConstraints;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.preferences.PrefDouble;
@@ -190,5 +191,11 @@ public final class Constants {
     public static final double kDOneWayBalancing = 0;
     public static final double kBalancingDeadbandDegrees = Math.toRadians(2);
     public static final double kBalancingTowPeriod = 0.5;
+  }
+
+  public static final class PathPlannerConstants {
+    private static final double kPPMaxVelocity = 1;
+    private static final double kPPMaxAcceleration = 1;
+    public static final PathConstraints kPPPathConstraints = new PathConstraints(kPPMaxVelocity, kPPMaxAcceleration);
   }
 }

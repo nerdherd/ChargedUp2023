@@ -132,6 +132,15 @@ public class RobotContainer {
   }
 
   private void initAutoChoosers() {
+    // Remember to load the pathplanner paths here
+    final String[] paths = {
+      "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT"
+    };
+
+    for (String path : paths) {
+      PathPlannerAutos.initPath(path);
+    }
+
     autoChooser.addOption("Do Nothing", Commands::none);
     autoChooser.addOption("Path Planner Test Auto", () -> PathPlannerAutos.pathplannerAuto("TestPath", swerveDrive));
     autoChooser.addOption("Path Planner Charge Around LEFT", () -> PathPlannerAutos.pathplannerAuto("ChargeAroundLEFT", swerveDrive));
