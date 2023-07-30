@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.auto.PIDConstants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -197,5 +198,17 @@ public final class Constants {
     private static final double kPPMaxVelocity = 1;
     private static final double kPPMaxAcceleration = 1;
     public static final PathConstraints kPPPathConstraints = new PathConstraints(kPPMaxVelocity, kPPMaxAcceleration);
+
+    public static final double kPP_P = 0.25;
+    public static final double kPP_I = 0;
+    public static final double kPP_D = 0;
+    public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
+
+    public static final double kPP_ThetaP = 0.25;
+    public static final double kPP_ThetaI = 0;
+    public static final double kPP_ThetaD = 0;
+    public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
+
+    public static final boolean kUseAllianceColor = true;
   }
 }

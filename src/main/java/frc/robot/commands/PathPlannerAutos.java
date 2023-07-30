@@ -2,9 +2,9 @@ package frc.robot.commands;
 
 import java.util.HashMap;
 
-import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
-import static frc.robot.Constants.SwerveAutoConstants.*;
 import static frc.robot.Constants.PathPlannerConstants.*;
 
 public class PathPlannerAutos {
@@ -57,12 +56,31 @@ public class PathPlannerAutos {
             // put("Command name", Command);
         }};
         
-        PIDController xController = new PIDController(kPXController, kIXController, kDXController);
-        PIDController yController = new PIDController(kPYController, kIYController, kDYController);
-        PIDController thetaController = new PIDController(kPThetaController, kIThetaController, kDThetaController);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        // // Potential issue: RotationConstants doesn't wrap around
+        // SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+        //     swerveDrive::getPose, 
+        //     swerveDrive::resetOdometry,
+        //     SwerveDriveConstants.kDriveKinematics,
+        //     kPPTranslationPIDConstants,
+        //     kPPRotationPIDConstants,
+        //     swerveDrive::setModuleStates,
+        //     events,
+        //     kUseAllianceColor,
+        //     swerveDrive);
         
-        PPSwerveControllerCommand autoCommand = new PPSwerveControllerCommand(
+        // Note: The reason why the commands are manually constructed instead of
+        // using SwerveAutoBuilder is because SwerveAutoBuilder doesn't
+        // allow doing enableContinuousInput on the rotation PID controller,
+        // which may cause issues.
+
+        // Define PID Controllers
+        PIDController xController = new PIDController(kPP_P, kPP_I, kPP_D);
+        PIDController yController = new PIDController(kPP_P, kPP_I, kPP_D);
+        PIDController thetaController = new PIDController(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        // Path following command
+        PPSwerveControllerCommand pathCommand = new PPSwerveControllerCommand(
             path, 
             swerveDrive::getPose, 
             SwerveDriveConstants.kDriveKinematics,
@@ -72,6 +90,13 @@ public class PathPlannerAutos {
             swerveDrive::setModuleStates,
             true,
             swerveDrive);
+
+        // Follow the path with events
+        FollowPathWithEvents autoCommand = new FollowPathWithEvents(
+            pathCommand,
+            path.getMarkers(),
+            events
+        );
 
         return Commands.sequence(
             Commands.runOnce(() -> swerveDrive.getImu().zeroAll()),
