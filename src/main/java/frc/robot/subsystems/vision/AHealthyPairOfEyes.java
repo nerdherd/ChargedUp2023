@@ -344,21 +344,42 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
         final PIDController pidTXFinal = PIDTX;
         final PIDController pidYawFinal = PIDYaw;
 
-       // if(limelightLow != null)
-         {
+        if((limelightLeft != null)&&(limelightRight != null))
+        {
+
+            double xSpeed = 0;
+            double ySpeed = 0;
+            double rotationSpeed = 0;
+
+            SmartDashboard.putBoolean("Limelight Left has target", limelightLeft.hasValidTarget());
+            SmartDashboard.putBoolean("Limelight Right has target", limelightRight.hasValidTarget());
+
+            double leftCalculatedX = limelightLeft.getArea_avg();
+            double leftCalculatedY = limelightLeft.getXAngle_avg();
+            
+            double rightCalculatedX = limelightRight.getArea_avg();
+            double rightCalculatedY = limelightRight.getXAngle_avg();
+            
+
             return
-                // Constantly run elevator and arm motion magic
-                // Commands.run(() -> arm.moveArmMotionMagic(elevator.percentExtended())),
-                // Commands.run(() -> elevator.moveMotionMagic(arm.getArmAngle())),
-
                 Commands.sequence(
-                    Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
-                    Commands.runOnce(() -> initVisionPickupOnGround(objType)),
+                Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", true)),
+                Commands.runOnce(() -> initVisionPickupOnGround(objType)),
 
-                    Commands.race(
-                        new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier),
-                        Commands.waitSeconds(2)
-                    ),
+                Commands.runOnce(() -> SmartDashboard.putNumber("Ta Left", limelightLeft.getArea())),
+                Commands.runOnce(() -> SmartDashboard.putNumber("Ta Right", limelightRight.getArea())),
+                Commands.runOnce(() -> SmartDashboard.putNumber("Ta Combined", limelightLeft.getArea() + limelightRight.getArea())),
+
+                Commands.runOnce(() -> SmartDashboard.putNumber("Left Limelight average X", leftCalculatedX)),
+                Commands.runOnce(() -> SmartDashboard.putNumber("Left Limelight average Y", leftCalculatedY)),
+
+                Commands.runOnce(() -> SmartDashboard.putNumber("Right Limelight average X", rightCalculatedX)),
+                Commands.runOnce(() -> SmartDashboard.putNumber("Right Limelight average Y", rightCalculatedY))
+
+                    // Commands.race(
+                    //     // new RunCommand(() -> driveRotateToTarget(pidAreaFinal, pidTXFinal, pidYawFinal), arm, elevator, claw, drivetrain).until(cameraStatusSupplier),
+                    //     Commands.waitSeconds(2)
+                    // ),
     
                     // Drop arm and elevator so the game piece can be intook
                     // Commands.race(
@@ -375,20 +396,21 @@ public class AHealthyPairOfEyes extends SubsystemBase implements Reportable{
                     // ),
 
                     // Open claw/Start claw intake rollers
-                    claw.setPower(-0.3),
-                    new WaitCommand(.5),
+                    // claw.setPower(-0.3),
+                    // new WaitCommand(.5),
     
-                    // // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
-                    claw.setPower(-0.15),
+                    // // // Close claw/stop claw intake rollers/low background rolling to keep control of game piece
+                    // claw.setPower(-0.15),
                     
-                    Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
+                    // Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false))
                 
             );
             
         }
-        // else {
-        //     return runOnce(() -> SmartDashboard.putString("Limelight command status:", "Sequence cancelled"));
-        // }
+        else {
+            return Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Pickup Running", false));
+            //return runOnce(() -> SmartDashboard.putString("Limelight command status:", "Sequence cancelled"));
+        }
     }
 
     public void initVisionPickupOnSubstation(OBJECT_TYPE objType) {
