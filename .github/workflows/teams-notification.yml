@@ -17,13 +17,13 @@ jobs:
         with:
           webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
 
-  if_failure:
-    name: Only if failure
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@master
-      - name: Microsoft Teams Notification
-        uses: nerdherd/notify-microsoft-teams@main
-        if: failure()
-        with:
-          webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
+#   if_failure:
+#     name: Only if failure
+#     runs-on: ubuntu-22.04
+#     steps:
+#       - uses: actions/checkout@master
+#       - name: Microsoft Teams Notification
+#         uses: nerdherd/notify-microsoft-teams@main
+#         if: failure()
+#         with:
+#           webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
