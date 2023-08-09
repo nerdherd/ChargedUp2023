@@ -1,4 +1,5 @@
 # ChargedUp2023
+[![Build Status](https://github.com/nerdherd/ChargedUp2023/actions/workflows/build.yml/badge.svg)](https://github.com/nerdherd/ChargedUp2023/actions/workflows/build.yml)
 
 FRC Team 687's code for its Charged Up 2023 competition robot, *Is Me*.
 
