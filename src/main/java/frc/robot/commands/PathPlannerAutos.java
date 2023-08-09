@@ -104,9 +104,11 @@ public class PathPlannerAutos {
 
         Pose2d initialPose2d = path.getInitialPose();
         if (DriverStation.getAlliance() == Alliance.Red) {
+            // Flip x value and turn the robot around
             double x = initialPose2d.getX();
             double y = initialPose2d.getY();
             Rotation2d theta = initialPose2d.getRotation();
+            theta = theta.rotateBy(Rotation2d.fromDegrees(180));
             initialPose2d = new Pose2d(new Translation2d(16.54 - x, y), theta);
         }
 
