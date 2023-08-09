@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
@@ -76,5 +77,19 @@ public class TurnToBigAngle extends CommandBase {
     @Override
     public boolean isFinished() {
         return pidController.atSetpoint();
+    }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        // Calculate turning speed with PID
+        double turningSpeed = pidController.calculate(swerveDrive.getImu().getHeading(), targetAngle);
+        turningSpeed = Math.toRadians(turningSpeed);
+        turningSpeed = NerdyMath.clamp(
+            turningSpeed, 
+            -SwerveDriveConstants.kTurnToBigAngleMaxAngularSpeedRadiansPerSecond, 
+            SwerveDriveConstants.kTurnToBigAngleMaxAngularSpeedRadiansPerSecond);
+
+        // Convert speed into swerve states
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+                0, 0, turningSpeed, swerveDrive.getImu().getRotation2d());
     }
 }

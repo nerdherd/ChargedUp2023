@@ -6,8 +6,12 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ModuleConstants;
+import frc.robot.Constants.SwerveAutoConstants;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -35,6 +39,16 @@ public class Robot extends TimedRobot {
 	
     DataLogManager.start("/media/sda1/logs");
     DataLogManager.logNetworkTables(true);
+
+    SmartDashboard.putNumber("kPOneWayBalancing", SwerveAutoConstants.kPOneWayBalancing);
+    SmartDashboard.putNumber("kIOneWayBalancing", SwerveAutoConstants.kIOneWayBalancing);
+    SmartDashboard.putNumber("kDOneWayBalancing", SwerveAutoConstants.kDOneWayBalancing);
+    SmartDashboard.putNumber("Gyro ignore time", 2);
+    SmartDashboard.putNumber("Charge down speed", -0.9375);
+    SmartDashboard.putNumber("kPDrive", ModuleConstants.kPDrive);
+    SmartDashboard.putNumber("kIDrive", ModuleConstants.kIDrive);
+    SmartDashboard.putNumber("kDDrive", ModuleConstants.kDDrive);
+    SmartDashboard.putNumber("kFDrive", ModuleConstants.kFDrive);
   }
 
   /**
@@ -52,6 +66,10 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    // if (m_robotContainer != null) {
+    //   // m_robotContainer.reportAllToSmartDashboard();
+    // }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -62,6 +80,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    m_robotContainer.arm.initTargetTicks();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -69,6 +88,14 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_robotContainer.swerveDrive.resetEncoders();
     m_robotContainer.imu.zeroHeading();
+    
+    // TODO: COME BACK TO THIS BEFORE LAR THIS IS VERY IMPORTANT TO THINK ABOUT
+    m_robotContainer.arm.resetEncoderStow();
+    m_robotContainer.elevator.resetEncoder();
+    m_robotContainer.arm.isInTalonTachZone();
+    m_robotContainer.arm.init();
+    m_robotContainer.elevator.init();
+    // m_robotContainer.arm.setTargetTicks(ArmConstants.kArmStow);
     m_robotContainer.imu.zeroAll();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 

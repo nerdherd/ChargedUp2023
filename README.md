@@ -1,7 +1,5 @@
 # ChargedUp2023
 
-***REVERT COMMIT 1ccc3624a70894689ab905dcbe8031c5c6df80eb BEFORE MERGING*** 
-
 FRC Team 687's code for its Charged Up 2023 competition robot, *Is Me*.
 
 ## How to Use
