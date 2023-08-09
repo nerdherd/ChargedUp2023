@@ -44,7 +44,9 @@ public final class Constants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
     public static final double kDriveMotorGearRatio = 1 / 6.75;
     public static final double kTurningMotorGearRatio = 1 / 21.428; // 150 : 7 : 1 MK4i
-    public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI;
+    // public static final double kDriveDistanceLoss = 0.95; // from measuring IRL
+    public static final double kDriveDistanceLoss = 1; // from measuring IRL
+    public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI * kDriveDistanceLoss;
     public static final double kDriveTicksToMeters = (1 / 2048.0) * kMetersPerRevolution; 
     public static final double kAbsoluteTurningTicksToRad = (1.0 / 4096.0) * 2 * Math.PI;
     public static final double kIntegratedTurningTicksToRad = (1.0 / 2048.0) * 2 * Math.PI;

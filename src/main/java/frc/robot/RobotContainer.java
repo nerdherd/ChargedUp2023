@@ -115,7 +115,7 @@ public class RobotContainer {
   private void initAutoChoosers() {
     // Remember to load the pathplanner paths here
     final String[] paths = {
-      "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT"
+      "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT", "TestSquare", "Test Line"
     };
 
     for (String path : paths) {
@@ -127,6 +127,8 @@ public class RobotContainer {
     autoChooser.addOption("Path Planner Charge Around LEFT", () -> PathPlannerAutos.pathplannerAuto("ChargeAroundLEFT", swerveDrive));
     autoChooser.addOption("Path Planner TaxiRIGHT", () -> PathPlannerAutos.pathplannerAuto("TaxiRIGHT", swerveDrive));
     autoChooser.addOption("Path Planner TaxiLEFT", () -> PathPlannerAutos.pathplannerAuto("TaxiLEFT", swerveDrive));
+    autoChooser.addOption("Path Planner TestSquare", () -> PathPlannerAutos.pathplannerAuto("TestSquare", swerveDrive));
+    autoChooser.addOption("Path Planner Test3", () -> PathPlannerAutos.pathplannerAuto("Test Line", swerveDrive));
 
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
 

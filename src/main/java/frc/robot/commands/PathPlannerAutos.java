@@ -11,7 +11,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
@@ -98,10 +102,20 @@ public class PathPlannerAutos {
             events
         );
 
+        Pose2d initialPose2d = path.getInitialPose();
+        if (DriverStation.getAlliance() == Alliance.Red) {
+            double x = initialPose2d.getX();
+            double y = initialPose2d.getY();
+            Rotation2d theta = initialPose2d.getRotation();
+            initialPose2d = new Pose2d(new Translation2d(16.54 - x, y), theta);
+        }
+
+        final Pose2d finalInitialPose2d = initialPose2d;
+
         return Commands.sequence(
             Commands.runOnce(() -> swerveDrive.getImu().zeroAll()),
             // TODO: Once we get real odometry with vision, get rid of this
-            Commands.runOnce(() -> swerveDrive.setPoseMeters(path.getInitialPose())),
+            Commands.runOnce(() -> swerveDrive.setPoseMeters(finalInitialPose2d)),
             autoCommand
         );
     }
