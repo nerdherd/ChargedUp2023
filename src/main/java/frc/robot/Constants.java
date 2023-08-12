@@ -180,7 +180,7 @@ public final class Constants {
 
     
     public static final double kDriveMotorDeadband = 0.02;
-    public static final double kTurnMotorDeadband = 0.05;
+    public static final double kTurnMotorDeadband = 0.001;
 
     public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
@@ -276,10 +276,10 @@ public final class Constants {
       public static final double kBLCANCoderOffsetDegrees = 105.293;          
       public static final double kBRCANCoderOffsetDegrees = 180.176 - 180; // 1.406
 
-      public static final PrefDouble kFROffsetDeg = new PrefDouble("kFROffsetDeg", 25.75);
-      public static final PrefDouble kFLOffsetDeg = new PrefDouble("kFLOffsetDeg", -53.174);
-      public static final PrefDouble kBLOffsetDeg = new PrefDouble("kBLOffsetDeg", 85);
-      public static final PrefDouble kBROffsetDeg = new PrefDouble("kBROffsetDeg", 46.85);
+      public static final PrefDouble kFROffsetDeg = new PrefDouble("kFROffsetDeg", 251);
+      public static final PrefDouble kFLOffsetDeg = new PrefDouble("kFLOffsetDeg", 67);
+      public static final PrefDouble kBLOffsetDeg = new PrefDouble("kBLOffsetDeg", 106);
+      public static final PrefDouble kBROffsetDeg = new PrefDouble("kBROffsetDeg", 2.5);
     }
 
 

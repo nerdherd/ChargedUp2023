@@ -33,12 +33,15 @@ public class CANSwerveModule implements SwerveModule {
     private double CANCoderOffsetDegrees;
 
     private double currentPercent = 0;
+    private double currentTurnPercent = 0;
     private double currentAngle = 0;
     private double desiredAngle = 0;
     private double desiredVelocity = 0;
     private boolean velocityControl = false;
 
     private SwerveModuleState desiredState = null;
+    private SwerveModulePosition currPosition = new SwerveModulePosition();
+    private SwerveModuleState currState = new SwerveModuleState();
 
     /**
      * Construct a new CANCoder Swerve Module.
@@ -68,7 +71,7 @@ public class CANSwerveModule implements SwerveModule {
             SmartDashboard.getNumber("kITurning", ModuleConstants.kITurning),
             SmartDashboard.getNumber("kDTurning", ModuleConstants.kDTurning));
         turningController.enableContinuousInput(0, 2 * Math.PI); // Originally was -pi to pi
-        turningController.setTolerance(.025);
+        turningController.setTolerance(.005);
 
         this.driveMotor.setInverted(invertDriveMotor);
         this.turnMotor.setInverted(invertTurningMotor);
@@ -139,7 +142,7 @@ public class CANSwerveModule implements SwerveModule {
     }
 
     public void run() {
-        desiredState = SwerveModuleState.optimize(desiredState, getState().angle);
+        desiredState = SwerveModuleState.optimize(desiredState, Rotation2d.fromRadians(getTurningPosition()));
 
         desiredAngle = desiredState.angle.getDegrees();
 
@@ -160,6 +163,7 @@ public class CANSwerveModule implements SwerveModule {
         }
         
         double turnPower = turningController.calculate(getTurningPosition(), desiredState.angle.getRadians());
+        currentTurnPercent = turnPower;
 
         turnMotor.set(ControlMode.PercentOutput, turnPower);
     }
@@ -232,11 +236,18 @@ public class CANSwerveModule implements SwerveModule {
      * @return This Swerve Module's State
      */
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getTurningPosition()));
+        currState.speedMetersPerSecond = getDriveVelocity();
+        currState.angle = Rotation2d.fromRadians(getTurningPosition());
+        return currState;
+        // return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getTurningPosition()));
+
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getTurningPosition()));
+        currPosition.distanceMeters = getDrivePosition();
+        currPosition.angle = Rotation2d.fromRadians(getTurningPosition());
+        return currPosition;
+        //return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getTurningPosition()));
     }
 
     public double getTurnOffset() {
@@ -286,10 +297,13 @@ public class CANSwerveModule implements SwerveModule {
             case OFF:
                 break;
             case ALL:
+                
+                tab.addNumber("Turn Offset", () -> this.CANCoderOffsetDegrees);
+                tab.addNumber("Turn percent (motor controller)", turnMotor::getMotorOutputPercent);
+                tab.addNumber("Turn percent (current)", () -> this.currentTurnPercent);
+            case MEDIUM:
                 tab.addNumber("Drive Motor Current", driveMotor::getStatorCurrent);
                 tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
-                tab.addNumber("Turn Offset", () -> this.CANCoderOffsetDegrees);
-            case MEDIUM:
                 tab.addNumber("Drive Motor Voltage", driveMotor::getMotorOutputVoltage);
                 tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
                 tab.addNumber("Module velocity", this::getDriveVelocity);
@@ -297,6 +311,7 @@ public class CANSwerveModule implements SwerveModule {
                 tab.addNumber("Desired Velocity", () -> this.desiredVelocity);
                 tab.addNumber("Drive percent (motor controller)", driveMotor::getMotorOutputPercent);
                 tab.addNumber("Drive percent (current)", () -> this.currentPercent);
+                
                 tab.addNumber("Drive ticks", this::getDrivePositionTicks);
                 tab.addNumber("Turn angle", this::getTurningPositionDegrees);
                 tab.addNumber("Desired Angle", () -> desiredAngle);

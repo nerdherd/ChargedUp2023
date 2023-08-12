@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -114,6 +115,8 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
+
+    DriverStation.reportWarning("Initalization complete", false);
   }
 
   public void initDefaultCommands() {
@@ -205,6 +208,7 @@ public class RobotContainer {
     driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
     driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
 
+    // driverController.PS().onTrue(new InstantCommand(() -> swerveDrive.resetOdometry(new Pose2d())));
     // driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive)); // Replaced with turn to angles in the drive command
     // driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
     
