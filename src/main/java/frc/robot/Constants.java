@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.auto.PIDConstants;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -11,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.util.preferences.PrefDouble;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -71,6 +75,8 @@ public final class Constants {
   }
 
   public static class ControllerConstants {
+    public static final double kDeadband = 0.05;
+    public static final double kRotationDeadband = 0.1;
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
     public static final double kOperatorJoystickDeadband = 0.05;
@@ -162,7 +168,9 @@ public final class Constants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
     public static final double kDriveMotorGearRatio = 1 / 6.75;
     public static final double kTurningMotorGearRatio = 1 / 21.428; // 150 : 7 : 1 MK4i
-    public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI;
+    // public static final double kDriveDistanceLoss = 0.95; // from measuring IRL
+    public static final double kDriveDistanceLoss = 1; // from measuring IRL
+    public static final double kMetersPerRevolution = kWheelDiameterMeters * Math.PI * kDriveDistanceLoss;
     public static final double kDriveTicksToMeters = (1 / 2048.0) * kMetersPerRevolution; 
     public static final double kAbsoluteTurningTicksToRad = (1.0 / 4096.0) * 2 * Math.PI;
     public static final double kIntegratedTurningTicksToRad = (1.0 / 2048.0) * 2 * Math.PI;
@@ -172,7 +180,7 @@ public final class Constants {
 
     
     public static final double kDriveMotorDeadband = 0.02;
-    public static final double kTurnMotorDeadband = 0.05;
+    public static final double kTurnMotorDeadband = 0.001;
 
     public static final double kPTurning = 0.55; // 0.6
     public static final double kITurning = 0;
@@ -191,18 +199,18 @@ public final class Constants {
     public static final double kWheelBase = Units.inchesToMeters(21);       // verify
     // Distance between front and back wheels
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-      new Translation2d(kWheelBase / 2, -kTrackWidth / 2), // TODO: This should be front right not front left
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-      new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
-      new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
+      new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+      new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+      new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
     
     public static final double kDodgeDistance = Units.inchesToMeters(12);
     
     public static final Translation2d[] kRotationCenters = new Translation2d[] {
-      new Translation2d(kDodgeDistance, -kDodgeDistance),  // FL
-      new Translation2d(kDodgeDistance, kDodgeDistance),   // FR
-      new Translation2d(-kDodgeDistance, -kDodgeDistance), // BL
-      new Translation2d(-kDodgeDistance, kDodgeDistance)   // BR
+      new Translation2d(kDodgeDistance, kDodgeDistance),  // FL
+      new Translation2d(kDodgeDistance, -kDodgeDistance),   // FR
+      new Translation2d(-kDodgeDistance, kDodgeDistance), // BL
+      new Translation2d(-kDodgeDistance, -kDodgeDistance)   // BR
     };
     
     public static final int[] kLeftRotationCenters = new int[] {0, 1, 3, 2};
@@ -220,10 +228,10 @@ public final class Constants {
     public static final int kBLTurningID = 32;
     public static final int kBRTurningID = 42;
 
-    public static final boolean kFRTurningReversed = false; 
-    public static final boolean kFLTurningReversed = false; 
-    public static final boolean kBLTurningReversed = false; 
-    public static final boolean kBRTurningReversed = false; 
+    public static final boolean kFRTurningReversed = true; 
+    public static final boolean kFLTurningReversed = true; 
+    public static final boolean kBLTurningReversed = true; 
+    public static final boolean kBRTurningReversed = true; 
 
     public static final boolean kFRDriveReversed = false;
     public static final boolean kFLDriveReversed = false;     
@@ -267,6 +275,11 @@ public final class Constants {
       public static final double kFLCANCoderOffsetDegrees = 252.949 - 180;         
       public static final double kBLCANCoderOffsetDegrees = 105.293;          
       public static final double kBRCANCoderOffsetDegrees = 180.176 - 180; // 1.406
+
+      public static final PrefDouble kFROffsetDeg = new PrefDouble("kFROffsetDeg", 251);
+      public static final PrefDouble kFLOffsetDeg = new PrefDouble("kFLOffsetDeg", 67);
+      public static final PrefDouble kBLOffsetDeg = new PrefDouble("kBLOffsetDeg", 106);
+      public static final PrefDouble kBROffsetDeg = new PrefDouble("kBROffsetDeg", 2.5);
     }
 
 
@@ -297,10 +310,10 @@ public final class Constants {
 
     public static final SwerveModuleState[] towModuleStates = 
     new SwerveModuleState[] {
-        new SwerveModuleState(0.01, Rotation2d.fromDegrees(45)),
-        new SwerveModuleState(0.01, Rotation2d.fromDegrees(135)),
-        new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
-        new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
+        new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+        new SwerveModuleState(0, Rotation2d.fromDegrees(-135)),
+        new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+        new SwerveModuleState(0, Rotation2d.fromDegrees(135))
     };
 
     public static final double kGravityMPS = 9.80665; 
@@ -383,6 +396,24 @@ public final class Constants {
   public static final class PneumaticsConstants {
     public static final int kPCMPort = 3;
     public static final int kPressureSensorPort = 2;
+  }
+
+  public static final class PathPlannerConstants {
+    private static final double kPPMaxVelocity = 1;
+    private static final double kPPMaxAcceleration = 1;
+    public static final PathConstraints kPPPathConstraints = new PathConstraints(kPPMaxVelocity, kPPMaxAcceleration);
+
+    public static final double kPP_P = 0.25;
+    public static final double kPP_I = 0;
+    public static final double kPP_D = 0;
+    public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
+
+    public static final double kPP_ThetaP = 0.25;
+    public static final double kPP_ThetaI = 0;
+    public static final double kPP_ThetaD = 0;
+    public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
+
+    public static final boolean kUseAllianceColor = true;
   }
         
 }

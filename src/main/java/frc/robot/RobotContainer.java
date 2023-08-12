@@ -7,14 +7,11 @@ package frc.robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.subsystems.AirCompressor;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Reportable.LOG_LEVEL;
-import frc.robot.subsystems.claw.ConeRunner;
 import frc.robot.subsystems.claw.MotorClaw;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -25,25 +22,23 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.ChargeAutos;
+import frc.robot.commands.PathPlannerAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.commands.TestAutos;
 import frc.robot.commands.TheGreatBalancingAct;
-import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.VisionAllLowAuto;
-import frc.robot.commands.VisionAutos;
 import frc.robot.commands.VisionCableSideAuto;
 import frc.robot.commands.SwerveAutos.StartPosition;
 import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.imu.NavX;
-import frc.robot.subsystems.imu.Pigeon;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
@@ -51,8 +46,6 @@ import frc.robot.subsystems.vision.VROOOOM;
 import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
 import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
-import frc.robot.util.BadPS4;
-import frc.robot.util.CommandBadPS4;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -122,6 +115,8 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
+
+    DriverStation.reportWarning("Initalization complete", false);
   }
 
   public void initDefaultCommands() {
@@ -148,44 +143,27 @@ public class RobotContainer {
     swerveDrive.setDefaultCommand(
       new SwerveJoystickCommand(
         swerveDrive,
-        // Translation Y
-        // () -> -joystick.getY(),
-        () -> -driverController.getLeftY(),
-
-        // Translation X
-        driverController::getLeftX,
-        // joystick::getX,
-
-        // Rotation
-        // joystick::getTwist,
-        // () -> 0.0,
-        driverController::getRightX,
-        // () -> true,
-
-        // Field oriented
-        badPS5::getSquareButton,
-
-        // Towing
-        badPS5::getL2Button,
-
+        () -> -driverController.getLeftY(), // Horizontal translation
+        driverController::getLeftX, // Vertical Translation
+        driverController::getRightX, // Rotation
+        badPS5::getSquareButton, // Field oriented
+        badPS5::getL2Button, // Towing
         // Dodge
-        badPS5::getR3Button,
+        // () -> {return badPS5.getL1Button() || badPS5.getR1Button();},
+        () -> false,
         // Dodging
         () -> {
-          // if (badPS5.getL2Button()) {
+          // if (badPS5.getL1Button()) {
           //   return DodgeDirection.LEFT;
           // } 
-          // if (badPS5.getR2Button()) {
+          // if (badPS5.getR1Button()) {
           //   return DodgeDirection.RIGHT;
           // }
           return DodgeDirection.NONE;
         },
-        // Precision/"Sniper Button"
-        badPS5::getR2Button,
-        // Turn to angle
-        () -> badPS5.getR1Button() || badPS5.getL1Button(),
-        // Turn To angle Direction
-        () -> {
+        badPS5::getR2Button, // Precision/"Sniper Button"
+        () -> badPS5.getR1Button() || badPS5.getL1Button(), // Turn to angle
+        () -> { // Turn To angle Direction
           if (badPS5.getR1Button()) {
             return 180.0;
           } else {
@@ -230,6 +208,7 @@ public class RobotContainer {
     driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
     driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
 
+    // driverController.PS().onTrue(new InstantCommand(() -> swerveDrive.resetOdometry(new Pose2d())));
     // driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive)); // Replaced with turn to angles in the drive command
     // driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
     
@@ -270,15 +249,30 @@ public class RobotContainer {
   }
 
   private void initAutoChoosers() {
+    // Remember to load the pathplanner paths here
+    final String[] paths = {
+      "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT", "TestSquare", "Test Line"
+    };
+
+    for (String path : paths) {
+      PathPlannerAutos.initPath(path);
+    }
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
+
+    // New PathPlanner Autos
+
+    autoChooser.addOption("Do Nothing", Commands::none);
+    autoChooser.addOption("Path Planner Test Auto", () -> PathPlannerAutos.pathplannerAuto("TestPath", swerveDrive));
+    autoChooser.addOption("Path Planner Charge Around LEFT", () -> PathPlannerAutos.pathplannerAuto("ChargeAroundLEFT", swerveDrive));
+    autoChooser.addOption("Path Planner TaxiRIGHT", () -> PathPlannerAutos.pathplannerAuto("TaxiRIGHT", swerveDrive));
+    autoChooser.addOption("Path Planner TaxiLEFT", () -> PathPlannerAutos.pathplannerAuto("TaxiLEFT", swerveDrive));
+    autoChooser.addOption("Path Planner TestSquare", () -> PathPlannerAutos.pathplannerAuto("TestSquare", swerveDrive));
+    autoChooser.addOption("Path Planner Test3", () -> PathPlannerAutos.pathplannerAuto("Test Line", swerveDrive));
+
+    // TODO: Flip y-values in all old autos (pre-August 2023)
 
     // No alliance parameter.
     autoChooser.addOption("Preload Charge", () -> ChargeAutos.preloadHighChargeMiddle(swerveDrive, arm, elevator, motorClaw)); // Same as preload charge auto
-    // autoChooser.addOption("Psychopath Auto (Preload High Center Charge Taxi)", () -> ChargeAutos.preloadHighChargeTaxiMiddle(swerveDrive, arm, elevator, motorClaw));
-    // autoChooser.addOption("Preload High Center Charge Taxi V2", () -> ChargeAutos.preloadHighChargeTaxiMiddleV2(swerveDrive, arm, elevator, motorClaw));
-    // autoChooser.addOption("Preload High Center Charge Taxi With Balancing", () -> ChargeAutos.preloadHighChargeTaxiMiddleSafer(swerveDrive, arm, elevator, motorClaw));
-    // autoChooser.addOption("Preload High Center Charge Taxi With Balancing Sliding", () -> ChargeAutos.preloadHighChargeTaxiMiddleSafer2(swerveDrive, arm, elevator, motorClaw));
-
     autoChooser.addOption("Preload Slow taxi charge", () -> TestAutos.preloadTaxiChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
     autoChooser.addOption("Preload Slow charge", () -> TestAutos.preloadChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
     // autoChooser.addOption("Slow charge", () -> TestAutos.chargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
@@ -300,38 +294,6 @@ public class RobotContainer {
     // Have alliance parameter but do not use it.
     autoChooser.addOption("LAR Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
     autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, SCORE_POS.HIGH, alliance));
-    
-    // Don't think we need.
-    // autoChooser.addOption("Preload Charge Go Around Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
-    
-    // autoChooser.addOption("Vision Preload Pickup Charge No Score", () -> VisionAutos.visionPreloadPickupChargeAuto(swerveDrive, vision, arm, elevator, motorClaw, startPos, scorePos, alliance));
-    // autoChooser.addOption("Vision Preload Pickup Score", () -> VisionAutos.visionPreloadPickupScore(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos, scorePos));
-    // autoChooser.addOption("Vision Auto", () -> VisionAutos.visionAutoChoose(swerveDrive, vision, arm, elevator, motorClaw, alliance, startPos));
-    // autoChooser.addOption("April Tag Debug Auto", () -> VisionAutos.debugVisionAprilTagAuto(vision));
-    // autoChooser.addOption("Charge only", () -> SwerveAutos.chargeAuto(swerveDrive, startPos, alliance, 0, false).finallyDo((x) -> swerveDrive.getImu().setOffset(180)));
-    // autoChooser.addOption("Backward Auto", () -> SwerveAutos.driveBackwardAuto(swerveDrive).finallyDo((x) -> swerveDrive.getImu().setOffset(180)));
-    // autoChooser.addOption("Preload Auto", () -> SwerveAutos.preloadAuto(arm, elevator, motorClaw, scorePos));
-    // autoChooser.addOption("Preload Pickup Auto", () -> SwerveAutos.twoPieceAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
-    // autoChooser.addOption("Preload Pickup Charge Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, false, alliance));
-    // autoChooser.addOption("Preload Pickup Charge Go Around Auto", () -> SwerveAutos.twoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, 0, true, alliance));
-    // autoChooser.addOption("Preload Pickup Backward Auto", () -> SwerveAutos.twoPieceBackwardAuto(swerveDrive, arm, elevator, motorClaw, startPos, scorePos, alliance));
-    // autoChooser.setDefaultOption("Old Charge", () -> SwerveAutos.backupChargeAuto(swerveDrive));
-    // autoChooser.addOption("Old One Piece", () -> SwerveAutos.backupTwoPieceChargeAuto(swerveDrive, arm, elevator, motorClaw));
-    autosTab.add("Selected Auto", autoChooser);
-    
-    // positionChooser.setDefaultOption("Right", StartPosition.RIGHT);
-    // positionChooser.addOption("Left", StartPosition.LEFT);
-    // positionChooser.addOption("Middle", StartPosition.MIDDLE);
-    // positionChooser.addOption("Right", StartPosition.RIGHT);
-    // autosTab.add("Start Position", positionChooser);
-    // autosTab.addString("Selected Start Position", () -> startPos.toString());
-
-    // // TODO: Implement changing score position in the autos
-    // scoreChooser.setDefaultOption("Mid", SCORE_POS.MID);
-    // scoreChooser.addOption("Hybrid", SCORE_POS.LOW);
-    // scoreChooser.addOption("Mid", SCORE_POS.MID);
-    // scoreChooser.addOption("High", SCORE_POS.HIGH);
-    // autosTab.add("Score Position", scoreChooser);
 
     allianceChooser.setDefaultOption("Red", Alliance.Red);
     allianceChooser.addOption("Red", Alliance.Red);

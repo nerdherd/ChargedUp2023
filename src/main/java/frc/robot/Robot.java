@@ -35,6 +35,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     m_robotContainer.initShuffleboard();
+    m_robotContainer.swerveDrive.resetEncoders();
 	
     DataLogManager.start("/media/sda1/logs");
     DataLogManager.logNetworkTables(true);
@@ -85,6 +86,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    m_robotContainer.swerveDrive.resetEncoders();
     m_robotContainer.imu.zeroHeading();
     
     // TODO: COME BACK TO THIS BEFORE LAR THIS IS VERY IMPORTANT TO THINK ABOUT

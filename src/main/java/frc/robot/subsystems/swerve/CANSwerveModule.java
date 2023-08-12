@@ -30,13 +30,18 @@ public class CANSwerveModule implements SwerveModule {
 
     private final PIDController turningController;
     private final boolean invertTurningEncoder;
-    private final double CANCoderOffsetDegrees;
+    private double CANCoderOffsetDegrees;
 
     private double currentPercent = 0;
+    private double currentTurnPercent = 0;
     private double currentAngle = 0;
     private double desiredAngle = 0;
     private double desiredVelocity = 0;
     private boolean velocityControl = false;
+
+    private SwerveModuleState desiredState = null;
+    private SwerveModulePosition currPosition = new SwerveModulePosition();
+    private SwerveModuleState currState = new SwerveModuleState();
 
     /**
      * Construct a new CANCoder Swerve Module.
@@ -66,13 +71,15 @@ public class CANSwerveModule implements SwerveModule {
             SmartDashboard.getNumber("kITurning", ModuleConstants.kITurning),
             SmartDashboard.getNumber("kDTurning", ModuleConstants.kDTurning));
         turningController.enableContinuousInput(0, 2 * Math.PI); // Originally was -pi to pi
-        turningController.setTolerance(.025);
+        turningController.setTolerance(.005);
 
         this.driveMotor.setInverted(invertDriveMotor);
         this.turnMotor.setInverted(invertTurningMotor);
         this.canCoder = new CANCoder(CANCoderId);
         this.invertTurningEncoder = CANCoderReversed;
         this.CANCoderOffsetDegrees = CANCoderOffsetDegrees;
+        
+        this.desiredState = new SwerveModuleState(0, Rotation2d.fromDegrees(0));
 
         initEncoders();
     }
@@ -121,7 +128,6 @@ public class CANSwerveModule implements SwerveModule {
      */
     public void resetEncoder() {
         double startAngle = (canCoder.getAbsolutePosition() - this.CANCoderOffsetDegrees) % 360;
-        // SmartDashboard.putNumber("Reset Angle Encoder #" + CANCoderID, startAngle);
         canCoder.setPosition(startAngle);
     }
 
@@ -130,10 +136,38 @@ public class CANSwerveModule implements SwerveModule {
      */
     public void stop() {
         driveMotor.set(ControlMode.PercentOutput, 0);
-        // driveMotor.set(ControlMode.Velocity, 0);
         turnMotor.set(ControlMode.PercentOutput, 0);
+
+        this.desiredState = new SwerveModuleState(0, Rotation2d.fromRadians(getTurningPosition()));
     }
 
+    public void run() {
+        desiredState = SwerveModuleState.optimize(desiredState, Rotation2d.fromRadians(getTurningPosition()));
+
+        desiredAngle = desiredState.angle.getDegrees();
+
+        double velocity = desiredState.speedMetersPerSecond / ModuleConstants.kDriveTicksPer100MsToMetersPerSec / ModuleConstants.kDriveMotorGearRatio;
+        this.desiredVelocity = velocity;
+        
+        if (this.velocityControl) {
+            driveMotor.config_kP(0, SmartDashboard.getNumber("kPDrive", ModuleConstants.kPDrive));
+            driveMotor.config_kI(0, SmartDashboard.getNumber("kIDrive", ModuleConstants.kIDrive));
+            driveMotor.config_kD(0, SmartDashboard.getNumber("kDDrive", ModuleConstants.kDDrive));
+            driveMotor.config_kF(0, ModuleConstants.kFDrive);
+
+            driveMotor.set(ControlMode.Velocity, velocity);
+            this.currentPercent = 0;
+        } else {
+            this.currentPercent = desiredState.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+            driveMotor.set(ControlMode.PercentOutput, this.currentPercent);
+        }
+        
+        double turnPower = turningController.calculate(getTurningPosition(), desiredState.angle.getRadians());
+        currentTurnPercent = turnPower;
+
+        turnMotor.set(ControlMode.PercentOutput, turnPower);
+    }
+    
     //****************************** GETTERS ******************************/
 
     /**
@@ -152,7 +186,7 @@ public class CANSwerveModule implements SwerveModule {
 
 
     /**
-     * Get the angle of the turning motor's integrated sensor
+     * Get the turning motor's CANCoder's angle
      * @return Angle in radians
      */
     public double getTurningPosition() {
@@ -161,13 +195,11 @@ public class CANSwerveModule implements SwerveModule {
     }
 
     /**
-     * Get the angle of the turning motor's integrated sensor
+     * Get the turning motor's CANCoder's angle
      * @return Angle in degrees
      */
     public double getTurningPositionDegrees() {
-        double turningPosition = -canCoder.getPosition() % 360;
-        // SmartDashboard.putNumber("Turning radians #" + turnMotorID, Math.toRadians(turningPosition));
-        // SmartDashboard.putNumber("Turning angle #" + turnMotorID, turningPosition);
+        double turningPosition = canCoder.getPosition() % 360;
         return turningPosition;
     }
 
@@ -196,7 +228,6 @@ public class CANSwerveModule implements SwerveModule {
      */
     public double getTurningVelocityDegrees() {
         double turnVelocity = canCoder.getVelocity();
-        // SmartDashboard.putNumber("Turn velocity Motor #" + turnMotorID, Math.toRadians(turnVelocity));
         return turnVelocity;
     }
 
@@ -205,11 +236,22 @@ public class CANSwerveModule implements SwerveModule {
      * @return This Swerve Module's State
      */
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getTurningPosition()));
+        currState.speedMetersPerSecond = getDriveVelocity();
+        currState.angle = Rotation2d.fromRadians(getTurningPosition());
+        return currState;
+        // return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getTurningPosition()));
+
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getTurningPosition()));
+        currPosition.distanceMeters = getDrivePosition();
+        currPosition.angle = Rotation2d.fromRadians(getTurningPosition());
+        return currPosition;
+        //return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getTurningPosition()));
+    }
+
+    public double getTurnOffset() {
+        return this.CANCoderOffsetDegrees;
     }
 
     //****************************** SETTERS ******************************/
@@ -229,37 +271,15 @@ public class CANSwerveModule implements SwerveModule {
      */
     public void setDesiredState(SwerveModuleState state) {
         if (Math.abs(state.speedMetersPerSecond) < 0.001) {
-            stop();
-            return;
+            state.speedMetersPerSecond = 0;
         }
-        // state.angle = state.angle.rotateBy(Rotation2d.fromDegrees(-90));
-        state = SwerveModuleState.optimize(state, getState().angle);
 
-        desiredAngle = state.angle.getDegrees();
+        this.desiredState = state;
+    }
 
-        double velocity = state.speedMetersPerSecond / ModuleConstants.kDriveTicksPer100MsToMetersPerSec / ModuleConstants.kDriveMotorGearRatio;
-        this.desiredVelocity = velocity;
-        
-        if (this.velocityControl) {
-            driveMotor.config_kP(0, SmartDashboard.getNumber("kPDrive", ModuleConstants.kPDrive));
-            driveMotor.config_kI(0, SmartDashboard.getNumber("kIDrive", ModuleConstants.kIDrive));
-            driveMotor.config_kD(0, SmartDashboard.getNumber("kDDrive", ModuleConstants.kDDrive));
-            // driveMotor.config_kF(0, SmartDashboard.getNumber("kFDrive", ModuleConstants.kFDrive));
-            // driveMotor.config_kP(0, ModuleConstants.kPDrive);
-            // driveMotor.config_kI(0, ModuleConstants.kIDrive);
-            // driveMotor.config_kD(0, ModuleConstants.kDDrive);
-            driveMotor.config_kF(0, ModuleConstants.kFDrive);
-
-            driveMotor.set(ControlMode.Velocity, velocity);
-            this.currentPercent = 0;
-        } else {
-            this.currentPercent = state.speedMetersPerSecond / SwerveDriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-            driveMotor.set(ControlMode.PercentOutput, this.currentPercent);
-        }
-        double turnPower = turningController.calculate(getTurningPosition(), state.angle.getRadians());
-        // SmartDashboard.putNumber("Turn Power Motor #" + turnMotorID, turnPower);
-
-        turnMotor.set(ControlMode.PercentOutput, turnPower);
+    public void setTurnOffset(double offset) {
+        this.CANCoderOffsetDegrees = offset;
+        resetEncoder();
     }
 
     public void toggleVelocityControl(boolean velocityControlOn) {
@@ -277,9 +297,13 @@ public class CANSwerveModule implements SwerveModule {
             case OFF:
                 break;
             case ALL:
+                
+                tab.addNumber("Turn Offset", () -> this.CANCoderOffsetDegrees);
+                tab.addNumber("Turn percent (motor controller)", turnMotor::getMotorOutputPercent);
+                tab.addNumber("Turn percent (current)", () -> this.currentTurnPercent);
+            case MEDIUM:
                 tab.addNumber("Drive Motor Current", driveMotor::getStatorCurrent);
                 tab.addNumber("Turn Motor Current", turnMotor::getStatorCurrent);
-            case MEDIUM:
                 tab.addNumber("Drive Motor Voltage", driveMotor::getMotorOutputVoltage);
                 tab.addNumber("Turn Motor Voltage", turnMotor::getMotorOutputVoltage);
                 tab.addNumber("Module velocity", this::getDriveVelocity);
@@ -287,6 +311,7 @@ public class CANSwerveModule implements SwerveModule {
                 tab.addNumber("Desired Velocity", () -> this.desiredVelocity);
                 tab.addNumber("Drive percent (motor controller)", driveMotor::getMotorOutputPercent);
                 tab.addNumber("Drive percent (current)", () -> this.currentPercent);
+                
                 tab.addNumber("Drive ticks", this::getDrivePositionTicks);
                 tab.addNumber("Turn angle", this::getTurningPositionDegrees);
                 tab.addNumber("Desired Angle", () -> desiredAngle);
@@ -309,12 +334,12 @@ public class CANSwerveModule implements SwerveModule {
                 SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Current", turnMotor.getStatorCurrent());
                 SmartDashboard.putNumber("Drive Motor #" + driveMotorID + " Voltage", driveMotor.getMotorOutputVoltage());
                 SmartDashboard.putNumber("Turn Motor #" + turnMotorID + " Voltage", turnMotor.getMotorOutputVoltage());
+                SmartDashboard.putNumber("Turn Offset", this.CANCoderOffsetDegrees);
             case MEDIUM:
                 SmartDashboard.putNumber("Module velocity #" + driveMotorID, getDriveVelocity());
                 SmartDashboard.putNumber("Drive percent #" + driveMotorID, driveMotor.getMotorOutputPercent());
-                SmartDashboard.putNumber("Turn angle #" + turnMotorID, currentAngle);
-                SmartDashboard.putNumber("Desired Angle Motor #" + turnMotorID, desiredAngle);
-                SmartDashboard.putNumber("Angle Difference Motor #" + turnMotorID, desiredAngle - currentAngle);
+                SmartDashboard.putNumber("Turn Angle #" + turnMotorID, currentAngle);
+                SmartDashboard.putNumber("Turn Error #" + turnMotorID, desiredAngle - currentAngle);
             case MINIMAL:
                 break;
         }

@@ -14,6 +14,30 @@ public class NerdyMath {
         return ticks * 360 / 2048;
     }
 
+    /**
+     * Re-maps a number from one range to another.
+     * 
+     * Similar implementation to the arduino 
+     * <a href="https://reference.arduino.cc/reference/en/language/functions/math/map/">
+     * Math.map()</a> method.
+     * 
+     * <p>
+     * 
+     * Example: map(0.75, 0, 1, 1, 0) returns 0.25.
+     * 
+     * <p>
+     * 
+     * Does not ensure that a number will stay within the range. 
+     * Use {@link #clamp() clamp()} to do so.
+     * 
+     * @see https://github.com/arduino/ArduinoCore-API/blob/master/api/Common.cpp
+     * 
+     * @return the re-mapped number
+     */
+    public static double map(double x, double inMin, double inMax, double outMin, double outMax) {
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+
     public static double degreesToRadians(double deg) {
         return deg * Math.PI/180;
     }

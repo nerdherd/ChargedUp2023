@@ -11,10 +11,10 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.SwerveDriveConstants.CANCoderConstants;
-import frc.robot.Constants.SwerveDriveConstants.MagEncoderConstants;
 import frc.robot.subsystems.imu.Gyro;
 import frc.robot.subsystems.Reportable;
 
@@ -50,40 +50,6 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      */
     public SwerveDrivetrain(Gyro gyro, SwerveModuleType moduleType) throws IllegalArgumentException {
         switch (moduleType) {
-            case MAG_ENCODER:
-                frontLeft = new MagSwerveModule(
-                    kFLDriveID,
-                    kFLTurningID,
-                    kFLDriveReversed,
-                    kFLTurningReversed,
-                    MagEncoderConstants.kFLAbsoluteID,
-                    MagEncoderConstants.kFLAbsoluteOffsetTicks,
-                    MagEncoderConstants.kFLAbsoluteReversed);
-                frontRight = new MagSwerveModule(
-                    kFRDriveID,
-                    kFRTurningID,
-                    kFRDriveReversed,
-                    kFRTurningReversed,
-                    MagEncoderConstants.kFRAbsoluteID,
-                    MagEncoderConstants.kFRAbsoluteOffsetTicks,
-                    MagEncoderConstants.kFRAbsoluteReversed);
-                backLeft = new MagSwerveModule(
-                    kBLDriveID,
-                    kBLTurningID,
-                    kBLDriveReversed,
-                    kBLTurningReversed,
-                    MagEncoderConstants.kBLAbsoluteID,
-                    MagEncoderConstants.kBLAbsoluteOffsetTicks,
-                    MagEncoderConstants.kBLAbsoluteReversed);
-                backRight = new MagSwerveModule(
-                    kBRDriveID,
-                    kBRTurningID,
-                    kBRDriveReversed,
-                    kBRTurningReversed,
-                    MagEncoderConstants.kBRAbsoluteID,
-                    MagEncoderConstants.kBRAbsoluteOffsetTicks,
-                    MagEncoderConstants.kBRAbsoluteReversed);
-                break;
             case CANCODER:
                 frontLeft = new CANSwerveModule(
                     kFLDriveID,
@@ -91,7 +57,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kFLDriveReversed,
                     kFLTurningReversed,
                     CANCoderConstants.kFLCANCoderID,
-                    CANCoderConstants.kFLCANCoderOffsetDegrees,
+                    CANCoderConstants.kFLOffsetDeg.get(),
                     CANCoderConstants.kFLCANCoderReversed);
                 frontRight = new CANSwerveModule(
                     kFRDriveID,
@@ -99,7 +65,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kFRDriveReversed,
                     kFRTurningReversed,
                     CANCoderConstants.kFRCANCoderID,
-                    CANCoderConstants.kFRCANCoderOffsetDegrees,
+                    CANCoderConstants.kFROffsetDeg.get(),
                     CANCoderConstants.kFRCANCoderReversed);
                 backLeft = new CANSwerveModule(
                     kBLDriveID,
@@ -107,7 +73,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kBLDriveReversed,
                     kBLTurningReversed,
                     CANCoderConstants.kBLCANCoderID,
-                    CANCoderConstants.kBLCANCoderOffsetDegrees,
+                    CANCoderConstants.kBLOffsetDeg.get(),
                     CANCoderConstants.kBLCANCoderReversed);
                 backRight = new CANSwerveModule(
                     kBRDriveID,
@@ -115,11 +81,11 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                     kBRDriveReversed,
                     kBRTurningReversed,
                     CANCoderConstants.kBRCANCoderID,
-                    CANCoderConstants.kBRCANCoderOffsetDegrees,
+                    CANCoderConstants.kBROffsetDeg.get(),
                     CANCoderConstants.kBRCANCoderReversed);
                 break;
             default:
-                throw new IllegalArgumentException("Swerve Module Type not provided");
+                throw new IllegalArgumentException("Invalid Swerve Module Type provided.");
         }
 
         numEncoderResets = 0;
@@ -135,14 +101,12 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     }
 
     /**
-     * Periodically update the odometry based on the state of each module
+     * Have modules move towards states and update odometry
      */
     @Override
     public void periodic() {
-        // reportToSmartDashboard();
-        // SwerveModulePosition[] modules = getModulePositions();
+        runModules();
         odometer.update(gyro.getRotation2d(), getModulePositions());
-        // field.setRobotPose(odometer.getPoseMeters());
     }
     
     //****************************** RESETTERS ******************************/
@@ -163,20 +127,48 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     public void resetEncoders() {
         numEncoderResets += 1;
         // SmartDashboard.putNumber("Encoder resets", numEncoderResets);
+        CANCoderConstants.kFLOffsetDeg.loadPreferences();
+        CANCoderConstants.kFROffsetDeg.loadPreferences();
+        CANCoderConstants.kBLOffsetDeg.loadPreferences();
+        CANCoderConstants.kBROffsetDeg.loadPreferences();
+        frontLeft.setTurnOffset(CANCoderConstants.kFLOffsetDeg.get());
+        frontRight.setTurnOffset(CANCoderConstants.kFROffsetDeg.get());
+        backLeft.setTurnOffset(CANCoderConstants.kBLOffsetDeg.get());
+        backRight.setTurnOffset(CANCoderConstants.kBROffsetDeg.get());
+        
         frontLeft.resetEncoder();
         frontRight.resetEncoder();
         backLeft.resetEncoder();
         backRight.resetEncoder();
     }
 
+    public void zeroModules() {
+        CANCoderConstants.kFLOffsetDeg.set(frontLeft.getTurnOffset() + frontLeft.getTurningPosition());
+        CANCoderConstants.kFROffsetDeg.set(frontRight.getTurnOffset() + frontRight.getTurningPosition());
+        CANCoderConstants.kBLOffsetDeg.set(backLeft.getTurnOffset() + backLeft.getTurningPosition());
+        CANCoderConstants.kBROffsetDeg.set(backRight.getTurnOffset() + backRight.getTurningPosition());
+        
+        resetEncoders();
+    }
+
     /**
-     * Stops all modules. See {@link MagSwerveModule#stop()} for more info.
+     * Stops all modules. See {@link CANSwerveModule#stop()} for more info.
      */
     public void stopModules() {
         frontLeft.stop();
         frontRight.stop();
         backLeft.stop();
         backRight.stop();
+    }
+
+    /**
+     * Have modules move to their desired states. See {@link CANSwerveModule#run()} for more info.
+     */
+    public void runModules() {
+        frontLeft.run();
+        frontRight.run();
+        backLeft.run();
+        backRight.run();
     }
 
     //****************************** GETTERS ******************************/
@@ -206,23 +198,6 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         };
     }
 
-    //****************************** SETTERS ******************************/
-
-    /**
-     * Set the drive mode (only for telemetry purposes)
-     * @param driveMode
-     */
-    public void setDriveMode(DRIVE_MODE driveMode) {
-        this.driveMode = driveMode;
-    }
-
-    public void setVelocityControl(boolean withVelocityControl) {
-        frontLeft.toggleVelocityControl(withVelocityControl);
-        frontRight.toggleVelocityControl(withVelocityControl);
-        backLeft.toggleVelocityControl(withVelocityControl);
-        backRight.toggleVelocityControl(withVelocityControl);
-    }
-
     public void drive(double xSpeed, double ySpeed, double turnSpeed) {
         setModuleStates(
             SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(
@@ -245,6 +220,24 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
 
     public void driveFieldOriented(double xSpeed, double ySpeed) {
         driveFieldOriented(xSpeed, ySpeed, 0);
+    }
+
+
+    //****************************** SETTERS ******************************/
+
+    /**
+     * Set the drive mode (only for telemetry purposes)
+     * @param driveMode
+     */
+    public void setDriveMode(DRIVE_MODE driveMode) {
+        this.driveMode = driveMode;
+    }
+
+    public void setVelocityControl(boolean withVelocityControl) {
+        frontLeft.toggleVelocityControl(withVelocityControl);
+        frontRight.toggleVelocityControl(withVelocityControl);
+        backLeft.toggleVelocityControl(withVelocityControl);
+        backRight.toggleVelocityControl(withVelocityControl);
     }
 
     /**
@@ -304,6 +297,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                 break;
             case ALL:
                 tab.add("Field Position", field).withSize(6, 3);
+                tab.add("Zero Modules", Commands.runOnce(this::zeroModules));
                 // Might be negative because our swerveDriveKinematics is flipped across the Y axis
             case MEDIUM:
                 tab.addNumber("Encoder Resets", () -> this.numEncoderResets);
@@ -332,6 +326,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
             case ALL:
             case MEDIUM:
                 SmartDashboard.putNumber("Encoder Resets", numEncoderResets);
+                SmartDashboard.putData("Zero Modules", Commands.runOnce(this::zeroModules));
             case MINIMAL:
                 SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
                 SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());

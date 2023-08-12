@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.util.NerdyMath;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -40,6 +41,14 @@ public class NavX extends SubsystemBase implements Gyro {
         } catch (RuntimeException ex) {
             DriverStation.reportError("Error instantiating navX2 MXP:  " + ex.getMessage(), true);
         }
+    }
+
+    /**
+     * Return the internal NavX object.
+     * @return
+     */
+    public AHRS getNavX() {
+        return this.ahrs;
     }
 
     public void zeroAll() {
@@ -90,13 +99,10 @@ public class NavX extends SubsystemBase implements Gyro {
         rollOffset = ahrs.getRoll() - rollDegrees;
     }
 
-    /**
-     * Gets angle robot is facing
-     * @return Angle of the robot (degrees)
-     */
     public double getHeading() {
-        double heading = Math.IEEEremainder(ahrs.getYaw() - offset, 360);
-        return heading;
+        double rawHeading = ahrs.getYaw() % 360;
+        double heading = NerdyMath.map(rawHeading, 0, 360, 360, 0);
+        return heading - offset;
     }
 
     public double getPitch() {
