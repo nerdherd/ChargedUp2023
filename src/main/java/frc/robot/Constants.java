@@ -199,7 +199,6 @@ public final class Constants {
     public static final double kWheelBase = Units.inchesToMeters(21);       // verify
     // Distance between front and back wheels
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-      new Translation2d(kWheelBase / 2, -kTrackWidth / 2), // TODO: This should be front right not front left
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
       new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
       new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
@@ -311,10 +310,10 @@ public final class Constants {
 
     public static final SwerveModuleState[] towModuleStates = 
     new SwerveModuleState[] {
-        new SwerveModuleState(0.01, Rotation2d.fromDegrees(45)),
-        new SwerveModuleState(0.01, Rotation2d.fromDegrees(135)),
-        new SwerveModuleState(0.01, Rotation2d.fromDegrees(-45)),
-        new SwerveModuleState(0.01, Rotation2d.fromDegrees(-135))
+        new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+        new SwerveModuleState(0, Rotation2d.fromDegrees(-135)),
+        new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+        new SwerveModuleState(0, Rotation2d.fromDegrees(135))
     };
 
     public static final double kGravityMPS = 9.80665; 
