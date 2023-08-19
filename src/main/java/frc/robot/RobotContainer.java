@@ -145,6 +145,7 @@ public class RobotContainer {
         swerveDrive,
         () -> -driverController.getLeftY(), // Horizontal translation
         driverController::getLeftX, // Vertical Translation
+        // () -> 0.0, // debug
         driverController::getRightX, // Rotation
         badPS5::getSquareButton, // Field oriented
         badPS5::getL2Button, // Towing
