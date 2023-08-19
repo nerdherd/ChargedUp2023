@@ -28,7 +28,7 @@ import frc.robot.util.preferences.PrefDouble;
  // COMMENT ROBOT IDS INSTEAD OF DELETING
 public final class Constants {
 
-  public static class DriveConstants {
+  public static class TankConstants {
 
     // ============== Gigantor =================
     // public static final int kRightMasterID = 2;
@@ -54,6 +54,15 @@ public final class Constants {
     public static final int kRightFollower2ID = 1;
     public static final int kLeftFollower2ID = 18;
 
+    public static final int kSolenoidForwardID = 0;
+    public static final int kSolenoidReverseID = 1;
+    public static final int kSolenoidForwardID2 = 2;
+    public static final int kSolenoidReverseID2 = 3;
+
+    public static final boolean leftMasterInverted = true;
+    public static final boolean rightMasterInverted = true;
+    
+
     // thomas
     // public static final int kRightMasterID = 9;
     // public static final int kLeftMasterID = 20;
@@ -73,6 +82,7 @@ public final class Constants {
 
     public static final int kFalconMaxCurrent = 50;
   }
+
 
   public static class ControllerConstants {
     public static final double kDeadband = 0.05;
