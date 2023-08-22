@@ -42,6 +42,7 @@ import frc.robot.subsystems.imu.NavX;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
+import frc.robot.subsystems.vision.PrimalSunflower;
 import frc.robot.subsystems.vision.VROOOOM;
 import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
 import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
@@ -65,6 +66,7 @@ public class RobotContainer {
   // public Gyro imu = new Pigeon(60);
   public SwerveDrivetrain swerveDrive;
   public VROOOOM vision;
+  public PrimalSunflower primalSunflower;
 
   private final CommandPS4Controller driverController = new CommandPS4Controller(
       ControllerConstants.kDriverControllerPort);
@@ -202,8 +204,9 @@ public class RobotContainer {
     
     operatorController.L1().whileTrue(motorClaw.setPower(0.8))
         .onFalse(motorClaw.setPowerZero());
-    operatorController.R1().whileTrue(motorClaw.setPower(-.3))
-        .onFalse(motorClaw.setPower(-0.07));
+    // operatorController.R1().whileTrue(motorClaw.setPower(-.3))
+    //     .onFalse(motorClaw.setPower(-0.07));
+    operatorController.R1().whileTrue(new RunCommand(primalSunflower::getClosestZombie()));
 
     driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
     driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
