@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
@@ -60,17 +61,17 @@ public class PathPlannerAutos {
             // put("Command name", Command);
         }};
         
-        // // Potential issue: RotationConstants doesn't wrap around
-        // SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
-        //     swerveDrive::getPose, 
-        //     swerveDrive::resetOdometry,
-        //     SwerveDriveConstants.kDriveKinematics,
-        //     kPPTranslationPIDConstants,
-        //     kPPRotationPIDConstants,
-        //     swerveDrive::setModuleStates,
-        //     events,
-        //     kUseAllianceColor,
-        //     swerveDrive);
+        // Potential issue: RotationConstants doesn't wrap around
+        SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+            swerveDrive::getPose, 
+            swerveDrive::resetOdometry,
+            SwerveDriveConstants.kDriveKinematics,
+            kPPTranslationPIDConstants,
+            kPPRotationPIDConstants,
+            swerveDrive::setModuleStates,
+            events,
+            kUseAllianceColor,
+            swerveDrive);
         
         // Note: The reason why the commands are manually constructed instead of
         // using SwerveAutoBuilder is because SwerveAutoBuilder doesn't
@@ -78,47 +79,48 @@ public class PathPlannerAutos {
         // which may cause issues.
 
         // Define PID Controllers
-        PIDController xController = new PIDController(kPP_P, kPP_I, kPP_D);
-        PIDController yController = new PIDController(kPP_P, kPP_I, kPP_D);
-        PIDController thetaController = new PIDController(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        // PIDController xController = new PIDController(kPP_P, kPP_I, kPP_D);
+        // PIDController yController = new PIDController(kPP_P, kPP_I, kPP_D);
+        // PIDController thetaController = new PIDController(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
+        // thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        // Path following command
-        PPSwerveControllerCommand pathCommand = new PPSwerveControllerCommand(
-            path, 
-            swerveDrive::getPose, 
-            SwerveDriveConstants.kDriveKinematics,
-            xController,
-            yController,
-            thetaController,
-            swerveDrive::setModuleStates,
-            true,
-            swerveDrive);
+        // // Path following command
+        // PPSwerveControllerCommand pathCommand = new PPSwerveControllerCommand(
+        //     path, 
+        //     swerveDrive::getPose, 
+        //     SwerveDriveConstants.kDriveKinematics,
+        //     xController,
+        //     yController,
+        //     thetaController,
+        //     swerveDrive::setModuleStates,
+        //     true,
+        //     swerveDrive);
 
-        // Follow the path with events
-        FollowPathWithEvents autoCommand = new FollowPathWithEvents(
-            pathCommand,
-            path.getMarkers(),
-            events
-        );
+        // // Follow the path with events
+        // FollowPathWithEvents autoCommand = new FollowPathWithEvents(
+        //     pathCommand,
+        //     path.getMarkers(),
+        //     events
+        // );
 
-        Pose2d initialPose2d = path.getInitialPose();
-        if (DriverStation.getAlliance() == Alliance.Red) {
-            // Flip x value and turn the robot around
-            double x = initialPose2d.getX();
-            double y = initialPose2d.getY();
-            Rotation2d theta = initialPose2d.getRotation();
-            theta = theta.rotateBy(Rotation2d.fromDegrees(180));
-            initialPose2d = new Pose2d(new Translation2d(16.54 - x, y), theta);
-        }
+        // Pose2d initialPose2d = path.getInitialPose();
+        // if (DriverStation.getAlliance() == Alliance.Red) {
+        //     // Flip x value and turn the robot around
+        //     double x = initialPose2d.getX();
+        //     double y = initialPose2d.getY();
+        //     Rotation2d theta = initialPose2d.getRotation();
+        //     theta = theta.rotateBy(Rotation2d.fromDegrees(180));
+        //     initialPose2d = new Pose2d(new Translation2d(16.54 - x, y), theta);
+        // }
 
-        final Pose2d finalInitialPose2d = initialPose2d;
+        // final Pose2d finalInitialPose2d = initialPose2d;
 
         return Commands.sequence(
             Commands.runOnce(() -> swerveDrive.getImu().zeroAll()),
+            autoBuilder.fullAuto(path)
             // TODO: Once we get real odometry with vision, get rid of this
-            Commands.runOnce(() -> swerveDrive.setPoseMeters(finalInitialPose2d)),
-            autoCommand
+            // Commands.runOnce(() -> swerveDrive.setPoseMeters(finalInitialPose2d)),
+            // autoCommand
         );
     }
 }
