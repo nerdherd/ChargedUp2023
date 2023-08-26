@@ -252,8 +252,10 @@ public class RobotContainer {
   private void initAutoChoosers() {
     // Remember to load the pathplanner paths here
     final String[] paths = {
-      "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT", "TestSquare", "Test Line", "TestSquare3"
+      "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT", "TestSquare", "Test Line", "TestSquare3", "TestSquare4"
     };
+
+    PathPlannerAutos.initEvents(arm, elevator, motorClaw, swerveDrive);
 
     for (String path : paths) {
       PathPlannerAutos.initPath(path);
@@ -270,6 +272,7 @@ public class RobotContainer {
     autoChooser.addOption("Path Planner TestSquare", () -> PathPlannerAutos.pathplannerAuto("TestSquare", swerveDrive));
     autoChooser.addOption("Path Planner Test3", () -> PathPlannerAutos.pathplannerAuto("Test Line", swerveDrive));
     autoChooser.addOption("Path Planner TestSquare3", () -> PathPlannerAutos.pathplannerAuto("TestSquare3", swerveDrive));
+    autoChooser.addOption("Path Planner TestSquare4", () -> PathPlannerAutos.pathplannerAuto("TestSquare4", swerveDrive));
 
     // TODO: Flip y-values in all old autos (pre-August 2023)
 

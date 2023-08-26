@@ -17,13 +17,19 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.claw.MotorClaw;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 import static frc.robot.Constants.PathPlannerConstants.*;
 
 public class PathPlannerAutos {
     private static HashMap<String, PathPlannerTrajectory> cachedPaths = new HashMap<>();
+    private static HashMap<String, Command> events = new HashMap<>();
 
     /**
      * Load the selected path from storage.
@@ -42,6 +48,61 @@ public class PathPlannerAutos {
         cachedPaths.put(pathName, path);
     }
 
+    public static void initEvents(Arm arm, Elevator elevator, MotorClaw claw, SwerveDrivetrain swerveDrive) {
+
+        events.put("ExtendHigh", 
+            Commands.deadline(
+                Commands.waitSeconds(2),
+                Commands.sequence(
+                    Commands.waitSeconds(0.5),
+                    Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmScore)),
+                    Commands.waitSeconds(0.1),
+                    Commands.waitUntil(arm.atTargetPosition)
+                ),
+                Commands.sequence(
+                    Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorScoreHigh)),
+                    Commands.waitSeconds(0.1),
+                    Commands.waitUntil(elevator.atTargetPosition)
+                )
+            )
+        );
+
+        events.put("Outtake",
+            Commands.sequence(
+                claw.setPower(0.7),
+                Commands.waitSeconds(0.2),
+                claw.setPowerZero()
+            )
+        );
+
+        events.put("Intake",
+            Commands.sequence(
+                claw.setPower(-0.3),
+                Commands.waitSeconds(1),
+                claw.setPower(-0.07)
+            )
+        );
+
+
+        events.put("Stow", 
+            Commands.deadline(
+                Commands.waitSeconds(2),
+                Commands.sequence(
+                    Commands.runOnce(() -> arm.setTargetTicks(ArmConstants.kArmStow)),
+                    Commands.waitSeconds(0.1),
+                    Commands.waitUntil(arm.atTargetPosition)
+                    ),
+                Commands.sequence(
+                    Commands.waitSeconds(0.5),
+                    Commands.runOnce(() -> elevator.setTargetTicks(ElevatorConstants.kElevatorStow)),
+                    Commands.waitSeconds(0.1),
+                    Commands.waitUntil(elevator.atTargetPosition)
+                )
+            )
+        );
+        
+    }
+
     /**
      * Create an auto with the selected PathPlanner path.
      * @param pathName
@@ -55,11 +116,6 @@ public class PathPlannerAutos {
         }
 
         PathPlannerTrajectory path = cachedPaths.get(pathName);
-        
-        HashMap<String, Command> events = new HashMap<>() {{
-            // TODO: Add commands here 
-            // put("Command name", Command);
-        }};
         
         // Potential issue: RotationConstants doesn't wrap around
         SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
@@ -117,7 +173,8 @@ public class PathPlannerAutos {
 
         return Commands.sequence(
             Commands.runOnce(() -> swerveDrive.getImu().zeroAll()),
-            autoBuilder.fullAuto(path)
+            autoBuilder.resetPose(path),
+            autoBuilder.followPathWithEvents(path)
             // TODO: Once we get real odometry with vision, get rid of this
             // Commands.runOnce(() -> swerveDrive.setPoseMeters(finalInitialPose2d)),
             // autoCommand
