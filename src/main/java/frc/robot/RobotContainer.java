@@ -297,12 +297,14 @@ public class RobotContainer {
     autoChooser.addOption("LAR Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
     autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, SCORE_POS.HIGH, alliance));
 
-    allianceChooser.setDefaultOption("Red", Alliance.Red);
-    allianceChooser.addOption("Red", Alliance.Red);
-    allianceChooser.addOption("Blue", Alliance.Blue);
-    autosTab.add("Alliance", allianceChooser);
+    autosTab.add(autoChooser);
+    
+    // allianceChooser.setDefaultOption("Red", Alliance.Red);
+    // allianceChooser.addOption("Red", Alliance.Red);
+    // allianceChooser.addOption("Blue", Alliance.Blue);
+    // autosTab.add("Alliance", allianceChooser);
 
-    autosTab.addString("Selected Score Position", () -> scorePos.toString());
+    // autosTab.addString("Selected Score Position", () -> scorePos.toString());
   }
   
   public void initShuffleboard() {
