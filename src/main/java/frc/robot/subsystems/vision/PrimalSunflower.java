@@ -2,6 +2,7 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Arm;
@@ -34,11 +35,14 @@ public class PrimalSunflower {
     private PIDController PIDTX = new PIDController(0, 0, 0);
     private PIDController PIDYaw = new PIDController(0, 0, 0);
 
+    private String llname;
+
     public PrimalSunflower(String limelightName, Arm arm, Elevator elevator, MotorClaw claw, SwerveDrivetrain drivetrain) {
         this.arm = arm;
         this.elevator = elevator;
         this.claw = claw;
         this.drivetrain = drivetrain;
+        this.llname = limelightName;
 
         try {
             limelight = new Limelight(limelightName); //TODO: Change to actual limelight name
@@ -60,15 +64,19 @@ public class PrimalSunflower {
         SmartDashboard.putNumber("Yaw I", 0);
         SmartDashboard.putNumber("Yaw D", 0);
     }
+    
 
     private Double[] generateSun() {
-        if(limelight == null) return new Double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
+        Double[] yee = {0.0, 0.0, 0.0};
+        if(limelight == null) return yee;
+        Pose3d pos = new Pose3d();
         double x = 0.0, y = 0.0, z = 0.0;
-        double roll = 0.0, pitch = 0.0, yaw = 0.0;
-        limelight.getAprilTagID();
+        if(limelight.hasValidTarget()) {
+            pos = LimelightHelpers.getBotPose3d(llname); // Replace w different met.
+            return new Double[]{pos.getX(), pos.getY(), pos.getZ()};
 
-        return new Double[] {x, y, z, roll , pitch, yaw};
+        }
+        return yee;
     }
 
     public Double[] getClosestZombie() {
