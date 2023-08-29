@@ -1,9 +1,11 @@
 package frc.robot.commands;
 
+import java.io.Console;
 import java.util.HashMap;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
@@ -11,6 +13,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,6 +22,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
@@ -30,6 +34,8 @@ import static frc.robot.Constants.PathPlannerConstants.*;
 public class PathPlannerAutos {
     private static HashMap<String, PathPlannerTrajectory> cachedPaths = new HashMap<>();
     private static HashMap<String, Command> events = new HashMap<>();
+
+    public static SwerveAutoBuilder autoBuilder;
 
     /**
      * Load the selected path from storage.
@@ -48,7 +54,15 @@ public class PathPlannerAutos {
         cachedPaths.put(pathName, path);
     }
 
-    public static void initEvents(Arm arm, Elevator elevator, MotorClaw claw, SwerveDrivetrain swerveDrive) {
+    public static void init(Arm arm, Elevator elevator, MotorClaw claw, SwerveDrivetrain swerveDrive) {
+        autoBuilder = new SwerveAutoBuilder(
+            swerveDrive::getPose, 
+            swerveDrive::resetOdometry, 
+            new PIDConstants(ModuleConstants.kPDrive, ModuleConstants.kIDrive, ModuleConstants.kDDrive), 
+            new PIDConstants(ModuleConstants.kPTurning, ModuleConstants.kITurning, ModuleConstants.kDTurning), 
+            swerveDrive::setChassisSpeeds, 
+            events,
+            swerveDrive);
 
         events.put("ExtendHigh", 
             Commands.deadline(
@@ -100,7 +114,14 @@ public class PathPlannerAutos {
                 )
             )
         );
+
+        events.put("Wait3", 
+            Commands.waitSeconds(3)
+        );
         
+        events.put("Print", 
+            new InstantCommand(() -> System.out.println("HELLO WORLD"))
+        ); 
     }
 
     /**
@@ -179,5 +200,9 @@ public class PathPlannerAutos {
             // Commands.runOnce(() -> swerveDrive.setPoseMeters(finalInitialPose2d)),
             // autoCommand
         );
+    }
+
+    public static HashMap<String, Command> getEvents() {
+        return events;
     }
 }

@@ -24,15 +24,15 @@
     },
     {
       "anchorPoint": {
-        "x": 6.0,
+        "x": 6.066357089979137,
         "y": 5.0
       },
       "prevControl": {
-        "x": 5.8281712509047,
+        "x": 5.894528340883837,
         "y": 5.163144056695145
       },
       "nextControl": {
-        "x": 6.214806275766398,
+        "x": 6.2811633657455355,
         "y": 4.796050617742261
       },
       "holonomicAngle": 0,
@@ -41,12 +41,10 @@
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [
-          "Outtake"
-        ],
+        "names": [],
         "executionBehavior": "parallel",
-        "waitBehavior": "minimum",
-        "waitTime": 10.0
+        "waitBehavior": "none",
+        "waitTime": 3.0
       }
     },
     {
@@ -68,8 +66,10 @@
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "Wait3"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -93,7 +93,9 @@
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "Print"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0

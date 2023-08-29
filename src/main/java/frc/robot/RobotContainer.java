@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.ChargeAutos;
+import frc.robot.commands.SquareTest;
 import frc.robot.commands.PathPlannerAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
@@ -255,7 +256,8 @@ public class RobotContainer {
       "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT", "TestSquare", "Test Line", "TestSquare3", "TestSquare4"
     };
 
-    PathPlannerAutos.initEvents(arm, elevator, motorClaw, swerveDrive);
+    PathPlannerAutos.init(arm, elevator, motorClaw, swerveDrive);
+    
 
     for (String path : paths) {
       PathPlannerAutos.initPath(path);
@@ -273,6 +275,7 @@ public class RobotContainer {
     autoChooser.addOption("Path Planner Test3", () -> PathPlannerAutos.pathplannerAuto("Test Line", swerveDrive));
     autoChooser.addOption("Path Planner TestSquare3", () -> PathPlannerAutos.pathplannerAuto("TestSquare3", swerveDrive));
     autoChooser.addOption("Path Planner TestSquare4", () -> PathPlannerAutos.pathplannerAuto("TestSquare4", swerveDrive));
+    autoChooser.addOption("TestSquare 8/28", () -> new SquareTest(PathPlannerAutos.autoBuilder, false));
 
     // TODO: Flip y-values in all old autos (pre-August 2023)
 

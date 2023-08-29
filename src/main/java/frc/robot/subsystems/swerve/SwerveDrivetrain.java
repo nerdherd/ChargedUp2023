@@ -266,6 +266,11 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         backRight.setDesiredState(desiredStates[3]);
     }
 
+    public void setChassisSpeeds(ChassisSpeeds speeds) {
+        SwerveModuleState[] targetStates = SwerveDriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
+        setModuleStates(targetStates);
+    }
+
     public void towModules() {
         frontLeft.setDesiredState(towModuleStates[0], false);
         frontRight.setDesiredState(towModuleStates[1], false);
