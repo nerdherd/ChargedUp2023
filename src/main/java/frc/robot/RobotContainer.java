@@ -257,10 +257,12 @@ public class RobotContainer {
     };
 
     PathPlannerAutos.init(arm, elevator, motorClaw, swerveDrive);
+
     
 
     for (String path : paths) {
       PathPlannerAutos.initPath(path);
+      PathPlannerAutos.initPathGroup(path);
     }
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
 
@@ -275,7 +277,7 @@ public class RobotContainer {
     autoChooser.addOption("Path Planner Test3", () -> PathPlannerAutos.pathplannerAuto("Test Line", swerveDrive));
     autoChooser.addOption("Path Planner TestSquare3", () -> PathPlannerAutos.pathplannerAuto("TestSquare3", swerveDrive));
     autoChooser.addOption("Path Planner TestSquare4", () -> PathPlannerAutos.pathplannerAuto("TestSquare4", swerveDrive));
-    autoChooser.addOption("TestSquare 8/28", () -> new SquareTest(PathPlannerAutos.autoBuilder, false));
+    autoChooser.addOption("TestSquare 8/28", () -> new SquareTest(PathPlannerAutos.autoBuilder));
 
     // TODO: Flip y-values in all old autos (pre-August 2023)
 

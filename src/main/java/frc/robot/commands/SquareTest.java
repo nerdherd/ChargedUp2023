@@ -9,18 +9,12 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.SwerveAutoConstants;
+
 
 public class SquareTest extends SequentialCommandGroup {
-    public SquareTest(SwerveAutoBuilder autoBuilder, boolean isBlue) {
-        List<PathPlannerTrajectory> pathGroup =
-        PathPlanner.loadPathGroup(
-            "TestSquare4",
-            new PathConstraints(SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            new PathConstraints(SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            new PathConstraints(SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            new PathConstraints(SwerveAutoConstants.kMaxSpeedMetersPerSecond, SwerveAutoConstants.kMaxAccelerationMetersPerSecondSquared));
-
+    public SquareTest(SwerveAutoBuilder autoBuilder) {
+        List<PathPlannerTrajectory> pathGroup = PathPlannerAutos.getPathGroup("TestSquare4");
+        
         addCommands(
             Commands.sequence(
                 autoBuilder.resetPose(pathGroup.get(0)),

@@ -1,29 +1,19 @@
 package frc.robot.commands;
 
-import java.io.Console;
 import java.util.HashMap;
+import java.util.List;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
-import com.pathplanner.lib.commands.FollowPathWithEvents;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.ModuleConstants;
-import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.claw.MotorClaw;
@@ -33,6 +23,7 @@ import static frc.robot.Constants.PathPlannerConstants.*;
 
 public class PathPlannerAutos {
     private static HashMap<String, PathPlannerTrajectory> cachedPaths = new HashMap<>();
+    private static HashMap<String, List<PathPlannerTrajectory>> cachedPathGroups = new HashMap<>();
     private static HashMap<String, Command> events = new HashMap<>();
 
     public static SwerveAutoBuilder autoBuilder;
@@ -54,12 +45,43 @@ public class PathPlannerAutos {
         cachedPaths.put(pathName, path);
     }
 
+    public static void initPathGroup(String pathName) {
+        if (cachedPaths.containsKey(pathName)) {
+            DriverStation.reportWarning(String.format("Path '%s' has been loaded more than once.", pathName), true);
+        }
+
+        List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup(pathName, kPPPathConstraints);
+
+        if (path == null || path.size() == 0) {
+            DriverStation.reportWarning(String.format("Path '%s' could not be loaded!", pathName), true);
+        }
+        cachedPathGroups.put(pathName, path);
+    }
+
+    public static List<PathPlannerTrajectory> getPathGroup(String pathNameString) {
+        if (!cachedPathGroups.containsKey(pathNameString)) {
+            DriverStation.reportWarning(String.format("Path '%s' was not pre-loaded into memory, which may cause lag during the Autonomous Period.", pathNameString), true);
+            initPathGroup(pathNameString);
+        }
+        return cachedPathGroups.get(pathNameString);
+        
+    }
+    
+    public static PathPlannerTrajectory getPath(String pathNameString) {
+        if (!cachedPaths.containsKey(pathNameString)) {
+            DriverStation.reportWarning(String.format("Path '%s' was not pre-loaded into memory, which may cause lag during the Autonomous Period.", pathNameString), true);
+            initPath(pathNameString);
+        }
+        return cachedPaths.get(pathNameString);
+        
+    }
+
     public static void init(Arm arm, Elevator elevator, MotorClaw claw, SwerveDrivetrain swerveDrive) {
         autoBuilder = new SwerveAutoBuilder(
             swerveDrive::getPose, 
             swerveDrive::resetOdometry, 
-            new PIDConstants(ModuleConstants.kPDrive, ModuleConstants.kIDrive, ModuleConstants.kDDrive), 
-            new PIDConstants(ModuleConstants.kPTurning, ModuleConstants.kITurning, ModuleConstants.kDTurning), 
+            PathPlannerConstants.kPPTranslationPIDConstants,
+            PathPlannerConstants.kPPRotationPIDConstants,
             swerveDrive::setChassisSpeeds, 
             events,
             swerveDrive);
@@ -138,17 +160,6 @@ public class PathPlannerAutos {
 
         PathPlannerTrajectory path = cachedPaths.get(pathName);
         
-        // Potential issue: RotationConstants doesn't wrap around
-        SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
-            swerveDrive::getPose, 
-            swerveDrive::resetOdometry,
-            SwerveDriveConstants.kDriveKinematics,
-            kPPTranslationPIDConstants,
-            kPPRotationPIDConstants,
-            swerveDrive::setModuleStates,
-            events,
-            kUseAllianceColor,
-            swerveDrive);
         
         // Note: The reason why the commands are manually constructed instead of
         // using SwerveAutoBuilder is because SwerveAutoBuilder doesn't
