@@ -28,7 +28,9 @@ import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.commands.AutoBuildingBlocks;
 import frc.robot.commands.ChargeAutos;
+import frc.robot.commands.SquareTest;
 import frc.robot.commands.PathPlannerAutos;
 import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
@@ -145,6 +147,7 @@ public class RobotContainer {
         swerveDrive,
         () -> -driverController.getLeftY(), // Horizontal translation
         driverController::getLeftX, // Vertical Translation
+        // () -> 0.0, // debug
         driverController::getRightX, // Rotation
         badPS5::getSquareButton, // Field oriented
         badPS5::getL2Button, // Towing
@@ -251,11 +254,16 @@ public class RobotContainer {
   private void initAutoChoosers() {
     // Remember to load the pathplanner paths here
     final String[] paths = {
-      "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT", "TestSquare", "Test Line"
+      "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT", "TestSquare", "Test Line", "TestSquare3", "TestSquare4"
     };
+
+    PathPlannerAutos.init(arm, elevator, motorClaw, swerveDrive);
+
+    AutoBuildingBlocks.init(swerveDrive, arm, elevator, motorClaw);    
 
     for (String path : paths) {
       PathPlannerAutos.initPath(path);
+      PathPlannerAutos.initPathGroup(path);
     }
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
 
@@ -268,6 +276,9 @@ public class RobotContainer {
     autoChooser.addOption("Path Planner TaxiLEFT", () -> PathPlannerAutos.pathplannerAuto("TaxiLEFT", swerveDrive));
     autoChooser.addOption("Path Planner TestSquare", () -> PathPlannerAutos.pathplannerAuto("TestSquare", swerveDrive));
     autoChooser.addOption("Path Planner Test3", () -> PathPlannerAutos.pathplannerAuto("Test Line", swerveDrive));
+    autoChooser.addOption("Path Planner TestSquare3", () -> PathPlannerAutos.pathplannerAuto("TestSquare3", swerveDrive));
+    autoChooser.addOption("Path Planner TestSquare4", () -> PathPlannerAutos.pathplannerAuto("TestSquare4", swerveDrive));
+    autoChooser.addOption("TestSquare 8/28", () -> new SquareTest(PathPlannerAutos.autoBuilder));
 
     // TODO: Flip y-values in all old autos (pre-August 2023)
 
@@ -295,12 +306,14 @@ public class RobotContainer {
     autoChooser.addOption("LAR Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
     autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, SCORE_POS.HIGH, alliance));
 
-    allianceChooser.setDefaultOption("Red", Alliance.Red);
-    allianceChooser.addOption("Red", Alliance.Red);
-    allianceChooser.addOption("Blue", Alliance.Blue);
-    autosTab.add("Alliance", allianceChooser);
+    autosTab.add(autoChooser);
+    
+    // allianceChooser.setDefaultOption("Red", Alliance.Red);
+    // allianceChooser.addOption("Red", Alliance.Red);
+    // allianceChooser.addOption("Blue", Alliance.Blue);
+    // autosTab.add("Alliance", allianceChooser);
 
-    autosTab.addString("Selected Score Position", () -> scorePos.toString());
+    // autosTab.addString("Selected Score Position", () -> scorePos.toString());
   }
   
   public void initShuffleboard() {

@@ -317,7 +317,7 @@ public class CANSwerveModule implements SwerveModule {
                 tab.addNumber("Desired Angle", () -> desiredAngle);
                 tab.addBoolean("Velocity Control", () -> this.velocityControl);
                 tab.addNumber("Angle Difference", () -> desiredAngle - currentAngle);
-                tab.addNumber("Drive Motor Bus Voltage", driveMotor::getBusVoltage);
+                // tab.addNumber("Drive Motor Bus Voltage", driveMotor::getBusVoltage);
             case MINIMAL:
                 break;
         }
