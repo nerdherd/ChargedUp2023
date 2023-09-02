@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
@@ -136,14 +137,6 @@ public class PathPlannerAutos {
                 )
             )
         );
-
-        events.put("Wait3", 
-            Commands.waitSeconds(3)
-        );
-        
-        events.put("Print", 
-            new InstantCommand(() -> System.out.println("HELLO WORLD"))
-        ); 
     }
 
     /**

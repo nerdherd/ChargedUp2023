@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.commands.AutoBuildingBlocks;
 import frc.robot.commands.ChargeAutos;
 import frc.robot.commands.SquareTest;
 import frc.robot.commands.PathPlannerAutos;
@@ -258,7 +259,7 @@ public class RobotContainer {
 
     PathPlannerAutos.init(arm, elevator, motorClaw, swerveDrive);
 
-    
+    AutoBuildingBlocks.init(swerveDrive, arm, elevator, motorClaw);    
 
     for (String path : paths) {
       PathPlannerAutos.initPath(path);
