@@ -56,8 +56,8 @@ public class CANSwerveModule implements SwerveModule {
      */
     public CANSwerveModule(int driveMotorId, int turningMotorId, boolean invertDriveMotor, boolean invertTurningMotor, 
     int CANCoderId, double CANCoderOffsetDegrees, boolean CANCoderReversed) {
-        this.driveMotor = new TalonFX(driveMotorId);
-        this.turnMotor = new TalonFX(turningMotorId);
+        this.driveMotor = new TalonFX(driveMotorId, "CANivore2");
+        this.turnMotor = new TalonFX(turningMotorId, "CANivore2");
 
         this.driveMotor.setNeutralMode(NeutralMode.Coast);
         this.turnMotor.setNeutralMode(NeutralMode.Coast);
@@ -75,7 +75,7 @@ public class CANSwerveModule implements SwerveModule {
 
         this.driveMotor.setInverted(invertDriveMotor);
         this.turnMotor.setInverted(invertTurningMotor);
-        this.canCoder = new CANCoder(CANCoderId);
+        this.canCoder = new CANCoder(CANCoderId, "CANivore2");
         this.invertTurningEncoder = CANCoderReversed;
         this.CANCoderOffsetDegrees = CANCoderOffsetDegrees;
         
