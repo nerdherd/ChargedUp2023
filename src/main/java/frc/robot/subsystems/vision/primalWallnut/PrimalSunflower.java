@@ -70,8 +70,6 @@ public class PrimalSunflower implements Reportable {
     private Limelight limelight;
     private LimelightHelperUser limelightUser;
 
-    private SwerveDrivetrain drivetrain;
-
     private PIDController PIDArea = new PIDController(0, 0, 0);
     private PIDController PIDTX = new PIDController(0, 0, 0);
     private PIDController PIDYaw = new PIDController(0, 0, 0);
@@ -85,7 +83,7 @@ public class PrimalSunflower implements Reportable {
      * limelightName = name of the limelight
      * drivetrain = swerve drive 
     */
-    public PrimalSunflower(String limelightName, SwerveDrivetrain drivetrain) {
+    public PrimalSunflower(String limelightName) {
         // this.drivetrain = drivetrain;   UNCOMMENR LATER
         try {
             SmartDashboard.putBoolean("LimelightHelper inited", true);

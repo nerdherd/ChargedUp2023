@@ -7,10 +7,14 @@ package frc.robot;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.auto.PIDConstants;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -200,6 +204,11 @@ public final class Constants {
   } 
 
   public static final class SwerveDriveConstants {
+    public static final double kVisionSTDx = 0.9;
+    public static final double kVisionSTDy = 0.9;
+    public static final double kVisionSTDtheta = 69696969;
+    public static final Matrix<N3, N1> kBaseVisionPoseSTD = VecBuilder.fill(kVisionSTDx, kVisionSTDy, kVisionSTDtheta);
+
     public static final double kTrackWidth = Units.inchesToMeters(21);      // verify
     // Distance between right and left wheels
     public static final double kWheelBase = Units.inchesToMeters(21);       // verify

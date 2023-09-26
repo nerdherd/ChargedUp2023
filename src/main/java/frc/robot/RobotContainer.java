@@ -105,9 +105,9 @@ public class RobotContainer {
    */
   public RobotContainer() {
     try {
-      swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
+      ps = new PrimalSunflower(VisionConstants.kLimelightName);
+      swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER, ps);
       // vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
-      ps = new PrimalSunflower(VisionConstants.kLimelightName, swerveDrive);
     } catch (IllegalArgumentException e) {
       DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
     }
@@ -323,6 +323,7 @@ public class RobotContainer {
     swerveDrive.initShuffleboard(loggingLevel);
     swerveDrive.initModuleShuffleboard(loggingLevel);
     // vision.initShuffleboard(loggingLevel);
+    ps.initShuffleboard(loggingLevel);
   }
 
   public void reportAllToSmartDashboard() {
@@ -333,6 +334,7 @@ public class RobotContainer {
     arm.reportToSmartDashboard(loggingLevel);
     elevator.reportToSmartDashboard(loggingLevel);
     // vision.reportToSmartDashboard(loggingLevel);
+    ps.reportToSmartDashboard(loggingLevel);
     swerveDrive.reportToSmartDashboard(loggingLevel);
     swerveDrive.reportModulesToSmartDashboard(loggingLevel);
   }

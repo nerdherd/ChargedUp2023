@@ -1,12 +1,15 @@
 package frc.robot.subsystems.swerve;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -16,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.SwerveDriveConstants.CANCoderConstants;
 import frc.robot.subsystems.imu.Gyro;
+import frc.robot.subsystems.vision.primalWallnut.PrimalSunflower;
 import frc.robot.subsystems.Reportable;
 
 import static frc.robot.Constants.SwerveDriveConstants.*;
@@ -27,7 +31,9 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     private final SwerveModule backRight;
 
     private final Gyro gyro;
-    private final SwerveDriveOdometry odometer;
+    // private final SwerveDriveOdometry odometer;
+    private final SwerveDrivePoseEstimator poseEstimator;
+    private final PrimalSunflower sunflower;
     private DRIVE_MODE driveMode = DRIVE_MODE.FIELD_ORIENTED;
 
     private Field2d field;
@@ -48,7 +54,7 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     /**
      * Construct a new {@link SwerveDrivetrain}
      */
-    public SwerveDrivetrain(Gyro gyro, SwerveModuleType moduleType) throws IllegalArgumentException {
+    public SwerveDrivetrain(Gyro gyro, SwerveModuleType moduleType, PrimalSunflower sunflower) throws IllegalArgumentException {
         switch (moduleType) {
             case CANCODER:
                 frontLeft = new CANSwerveModule(
@@ -91,13 +97,16 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
         numEncoderResets = 0;
         resetEncoders();
         this.gyro = gyro;
-        this.odometer = new SwerveDriveOdometry(
-            kDriveKinematics, 
-            new Rotation2d(0), 
-            getModulePositions()); 
+        this.poseEstimator = new SwerveDrivePoseEstimator(kDriveKinematics, gyro.getRotation2d(), getModulePositions(), new Pose2d());
+        this.poseEstimator.setVisionMeasurementStdDevs(kBaseVisionPoseSTD);
+        this.sunflower = sunflower;
+        // this.odometer = new SwerveDriveOdometry(
+        //     kDriveKinematics, 
+        //     new Rotation2d(0), 
+        //     getModulePositions()); 
         
         field = new Field2d();
-        field.setRobotPose(odometer.getPoseMeters());
+        field.setRobotPose(poseEstimator.getEstimatedPosition());
     }
 
     /**
@@ -106,7 +115,13 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
     @Override
     public void periodic() {
         runModules();
-        odometer.update(gyro.getRotation2d(), getModulePositions());
+        // odometer.update(gyro.getRotation2d(), getModulePositions());
+        poseEstimator.update(gyro.getRotation2d(), getModulePositions());
+        Pose3d sunflowerPose3d = sunflower.getPose3d();
+        if (sunflowerPose3d != null) {
+            poseEstimator.addVisionMeasurement(sunflowerPose3d.toPose2d(), Timer.getFPGATimestamp());
+        }
+        field.setRobotPose(poseEstimator.getEstimatedPosition());
     }
     
     //****************************** RESETTERS ******************************/
@@ -117,7 +132,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      * @param pose  A Pose2D representing the pose of the robot
      */
     public void resetOdometry(Pose2d pose) {
-        odometer.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
+        // odometer.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
+        poseEstimator.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
     }
 
     /**
@@ -182,7 +198,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      * @return A pose2d representing the position of the drivetrain
      */
     public Pose2d getPose() {
-        return odometer.getPoseMeters();
+        // return odometer.getPoseMeters();
+        return poseEstimator.getEstimatedPosition();
     }
 
     /**
@@ -278,7 +295,8 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
      * @param pose
      */
     public void setPoseMeters(Pose2d pose) {
-        odometer.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
+        // odometer.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
+        poseEstimator.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
     }
 
     public void initShuffleboard(LOG_LEVEL level) {
@@ -302,8 +320,10 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
             case MEDIUM:
                 tab.addNumber("Encoder Resets", () -> this.numEncoderResets);
             case MINIMAL:
-                tab.addNumber("X Position (m)", () -> odometer.getPoseMeters().getX());
-                tab.addNumber("Y Position (m)", () -> odometer.getPoseMeters().getY());
+                // tab.addNumber("X Position (m)", () -> odometer.getPoseMeters().getX());
+                // tab.addNumber("Y Position (m)", () -> odometer.getPoseMeters().getY());
+                tab.addNumber("X Position (m)", () -> poseEstimator.getEstimatedPosition().getX());
+                tab.addNumber("Y Position (m)", () -> poseEstimator.getEstimatedPosition().getY());
                 tab.addString("Drive Mode", () -> this.driveMode.toString());
                 break;
         }
@@ -328,8 +348,10 @@ public class SwerveDrivetrain extends SubsystemBase implements Reportable {
                 SmartDashboard.putNumber("Encoder Resets", numEncoderResets);
                 SmartDashboard.putData("Zero Modules", Commands.runOnce(this::zeroModules));
             case MINIMAL:
-                SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
-                SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
+                // SmartDashboard.putNumber("Odometer X Meters", odometer.getPoseMeters().getX());
+                // SmartDashboard.putNumber("Odometer Y Meters", odometer.getPoseMeters().getY());
+                SmartDashboard.putNumber("Odometer X Meters", poseEstimator.getEstimatedPosition().getX());
+                SmartDashboard.putNumber("Odometer Y Meters", poseEstimator.getEstimatedPosition().getY());
                 SmartDashboard.putString("Drive Mode", this.driveMode.toString());
                 break;
         }
