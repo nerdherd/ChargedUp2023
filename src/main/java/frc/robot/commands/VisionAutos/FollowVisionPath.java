@@ -2,11 +2,13 @@ package frc.robot.commands.VisionAutos;
 
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.vision.primalWallnut.PrimalSunflower;
 
 public class FollowVisionPath extends CommandBase {
     private SwerveAutoBuilder swerveAutoBuilder;
     private PrimalSunflower sunflower;
+    private SwerveDrivetrain swerveDrive;
 
     /**
      * Construct a new FollowVisionPath command
@@ -16,9 +18,10 @@ public class FollowVisionPath extends CommandBase {
      * @param autoBuilder Swerve Auto Builder for Path Planner
      * @param sunflower   Primal Sunflower
      */
-    public FollowVisionPath(SwerveAutoBuilder autoBuilder, PrimalSunflower sunflower) {
+    public FollowVisionPath(SwerveDrivetrain swerveDrive, SwerveAutoBuilder autoBuilder, PrimalSunflower sunflower) {
         this.swerveAutoBuilder = autoBuilder;
         this.sunflower = sunflower;
+        this.swerveDrive = swerveDrive;
     }
 
     @Override
@@ -26,7 +29,7 @@ public class FollowVisionPath extends CommandBase {
 
     @Override
     public void execute() {
-        swerveAutoBuilder.followPathWithEvents(sunflower.toNearestGrid());
+        swerveAutoBuilder.followPathWithEvents(sunflower.toNearestGrid(swerveDrive));
     }
 
     @Override

@@ -48,6 +48,7 @@ import frc.robot.subsystems.vision.primalWallnut.PrimalSunflower;
 // import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
 // import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
+import frc.robot.commands.VisionAutos.FollowVisionPath;
 import frc.robot.commands.VisionAutos.ToNearestGridDebug;
 
 /**
@@ -216,7 +217,8 @@ public class RobotContainer {
     // driverController.PS().onTrue(new InstantCommand(() -> swerveDrive.resetOdometry(new Pose2d())));
     // driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive)); // Replaced with turn to angles in the drive command
     // driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
-    driverController.L1().whileTrue(new ToNearestGridDebug(swerveDrive, ps));
+    // driverController.L1().whileTrue(new ToNearestGridDebug(swerveDrive, ps));
+    driverController.L1().whileTrue(new FollowVisionPath(swerveDrive, PathPlannerAutos.autoBuilder, ps));
     
     driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
     driverController.circle()
@@ -260,8 +262,11 @@ public class RobotContainer {
       "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT", "TestSquare", "Test Line"
     };
 
+    PathPlannerAutos.init(swerveDrive);
+
     for (String path : paths) {
       PathPlannerAutos.initPath(path);
+      PathPlannerAutos.initPathGroup(path);
     }
     ShuffleboardTab autosTab = Shuffleboard.getTab("Autos");
 

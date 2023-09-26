@@ -174,13 +174,14 @@ public class PrimalSunflower implements Reportable {
     /**
      * @return PathPlannerTrajectory to get to the closest grid
      */
-    public PathPlannerTrajectory toNearestGrid() {
+    public PathPlannerTrajectory toNearestGrid(SwerveDrivetrain swerveDrive) {
         robotPos = generateSun();
         Double[] gridPos = getClosestZombieTile();
 
         return PathPlanner.generatePath(
             PathPlannerConstants.kPPPathConstraints,
             List.of(
+                new PathPoint(swerveDrive.getPose().getTranslation(), swerveDrive.getPose().getRotation()),
                 new PathPoint(new Translation2d(gridPos[0], gridPos[1]), Rotation2d.fromDegrees(180))
             )
         );
