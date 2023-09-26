@@ -156,6 +156,12 @@ public final class Constants {
     public static final double kCameraPitchRadians = Units.degreesToRadians(30);
     public static final double kGoalRangeMeters = Units.inchesToMeters(0);
     public static final double kAreaConstant = 0;
+
+    public static final String kLimelightName = "limelight-high";
+    public static final int kAprilTagPipeline = 4;
+    public static final double kSlidingOffset = 0.4; // Meters away from grid while robot is sliding.
+    public static final double fieldXOffset = 8; // Guess
+    public static final double fieldYOffset = 3.5; // Guess
   }
 
   public static final class TankAutoConstants {
@@ -398,19 +404,37 @@ public final class Constants {
     public static final int kPressureSensorPort = 2;
   }
 
+  // public static final class PathPlannerConstants {
+  //   private static final double kPPMaxVelocity = 1;
+  //   private static final double kPPMaxAcceleration = 1;
+  //   public static final PathConstraints kPPPathConstraints = new PathConstraints(kPPMaxVelocity, kPPMaxAcceleration);
+
+  //   public static final double kPP_P = 0.25;
+  //   public static final double kPP_I = 0;
+  //   public static final double kPP_D = 0;
+  //   public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
+
+  //   public static final double kPP_ThetaP = 0.25;
+  //   public static final double kPP_ThetaI = 0;
+  //   public static final double kPP_ThetaD = 0;
+  //   public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
+
+  //   public static final boolean kUseAllianceColor = true;
+  // }
+
   public static final class PathPlannerConstants {
-    private static final double kPPMaxVelocity = 1;
-    private static final double kPPMaxAcceleration = 1;
+    public static final double kPPMaxVelocity = 3;
+    public static final double kPPMaxAcceleration = 3;
     public static final PathConstraints kPPPathConstraints = new PathConstraints(kPPMaxVelocity, kPPMaxAcceleration);
 
-    public static final double kPP_P = 0.25;
-    public static final double kPP_I = 0;
-    public static final double kPP_D = 0;
+    public static final double kPP_P = new PrefDouble("PP_kP", 0.25).get();
+    public static final double kPP_I = new PrefDouble("PP_kI", 0.0).get();
+    public static final double kPP_D = new PrefDouble("PP_kD", 0.0).get();
     public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
 
-    public static final double kPP_ThetaP = 0.25;
-    public static final double kPP_ThetaI = 0;
-    public static final double kPP_ThetaD = 0;
+    public static final double kPP_ThetaP = new PrefDouble("PP_kThetaP", 0.25).get();
+    public static final double kPP_ThetaI = new PrefDouble("PP_kThetaI", 0).get();
+    public static final double kPP_ThetaD = new PrefDouble("PP_kThetaD", 0).get();
     public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
 
     public static final boolean kUseAllianceColor = true;
