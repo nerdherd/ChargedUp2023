@@ -1,4 +1,4 @@
-package frc.robot.filters;
+package frc.robot.util.filters;
 
 /**
  * Raises an input to a power.

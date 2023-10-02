@@ -1,4 +1,4 @@
-package frc.robot.filters;
+package frc.robot.util.filters;
 
 import java.util.function.Function;
 

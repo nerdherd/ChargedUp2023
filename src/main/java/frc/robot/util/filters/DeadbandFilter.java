@@ -1,4 +1,4 @@
-package frc.robot.filters;
+package frc.robot.util.filters;
 
 public class DeadbandFilter implements Filter {
     private double deadband;

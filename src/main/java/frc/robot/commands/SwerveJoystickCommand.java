@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SwerveAutoConstants;
 import frc.robot.Constants.SwerveDriveConstants;
-import frc.robot.filters.Filter;
-import frc.robot.filters.NewDriverFilter;
+import frc.robot.util.filters.Filter;
+import frc.robot.filters.OldDriverFilter2;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 
@@ -77,21 +77,21 @@ public class SwerveJoystickCommand extends CommandBase {
         this.turnToAngleSupplier = turnToAngleSupplier;
         this.desiredAngle = desiredAngleSupplier;
 
-        this.xFilter = new NewDriverFilter(
+        this.xFilter = new OldDriverFilter2(
             ControllerConstants.kDeadband, 
             kMinimumMotorOutput,
             kTeleDriveMaxSpeedMetersPerSecond, 
             kDriveAlpha, 
             kTeleMaxAcceleration, 
             kTeleMaxDeceleration);
-        this.yFilter = new NewDriverFilter(
+        this.yFilter = new OldDriverFilter2(
             ControllerConstants.kDeadband, 
             kMinimumMotorOutput,
             kTeleDriveMaxSpeedMetersPerSecond, 
             kDriveAlpha, 
             kTeleMaxAcceleration, 
             kTeleMaxDeceleration);
-        this.turningFilter = new NewDriverFilter(
+        this.turningFilter = new OldDriverFilter2(
             ControllerConstants.kRotationDeadband, 
             kMinimumMotorOutput,
             kTeleDriveMaxAngularSpeedRadiansPerSecond, 
@@ -109,7 +109,7 @@ public class SwerveJoystickCommand extends CommandBase {
             SwerveAutoConstants.kTurnToAnglePositionToleranceAngle, 
             SwerveAutoConstants.kTurnToAngleVelocityToleranceAnglesPerSec * 0.02);
         
-        this.turnToAngleController.enableContinuousInput(0, 360);
+        this.turnToAngleController.enableContinuousInput(-180, 180);
 
         addRequirements(swerveDrive);
     }
@@ -135,6 +135,9 @@ public class SwerveJoystickCommand extends CommandBase {
 
         // Turn to angle
         if (turnToAngleSupplier.get()) {
+            // turnToAngleController.setP(SmartDashboard.getNumber("kP Theta Teleop", SwerveAutoConstants.kPTurnToAngle));
+            // turnToAngleController.setI(SmartDashboard.getNumber("kI Theta Teleop", SwerveAutoConstants.kITurnToAngle));
+            // turnToAngleController.setD(SmartDashboard.getNumber("kD Theta Teleop", SwerveAutoConstants.kDTurnToAngle));
             double targetAngle = desiredAngle.get();
             turningSpeed = turnToAngleController.calculate(swerveDrive.getImu().getHeading(), targetAngle);
             turningSpeed = Math.toRadians(turningSpeed);

@@ -1,4 +1,4 @@
-package frc.robot.filters;
+package frc.robot.util.filters;
 
 public class CubicFilter extends PowerFilter {
     public CubicFilter() {
