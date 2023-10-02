@@ -29,11 +29,8 @@ import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.commands.ChargeAutos;
-import frc.robot.commands.PathPlannerAutos;
 // import frc.robot.commands.SwerveAutos;
 import frc.robot.commands.SwerveJoystickCommand;
-import frc.robot.commands.TestAutos;
 import frc.robot.commands.TheGreatBalancingAct;
 // import frc.robot.commands.VisionAllLowAuto;
 // import frc.robot.commands.VisionCableSideAuto;
@@ -50,6 +47,9 @@ import frc.robot.subsystems.vision.primalWallnut.PrimalSunflower;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.commands.VisionAutos.FollowVisionPath;
 import frc.robot.commands.VisionAutos.ToNearestGridDebug;
+import frc.robot.commands.autos.PathPlannerAutos;
+import frc.robot.commands.oldautos.ChargeAutos;
+import frc.robot.commands.oldautos.TestAutos;
 
 /**
  * This class is where the bulk of the robot should be declared. Since

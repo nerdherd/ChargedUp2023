@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.oldautos;
 
 import java.util.List;
 
@@ -18,6 +18,8 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.commands.TheGreatBalancingAct;
+import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.claw.MotorClaw;

@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.oldautos;
 
 import java.util.List;
 
@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.commands.TheGreatBalancingAct;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.claw.MotorClaw;
