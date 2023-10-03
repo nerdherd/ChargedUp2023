@@ -3,12 +3,12 @@
     {
       "anchorPoint": {
         "x": 1.75,
-        "y": 4.9
+        "y": 4.75
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7404823644742,
-        "y": 4.9
+        "x": 2.750000000000001,
+        "y": 4.75
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -16,41 +16,37 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "ScorePreload"
-        ],
+        "names": [],
         "executionBehavior": "parallel",
-        "waitBehavior": "deadline",
-        "waitTime": 2.0
+        "waitBehavior": "none",
+        "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 5.25,
-        "y": 4.9
+        "x": 6.5,
+        "y": 4.75
       },
       "prevControl": {
-        "x": 5.795094552669192,
-        "y": 4.9
+        "x": 5.5,
+        "y": 4.75
       },
       "nextControl": null,
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "Charge"
-        ],
+        "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "maxVelocity": 0.01,
-  "maxAcceleration": null,
+  "maxVelocity": 5.0,
+  "maxAcceleration": 5.0,
   "isReversed": null,
   "markers": []
 }

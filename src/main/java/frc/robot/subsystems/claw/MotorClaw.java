@@ -72,7 +72,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
   public CommandBase outtake() {
     return sequence(
       setPower(ClawConstants.kOuttakePower),
-      waitSeconds(0.25),
+      waitSeconds(0.2),
       setPowerZero()
     );
   }
@@ -80,7 +80,7 @@ public class MotorClaw extends SubsystemBase implements Reportable {
   public CommandBase intake() {
     return sequence(
       setPower(ClawConstants.kIntakePower),
-      waitSeconds(0.25),
+      waitSeconds(0.2),
       setPower(ClawConstants.kIntakeNeutralPower)
     );
   }

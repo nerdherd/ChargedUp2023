@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
@@ -47,7 +49,12 @@ import frc.robot.subsystems.vision.primalWallnut.PrimalSunflower;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
 import frc.robot.commands.VisionAutos.FollowVisionPath;
 import frc.robot.commands.VisionAutos.ToNearestGridDebug;
+import frc.robot.commands.autos.OnePiecePickup;
+import frc.robot.commands.autos.OnePiecePickupSwerving;
 import frc.robot.commands.autos.PathPlannerAutos;
+import frc.robot.commands.autos.TurnLineTest;
+import frc.robot.commands.autos.TwoPieceFlat;
+import frc.robot.commands.autos.TwoPieceFlatSwerving;
 import frc.robot.commands.oldautos.ChargeAutos;
 import frc.robot.commands.oldautos.TestAutos;
 
@@ -259,7 +266,7 @@ public class RobotContainer {
   private void initAutoChoosers() {
     // Remember to load the pathplanner paths here
     final String[] paths = {
-      "TestPath", "ChargeAroundLEFT", "TaxiRIGHT", "TaxiLEFT", "TestSquare", "Test Line"
+      "TwoPiece", "TwoPieceSwerving", "TurnLineTest"
     };
 
     PathPlannerAutos.init(swerveDrive);
@@ -272,13 +279,14 @@ public class RobotContainer {
 
     // New PathPlanner Autos
 
+    SwerveAutoBuilder autoBuilder = PathPlannerAutos.autoBuilder;
+
     autoChooser.addOption("Do Nothing", Commands::none);
-    autoChooser.addOption("Path Planner Test Auto", () -> PathPlannerAutos.pathplannerAuto("TestPath", swerveDrive));
-    autoChooser.addOption("Path Planner Charge Around LEFT", () -> PathPlannerAutos.pathplannerAuto("ChargeAroundLEFT", swerveDrive));
-    autoChooser.addOption("Path Planner TaxiRIGHT", () -> PathPlannerAutos.pathplannerAuto("TaxiRIGHT", swerveDrive));
-    autoChooser.addOption("Path Planner TaxiLEFT", () -> PathPlannerAutos.pathplannerAuto("TaxiLEFT", swerveDrive));
-    autoChooser.addOption("Path Planner TestSquare", () -> PathPlannerAutos.pathplannerAuto("TestSquare", swerveDrive));
-    autoChooser.addOption("Path Planner Test3", () -> PathPlannerAutos.pathplannerAuto("Test Line", swerveDrive));
+    autoChooser.addOption("TurnLineTest", () -> new TurnLineTest(autoBuilder, swerveDrive));
+    autoChooser.addOption("OnePiecePickup", () -> new OnePiecePickup(autoBuilder, swerveDrive, arm, elevator, motorClaw));
+    autoChooser.addOption("OnePiecePickupSwerving", () -> new OnePiecePickupSwerving(autoBuilder, swerveDrive, arm, elevator, motorClaw));
+    autoChooser.addOption("TwoPieceFlat", () -> new TwoPieceFlat(autoBuilder, swerveDrive, arm, elevator, motorClaw));
+    autoChooser.addOption("TwoPieceFlatSwerving", () -> new TwoPieceFlatSwerving(autoBuilder, swerveDrive, arm, elevator, motorClaw));
 
     // TODO: Flip y-values in all old autos (pre-August 2023)
 

@@ -94,8 +94,8 @@ public final class Constants {
     public static final int kTopMotorID = 61;
     public static final int kBottomMotorID = 62;
     public static final double kIntakePower = -0.3;
-    public static final double kOuttakePower = 0.5;
-    public static final double kIntakeNeutralPower = -0.25;
+    public static final double kOuttakePower = 0.7;
+    public static final double kIntakeNeutralPower = -0.07;
     public static final int kMainMotorID = 61;
   }
 
