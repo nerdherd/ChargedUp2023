@@ -11,7 +11,7 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 public class TurnLineTest extends SequentialCommandGroup {
     public TurnLineTest(SwerveAutoBuilder autoBuilder, SwerveDrivetrain swerve) {        
-        List<PathPlannerTrajectory> pathGroup = PathPlannerAutos.getPathGroup("OnePiecePickup");
+        List<PathPlannerTrajectory> pathGroup = PathPlannerAutos.getPathGroup("TurnLineTest");
 
         addCommands(
             Commands.runOnce(swerve.getImu()::zeroAll),
