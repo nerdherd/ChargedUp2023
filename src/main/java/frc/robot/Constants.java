@@ -276,10 +276,10 @@ public final class Constants {
       public static final double kBLCANCoderOffsetDegrees = 105.293;          
       public static final double kBRCANCoderOffsetDegrees = 180.176 - 180; // 1.406
 
-      public static final PrefDouble kFROffsetDeg = new PrefDouble("kFROffsetDeg", 251);
-      public static final PrefDouble kFLOffsetDeg = new PrefDouble("kFLOffsetDeg", 67);
-      public static final PrefDouble kBLOffsetDeg = new PrefDouble("kBLOffsetDeg", 106);
-      public static final PrefDouble kBROffsetDeg = new PrefDouble("kBROffsetDeg", 2.5);
+      public static final PrefDouble kFROffsetDeg = new PrefDouble("kFROffsetDeg", 184);
+      public static final PrefDouble kFLOffsetDeg = new PrefDouble("kFLOffsetDeg", 106);
+      public static final PrefDouble kBLOffsetDeg = new PrefDouble("kBLOffsetDeg", 248);
+      public static final PrefDouble kBROffsetDeg = new PrefDouble("kBROffsetDeg", 253.5);
     }
 
 

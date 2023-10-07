@@ -289,7 +289,9 @@ public class RobotContainer {
     autoChooser.addOption("Smooth Low Cube Auto", () -> VisionAllLowAuto.ThreeCubesAutoFast(swerveDrive, vision, arm, elevator, motorClaw, alliance));
     autoChooser.addOption("Cable Low Cube Auto", () -> VisionCableSideAuto.LowAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
     autoChooser.addOption("Cable High Cube Auto", () -> VisionCableSideAuto.HighAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
-
+    
+    //Temporary set default bc options aren't showing up
+    autoChooser.setDefaultOption("Preload Charge", () -> ChargeAutos.preloadHighChargeMiddle(swerveDrive, arm, elevator, motorClaw));
 
     // Have alliance parameter but do not use it.
     autoChooser.addOption("LAR Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
@@ -298,9 +300,9 @@ public class RobotContainer {
     allianceChooser.setDefaultOption("Red", Alliance.Red);
     allianceChooser.addOption("Red", Alliance.Red);
     allianceChooser.addOption("Blue", Alliance.Blue);
-    autosTab.add("Alliance", allianceChooser);
-
-    autosTab.addString("Selected Score Position", () -> scorePos.toString());
+    // autosTab.add("Alliance", allianceChooser);
+    autosTab.add("Auto Chooser", autoChooser);
+    // autosTab.addString("Selected Score Position", () -> scorePos.toString());
   }
   
   public void initShuffleboard() {
