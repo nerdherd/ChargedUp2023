@@ -58,10 +58,10 @@ import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
  */// 10.6.87.98:5800
 public class RobotContainer {
 
-  public Arm arm = new Arm();
-  public Elevator elevator = new Elevator();
-  public MotorClaw motorClaw = new MotorClaw();
-  public Gyro imu = new NavX();
+  public Arm arm;
+  public Elevator elevator;
+  public MotorClaw motorClaw;
+  public Gyro imu;
   // public Gyro imu = new Pigeon(60);
   public SwerveDrivetrain swerveDrive;
   public VROOOOM vision;
@@ -102,13 +102,13 @@ public class RobotContainer {
   public RobotContainer() {
     try {
       swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
-      vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+      // vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
     } catch (IllegalArgumentException e) {
       DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
     }
 
     // Initialize vision after swerve has been initialized
-    vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+    // vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
 
     // this.alliance = DriverStation.getAlliance();
     initAutoChoosers();
