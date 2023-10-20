@@ -75,7 +75,7 @@ public class RobotContainer {
   private final PS4Controller badPS4 = operatorController.getHID();
   // private final Joystick joystick = new Joystick(2);
 
-  private final LOG_LEVEL loggingLevel = LOG_LEVEL.ALL;
+  private final LOG_LEVEL loggingLevel = LOG_LEVEL.OFF;
 
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);
@@ -125,7 +125,7 @@ public class RobotContainer {
     arm.setDefaultCommand(
       new RunCommand(
         () -> {
-          arm.moveArmMotionMagicJoystick(operatorController.getLeftY(), elevator.percentExtended());
+          // arm.moveArmMotionMagicJoystick(operatorController.getLeftY(), elevator.percentExtended());
           // SmartDashboard.putNumber("Arm input", operatorController.getLeftY());
         }, 
         arm
@@ -134,7 +134,7 @@ public class RobotContainer {
     elevator.setDefaultCommand(
       new RunCommand(
         () -> {
-          elevator.moveElevatorJoystick(operatorController.getRightY() * -0.125, arm.getArmAngle());
+          // elevator.moveElevatorJoystick(operatorController.getRightY() * -0.125, arm.getArmAngle());
           // SmartDashboard.putNumber("Elevator input", operatorController.getRightY());
         }, 
         elevator
@@ -143,9 +143,9 @@ public class RobotContainer {
     swerveDrive.setDefaultCommand(
       new SwerveJoystickCommand(
         swerveDrive,
-        () -> -driverController.getLeftY(), // Horizontal translation
-        driverController::getLeftX, // Vertical Translation
-        driverController::getRightX, // Rotation
+        () -> -driverController.getLeftY() + 0.2, // Horizontal translation
+        () -> driverController.getLeftX() - 0.2, // Vertical Translation
+        () -> driverController.getRightX() - 0.2, // Rotation
         badPS5::getSquareButton, // Field oriented
         badPS5::getL2Button, // Towing
         // Dodge
@@ -179,26 +179,26 @@ public class RobotContainer {
     // These button bindings are chosen for testing, and may be changed based on
     // driver preference
     
-    upButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmStow)))
-      .onFalse(Commands.runOnce(arm::stopArm));
-    leftButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmScore)))
-      .onFalse(Commands.runOnce(arm::stopArm));
-    rightButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmSubstation)))
-      .onFalse(Commands.runOnce(arm::stopArm));
-    downButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmGroundPickup)))
-      .onFalse(Commands.runOnce(arm::stopArm));
+    // upButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmStow)))
+    //   .onFalse(Commands.runOnce(arm::stopArm));
+    // leftButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmScore)))
+    //   .onFalse(Commands.runOnce(arm::stopArm));
+    // rightButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmSubstation)))
+    //   .onFalse(Commands.runOnce(arm::stopArm));
+    // downButton.whileTrue(new InstantCommand(() -> arm.moveArmMotionMagicButton(ArmConstants.kArmGroundPickup)))
+    //   .onFalse(Commands.runOnce(arm::stopArm));
     
-    operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm::getArmAngle))
-      .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.square().whileTrue(elevator.moveElevatorMid(arm::getArmAngle))
-      .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.circle().whileTrue(elevator.moveElevator(ElevatorConstants.kElevatorSubstation, arm::getArmAngle))
-      .onFalse(Commands.runOnce(elevator::setPowerZero));
-    operatorController.cross().whileTrue(elevator.moveElevatorStow(arm::getArmAngle))
-      .onFalse(Commands.runOnce(elevator::setPowerZero));
+    // operatorController.triangle().whileTrue(elevator.moveElevatorHigh(arm::getArmAngle))
+    //   .onFalse(Commands.runOnce(elevator::setPowerZero));
+    // operatorController.square().whileTrue(elevator.moveElevatorMid(arm::getArmAngle))
+    //   .onFalse(Commands.runOnce(elevator::setPowerZero));
+    // operatorController.circle().whileTrue(elevator.moveElevator(ElevatorConstants.kElevatorSubstation, arm::getArmAngle))
+    //   .onFalse(Commands.runOnce(elevator::setPowerZero));
+    // operatorController.cross().whileTrue(elevator.moveElevatorStow(arm::getArmAngle))
+    //   .onFalse(Commands.runOnce(elevator::setPowerZero));
   
-    operatorController.share().onTrue(Commands.runOnce(arm::resetEncoderStow));
-    operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
+    // operatorController.share().onTrue(Commands.runOnce(arm::resetEncoderStow));
+    // operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
     
     operatorController.L1().whileTrue(motorClaw.setPower(0.8))
         .onFalse(motorClaw.setPowerZero());
