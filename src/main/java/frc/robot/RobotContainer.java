@@ -10,6 +10,8 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Reportable.LOG_LEVEL;
+import frc.robot.subsystems.claw.Claw;
+import frc.robot.subsystems.claw.ConeRunner;
 import frc.robot.subsystems.claw.MotorClaw;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -60,7 +62,7 @@ public class RobotContainer {
 
   public Arm arm = new Arm();
   public Elevator elevator = new Elevator();
-  public MotorClaw motorClaw = new MotorClaw();
+  public Claw motorClaw = new Claw();
   public Gyro imu = new NavX();
   // public Gyro imu = new Pigeon(60);
   public SwerveDrivetrain swerveDrive;
@@ -102,13 +104,13 @@ public class RobotContainer {
   public RobotContainer() {
     try {
       swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER);
-      vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+      // vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
     } catch (IllegalArgumentException e) {
       DriverStation.reportError("Illegal Swerve Drive Module Type", e.getStackTrace());
     }
 
     // Initialize vision after swerve has been initialized
-    vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
+    // vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
 
     // this.alliance = DriverStation.getAlliance();
     initAutoChoosers();
@@ -200,10 +202,10 @@ public class RobotContainer {
     operatorController.share().onTrue(Commands.runOnce(arm::resetEncoderStow));
     operatorController.options().onTrue(Commands.runOnce(elevator::resetEncoder));
     
-    operatorController.L1().whileTrue(motorClaw.setPower(0.8))
-        .onFalse(motorClaw.setPowerZero());
-    operatorController.R1().whileTrue(motorClaw.setPower(-.3))
-        .onFalse(motorClaw.setPower(-0.07));
+    // operatorController.L1().whileTrue(motorClaw.setPower(0.8))
+    //     .onFalse(motorClaw.setPowerZero());
+    // operatorController.R1().whileTrue(motorClaw.setPower(-.3))
+    //     .onFalse(motorClaw.setPower(-0.07));
 
     driverController.share().onTrue(new InstantCommand(imu::zeroHeading));
     driverController.options().onTrue(new InstantCommand(swerveDrive::resetEncoders));
@@ -221,13 +223,13 @@ public class RobotContainer {
     // driverController.R2().whileTrue(new Dodge(swerveDrive, -driverController.getLeftY(), driverController.getLeftX(), false));
 
     // ====== Vision Bindings ====== 
-    driverController.cross().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CONE))
-      .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
+    // driverController.cross().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CONE))
+      // .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
     // driverController.R2().whileTrue(vision.VisionPickupOnSubstation(OBJECT_TYPE.CUBE))
     //   .onFalse(Commands.runOnce(swerveDrive::stopModules, swerveDrive));
 
-    operatorController.L2().whileTrue(vision.VisionPickupOnGround(OBJECT_TYPE.CUBE));
-    operatorController.R2().whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH));
+    // operatorController.L2().whileTrue(vision.VisionPickupOnGround(OBJECT_TYPE.CUBE));
+    // operatorController.R2().whileTrue(vision.VisionScore(OBJECT_TYPE.CUBE, SCORE_POS.HIGH));
 
     //operatorController.L2().onTrue(vision.updateCurrentGameObjects(OBJECT_TYPE.CONE));
     //operatorController.R2().onTrue(vision.updateCurrentGameObject(OBJECT_TYPE.CUBE));
@@ -272,9 +274,9 @@ public class RobotContainer {
     // TODO: Flip y-values in all old autos (pre-August 2023)
 
     // No alliance parameter.
-    autoChooser.addOption("Preload Charge", () -> ChargeAutos.preloadHighChargeMiddle(swerveDrive, arm, elevator, motorClaw)); // Same as preload charge auto
-    autoChooser.addOption("Preload Slow taxi charge", () -> TestAutos.preloadTaxiChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
-    autoChooser.addOption("Preload Slow charge", () -> TestAutos.preloadChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
+    // autoChooser.addOption("Preload Charge", () -> ChargeAutos.preloadHighChargeMiddle(swerveDrive, arm, elevator, motorClaw)); // Same as preload charge auto
+    // autoChooser.addOption("Preload Slow taxi charge", () -> TestAutos.preloadTaxiChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
+    // autoChooser.addOption("Preload Slow charge", () -> TestAutos.preloadChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
     // autoChooser.addOption("Slow charge", () -> TestAutos.chargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
     // autoChooser.addOption("Slow taxi charge", () -> TestAutos.taxiChargeBackwardsSLOW(swerveDrive, motorClaw, arm, elevator));
     
@@ -286,14 +288,14 @@ public class RobotContainer {
     // Has and uses alliance parameter.
     // autoChooser.addOption("Vision Two Piece Smooth (Alliance)", () -> VisionAutos.zoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
     // autoChooser.addOption("Vision Two Piece Cable (Alliance)", () -> VisionAutos.cableZoomTwoPieceAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
-    autoChooser.addOption("Smooth Low Cube Auto", () -> VisionAllLowAuto.ThreeCubesAutoFast(swerveDrive, vision, arm, elevator, motorClaw, alliance));
-    autoChooser.addOption("Cable Low Cube Auto", () -> VisionCableSideAuto.LowAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
-    autoChooser.addOption("Cable High Cube Auto", () -> VisionCableSideAuto.HighAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    // autoChooser.addOption("Smooth Low Cube Auto", () -> VisionAllLowAuto.ThreeCubesAutoFast(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    // autoChooser.addOption("Cable Low Cube Auto", () -> VisionCableSideAuto.LowAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
+    // autoChooser.addOption("Cable High Cube Auto", () -> VisionCableSideAuto.HighAuto(swerveDrive, vision, arm, elevator, motorClaw, alliance));
 
 
     // Have alliance parameter but do not use it.
-    autoChooser.addOption("LAR Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
-    autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, SCORE_POS.HIGH, alliance));
+    // autoChooser.addOption("LAR Auto", () -> SwerveAutos.preloadChargeAuto(swerveDrive, arm, elevator, motorClaw, StartPosition.MIDDLE, SCORE_POS.HIGH, 0, false, alliance));
+    // autoChooser.addOption("Preload Taxi Auto", () -> SwerveAutos.preloadBackwardAuto(swerveDrive, arm, elevator, motorClaw, SCORE_POS.HIGH, alliance));
 
     allianceChooser.setDefaultOption("Red", Alliance.Red);
     allianceChooser.addOption("Red", Alliance.Red);
@@ -316,7 +318,7 @@ public class RobotContainer {
     motorClaw.initShuffleboard(loggingLevel);
     swerveDrive.initShuffleboard(loggingLevel);
     swerveDrive.initModuleShuffleboard(loggingLevel);
-    vision.initShuffleboard(loggingLevel);
+    // vision.initShuffleboard(loggingLevel);
   }
 
   public void reportAllToSmartDashboard() {
@@ -326,7 +328,7 @@ public class RobotContainer {
     motorClaw.reportToSmartDashboard(loggingLevel);
     arm.reportToSmartDashboard(loggingLevel);
     elevator.reportToSmartDashboard(loggingLevel);
-    vision.reportToSmartDashboard(loggingLevel);
+    // vision.reportToSmartDashboard(loggingLevel);
     swerveDrive.reportToSmartDashboard(loggingLevel);
     swerveDrive.reportModulesToSmartDashboard(loggingLevel);
   }
