@@ -11,6 +11,7 @@ public interface SwerveModule extends Reportable {
     
     public double getDrivePosition();
     public double getTurningPosition();
+    public double getTurningPositionDegrees();
     public double getDriveVelocity();
     public double getTurningVelocity();
     public SwerveModuleState getState();

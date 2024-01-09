@@ -43,12 +43,11 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.DRIVE_MODE;
 import frc.robot.subsystems.swerve.SwerveDrivetrain.SwerveModuleType;
 import frc.robot.subsystems.vision.primalWallnut.PrimalSunflower;
+// import frc.robot.subsystems.vision.primalWallnut.PrimalSunflower;
 // import frc.robot.subsystems.vision.VROOOOM;
 // import frc.robot.subsystems.vision.VROOOOM.OBJECT_TYPE;
 // import frc.robot.subsystems.vision.VROOOOM.SCORE_POS;
 import frc.robot.commands.SwerveJoystickCommand.DodgeDirection;
-import frc.robot.commands.VisionAutos.FollowVisionPath;
-import frc.robot.commands.VisionAutos.ToNearestGridDebug;
 import frc.robot.commands.autos.OnePiecePickup;
 import frc.robot.commands.autos.OnePiecePickupSwerving;
 import frc.robot.commands.autos.PathPlannerAutos;
@@ -87,7 +86,7 @@ public class RobotContainer {
   private final PS4Controller badPS4 = operatorController.getHID();
   // private final Joystick joystick = new Joystick(2);
 
-  private final LOG_LEVEL loggingLevel = LOG_LEVEL.ALL;
+  private final LOG_LEVEL loggingLevel = LOG_LEVEL.MINIMAL;
 
   private final POVButton upButton = new POVButton(badPS4, 0);
   private final POVButton rightButton = new POVButton(badPS4, 90);
@@ -113,7 +112,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     try {
-      ps = new PrimalSunflower(VisionConstants.kLimelightName);
+      ps = new PrimalSunflower(VisionConstants.kLimelightName, 0.7);
       swerveDrive = new SwerveDrivetrain(imu, SwerveModuleType.CANCODER, ps);
       // vision = new VROOOOM(arm, elevator, motorClaw, swerveDrive);
     } catch (IllegalArgumentException e) {
@@ -225,7 +224,7 @@ public class RobotContainer {
     // driverController.R1().whileTrue(new TurnToAngle(180, swerveDrive)); // Replaced with turn to angles in the drive command
     // driverController.L1().whileTrue(new TurnToAngle(0, swerveDrive));
     // driverController.L1().whileTrue(new ToNearestGridDebug(swerveDrive, ps));
-    driverController.L1().whileTrue(new FollowVisionPath(swerveDrive, PathPlannerAutos.autoBuilder, ps));
+    // driverController.L1().whileTrue(new FollowVisionPath(swerveDrive, PathPlannerAutos.autoBuilder, ps));
     
     driverController.triangle().whileTrue(new TheGreatBalancingAct(swerveDrive));
     driverController.circle()

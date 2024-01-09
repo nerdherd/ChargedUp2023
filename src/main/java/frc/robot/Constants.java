@@ -18,6 +18,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.util.preferences.PrefBool;
 import frc.robot.util.preferences.PrefDouble;
 
 /**
@@ -155,6 +156,9 @@ public final class Constants {
   }
 
   public static class VisionConstants{
+    public static final double kSunflowerP = 0.2;
+    public static final double kSunflowerI = 0;
+    public static final double kSunflowerD = 0;
     public static final double kCameraHeightMeters = Units.inchesToMeters(33.875);
     public static final double kTargetHeightMeters = Units.inchesToMeters(75);
     public static final double kCameraPitchRadians = Units.degreesToRadians(30);
@@ -175,6 +179,12 @@ public final class Constants {
   }
 
   public static final class ModuleConstants {
+    public static final String kCANivoreName = "CANivore2";
+    public static final PrefBool ktunePID = new PrefBool("TuneDrivePID", false);
+    public static final PrefDouble kPTurning = new PrefDouble("kPTurning",0.55); // 0.6
+    public static final PrefDouble kITurning = new PrefDouble("kITurning",0);
+    public static final PrefDouble kDTurning = new PrefDouble("kDTurning",0.02); 
+    public static final PrefDouble kFTurning = new PrefDouble("kFTurning",0.015);
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
     public static final double kDriveMotorGearRatio = 1 / 6.75;
     public static final double kTurningMotorGearRatio = 1 / 21.428; // 150 : 7 : 1 MK4i
@@ -192,9 +202,9 @@ public final class Constants {
     public static final double kDriveMotorDeadband = 0.02;
     public static final double kTurnMotorDeadband = 0.001;
 
-    public static final double kPTurning = 0.55; // 0.6
-    public static final double kITurning = 0;
-    public static final double kDTurning = 0.02; 
+    // public static final double kPTurning = 0.55; // 0.6
+    // public static final double kITurning = 0;
+    // public static final double kDTurning = 0.02; 
     
     // TODO: tune PID for drive motor velocity control
     public static final double kPDrive = 0.13;

@@ -41,14 +41,6 @@ public class PrimalPotatoMine {
 
         limelight.setPipeline(2);
     }
-    
-
-    public CommandBase PickupGroundNoArm() {
-        return Commands.race(
-            new RunCommand(() -> driveToTarget()),
-            Commands.waitSeconds(2)
-        );
-    }
 
 
     public void driveToTarget() {

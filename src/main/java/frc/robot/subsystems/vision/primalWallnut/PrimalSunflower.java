@@ -25,8 +25,6 @@ import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Reportable;
-// import frc.robot.subsystems.Shooter;
-// import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Reportable.LOG_LEVEL;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.vision.Limelight;
@@ -78,13 +76,17 @@ public class PrimalSunflower implements Reportable {
 
     private Field2d field;
 
+    private double taRequirement;
+
     /*
      * Params:
      * limelightName = name of the limelight
-     * drivetrain = swerve drive 
+     * taRequirement = the minimum ta in order for pose estimator to include vision measurement
     */
-    public PrimalSunflower(String limelightName) {
+    public PrimalSunflower(String limelightName, double taRequirement) {
         // this.drivetrain = drivetrain;   UNCOMMENR LATER
+        this.taRequirement = taRequirement;
+        llname = limelightName;
         try {
             SmartDashboard.putBoolean("LimelightHelper inited", true);
             limelight = new Limelight(limelightName);
@@ -146,67 +148,47 @@ public class PrimalSunflower implements Reportable {
         return null;
     }
 
-    /**
-     * @return index of the closest grid to the robot
-     */
-    public int getClosestZombieLane() {
-        robotPos = generateSun();
-        int gridNumber = 0;
-        Double distance = Math.sqrt(Math.pow(gridPositions[0][1] - robotPos[1], 2) + Math.pow(gridPositions[0][0] - robotPos[0], 2)); // distance formula
-        for (int i = 0; i < gridPositions.length; i++) {
-            Double newDistance = Math.sqrt(Math.pow(gridPositions[i][1] - robotPos[1], 2) + Math.pow(gridPositions[i][0] - robotPos[0], 2)); // distance formula
-            if(newDistance < distance) {
-                distance = newDistance;
-                gridNumber = i;
-            }
+    public double getPose3dXCoord() {
+        if (limelight == null) {
+            return 0;
         }
 
-        return gridNumber;
+        limelight.setPipeline(VisionConstants.kAprilTagPipeline);
+        
+        if(limelight.hasValidTarget()) {
+            return limelightUser.getX(); // Replace w different met? Idk i just copied it from generateSun()
+        } 
+
+        return 0;
+    }
+
+    public double getPose3dYCoord() {
+        if (limelight == null) {
+            return 0;
+        }
+
+        limelight.setPipeline(VisionConstants.kAprilTagPipeline);
+        
+        if(limelight.hasValidTarget()) {
+            return limelightUser.getY(); // Replace w different met? Idk i just copied it from generateSun()
+        } 
+
+        return 0;
     }
 
     /**
-     * @return position of the closest grid to the robot
-     */
-    public Double[] getClosestZombieTile() {
-        return gridPositions[getClosestZombieLane()];
+    * @return Area of apriltag from camera
+    */
+    public double getSunSize() {
+        return limelight.getArea();
     }
 
     /**
-     * @return PathPlannerTrajectory to get to the closest grid
-     */
-    public PathPlannerTrajectory toNearestGrid(SwerveDrivetrain swerveDrive) {
-        robotPos = generateSun();
-        Double[] gridPos = getClosestZombieTile();
-
-        return PathPlanner.generatePath(
-            PathPlannerConstants.kPPPathConstraints,
-            List.of(
-                new PathPoint(swerveDrive.getPose().getTranslation(), swerveDrive.getPose().getRotation()),
-                new PathPoint(new Translation2d(gridPos[0], gridPos[1]), Rotation2d.fromDegrees(180))
-            )
-        );
-    }
-
-    /**
-     * Debug method to generate trajectory to nearest grid and display on shuffleboard.
      * 
-     * @return Trajectory to get to the closest grid.
+     * @return Tag size requirement to be reliable enough to use
      */
-    public Trajectory toNearestGridDebug(SwerveDrivetrain swerveDrive) {
-        robotPos = generateSun();
-        Double[] gridPos = getClosestZombieTile(); // Get coordinates of closest grid
-
-        Trajectory trajectory = 
-            TrajectoryGenerator.generateTrajectory(
-                List.of(
-                    swerveDrive.getPose(),
-                    new Pose2d(new Translation2d(gridPos[0], gridPos[1]), Rotation2d.fromDegrees(180))
-                ),
-                new TrajectoryConfig(PathPlannerConstants.kPPMaxVelocity, PathPlannerConstants.kPPMaxAcceleration) // constants for debugging purposes
-            );
-
-        field.getObject("traj").setTrajectory(trajectory);
-        return trajectory; 
+    public double getOptimalSunSize() {
+        return taRequirement;
     }
 
     public void reportToSmartDashboard(LOG_LEVEL priority) {
@@ -223,16 +205,11 @@ public class PrimalSunflower implements Reportable {
             case OFF:
                 break;
             case ALL:
-                tab = Shuffleboard.getTab("Vision");
+                tab = Shuffleboard.getTab(llname);
                 tab.addNumber("Robot Pose X", () -> generateSun()[0]);
                 tab.addNumber("Robot Pose Y", () -> generateSun()[1]);
                 tab.addNumber("Robot Pose Z", () -> generateSun()[2]);
 
-                tab.addNumber("Closest Grid X", () -> getClosestZombieTile()[0]);
-                tab.addNumber("Closest Grid Y", () -> getClosestZombieTile()[1]);
-                tab.addNumber("Closest Grid Z", () -> getClosestZombieTile()[2]);
-
-                tab.addNumber("Closest Grid ID", () -> getClosestZombieLane());
                 tab.addBoolean("AprilTag Found", () -> limelight.hasValidTarget());
                 
                 // Only trajectory point is the grid position now.
@@ -245,7 +222,7 @@ public class PrimalSunflower implements Reportable {
                 // tab.addNumber("Traj Point 3 Pose X", () -> thirdPoint.position.getX());
                 // tab.addNumber("Traj Point 3 Pose Y", () -> thirdPoint.position.getY());
 
-                tab.add("Field Position", field).withSize(6, 3);
+                // tab.add("Field Position", field).withSize(6, 3);
             case MEDIUM:
                 
             case MINIMAL:
